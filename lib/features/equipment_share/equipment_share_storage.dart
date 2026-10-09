@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:prokat/core/config/env.dart';
+import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/storage/secure_storage_client.dart';
 import 'package:prokat/features/equipment_share/equipment_share_booking_intent.dart';
 import 'package:prokat/features/equipment_share/equipment_share_open.dart';
@@ -26,6 +27,10 @@ class EquipmentShareStorage {
       ? 'local_equipment_share_booking_intent'
       : 'equipment_share_booking_intent';
 
+  String get _acceptedKey => Env.isLocal
+      ? 'local_equipment_share_accepted_open'
+      : 'equipment_share_accepted_open';
+
   String get _overlayKey =>
       Env.isLocal ? 'local_equipment_share_overlay' : 'equipment_share_overlay';
 
@@ -33,32 +38,94 @@ class EquipmentShareStorage {
       ? 'local_equipment_share_install_referrer_checked'
       : 'equipment_share_install_referrer_checked';
 
-  Future<void> savePendingOpen(EquipmentShareOpen open) async {
-    await _storage.write(key: _pendingKey, value: jsonEncode(open.toJson()));
+  Future<void> _pendingQueue = Future<void>.value();
+  int _pendingGeneration = 0;
+
+  Future<T> _pendingOp<T>(Future<T> Function() op) {
+    final run = _pendingQueue.then((_) => op());
+    _pendingQueue = run.then((_) {}, onError: (Object _) {});
+    return run;
   }
 
+  Future<void> savePendingOpen(EquipmentShareOpen open) => _pendingOp(() async {
+    _pendingGeneration++;
+    await _storage.write(key: _pendingKey, value: jsonEncode(open.toJson()));
+  });
+
   /// Also reads the legacy plain-URI value written by older builds.
-  Future<EquipmentShareOpen?> readPendingOpen() async {
+  Future<EquipmentShareOpen?> readPendingOpen() => _pendingOp(_readPendingOpen);
+
+  Future<({EquipmentShareOpen? open, int token})> readPendingSnapshot() =>
+      _pendingOp(() async {
+        final open = await _readPendingOpen();
+        return (open: open, token: _pendingGeneration);
+      });
+
+  Future<EquipmentShareOpen?> _readPendingOpen() async {
     try {
       final raw = await _storage.read(key: _pendingKey);
       if (raw == null || raw.trim().isEmpty) return null;
       final open = EquipmentShareOpen.tryParse(raw);
       if (open == null) {
-        await clearPendingUri();
+        await _deletePending();
         return null;
       }
       return open;
     } catch (_) {
-      await clearPendingUri();
+      await _deletePending();
       return null;
     }
   }
 
-  Future<void> clearPendingUri() async {
+  Future<void> clearPendingUri() => _pendingOp(_deletePending);
+
+  Future<void> _deletePending() async {
+    _pendingGeneration++;
     try {
       await _storage.delete(key: _pendingKey);
     } catch (_) {}
   }
+
+  Future<bool> clearPendingIfUnchanged(int token) => _pendingOp(() async {
+    if (token != _pendingGeneration) return false;
+    await _deletePending();
+    return true;
+  });
+
+  Future<bool> completePendingIfUnchanged(int token, EquipmentShareOpen open) =>
+      _pendingOp(() async {
+        final equipmentId = open.link.equipmentId;
+        if (token != _pendingGeneration || equipmentId == null) return false;
+        await _storage.write(
+          key: _acceptedKey,
+          value: jsonEncode(open.toJson()),
+        );
+        await saveOverlay(
+          EquipmentShareOverlay(
+            path: AppRoutes.equipmentSharePath(equipmentId),
+            afterAuth: false,
+          ),
+        );
+        await _deletePending();
+        return true;
+      });
+
+  Future<EquipmentShareOpen?> readAcceptedOpen({required String equipmentId}) =>
+      _pendingOp(() async {
+        try {
+          final raw = await _storage.read(key: _acceptedKey);
+          final open = raw == null ? null : EquipmentShareOpen.tryParse(raw);
+          return open?.link.equipmentId == equipmentId ? open : null;
+        } catch (_) {
+          return null;
+        }
+      });
+
+  Future<void> clearAcceptedOpen() => _pendingOp(() async {
+    try {
+      await _storage.delete(key: _acceptedKey);
+    } catch (_) {}
+  });
 
   Future<void> saveBookingIntent(EquipmentShareBookingIntent intent) async {
     await _storage.write(key: _intentKey, value: jsonEncode(intent.toJson()));

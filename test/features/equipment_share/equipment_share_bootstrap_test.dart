@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:dio/dio.dart';
@@ -20,6 +21,7 @@ import 'package:prokat/features/equipment_share/equipment_share_open.dart';
 import 'package:prokat/features/equipment_share/equipment_share_open_recorder.dart';
 import 'package:prokat/features/equipment_share/equipment_share_overlay.dart';
 import 'package:prokat/features/equipment_share/equipment_share_storage.dart';
+import 'package:prokat/features/equipment_share/equipment_share_resolver.dart';
 
 import '../../helpers/recording_analytics_client.dart';
 
@@ -80,19 +82,35 @@ class _Harness {
   EquipmentShareStorage get storage => EquipmentShareStorage();
 }
 
+class _Resolver extends EquipmentShareResolver {
+  _Resolver(this.reply) : super(Dio());
+  final Future<ShareResolution> Function(String) reply;
+  final calls = <String>[];
+
+  @override
+  Future<ShareResolution> resolve(String id) {
+    calls.add(id);
+    return reply(id);
+  }
+}
+
 Future<_Harness> _start(
   WidgetTester tester, {
   String? initialLink,
   String referrer = 'utm_source=google-play&utm_medium=organic',
   AppStartupRouteState route = AppStartupRouteState.client,
   Map<String, String> storage = const {},
+  _Resolver? resolver,
+  Future<String?>? initialReply,
 }) async {
   FlutterSecureStorage.setMockInitialValues(Map.of(storage));
 
   final messenger = tester.binding.defaultBinaryMessenger;
   messenger.setMockMethodCallHandler(
     _linksMethod,
-    (call) async => call.method == 'getInitialLink' ? initialLink : null,
+    (call) async => call.method == 'getInitialLink'
+        ? await (initialReply ?? Future.value(initialLink))
+        : null,
   );
   MockStreamHandlerEventSink? sink;
   messenger.setMockStreamHandler(
@@ -141,6 +159,8 @@ Future<_Harness> _start(
       routerProvider.overrideWithValue(router),
       appStartupProvider.overrideWith((ref) => _FakeStartup(ref, route)),
       shareOpenRecorderProvider.overrideWithValue(recorder),
+      if (resolver != null)
+        equipmentShareResolverProvider.overrideWithValue(resolver),
     ],
   );
   addTearDown(router.dispose);
@@ -159,6 +179,229 @@ Future<_Harness> _start(
 }
 
 void main() {
+  testWidgets(
+    'full registry URI from existing Install Referrer uses same resolver',
+    (tester) async {
+      final resolver = _Resolver(
+        (_) async =>
+            const ShareResolution(ShareResolutionStatus.resolved, 'eq-1'),
+      );
+      final h = await _start(
+        tester,
+        referrer: 'https://open.prokat.auyltech.kz/e/$_shareId',
+        resolver: resolver,
+      );
+      expect(resolver.calls, [_shareId]);
+      expect(h.recorder.opens.single.link.shareId, _shareId);
+      expect(h.recorder.opens.single.via, ShareOpenVia.installReferrer);
+      expect(find.text('Share eq-1'), findsOneWidget);
+    },
+  );
+
+  testWidgets(
+    'persisted pending and initial delivery of same token are accepted once',
+    (tester) async {
+      const uri = 'https://open.prokat.auyltech.kz/e/$_shareId';
+      final resolver = _Resolver(
+        (_) async =>
+            const ShareResolution(ShareResolutionStatus.resolved, 'eq-1'),
+      );
+      final h = await _start(
+        tester,
+        initialLink: uri,
+        resolver: resolver,
+        storage: {
+          _key('equipment_share_pending_uri'): jsonEncode({
+            'v': 2,
+            'uri': uri,
+            'via': 'app_link',
+            'firstShareBootstrapRun': false,
+          }),
+        },
+      );
+      expect(h.recorder.opens, hasLength(1));
+      expect(resolver.calls, [_shareId]);
+      expect(find.text('Share eq-1'), findsOneWidget);
+    },
+  );
+
+  testWidgets('late initial link cannot replace a newer runtime delivery', (
+    tester,
+  ) async {
+    final initial = Completer<String?>();
+    final resolver = _Resolver(
+      (_) async =>
+          const ShareResolution(ShareResolutionStatus.resolved, 'eq-new'),
+    );
+    final h = await _start(
+      tester,
+      initialReply: initial.future,
+      resolver: resolver,
+    );
+    h.events()!.success(
+      'https://open.prokat.auyltech.kz/e/ZyXwVuTsRqPoNmLkJi_-98',
+    );
+    await tester.pumpAndSettle();
+    initial.complete('https://open.prokat.auyltech.kz/e/$_shareId');
+    await tester.pumpAndSettle();
+    expect(resolver.calls, ['ZyXwVuTsRqPoNmLkJi_-98']);
+    expect(h.recorder.opens.single.link.shareId, 'ZyXwVuTsRqPoNmLkJi_-98');
+    expect(find.text('Share eq-new'), findsOneWidget);
+  });
+
+  testWidgets('new cold-start link resolves then pushes existing card once', (
+    tester,
+  ) async {
+    final resolver = _Resolver(
+      (_) async =>
+          const ShareResolution(ShareResolutionStatus.resolved, 'eq-1'),
+    );
+    final h = await _start(
+      tester,
+      initialLink: 'https://open.prokat.auyltech.kz/e/$_shareId',
+      resolver: resolver,
+    );
+    expect(resolver.calls, [_shareId]);
+    expect(find.text('Share eq-1'), findsOneWidget);
+    expect(h.recorder.opens.single.link.shareId, _shareId);
+    expect(h.recorder.opens.single.via, ShareOpenVia.appLink);
+    h.events()!.success('https://open.prokat.auyltech.kz/e/$_shareId');
+    await tester.pumpAndSettle();
+    expect(resolver.calls, [_shareId]);
+    expect(h.recorder.opens, hasLength(1));
+    h.router.pop();
+    await tester.pumpAndSettle();
+    expect(find.text('Main'), findsOneWidget);
+    expect(h.router.canPop(), isFalse);
+  });
+
+  testWidgets(
+    'new link waits for bootstrap and survives guest to login continuation',
+    (tester) async {
+      final resolver = _Resolver(
+        (_) async =>
+            const ShareResolution(ShareResolutionStatus.resolved, 'eq-1'),
+      );
+      final h = await _start(
+        tester,
+        route: AppStartupRouteState.loading,
+        initialLink: 'https://open.prokat.auyltech.kz/e/$_shareId',
+        resolver: resolver,
+      );
+      expect(resolver.calls, isEmpty);
+      expect((await h.storage.readPendingOpen())?.link.shareId, _shareId);
+      h.startup.setRoute(AppStartupRouteState.guest);
+      await tester.pumpAndSettle();
+      expect(find.text('Share eq-1'), findsOneWidget);
+      await h.storage.saveOverlay(
+        const EquipmentShareOverlay(path: '/e/eq-1', afterAuth: true),
+      );
+      h.router.pop();
+      h.startup.setRoute(AppStartupRouteState.loading);
+      await tester.pumpAndSettle();
+      h.startup.setRoute(AppStartupRouteState.client);
+      await tester.pumpAndSettle();
+      expect(find.text('Share eq-1'), findsOneWidget);
+      expect(h.recorder.opens, hasLength(1));
+      expect(
+        (await h.storage.readAcceptedOpen(equipmentId: 'eq-1'))?.link.shareId,
+        _shareId,
+      );
+    },
+  );
+
+  testWidgets('warm link across background/resume notifications opens once', (
+    tester,
+  ) async {
+    final resolver = _Resolver(
+      (_) async =>
+          const ShareResolution(ShareResolutionStatus.resolved, 'eq-2'),
+    );
+    final h = await _start(tester, resolver: resolver);
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
+    h.events()!.success('https://open.prokat.auyltech.kz/e/$_shareId');
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+    await tester.pumpAndSettle();
+    h.startup.setRoute(AppStartupRouteState.owner);
+    await tester.pumpAndSettle();
+    expect(find.text('Share eq-2'), findsOneWidget);
+    expect(h.recorder.opens, hasLength(1));
+    expect(resolver.calls, [_shareId]);
+  });
+
+  testWidgets('out-of-order runtime resolution never opens the old card', (
+    tester,
+  ) async {
+    const newerId = 'ZyXwVuTsRqPoNmLkJi_-98';
+    final old = Completer<ShareResolution>();
+    final newer = Completer<ShareResolution>();
+    final resolver = _Resolver(
+      (id) => id == _shareId ? old.future : newer.future,
+    );
+    final h = await _start(tester, resolver: resolver);
+    h.events()!.success('https://open.prokat.auyltech.kz/e/$_shareId');
+    await tester.pumpAndSettle();
+    h.events()!.success('https://open.prokat.auyltech.kz/e/$newerId');
+    await tester.pumpAndSettle();
+    newer.complete(
+      const ShareResolution(ShareResolutionStatus.resolved, 'eq-new'),
+    );
+    await tester.pumpAndSettle();
+    old.complete(
+      const ShareResolution(ShareResolutionStatus.resolved, 'eq-old'),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('Share eq-new'), findsOneWidget);
+    expect(find.text('Share eq-old'), findsNothing);
+    expect(h.recorder.opens.single.link.shareId, newerId);
+    h.router.pop();
+    await tester.pumpAndSettle();
+    expect(find.text('Main'), findsOneWidget);
+    expect(h.router.canPop(), isFalse);
+  });
+
+  testWidgets(
+    'unavailable and temporary resolver outcomes do not strand loading screens',
+    (tester) async {
+      var result = ShareResolutionStatus.unavailable;
+      final resolver = _Resolver((_) async => ShareResolution(result));
+      final h = await _start(tester, resolver: resolver);
+      h.events()!.success('https://open.prokat.auyltech.kz/e/$_shareId');
+      await tester.pumpAndSettle();
+      expect(find.text('Main'), findsOneWidget);
+      expect(h.recorder.opens, isEmpty);
+      expect(await h.storage.readPendingOpen(), isNull);
+      result = ShareResolutionStatus.temporary;
+      h.events()!.success(
+        'https://open.prokat.auyltech.kz/e/ZyXwVuTsRqPoNmLkJi_-98',
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('Main'), findsOneWidget);
+      expect(
+        (await h.storage.readPendingOpen())?.link.shareId,
+        'ZyXwVuTsRqPoNmLkJi_-98',
+      );
+      h.startup.setRoute(AppStartupRouteState.owner);
+      await tester.pumpAndSettle();
+      expect(resolver.calls, hasLength(2));
+    },
+  );
+
+  testWidgets('public Web domain never navigates or invokes the resolver', (
+    tester,
+  ) async {
+    final resolver = _Resolver(
+      (_) async =>
+          const ShareResolution(ShareResolutionStatus.resolved, 'eq-1'),
+    );
+    final h = await _start(tester, resolver: resolver);
+    h.events()!.success('https://prokat.auyltech.kz/e/$_shareId');
+    await tester.pumpAndSettle();
+    expect(find.text('Main'), findsOneWidget);
+    expect(h.recorder.opens, isEmpty);
+    expect(resolver.calls, isEmpty);
+  });
+
   testWidgets('initial app link preserves shareId', (tester) async {
     final h = await _start(
       tester,

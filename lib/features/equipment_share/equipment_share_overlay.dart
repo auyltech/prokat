@@ -33,9 +33,9 @@ class EquipmentShareOverlay {
       }
 
       final link = EquipmentShareLink.tryParse(Uri.parse(trimmed));
-      if (link != null) {
+      if (link != null && link.equipmentId != null) {
         return EquipmentShareOverlay(
-          path: AppRoutes.equipmentSharePath(link.equipmentId),
+          path: AppRoutes.equipmentSharePath(link.equipmentId!),
           afterAuth: false,
         );
       }

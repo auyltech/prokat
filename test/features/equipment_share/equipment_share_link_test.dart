@@ -2,6 +2,67 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:prokat/features/equipment_share/equipment_share_link.dart';
 
 void main() {
+  group('registry app-open links', () {
+    const token = 'AbCdEfGhIjKlMnOpQr_-12';
+    test(
+      'exact HTTPS app-open URL contains attribution, not an equipment ID',
+      () {
+        final link = EquipmentShareLink.tryParse(
+          Uri.parse('https://open.prokat.auyltech.kz/e/$token'),
+        )!;
+        expect(link.shareId, token);
+        expect(link.equipmentId, isNull);
+        expect(link.isRegistryLink, isTrue);
+      },
+    );
+    test('queries cannot override token or target', () {
+      final link = EquipmentShareLink.tryParse(
+        Uri.parse(
+          'https://open.prokat.auyltech.kz/e/$token?s=other&equipmentId=evil&redirect=https://evil.test',
+        ),
+      )!;
+      expect(link.shareId, token);
+      expect(link.equipmentId, isNull);
+      expect(link.uri.toString(), 'https://open.prokat.auyltech.kz/e/$token');
+    });
+    for (final url in [
+      'http://open.prokat.auyltech.kz/e/$token',
+      'https://open.prokat.auyltech.kz.evil.test/e/$token',
+      'https://evil.test/e/$token',
+      'https://prokat.auyltech.kz/e/$token',
+      'https://open.prokat.auyltech.kz/e/short',
+      'https://open.prokat.auyltech.kz/e/${token}x',
+      'https://open.prokat.auyltech.kz/e/$token/extra',
+      'https://open.prokat.auyltech.kz/e/$token/',
+      'https://open.prokat.auyltech.kz//e/$token',
+      'https://open.prokat.auyltech.kz/e/$token%2Fextra',
+      'https://open.prokat.auyltech.kz/e/%252F$token',
+      'https://open.prokat.auyltech.kz:444/e/$token',
+      'https://user@open.prokat.auyltech.kz/e/$token',
+      'https://open.prokat.auyltech.kz/e/$token#other',
+    ]) {
+      test('rejects $url', () {
+        expect(EquipmentShareLink.tryParse(Uri.parse(url)), isNull);
+      });
+    }
+    test('legacy firebaseapp alias remains accepted', () {
+      final link = EquipmentShareLink.tryParse(
+        Uri.parse('https://prokat-bfbec.firebaseapp.com/e/eq-1?s=$token'),
+      )!;
+      expect(link.equipmentId, 'eq-1');
+      expect(link.shareId, token);
+    });
+    test('legacy encoded path separators never become routing data', () {
+      for (final id in ['eq%2Fother', '%252Fprivate', 'eq%20private']) {
+        expect(
+          EquipmentShareLink.tryParse(
+            Uri.parse('https://prokat-bfbec.web.app/e/$id?s=$token'),
+          ),
+          isNull,
+        );
+      }
+    });
+  });
   test('accepts a trusted https equipment link', () {
     final link = EquipmentShareLink.tryParse(
       Uri.parse('https://prokat-bfbec.web.app/e/eq-1'),

@@ -112,6 +112,59 @@ void main() {
     FlutterSecureStorage.setMockInitialValues({});
   });
 
+  test('resolved registry open attributes GA, ledger and first touch to same shareId', () async {
+    final h = _Harness();
+    await h.recorder.record(
+      EquipmentShareOpen(
+        link: EquipmentShareLink.fromShareId(_shareId).withEquipmentId('eq-1'),
+        via: ShareOpenVia.appLink,
+        firstShareBootstrapRun: false,
+      ),
+    );
+    expect(h.client.events.single.name, 'share_link_opened');
+    expect(h.client.events.single.params, {
+      'share_id': _shareId,
+      'open_via': 'app_link',
+      'first_share_bootstrap_run': 0,
+    });
+    expect(h.adapter.requests.single.data, {
+      'clientEventId': _eventId,
+      'type': 'OPENED',
+      'shareId': _shareId,
+      'equipmentId': 'eq-1',
+      'openVia': 'APP_LINK',
+      'firstShareBootstrapRun': false,
+    });
+    expect(h.firstTouch.saved.single.shareId, _shareId);
+    expect(h.firstTouch.saved.single.equipmentId, 'eq-1');
+    expect(h.firstTouch.saved.single.via, ShareOpenVia.appLink);
+  });
+
+  test(
+    'unresolved tokens and reserved future source emit no unsupported events',
+    () async {
+      for (final open in [
+        EquipmentShareOpen(
+          link: EquipmentShareLink.fromShareId(_shareId),
+          via: ShareOpenVia.appLink,
+          firstShareBootstrapRun: false,
+        ),
+        EquipmentShareOpen(
+          link: EquipmentShareLink.fromShareId(_shareId)
+              .withEquipmentId('eq-1'),
+          via: ShareOpenVia.deferredInstall,
+          firstShareBootstrapRun: false,
+        ),
+      ]) {
+        final h = _Harness();
+        await h.recorder.record(open);
+        expect(h.client.events, isEmpty);
+        expect(h.adapter.requests, isEmpty);
+        expect(h.firstTouch.saved, isEmpty);
+      }
+    },
+  );
+
   test('logs share_link_opened with via and first run', () async {
     final h = _Harness();
 

@@ -26,10 +26,13 @@ class ShareOpenRecorder {
 
   Future<void> record(EquipmentShareOpen open) async {
     final link = open.link;
+    final equipmentId = link.equipmentId;
+    final openVia = open.via.api;
+    if (equipmentId == null || openVia == null) return;
     await Future.wait([
       _guard(
         () => analytics.logShareLinkOpened(
-          equipmentId: link.equipmentId,
+          equipmentId: link.isRegistryLink ? null : equipmentId,
           shareId: link.shareId,
           via: open.via,
           firstShareBootstrapRun: open.firstShareBootstrapRun,
@@ -37,9 +40,9 @@ class ShareOpenRecorder {
       ),
       _guard(
         () => api.recordOpened(
-          equipmentId: link.equipmentId,
+          equipmentId: equipmentId,
           shareId: link.shareId,
-          openVia: open.via.api,
+          openVia: openVia,
           firstShareBootstrapRun: open.firstShareBootstrapRun,
         ),
       ),
@@ -48,7 +51,7 @@ class ShareOpenRecorder {
           await firstTouch.saveIfEmpty(
             FirstTouchAttribution(
               shareId: link.shareId,
-              equipmentId: link.equipmentId,
+              equipmentId: equipmentId,
               via: open.via,
               firstShareBootstrapRun: open.firstShareBootstrapRun,
               receivedAt: now().toUtc(),

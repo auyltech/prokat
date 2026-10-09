@@ -3,41 +3,32 @@ import 'dart:async';
 import 'package:app_links/app_links.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/router/app_router.dart';
-import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/features/appstartup/app_startup_provider.dart';
 import 'package:prokat/features/equipment_share/equipment_share_install_referrer.dart';
-import 'package:prokat/features/equipment_share/equipment_share_link.dart';
+import 'package:prokat/features/equipment_share/equipment_share_ingress.dart';
 import 'package:prokat/features/equipment_share/equipment_share_open.dart';
 import 'package:prokat/features/equipment_share/equipment_share_open_recorder.dart';
 import 'package:prokat/features/equipment_share/equipment_share_overlay.dart';
 import 'package:prokat/features/equipment_share/equipment_share_storage.dart';
+import 'package:prokat/features/equipment_share/equipment_share_resolver.dart';
+import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 
-final equipmentShareBootstrapProvider = Provider<void>((ref) {
+final equipmentShareBootstrapProvider = Provider<EquipmentShareIngress>((ref) {
   final storage = ref.watch(equipmentShareStorageProvider);
   final router = ref.watch(routerProvider);
   final appLinks = AppLinks();
   StreamSubscription<Uri>? subscription;
-  String? lastCanonical;
-  DateTime? lastAt;
+  late final EquipmentShareIngress ingress;
   var initialHandled = false;
   var consumeInFlight = false;
   var flushChain = Future<void>.value();
   var consumeAgain = false;
 
-  Future<void> writeOverlay({
-    required String equipmentId,
-    required bool afterAuth,
-  }) async {
-    await storage.saveOverlay(
-      EquipmentShareOverlay(
-        path: AppRoutes.equipmentSharePath(equipmentId),
-        afterAuth: afterAuth,
-      ),
-    );
-  }
-
   Future<void> consumeOnce() async {
+    final generation = ingress.generation;
     final snapshot = await storage.readOverlaySnapshot();
+    if (ingress.hasPendingIntent || ingress.generation != generation) return;
     final decision = decideShareOverlay(
       overlay: snapshot.overlay,
       routeState: ref.read(appStartupProvider).routeState,
@@ -55,7 +46,13 @@ final equipmentShareBootstrapProvider = Provider<void>((ref) {
         // was written meanwhile, it stays for the next pass.
         final claimed = await storage.clearOverlayIfUnchanged(snapshot.token);
         final path = decision.path;
-        if (!claimed || path == null || path.isEmpty) return;
+        if (!claimed ||
+            path == null ||
+            path.isEmpty ||
+            ingress.hasPendingIntent ||
+            ingress.generation != generation) {
+          return;
+        }
         unawaited(router.push(path));
     }
   }
@@ -83,55 +80,8 @@ final equipmentShareBootstrapProvider = Provider<void>((ref) {
     }
   }
 
-  Future<void> openOrStore(
-    Uri uri, {
-    required ShareOpenVia via,
-    required bool firstShareBootstrapRun,
-  }) async {
-    final link = EquipmentShareLink.tryParse(uri);
-    if (link == null) return;
-
-    final canonical = link.canonical.toString();
-    final now = DateTime.now();
-    if (lastCanonical == canonical &&
-        lastAt != null &&
-        now.difference(lastAt!) < const Duration(seconds: 2)) {
-      return;
-    }
-    lastCanonical = canonical;
-    lastAt = now;
-
-    final open = EquipmentShareOpen(
-      link: link,
-      via: via,
-      firstShareBootstrapRun: firstShareBootstrapRun,
-    );
-    if (!shareStartupReady(ref.read(appStartupProvider).routeState)) {
-      await storage.savePendingOpen(open);
-      return;
-    }
-
-    unawaited(ref.read(shareOpenRecorderProvider).record(open));
-    await writeOverlay(equipmentId: link.equipmentId, afterAuth: false);
-    await storage.clearPendingUri();
-    await consumeOverlayIfAny();
-  }
-
   Future<void> flushPendingOnce() async {
-    final open = await storage.readPendingOpen();
-    if (open == null) {
-      await consumeOverlayIfAny();
-      return;
-    }
-
-    if (!shareStartupReady(ref.read(appStartupProvider).routeState)) {
-      await storage.savePendingOpen(open);
-      return;
-    }
-
-    unawaited(ref.read(shareOpenRecorderProvider).record(open));
-    await writeOverlay(equipmentId: open.link.equipmentId, afterAuth: false);
-    await storage.clearPendingUri();
+    await ingress.flushPendingUriIfAny();
     await consumeOverlayIfAny();
   }
 
@@ -144,27 +94,38 @@ final equipmentShareBootstrapProvider = Provider<void>((ref) {
   }
 
   Future<void> start() async {
+    subscription ??= appLinks.uriLinkStream.listen((uri) {
+      unawaited(
+        ingress.acceptUri(
+          uri,
+          via: ShareOpenVia.appLink,
+          firstShareBootstrapRun: false,
+        ),
+      );
+    });
     if (!initialHandled) {
       initialHandled = true;
+      final generation = ingress.generation;
       try {
         final firstShareBootstrapRun = !(await storage
             .wasInstallReferrerChecked());
         final initial = await appLinks.getInitialLink();
+        if (ingress.generation != generation) return;
         if (initial != null) {
-          await openOrStore(
+          final accepted = await ingress.acceptUri(
             initial,
             via: ShareOpenVia.appLink,
             firstShareBootstrapRun: firstShareBootstrapRun,
           );
-          await storage.markInstallReferrerChecked();
+          if (accepted) await storage.markInstallReferrerChecked();
         } else {
           final link = await captureShareInstallReferrer(
             wasChecked: storage.wasInstallReferrerChecked,
             markChecked: storage.markInstallReferrerChecked,
             readReferrer: readPlayInstallReferrer,
           );
-          if (link != null) {
-            await openOrStore(
+          if (link != null && ingress.generation == generation) {
+            await ingress.acceptUri(
               link.uri,
               via: ShareOpenVia.installReferrer,
               firstShareBootstrapRun: firstShareBootstrapRun,
@@ -173,17 +134,31 @@ final equipmentShareBootstrapProvider = Provider<void>((ref) {
         }
       } catch (_) {}
     }
-
-    subscription ??= appLinks.uriLinkStream.listen((uri) {
-      unawaited(
-        openOrStore(
-          uri,
-          via: ShareOpenVia.appLink,
-          firstShareBootstrapRun: false,
-        ),
-      );
-    });
   }
+
+  ingress = EquipmentShareIngress(
+    storage: storage,
+    resolve: (shareId) =>
+        ref.read(equipmentShareResolverProvider).resolve(shareId),
+    isReady: () => shareStartupReady(ref.read(appStartupProvider).routeState),
+    onAccepted: (open) async {
+      unawaited(ref.read(shareOpenRecorderProvider).record(open));
+      await consumeOverlayIfAny();
+    },
+    onFailure: (status) {
+      final context = router.routerDelegate.navigatorKey.currentContext;
+      final l10n = context == null ? null : AppLocalizations.of(context);
+      if (l10n == null) return;
+      AppToast.show(
+        message:
+            status == ShareResolutionStatus.unavailable ||
+                status == ShareResolutionStatus.invalid
+            ? l10n.shareEquipmentUnavailable
+            : l10n.somethingWentWrongTryAgain,
+        type: AppToastType.error,
+      );
+    },
+  );
 
   void onRouterChanged() {
     unawaited(consumeOverlayIfAny());
@@ -196,10 +171,12 @@ final equipmentShareBootstrapProvider = Provider<void>((ref) {
   });
 
   ref.onDispose(() {
+    ingress.dispose();
     unawaited(subscription?.cancel());
     router.routerDelegate.removeListener(onRouterChanged);
   });
 
   unawaited(start());
   unawaited(flushPendingUriIfAny());
+  return ingress;
 });

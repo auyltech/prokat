@@ -14,6 +14,9 @@ import 'package:prokat/features/chat/providers/chat_providers.dart';
 import 'package:prokat/features/chat/service/chat_socket_service.dart';
 import 'package:prokat/features/notifications/providers/notification_navigation_service_provider.dart';
 import 'package:prokat/features/notifications/services/notification_local_storage.dart';
+import 'package:prokat/features/equipment_share/equipment_share_storage.dart';
+import 'package:prokat/features/equipment_share/equipment_share_open.dart';
+import 'package:prokat/features/equipment_share/equipment_share_link.dart';
 
 import '../../support/fake_app_socket_service.dart';
 
@@ -50,6 +53,18 @@ void main() {
       container.read(appStartupProvider);
       container.read(chatSocketServiceProvider);
       expect(storage.pendingRoute, '/chats/user-a');
+      final shares = container.read(equipmentShareStorageProvider);
+      await shares.savePendingOpen(
+        EquipmentShareOpen(
+          link: EquipmentShareLink.fromShareId('AbCdEfGhIjKlMnOpQr_-12')
+              .withEquipmentId('eq-1'),
+          via: ShareOpenVia.appLink,
+          firstShareBootstrapRun: false,
+        ),
+      );
+      final pending = await shares.readPendingSnapshot();
+      await shares.completePendingIfUnchanged(pending.token, pending.open!);
+      expect(await shares.readAcceptedOpen(equipmentId: 'eq-1'), isNotNull);
 
       await _forceSignedOut(container);
 
@@ -58,6 +73,7 @@ void main() {
       expect(storage.clearCalls, 1);
       expect(storage.pendingRoute, isNull);
       expect(container.read(authProvider).session, isNull);
+      expect(await shares.readAcceptedOpen(equipmentId: 'eq-1'), isNull);
     },
   );
 

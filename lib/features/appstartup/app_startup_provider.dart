@@ -231,6 +231,7 @@ class AppStartupController extends StateNotifier<AppStartupStatus> {
     await shareStorage.clearPendingUri();
     await shareStorage.clearBookingIntent();
     await shareStorage.clearOverlay();
+    await shareStorage.clearAcceptedOpen();
 
     // Map state can retain selected/personalized equipment.
     // ref.invalidate(equipmentMapProvider);
