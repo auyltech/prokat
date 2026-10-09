@@ -967,7 +967,7 @@ abstract class AppLocalizations {
   /// No description provided for @accountDeletionDataWithinDays.
   ///
   /// In en, this message translates to:
-  /// **'Core account data will be deleted within 30 days. Details are in the documents.'**
+  /// **'Personal data cleanup is scheduled three calendar months after the request. Order history is retained for 12 months from completion or cancellation. Details are in the documents.'**
   String get accountDeletionDataWithinDays;
 
   /// No description provided for @learnMoreAboutDeletion.
@@ -1003,13 +1003,13 @@ abstract class AppLocalizations {
   /// No description provided for @accountDeletionScheduledBody.
   ///
   /// In en, this message translates to:
-  /// **'Your account is now scheduled for deletion.\n\nYou will be signed out immediately. Core account data will be deleted within 30 calendar days.'**
+  /// **'Your account is now scheduled for deletion.\n\nYou will be signed out immediately. Personal data cleanup is scheduled three calendar months after the request. Order history is retained for 12 months from completion or cancellation.'**
   String get accountDeletionScheduledBody;
 
   /// No description provided for @accountDeletionConfirmationBody.
   ///
   /// In en, this message translates to:
-  /// **'After confirmation, access to the account will stop.\n\nCore account data will be deleted within 30 days. Details are in the documents.'**
+  /// **'After confirmation, access to the account will stop.\n\nPersonal data cleanup is scheduled three calendar months after the request. Order history is retained for 12 months from completion or cancellation. Details are in the documents.'**
   String get accountDeletionConfirmationBody;
 
   /// No description provided for @permanentlyDeleteAccount.
@@ -1021,7 +1021,7 @@ abstract class AppLocalizations {
   /// No description provided for @accountDeletionHoldDescription.
   ///
   /// In en, this message translates to:
-  /// **'From the moment the deletion request is received, access to the account stops. Core account data is deleted within 30 calendar days.'**
+  /// **'Access to the account stops when the deletion request is received. Personal data cleanup is scheduled three calendar months after the request. Order history is retained for 12 months from completion or cancellation.'**
   String get accountDeletionHoldDescription;
 
   /// No description provided for @failedToLoadVersion.
@@ -1159,7 +1159,7 @@ abstract class AppLocalizations {
   /// No description provided for @equipmentCatalogDeleteWarning.
   ///
   /// In en, this message translates to:
-  /// **'Deleting this equipment unit will permanently remove it from your inventory, including all pricing and history.'**
+  /// **'This equipment unit will be removed from your fleet and the catalog. Related orders and their history will be preserved.'**
   String get equipmentCatalogDeleteWarning;
 
   /// No description provided for @equipmentCatalogDelete.
@@ -4153,7 +4153,7 @@ abstract class AppLocalizations {
   /// No description provided for @deleteEquipmentWarning.
   ///
   /// In en, this message translates to:
-  /// **'Deleting this equipment will permanently remove it from your inventory, including all pricing and history.'**
+  /// **'This equipment will be removed from your fleet and the catalog. Related orders and their history will be preserved.'**
   String get deleteEquipmentWarning;
 
   /// No description provided for @deleteEquipment.
@@ -4171,7 +4171,7 @@ abstract class AppLocalizations {
   /// No description provided for @deleteEquipmentConfirmation.
   ///
   /// In en, this message translates to:
-  /// **'This will remove the item from the marketplace and delete all its rental history.'**
+  /// **'The listing will disappear from your fleet and the catalog. Related order history will be preserved. Equipment with an active order cannot be deleted.'**
   String get deleteEquipmentConfirmation;
 
   /// No description provided for @failedToUploadPhoto.
