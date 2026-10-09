@@ -6,6 +6,7 @@ import 'package:prokat/core/config/env.dart';
 import 'package:prokat/core/storage/secure_storage_client.dart';
 import 'package:prokat/features/equipment_share/equipment_share_id.dart';
 import 'package:prokat/features/equipment_share/equipment_share_open.dart';
+import 'package:prokat/features/equipment_share/equipment_share_state.dart';
 
 final _equipmentIdPattern = RegExp(r'^[A-Za-z0-9_-]{1,64}$');
 
@@ -95,6 +96,8 @@ class EquipmentShareFirstTouchStore {
   final FlutterSecureStorage _storage;
   final DateTime Function() _now;
   Future<void> _queue = Future<void>.value();
+  int _generation = 0;
+  bool _revoked = false;
 
   String get _key => Env.isLocal
       ? 'local_equipment_share_first_touch'
@@ -106,29 +109,92 @@ class EquipmentShareFirstTouchStore {
     return run;
   }
 
-  Future<void> saveIfEmpty(FirstTouchAttribution attribution) {
+  Future<String> _epoch() => readSharePrivacyEpoch(_storage);
+
+  bool _sameEpoch(String? raw, String epoch) {
+    if (raw == null) return false;
+    try {
+      final data = jsonDecode(raw);
+      return data is Map && (data['epoch'] ?? '0') == epoch;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  Future<void> saveIfEmpty(
+    FirstTouchAttribution attribution, {
+    bool Function()? isCurrent,
+  }) {
+    final generation = _generation;
     return _op(() async {
+      if (generation != _generation || !(isCurrent?.call() ?? true)) return;
+      if (_revoked) {
+        _revoked = !await _clearStored();
+        if (_revoked) throw StateError('First-touch storage unavailable');
+      }
+      final epoch = await _epoch();
       final raw = await _storage.read(key: _key);
-      final existing = raw == null ? null : FirstTouchAttribution.tryParse(raw);
+      final existing = _sameEpoch(raw, epoch)
+          ? FirstTouchAttribution.tryParse(raw!)
+          : null;
       if (existing != null && !existing.isExpired(_now())) return;
-      await _storage.write(key: _key, value: jsonEncode(attribution.toJson()));
+      if (generation != _generation || !(isCurrent?.call() ?? true)) return;
+      await _storage.write(
+        key: _key,
+        value: jsonEncode({...attribution.toJson(), 'epoch': epoch}),
+      );
     });
   }
 
   Future<FirstTouchAttribution?> readValid({DateTime? now}) {
+    final generation = _generation;
     return _op(() async {
-      final raw = await _storage.read(key: _key);
-      if (raw == null || raw.trim().isEmpty) return null;
-      final attribution = FirstTouchAttribution.tryParse(raw);
-      if (attribution == null || attribution.isExpired(now ?? _now())) {
-        await _storage.delete(key: _key);
+      if (generation != _generation) return null;
+      if (_revoked) {
+        _revoked = !await _clearStored();
         return null;
       }
-      return attribution;
+      try {
+        final epoch = await _epoch();
+        final raw = await _storage.read(key: _key);
+        if (raw == null || raw.trim().isEmpty) return null;
+        final attribution = FirstTouchAttribution.tryParse(raw);
+        if (!_sameEpoch(raw, epoch) ||
+            attribution == null ||
+            attribution.isExpired(now ?? _now())) {
+          await _storage.delete(key: _key);
+          return null;
+        }
+        if (epoch != await _epoch()) return null;
+        if (_revoked || generation != _generation) return null;
+        return attribution;
+      } catch (_) {
+        return null;
+      }
     });
   }
 
-  Future<void> clear() => _op(() => _storage.delete(key: _key));
+  Future<void> clear() {
+    ++_generation;
+    _revoked = true;
+    return _op(() async {
+      _revoked = !await _clearStored();
+    });
+  }
+
+  Future<bool> _clearStored() async {
+    try {
+      await _storage.delete(key: _key);
+      return true;
+    } catch (_) {
+      try {
+        await _storage.write(key: _key, value: '{}');
+        return true;
+      } catch (_) {
+        return false;
+      }
+    }
+  }
 }
 
 final equipmentShareFirstTouchStoreProvider =

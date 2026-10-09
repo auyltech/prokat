@@ -19,7 +19,6 @@ import 'package:prokat/features/equipment/models/price_entry_model.dart';
 import 'package:prokat/features/equipment/providers/public_equipment_provider.dart';
 import 'package:prokat/features/equipment/utils/vacuum_tariffs.dart';
 import 'package:prokat/features/equipment_share/equipment_share_booking_intent.dart';
-import 'package:prokat/features/equipment_share/equipment_share_overlay.dart';
 import 'package:prokat/features/equipment_share/equipment_share_storage.dart';
 import 'package:prokat/features/locations/models/location_model.dart';
 import 'package:prokat/features/locations/state/location_provider.dart';
@@ -375,13 +374,17 @@ class _GuestCreateBookingScreenState
     final session = ref.read(authProvider).session;
     if (session == null) {
       final storage = ref.read(equipmentShareStorageProvider);
-      await storage.saveBookingIntent(_intent(equipment));
-      await storage.saveOverlay(
-        EquipmentShareOverlay(
-          path: AppRoutes.equipmentSharePath(equipment.id),
-          afterAuth: true,
-        ),
-      );
+      try {
+        await storage.saveBookingIntent(_intent(equipment), afterAuth: true);
+      } catch (_) {
+        if (mounted) {
+          AppToast.show(
+            message: l10n.somethingWentWrongTryAgain,
+            type: AppToastType.error,
+          );
+        }
+        return;
+      }
       if (!mounted) return;
       final from = Uri.encodeComponent(
         AppRoutes.equipmentSharePath(equipment.id),

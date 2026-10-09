@@ -24,7 +24,11 @@ class EquipmentShareOverlay {
         final decoded = jsonDecode(trimmed);
         if (decoded is! Map) return null;
         final map = Map<String, dynamic>.from(decoded);
-        final path = map['path']?.toString().trim() ?? '';
+        if (map['path'] is! String ||
+            (map['afterAuth'] != null && map['afterAuth'] is! bool)) {
+          return null;
+        }
+        final path = (map['path'] as String).trim();
         if (sharePathEquipmentId(path) == null) return null;
         return EquipmentShareOverlay(
           path: path,
@@ -74,13 +78,22 @@ bool shareStartupReady(AppStartupRouteState state) {
 }
 
 String? sharePathEquipmentId(String path) {
-  final segments = Uri.tryParse(path)?.pathSegments;
-  if (segments == null || segments.length < 2 || segments[0] != 'e') {
+  final uri = Uri.tryParse(path);
+  if (uri == null ||
+      uri.hasScheme ||
+      uri.hasAuthority ||
+      uri.hasQuery ||
+      uri.hasFragment ||
+      !path.startsWith('/e/')) {
+    return null;
+  }
+  final segments = uri.pathSegments;
+  if (segments.length < 2 || segments[0] != 'e') {
     return null;
   }
   // `/e/:id` or `/e/:id/address`
   final id = segments[1];
-  if (id.isEmpty || id == '.' || id == '..') return null;
+  if (!EquipmentShareLink.isValidEquipmentId(id)) return null;
   if (segments.length > 2 && segments[2] != 'address') return null;
   if (segments.length > 3) return null;
   return id;

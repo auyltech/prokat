@@ -58,7 +58,10 @@ class _RecordingFirstTouch extends EquipmentShareFirstTouchStore {
   final saved = <FirstTouchAttribution>[];
 
   @override
-  Future<void> saveIfEmpty(FirstTouchAttribution attribution) async {
+  Future<void> saveIfEmpty(
+    FirstTouchAttribution attribution, {
+    bool Function()? isCurrent,
+  }) async {
     saved.add(attribution);
     if (fail) throw StateError('first touch failure');
   }
@@ -110,6 +113,38 @@ void main() {
 
   setUp(() {
     FlutterSecureStorage.setMockInitialValues({});
+  });
+
+  test('recovery suppresses GA but uses durable eventId for OPENED', () async {
+    final h = _Harness();
+    const stableId = '00000009-0000-4000-8000-000000000001';
+    expect(
+      await h.recorder.record(
+        _open().withEventId(stableId),
+        emitAnalytics: false,
+      ),
+      isTrue,
+    );
+    expect(h.client.events, isEmpty);
+    expect((h.adapter.requests.single.data as Map)['clientEventId'], stableId);
+    expect(h.firstTouch.saved.single.shareId, _shareId);
+  });
+
+  test(
+    'revoked receipt cannot start GA ledger or first-touch effects',
+    () async {
+      final h = _Harness();
+      expect(await h.recorder.record(_open(), isCurrent: () => false), isFalse);
+      expect(h.client.events, isEmpty);
+      expect(h.adapter.requests, isEmpty);
+      expect(h.firstTouch.saved, isEmpty);
+    },
+  );
+
+  test('first-touch storage failure keeps receipt retryable despite successful ledger', () async {
+    final h = _Harness(firstTouchFails: true);
+    expect(await h.recorder.record(_open()), isFalse);
+    expect(h.adapter.requests, hasLength(1));
   });
 
   test('resolved registry open attributes GA, ledger and first touch to same shareId', () async {

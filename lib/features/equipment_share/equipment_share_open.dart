@@ -35,6 +35,7 @@ enum EquipmentShareIngressSource {
 class EquipmentShareOpen {
   final EquipmentShareLink link;
   final ShareOpenVia via;
+  final String? clientEventId;
 
   /// Diagnostic only: the link was handled by the share bootstrap run that
   /// found the install referrer still unchecked. Not "first install".
@@ -44,6 +45,7 @@ class EquipmentShareOpen {
     required this.link,
     required this.via,
     required this.firstShareBootstrapRun,
+    this.clientEventId,
   });
 
   EquipmentShareIngressSource get source => switch (via) {
@@ -59,6 +61,14 @@ class EquipmentShareOpen {
     link: link.withEquipmentId(equipmentId),
     via: via,
     firstShareBootstrapRun: firstShareBootstrapRun,
+    clientEventId: clientEventId,
+  );
+
+  EquipmentShareOpen withEventId(String id) => EquipmentShareOpen(
+    link: link,
+    via: via,
+    firstShareBootstrapRun: firstShareBootstrapRun,
+    clientEventId: id,
   );
 
   Map<String, dynamic> toJson() => {
@@ -66,6 +76,7 @@ class EquipmentShareOpen {
     'uri': link.uri.toString(),
     'via': via.wire,
     'firstShareBootstrapRun': firstShareBootstrapRun,
+    if (clientEventId != null) 'clientEventId': clientEventId,
     if (link.isRegistryLink && link.equipmentId != null)
       'resolvedEquipmentId': link.equipmentId,
   };
@@ -92,6 +103,11 @@ class EquipmentShareOpen {
       }
       final uri = decoded['uri'];
       final firstRun = decoded['firstShareBootstrapRun'];
+      final eventId = decoded['clientEventId'];
+      if (eventId != null &&
+          (eventId is! String || !isShareIntentId(eventId))) {
+        return null;
+      }
       if (uri is! String || firstRun is! bool) return null;
       final via = _viaFromWire(decoded['via']);
       if (via == null) return null;
@@ -114,12 +130,17 @@ class EquipmentShareOpen {
         link: link,
         via: via,
         firstShareBootstrapRun: firstRun,
+        clientEventId: eventId as String?,
       );
     } catch (_) {
       return null;
     }
   }
 }
+
+bool isShareIntentId(String value) => RegExp(
+  r'^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$',
+).hasMatch(value);
 
 ShareOpenVia? _viaFromWire(Object? value) {
   for (final via in ShareOpenVia.values) {

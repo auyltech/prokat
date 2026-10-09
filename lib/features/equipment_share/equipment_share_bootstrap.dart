@@ -42,18 +42,27 @@ final equipmentShareBootstrapProvider = Provider<EquipmentShareIngress>((ref) {
         await storage.clearOverlayIfUnchanged(snapshot.token);
         return;
       case ShareOverlayAction.push:
-        // Push only the overlay this pass actually removed. If a newer one
-        // was written meanwhile, it stays for the next pass.
-        final claimed = await storage.clearOverlayIfUnchanged(snapshot.token);
+        // Keep the durable instruction until the router observes the target.
+        final claimed = await storage.claimOverlayIfUnchanged(snapshot.token);
         final path = decision.path;
         if (!claimed ||
             path == null ||
             path.isEmpty ||
             ingress.hasPendingIntent ||
-            ingress.generation != generation) {
+            ingress.generation != generation ||
+            storage.revision != snapshot.token) {
+          storage.releaseOverlayClaim(snapshot.token);
           return;
         }
-        unawaited(router.push(path));
+        try {
+          unawaited(
+            router.push<void>(path).catchError((Object _) {
+              storage.releaseOverlayClaim(snapshot.token);
+            }),
+          );
+        } catch (_) {
+          storage.releaseOverlayClaim(snapshot.token);
+        }
     }
   }
 
@@ -70,7 +79,11 @@ final equipmentShareBootstrapProvider = Provider<EquipmentShareIngress>((ref) {
     try {
       do {
         consumeAgain = false;
-        await consumeOnce();
+        try {
+          await consumeOnce();
+        } catch (_) {
+          break;
+        }
       } while (consumeAgain);
     } finally {
       consumeInFlight = false;
@@ -106,11 +119,17 @@ final equipmentShareBootstrapProvider = Provider<EquipmentShareIngress>((ref) {
     if (!initialHandled) {
       initialHandled = true;
       final generation = ingress.generation;
+      final account = storage.accountGeneration;
       try {
+        final recovering = await storage.hasRecoverableIntent();
         final firstShareBootstrapRun = !(await storage
             .wasInstallReferrerChecked());
         final initial = await appLinks.getInitialLink();
-        if (ingress.generation != generation) return;
+        if (ingress.generation != generation ||
+            storage.accountGeneration != account ||
+            recovering) {
+          return;
+        }
         if (initial != null) {
           final accepted = await ingress.acceptUri(
             initial,
@@ -124,16 +143,43 @@ final equipmentShareBootstrapProvider = Provider<EquipmentShareIngress>((ref) {
             markChecked: storage.markInstallReferrerChecked,
             readReferrer: readPlayInstallReferrer,
           );
-          if (link != null && ingress.generation == generation) {
+          if (link != null &&
+              ingress.generation == generation &&
+              storage.accountGeneration == account) {
             await ingress.acceptUri(
               link.uri,
               via: ShareOpenVia.installReferrer,
               firstShareBootstrapRun: firstShareBootstrapRun,
             );
+            if (storage.accountGeneration == account &&
+                await storage.wasInstallReferrerChecked()) {
+              await storage.markInstallReferrerChecked();
+            }
           }
         }
       } catch (_) {}
     }
+  }
+
+  Future<void> recordAccepted(EquipmentShareOpen open) async {
+    final id = open.clientEventId;
+    if (id == null) return;
+    try {
+      final receipt = await storage.claimOpenReceipt(id);
+      if (receipt == null) return;
+      final delivered = await ref
+          .read(shareOpenRecorderProvider)
+          .record(
+            open,
+            emitAnalytics: receipt.analytics,
+            isCurrent: () => storage.receiptIsCurrent(id, receipt.account),
+          );
+      await storage.finishOpenReceipt(
+        id,
+        receipt.account,
+        delivered: delivered,
+      );
+    } catch (_) {}
   }
 
   ingress = EquipmentShareIngress(
@@ -142,7 +188,7 @@ final equipmentShareBootstrapProvider = Provider<EquipmentShareIngress>((ref) {
         ref.read(equipmentShareResolverProvider).resolve(shareId),
     isReady: () => shareStartupReady(ref.read(appStartupProvider).routeState),
     onAccepted: (open) async {
-      unawaited(ref.read(shareOpenRecorderProvider).record(open));
+      unawaited(recordAccepted(open));
       await consumeOverlayIfAny();
     },
     onFailure: (status) {

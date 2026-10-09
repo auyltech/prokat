@@ -1,5 +1,9 @@
 # Public share ingress (C1)
 
+Persistence and recovery details below describe the C1 baseline. See
+[C2 recovery](public-share-c2.md) for the current versioned envelope, logout,
+overlay acknowledgement, and OPENED retry behavior.
+
 ## Single pipeline
 
 `equipmentShareBootstrapProvider` subscribes to `app_links` before awaiting

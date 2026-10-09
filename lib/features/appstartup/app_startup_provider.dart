@@ -22,6 +22,7 @@ import 'package:prokat/features/chat/providers/current_chat_provider.dart';
 import 'package:prokat/features/equipment/providers/client_equipment_provider.dart';
 import 'package:prokat/features/equipment/providers/equipment_mutation_provider.dart';
 import 'package:prokat/features/equipment_share/equipment_share_storage.dart';
+import 'package:prokat/features/equipment_share/equipment_share_first_touch.dart';
 import 'package:prokat/features/equipment/providers/equipment_provider.dart';
 import 'package:prokat/features/equipment/providers/owner_equipment_details_provider.dart';
 import 'package:prokat/features/equipment/providers/owner_equipment_provider.dart';
@@ -227,11 +228,6 @@ class AppStartupController extends StateNotifier<AppStartupStatus> {
     ref.invalidate(ownerEquipmentProvider);
     ref.invalidate(ownerEquipmentDetailsProvider);
     ref.invalidate(equipmentMutationProvider);
-    final shareStorage = ref.read(equipmentShareStorageProvider);
-    await shareStorage.clearPendingUri();
-    await shareStorage.clearBookingIntent();
-    await shareStorage.clearOverlay();
-    await shareStorage.clearAcceptedOpen();
 
     // Map state can retain selected/personalized equipment.
     // ref.invalidate(equipmentMapProvider);
@@ -310,35 +306,39 @@ class AppStartupController extends StateNotifier<AppStartupStatus> {
 
   Future<void> _forceSignedOut({required bool unauthorized}) async {
     final authNotifier = ref.read(authProvider.notifier);
-
+    final shareStorage = ref.read(equipmentShareStorageProvider);
+    await shareStorage.clearForLogout(holdFence: true);
     try {
+      await ref.read(equipmentShareFirstTouchStoreProvider).clear();
       try {
-        await ref
-            .read(pushNotificationServiceProvider)
-            .deactivateCurrentDevice();
+        try {
+          await ref
+              .read(pushNotificationServiceProvider)
+              .deactivateCurrentDevice();
+        } catch (_) {
+          // Push-token cleanup must not prevent logout.
+        }
+
+        await authNotifier.logout();
+        // TODO: clear Providers (profile, billing, categories, equipment)
       } catch (_) {
-        // Push-token cleanup must not prevent logout.
+        // Guarantee that the local session is removed.
+        await authNotifier.clearLocalSession();
       }
 
-      await authNotifier.logout();
-      // TODO: clear Providers (profile, billing, categories, equipment)
-    } catch (_) {
-      // Ignore errors to ensure we still force reroute.
+      state = _statusForStep(
+        AppStartupStep.done,
+        routeState: unauthorized
+            ? AppStartupRouteState.unauthorized
+            : AppStartupRouteState.guest,
+      );
 
-      // Guarantee that the local session is removed.
-      await authNotifier.clearLocalSession();
+      await WidgetsBinding.instance.endOfFrame;
+
+      await _clearUserScopedProviders();
+    } finally {
+      shareStorage.finishLogout();
     }
-
-    state = _statusForStep(
-      AppStartupStep.done,
-      routeState: unauthorized
-          ? AppStartupRouteState.unauthorized
-          : AppStartupRouteState.guest,
-    );
-
-    await WidgetsBinding.instance.endOfFrame;
-
-    await _clearUserScopedProviders();
   }
 
   Future<AppMode> loadSavedMode() async {

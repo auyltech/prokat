@@ -8,22 +8,21 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
-import 'package:prokat/core/analytics/analytics_service.dart';
 import 'package:prokat/core/config/env.dart';
 import 'package:prokat/core/router/app_router.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/features/appstartup/app_mode_storage.dart';
 import 'package:prokat/features/appstartup/app_startup_provider.dart';
 import 'package:prokat/features/equipment_share/equipment_share_bootstrap.dart';
-import 'package:prokat/features/equipment_share/equipment_share_events_api.dart';
-import 'package:prokat/features/equipment_share/equipment_share_first_touch.dart';
 import 'package:prokat/features/equipment_share/equipment_share_open.dart';
+import 'package:prokat/features/equipment_share/equipment_share_link.dart';
+import 'package:prokat/features/equipment_share/equipment_share_state.dart';
 import 'package:prokat/features/equipment_share/equipment_share_open_recorder.dart';
 import 'package:prokat/features/equipment_share/equipment_share_overlay.dart';
 import 'package:prokat/features/equipment_share/equipment_share_storage.dart';
 import 'package:prokat/features/equipment_share/equipment_share_resolver.dart';
 
-import '../../helpers/recording_analytics_client.dart';
+import '../../helpers/recording_share_open_recorder.dart';
 
 const _shareId = 'AbCdEfGhIjKlMnOpQr_-12';
 const _linksMethod = MethodChannel('com.llfbandit.app_links/messages');
@@ -53,26 +52,11 @@ class _FakeStartup extends AppStartupController {
   void setRoute(AppStartupRouteState route) => state = _status(route);
 }
 
-class _RecordingRecorder extends ShareOpenRecorder {
-  _RecordingRecorder()
-    : super(
-        analytics: AnalyticsService(RecordingAnalyticsClient()),
-        api: EquipmentShareEventsApi(Dio()),
-        firstTouch: EquipmentShareFirstTouchStore(),
-        isAuthenticated: () => false,
-      );
-
-  final opens = <EquipmentShareOpen>[];
-
-  @override
-  Future<void> record(EquipmentShareOpen open) async => opens.add(open);
-}
-
 class _Harness {
   _Harness(this.container, this.recorder, this.router, this.events);
 
   final ProviderContainer container;
-  final _RecordingRecorder recorder;
+  final RecordingShareOpenRecorder recorder;
   final GoRouter router;
   final MockStreamHandlerEventSink? Function() events;
 
@@ -153,7 +137,7 @@ Future<_Harness> _start(
       ),
     ],
   );
-  final recorder = _RecordingRecorder();
+  final recorder = RecordingShareOpenRecorder();
   final container = ProviderContainer(
     overrides: [
       routerProvider.overrideWithValue(router),
@@ -179,6 +163,117 @@ Future<_Harness> _start(
 }
 
 void main() {
+  testWidgets(
+    'durable newer B wins over delayed platform initial A after restart',
+    (tester) async {
+      const newer = 'ZyXwVuTsRqPoNmLkJi_-98';
+      const id = '00000001-0000-4000-8000-000000000001';
+      final initial = Completer<String?>();
+      final resolver = _Resolver(
+        (_) async =>
+            const ShareResolution(ShareResolutionStatus.resolved, 'eq-b'),
+      );
+      final h = await _start(
+        tester,
+        initialReply: initial.future,
+        resolver: resolver,
+        storage: {
+          _key('equipment_share_state'): EquipmentShareState(
+            epoch: '0',
+            intentId: id,
+            open: EquipmentShareOpen(
+              link: EquipmentShareLink.fromShareId(newer),
+              via: ShareOpenVia.appLink,
+              firstShareBootstrapRun: false,
+              clientEventId: id,
+            ),
+            pending: true,
+            receivedAt: DateTime.utc(2026, 10, 9),
+          ).encode(),
+        },
+      );
+      initial.complete('https://open.prokat.auyltech.kz/e/$_shareId');
+      await tester.pumpAndSettle();
+      expect(resolver.calls, [newer]);
+      expect(h.recorder.opens.single.link.shareId, newer);
+      expect(find.text('Share eq-b'), findsOneWidget);
+    },
+  );
+
+  testWidgets(
+    'post-login process restart resumes correlated afterAuth overlay then acknowledges once',
+    (tester) async {
+      const id = '00000002-0000-4000-8000-000000000001';
+      final h = await _start(
+        tester,
+        route: AppStartupRouteState.loading,
+        storage: {
+          _key('equipment_share_state'): EquipmentShareState(
+            epoch: '0',
+            intentId: id,
+            open: EquipmentShareOpen(
+              link: EquipmentShareLink.fromShareId(_shareId)
+                  .withEquipmentId('eq-auth'),
+              via: ShareOpenVia.appLink,
+              firstShareBootstrapRun: false,
+              clientEventId: id,
+            ),
+            overlay: const EquipmentShareOverlay(
+              path: '/e/eq-auth',
+              afterAuth: true,
+            ),
+            receivedAt: DateTime.utc(2026, 10, 9),
+            analyticsClaimed: true,
+          ).encode(),
+        },
+      );
+      expect(find.text('Main'), findsOneWidget);
+      h.startup.setRoute(AppStartupRouteState.client);
+      await tester.pumpAndSettle();
+      expect(find.text('Share eq-auth'), findsOneWidget);
+      expect(h.recorder.opens, isEmpty);
+      expect((await h.storage.readOverlaySnapshot()).overlay, isNull);
+      expect(
+        (await h.storage.readAcceptedOpen(equipmentId: 'eq-auth'))
+            ?.link
+            .shareId,
+        _shareId,
+      );
+      h.router.pop();
+      await tester.pumpAndSettle();
+      h.startup.setRoute(AppStartupRouteState.owner);
+      await tester.pumpAndSettle();
+      expect(find.text('Main'), findsOneWidget);
+      expect(h.router.canPop(), isFalse);
+    },
+  );
+
+  testWidgets(
+    'initial A then immediate runtime B keeps existing stack and latest attribution',
+    (tester) async {
+      const newer = 'ZyXwVuTsRqPoNmLkJi_-98';
+      final resolver = _Resolver(
+        (id) async => ShareResolution(
+          ShareResolutionStatus.resolved,
+          id == _shareId ? 'eq-a' : 'eq-b',
+        ),
+      );
+      final h = await _start(
+        tester,
+        initialLink: 'https://open.prokat.auyltech.kz/e/$_shareId',
+        resolver: resolver,
+      );
+      h.events()!.success('https://open.prokat.auyltech.kz/e/$newer');
+      await tester.pumpAndSettle();
+      expect(find.text('Share eq-b'), findsOneWidget);
+      expect(
+        (await h.storage.readAcceptedOpen(equipmentId: 'eq-b'))?.link.shareId,
+        newer,
+      );
+      expect(await h.storage.readAcceptedOpen(equipmentId: 'eq-a'), isNull);
+    },
+  );
+
   testWidgets(
     'full registry URI from existing Install Referrer uses same resolver',
     (tester) async {

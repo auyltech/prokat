@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -17,6 +19,9 @@ import 'package:prokat/features/notifications/services/notification_local_storag
 import 'package:prokat/features/equipment_share/equipment_share_storage.dart';
 import 'package:prokat/features/equipment_share/equipment_share_open.dart';
 import 'package:prokat/features/equipment_share/equipment_share_link.dart';
+import 'package:prokat/features/equipment_share/equipment_share_ingress.dart';
+import 'package:prokat/features/equipment_share/equipment_share_resolver.dart';
+import 'package:prokat/features/equipment_share/equipment_share_first_touch.dart';
 
 import '../../support/fake_app_socket_service.dart';
 
@@ -26,6 +31,85 @@ void main() {
   setUp(() {
     FlutterSecureStorage.setMockInitialValues({});
   });
+
+  test(
+    'real sign-out revokes share and first-touch before stalled remote logout',
+    () async {
+      late _BlockedLogoutAuthNotifier auth;
+      final container = ProviderContainer(
+        overrides: [
+          authProvider.overrideWith(
+            (ref) => auth = _BlockedLogoutAuthNotifier(ref),
+          ),
+          appSocketProvider.overrideWith(FakeAppSocketService.new),
+          notificationLocalStorageProvider.overrideWithValue(
+            _AsyncPendingRouteStorage(),
+          ),
+        ],
+      );
+      addTearDown(container.dispose);
+      container.read(appStartupProvider);
+      final storage = container.read(equipmentShareStorageProvider);
+      final result = Completer<ShareResolution>();
+      final started = Completer<void>();
+      final accepted = <EquipmentShareOpen>[];
+      final ingress = EquipmentShareIngress(
+        storage: storage,
+        resolve: (_) {
+          started.complete();
+          return result.future;
+        },
+        isReady: () => true,
+        onAccepted: (open) async => accepted.add(open),
+        onFailure: (_) {},
+      );
+      addTearDown(ingress.dispose);
+      final incoming = ingress.acceptShareId(
+        'AbCdEfGhIjKlMnOpQr_-12',
+        via: ShareOpenVia.appLink,
+      );
+      await started.future;
+      await container
+          .read(equipmentShareFirstTouchStoreProvider)
+          .saveIfEmpty(
+            FirstTouchAttribution(
+              shareId: 'AbCdEfGhIjKlMnOpQr_-12',
+              equipmentId: 'eq-1',
+              via: ShareOpenVia.appLink,
+              firstShareBootstrapRun: false,
+              receivedAt: DateTime.now().toUtc(),
+            ),
+          );
+      final logout = container
+          .read(appStartupProvider.notifier)
+          .forceSignedOut();
+      await auth.remoteStarted.future;
+      expect(await storage.readPendingOpen(), isNull);
+      expect(
+        await container.read(equipmentShareFirstTouchStoreProvider).readValid(),
+        isNull,
+      );
+      result.complete(
+        const ShareResolution(ShareResolutionStatus.resolved, 'eq-1'),
+      );
+      await incoming;
+      expect(accepted, isEmpty);
+      await ingress.acceptShareId(
+        'ZyXwVuTsRqPoNmLkJi_-98',
+        via: ShareOpenVia.appLink,
+      );
+      expect(await storage.readPendingOpen(), isNull);
+      expect(accepted, isEmpty);
+      auth.release.complete();
+      await _pumpScheduledFrame();
+      await logout;
+      expect(
+        await EquipmentShareStorage().readAcceptedOpen(equipmentId: 'eq-1'),
+        isNull,
+      );
+      expect(container.read(authProvider).session, isNull);
+    },
+  );
 
   test(
     'logout disconnects the app socket once and clears the pending user route',
@@ -131,6 +215,19 @@ class _LocalLogoutAuthNotifier extends AuthNotifier {
   @override
   Future<void> logout() async {
     await clearLocalSession();
+  }
+}
+
+class _BlockedLogoutAuthNotifier extends _LocalLogoutAuthNotifier {
+  _BlockedLogoutAuthNotifier(super.ref);
+  final remoteStarted = Completer<void>();
+  final release = Completer<void>();
+
+  @override
+  Future<void> logout() async {
+    remoteStarted.complete();
+    await release.future;
+    await super.logout();
   }
 }
 

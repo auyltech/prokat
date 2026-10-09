@@ -24,6 +24,7 @@ class EquipmentShareIngress {
   int? _failedGeneration;
   String? _lastIdentity;
   DateTime? _lastAt;
+  String? _receiptNotified;
   bool _disposed = false;
   bool hasPendingIntent = false;
 
@@ -64,7 +65,8 @@ class EquipmentShareIngress {
     if (_lastIdentity == identity &&
         _lastAt != null &&
         (_processing != null ||
-            now.difference(_lastAt!) < const Duration(seconds: 2))) {
+            (now.difference(_lastAt!) >= Duration.zero &&
+                now.difference(_lastAt!) < const Duration(seconds: 2)))) {
       return;
     }
     _lastIdentity = identity;
@@ -73,12 +75,15 @@ class EquipmentShareIngress {
     hasPendingIntent = true;
     _processing = generation;
     try {
-      await storage.savePendingOpen(open);
+      await storage.savePendingOpen(open, receivedAt: now);
       if (!_current(generation)) return;
-      await storage.clearOverlay();
       if (!_current(generation) || !isReady()) return;
       final snapshot = await storage.readPendingSnapshot();
-      if (!_current(generation) || snapshot.open == null) return;
+      if (!_current(generation)) return;
+      if (snapshot.open == null) {
+        hasPendingIntent = false;
+        return;
+      }
       await _process(snapshot.open!, snapshot.token, generation);
     } catch (_) {
       if (_current(generation)) {
@@ -97,9 +102,17 @@ class EquipmentShareIngress {
       final snapshot = await storage.readPendingSnapshot();
       if (!_current(generation)) return;
       hasPendingIntent = snapshot.open != null;
-      if (snapshot.open == null ||
-          !isReady() ||
-          (!retry && _failedGeneration == generation)) {
+      if (!isReady() || (!retry && _failedGeneration == generation)) {
+        return;
+      }
+      if (snapshot.open == null) {
+        final receipt = await storage.readOpenReceipt();
+        if (_current(generation) &&
+            receipt != null &&
+            (retry || _receiptNotified != receipt.clientEventId)) {
+          _receiptNotified = receipt.clientEventId;
+          await onAccepted(receipt);
+        }
         return;
       }
       await _process(snapshot.open!, snapshot.token, generation);
@@ -153,7 +166,14 @@ class EquipmentShareIngress {
     }
     hasPendingIntent = false;
     _failedGeneration = null;
-    await onAccepted(resolved);
+    final receipt = await storage.readOpenReceipt();
+    if (!_current(generation) ||
+        receipt == null ||
+        receipt.link.uri != resolved.link.uri) {
+      return;
+    }
+    _receiptNotified = receipt.clientEventId;
+    await onAccepted(receipt);
   }
 
   void _fail(int generation, ShareResolutionStatus status) {
