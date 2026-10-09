@@ -52,6 +52,15 @@
                     android:host="prokat-bfbec.firebaseapp.com"
                     android:pathPrefix="/e"/>
             </intent-filter>
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data
+                    android:scheme="https"
+                    android:host="open.prokat.auyltech.kz"
+                    android:pathPrefix="/e/"/>
+            </intent-filter>
         </activity>
         <activity
             android:name="com.yalantis.ucrop.UCropActivity"
