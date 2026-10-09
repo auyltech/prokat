@@ -55,6 +55,7 @@ class EquipmentShareState {
     this.bookingIntent,
     this.openedPending = false,
     this.analyticsClaimed = false,
+    this.bookingAttributionConsumed = false,
     this.receivedAt,
     this.installReferrerChecked = false,
   });
@@ -67,6 +68,7 @@ class EquipmentShareState {
   final EquipmentShareBookingIntent? bookingIntent;
   final bool openedPending;
   final bool analyticsClaimed;
+  final bool bookingAttributionConsumed;
   final DateTime? receivedAt;
   final bool installReferrerChecked;
 
@@ -79,6 +81,7 @@ class EquipmentShareState {
     bool clearBookingIntent = false,
     bool? openedPending,
     bool? analyticsClaimed,
+    bool? bookingAttributionConsumed,
     bool? installReferrerChecked,
   }) => EquipmentShareState(
     epoch: epoch,
@@ -91,6 +94,8 @@ class EquipmentShareState {
         : bookingIntent ?? this.bookingIntent,
     openedPending: openedPending ?? this.openedPending,
     analyticsClaimed: analyticsClaimed ?? this.analyticsClaimed,
+    bookingAttributionConsumed:
+        bookingAttributionConsumed ?? this.bookingAttributionConsumed,
     receivedAt: receivedAt,
     installReferrerChecked:
         installReferrerChecked ?? this.installReferrerChecked,
@@ -106,6 +111,7 @@ class EquipmentShareState {
     'bookingIntent': bookingIntent?.toJson(),
     'openedPending': openedPending,
     'analyticsClaimed': analyticsClaimed,
+    'bookingAttributionConsumed': bookingAttributionConsumed,
     'receivedAt': receivedAt?.toUtc().toIso8601String(),
     'installReferrerChecked': installReferrerChecked,
   });
@@ -118,7 +124,9 @@ class EquipmentShareState {
           data['epoch'] != epoch ||
           data['pending'] is! bool ||
           data['openedPending'] is! bool ||
-          data['analyticsClaimed'] is! bool) {
+          data['analyticsClaimed'] is! bool ||
+          (data['bookingAttributionConsumed'] != null &&
+              data['bookingAttributionConsumed'] is! bool)) {
         return null;
       }
       if (data['installReferrerChecked'] != null &&
@@ -153,13 +161,19 @@ class EquipmentShareState {
         return null;
       }
       if (open != null && (open.clientEventId != id || at == null)) return null;
-      if (pending && (open == null || overlay != null || openedPending)) {
+      final bookingConsumed = data['bookingAttributionConsumed'] == true;
+      if (pending &&
+          (open == null ||
+              overlay != null ||
+              openedPending ||
+              bookingConsumed)) {
         return null;
       }
       if (!pending && open != null && open.link.equipmentId == null) {
         return null;
       }
       if (openedPending && open == null) return null;
+      if (bookingConsumed && open == null) return null;
       if (overlay != null &&
           open != null &&
           overlay.equipmentId != open.link.equipmentId) {
@@ -181,6 +195,7 @@ class EquipmentShareState {
         bookingIntent: intent,
         openedPending: openedPending,
         analyticsClaimed: data['analyticsClaimed'] as bool,
+        bookingAttributionConsumed: bookingConsumed,
         receivedAt: at?.toUtc(),
         installReferrerChecked: data['installReferrerChecked'] == true,
       );

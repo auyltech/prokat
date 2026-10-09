@@ -346,6 +346,43 @@ class EquipmentShareStorage {
     }
   }
 
+  Future<({EquipmentShareOpen open, DateTime receivedAt})?>
+  readAcceptedOpenContext({required String equipmentId}) async {
+    try {
+      return await _op(() async {
+        final state = await _read();
+        final open = state.open;
+        final receivedAt = state.receivedAt;
+        if (state.pending ||
+            state.bookingAttributionConsumed ||
+            open == null ||
+            open.link.equipmentId != equipmentId ||
+            receivedAt == null) {
+          return null;
+        }
+        return (open: open, receivedAt: receivedAt);
+      });
+    } catch (_) {
+      return null;
+    }
+  }
+
+  Future<bool> consumeAcceptedBookingAttribution({
+    required String equipmentId,
+    required String shareId,
+  }) => _op(() async {
+    final state = await _read();
+    final open = state.open;
+    if (state.pending ||
+        state.bookingAttributionConsumed ||
+        open?.link.equipmentId != equipmentId ||
+        open?.link.shareId != shareId) {
+      return false;
+    }
+    await _write(state.copyWith(bookingAttributionConsumed: true));
+    return true;
+  });
+
   Future<void> clearAcceptedOpen() {
     ++_revision;
     return _op(() async {
@@ -394,6 +431,7 @@ class EquipmentShareStorage {
               : next.overlay,
           openedPending: next.openedPending,
           analyticsClaimed: next.analyticsClaimed,
+          bookingAttributionConsumed: next.bookingAttributionConsumed,
           receivedAt: next.receivedAt,
           bookingIntent: intent,
           installReferrerChecked: next.installReferrerChecked,
