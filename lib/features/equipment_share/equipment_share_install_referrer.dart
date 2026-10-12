@@ -58,6 +58,7 @@ Future<String?> readPlayInstallReferrer() async {
 
 /// Returns a share link from the install referrer, or null when there is
 /// nothing to open. Does not mark the check when [readReferrer] throws.
+/// Valid links are consumed by the caller's durable pending commit.
 Future<EquipmentShareLink?> captureShareInstallReferrer({
   required Future<bool> Function() wasChecked,
   required Future<void> Function() markChecked,
@@ -74,6 +75,7 @@ Future<EquipmentShareLink?> captureShareInstallReferrer({
     return null;
   }
 
-  await markChecked();
-  return shareLinkFromInstallReferrer(raw);
+  final link = shareLinkFromInstallReferrer(raw);
+  if (link == null) await markChecked();
+  return link;
 }

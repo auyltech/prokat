@@ -69,7 +69,7 @@ class AnalyticsService {
   });
 
   Future<void> logShareLinkOpened({
-    required String equipmentId,
+    required String? equipmentId,
     String? shareId,
     required ShareOpenVia via,
     required bool firstShareBootstrapRun,

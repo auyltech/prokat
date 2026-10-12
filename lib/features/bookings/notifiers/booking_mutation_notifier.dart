@@ -19,7 +19,10 @@ import 'package:prokat/features/chat/models/chat_list_filter.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
 import 'package:prokat/features/equipment/models/price_entry_model.dart';
 import 'package:prokat/features/locations/models/location_model.dart';
+import 'package:prokat/features/equipment_share/equipment_share_storage.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+const bookingShareAttributionWindow = Duration(days: 30);
 
 class BookingMutationNotifier extends MutationNotifier<BookingMutationState> {
   final BookingService api;
@@ -118,6 +121,25 @@ class BookingMutationNotifier extends MutationNotifier<BookingMutationState> {
 
       startAction(actionId);
 
+      String? shareId;
+      if (companyId == null && state.selectedEquipment != null) {
+        try {
+          final context = await ref
+              .read(equipmentShareStorageProvider)
+              .readAcceptedOpenContext(
+                equipmentId: state.selectedEquipment!.id,
+              );
+          if (context != null && context.open.link.shareId != null) {
+            final age = DateTime.now().toUtc().difference(
+              context.receivedAt.toUtc(),
+            );
+            if (age >= Duration.zero && age <= bookingShareAttributionWindow) {
+              shareId = context.open.link.shareId;
+            }
+          }
+        } catch (_) {}
+      }
+
       final result = await api.createBooking({
         if (companyId == null) "equipmentId": state.selectedEquipment?.id,
         "companyId": ?companyId,
@@ -128,6 +150,7 @@ class BookingMutationNotifier extends MutationNotifier<BookingMutationState> {
         "bookedOn": state.selectedDate!.toUtc().toIso8601String(),
         "bookedAt": state.selectedTime!.toUtc().toIso8601String(),
         "comment": state.comment,
+        "shareId": ?shareId,
       });
 
       finishAction(
@@ -142,6 +165,16 @@ class BookingMutationNotifier extends MutationNotifier<BookingMutationState> {
       );
 
       if (result.success) {
+        if (shareId != null) {
+          try {
+            await ref
+                .read(equipmentShareStorageProvider)
+                .consumeAcceptedBookingAttribution(
+                  equipmentId: state.selectedEquipment!.id,
+                  shareId: shareId,
+                );
+          } catch (_) {}
+        }
         // Don't await, return true to show snackbar
         _refreshActiveCaches();
         if (ref.exists(clientChatsProvider)) {

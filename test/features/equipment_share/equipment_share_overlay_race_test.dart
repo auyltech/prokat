@@ -15,6 +15,9 @@ import 'package:prokat/features/appstartup/app_startup_provider.dart';
 import 'package:prokat/features/equipment_share/equipment_share_bootstrap.dart';
 import 'package:prokat/features/equipment_share/equipment_share_overlay.dart';
 import 'package:prokat/features/equipment_share/equipment_share_storage.dart';
+import 'package:prokat/features/equipment_share/equipment_share_open_recorder.dart';
+
+import '../../helpers/recording_share_open_recorder.dart';
 
 const _linksMethod = MethodChannel('com.llfbandit.app_links/messages');
 const _linksEvents = EventChannel('com.llfbandit.app_links/events');
@@ -52,6 +55,7 @@ class _FakeStartup extends AppStartupController {
 /// Holds overlay reads until [release], to stop a consume mid-flight.
 class _GatedSecureStorage extends FlutterSecureStorage {
   Completer<void>? _gate;
+  bool failReads = false;
 
   void hold() => _gate = Completer<void>();
 
@@ -71,7 +75,11 @@ class _GatedSecureStorage extends FlutterSecureStorage {
     WindowsOptions? wOptions,
   }) async {
     final gate = _gate;
-    if (gate != null && key == _overlayKey) await gate.future;
+    if (gate != null &&
+        (key == _overlayKey || key == _key('equipment_share_state'))) {
+      await gate.future;
+    }
+    if (failReads) throw StateError('simulated storage read failure');
     return super.read(key: key);
   }
 }
@@ -162,6 +170,7 @@ Future<_Harness> _start(
     overrides: [
       routerProvider.overrideWithValue(router),
       appStartupProvider.overrideWith((ref) => _FakeStartup(ref, route)),
+      shareOpenRecorderProvider.overrideWithValue(RecordingShareOpenRecorder()),
       if (secureStorage != null)
         equipmentShareStorageProvider.overrideWithValue(
           EquipmentShareStorage(storage: secureStorage),
@@ -183,10 +192,31 @@ Future<_Harness> _start(
   return _Harness(container, router, sharePages, () => sink);
 }
 
-Future<String?> _storedOverlay() =>
-    const FlutterSecureStorage().read(key: _overlayKey);
+Future<String?> _storedOverlay() async =>
+    (await EquipmentShareStorage().readOverlaySnapshot()).overlay?.path;
 
 void main() {
+  testWidgets(
+    'share storage failure leaves normal app usable and later ingress can recover',
+    (tester) async {
+      final storage = _GatedSecureStorage();
+      final h = await _start(tester, secureStorage: storage);
+      storage.failReads = true;
+      h.startup.setRoute(AppStartupRouteState.owner);
+      await tester.pumpAndSettle();
+      expect(find.text('Main'), findsOneWidget);
+      h.router.go('/other');
+      await tester.pumpAndSettle();
+      expect(find.text('Other'), findsOneWidget);
+      storage.failReads = false;
+      h.events()!.success('https://prokat-bfbec.web.app/e/eq-recovered');
+      await tester.pumpAndSettle();
+      expect(find.text('Share eq-recovered'), findsOneWidget);
+      expect(h.opens('eq-recovered'), 1);
+      expect(tester.takeException(), isNull);
+    },
+  );
+
   group('cold-start initial link timing', () {
     for (var hops = 0; hops <= 8; hops++) {
       testWidgets('opens the card exactly once, hops=$hops', (tester) async {

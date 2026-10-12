@@ -48,6 +48,49 @@ ResponseBody _json(int statusCode, Map<String, dynamic> body) =>
 }
 
 void main() {
+  for (final recorded in [true, false]) {
+    test(
+      'OPENED stable eventId retry acknowledges recorded=$recorded',
+      () async {
+        final (api, adapter) = _api(
+          (_) => _json(201, {
+            'success': true,
+            'data': {'recorded': recorded},
+          }),
+        );
+        const id = '00000006-0000-4000-8000-000000000001';
+        for (var attempt = 0; attempt < 2; attempt++) {
+          expect(
+            await api.recordOpened(
+              equipmentId: 'eq-1',
+              shareId: _shareId,
+              openVia: 'APP_LINK',
+              firstShareBootstrapRun: false,
+              clientEventId: id,
+            ),
+            isTrue,
+          );
+        }
+        expect(adapter.requests.map((r) => (r.data as Map)['clientEventId']), [
+          id,
+          id,
+        ]);
+      },
+    );
+  }
+
+  test('malformed OPENED acknowledgement remains retryable', () async {
+    final (api, _) = _api((_) => _json(201, {'success': true}));
+    expect(
+      await api.recordOpened(
+        equipmentId: 'eq-1',
+        openVia: 'APP_LINK',
+        firstShareBootstrapRun: false,
+      ),
+      isFalse,
+    );
+  });
+
   test('posts SHARED body', () async {
     final (api, adapter) = _api(
       (_) => _json(201, {
