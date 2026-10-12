@@ -15,6 +15,9 @@ import 'package:prokat/features/appstartup/app_startup_provider.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
 import 'package:prokat/features/equipment_share/equipment_share_first_touch.dart';
 import 'package:prokat/features/equipment_share/equipment_share_open.dart';
+import 'package:prokat/features/equipment_share/equipment_share_link.dart';
+import 'package:prokat/features/equipment_share/equipment_share_storage.dart';
+import 'package:prokat/features/auth/providers/auth_secure_storage.dart';
 import 'package:prokat/features/user/models/user_profile_model.dart';
 import 'package:prokat/features/user/state/client_profile_notifier.dart';
 import 'package:prokat/features/user/state/client_profile_provider.dart';
@@ -375,6 +378,50 @@ void main() {
         'firstShareBootstrapRun': true,
         'firstTouchAt': '2026-10-06T12:00:00.000Z',
       });
+    });
+
+    test('OTP restart and successful login retain accepted share and durable navigation', () async {
+      final shares = EquipmentShareStorage();
+      final open = EquipmentShareOpen(
+        link: EquipmentShareLink.fromShareId(_shareId).withEquipmentId('eq-1'),
+        via: ShareOpenVia.appLink,
+        firstShareBootstrapRun: false,
+      );
+      await shares.savePendingOpen(open);
+      final pending = await shares.readPendingSnapshot();
+      await shares.completePendingIfUnchanged(pending.token, open);
+      await AuthSecureStorage().saveOtpSession('+77011234567', _touchTime);
+      await _seedTouch();
+      // Reconstruct storage and auth controller, leaving only durable bytes.
+      expect(
+        (await AuthSecureStorage().readOtpSession())?.phone,
+        '+77011234567',
+      );
+      final restarted = EquipmentShareStorage();
+      RequestOptions? request;
+      final container = containerWith(
+        _stubDio(200, {
+          ..._otpBody,
+          'isNewUser': false,
+        }, onRequest: (r) => request = r),
+      );
+      expect(
+        await container
+            .read(authProvider.notifier)
+            .verifyOtp('+77011234567', '000000'),
+        isTrue,
+      );
+      await _settleAnalytics();
+      expect(
+        ((request!.data as Map)['attribution'] as Map)['shareId'],
+        _shareId,
+      );
+      expect(
+        (await restarted.readAcceptedOpen(equipmentId: 'eq-1'))?.link.shareId,
+        _shareId,
+      );
+      expect((await restarted.readOverlaySnapshot()).overlay?.path, '/e/eq-1');
+      expect(await EquipmentShareFirstTouchStore().readValid(), isNull);
     });
 
     test('verify without attribution omits the key', () async {

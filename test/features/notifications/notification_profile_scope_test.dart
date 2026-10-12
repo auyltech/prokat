@@ -50,10 +50,7 @@ void main() {
           'type': 'SYSTEM_NOTICE',
           'category': 'SYSTEM',
           'title': 'test',
-          'data': {
-            'audience': audience,
-            'companyId': ?companyId,
-          },
+          'data': {'audience': audience, 'companyId': ?companyId},
         });
     final client = notice('CLIENT');
     final owner = notice('OWNER');

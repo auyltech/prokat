@@ -53,14 +53,14 @@ void main() {
     expect(await stored(), '/e/eq-b');
   });
 
-  test('write issued after the clear lands after it and survives', () async {
+  test('queued newer write immediately invalidates an older clear', () async {
     await storage.saveOverlay(_a);
     final snapshot = await storage.readOverlaySnapshot();
     final claimed = storage.clearOverlayIfUnchanged(snapshot.token);
     final write = storage.saveOverlay(_b);
     await write;
 
-    expect(await claimed, isTrue);
+    expect(await claimed, isFalse);
     expect(await stored(), '/e/eq-b');
   });
 

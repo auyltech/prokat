@@ -2,9 +2,11 @@ import 'package:prokat/core/config/env.dart';
 import 'package:prokat/features/equipment_share/equipment_share_id.dart';
 
 class EquipmentShareLink {
-  final String equipmentId;
+  final String? equipmentId;
+  static const appOpenHost = 'open.prokat.auyltech.kz';
+  static final _equipmentIdPattern = RegExp(r'^[A-Za-z0-9_-]{1,64}$');
 
-  /// Query-free identity used for dedup, overlay and navigation.
+  /// Trusted query-free URL; the registry form contains the share token.
   final Uri canonical;
   final String? shareId;
 
@@ -14,8 +16,34 @@ class EquipmentShareLink {
     this.shareId,
   });
 
-  /// [canonical] plus `?s=<shareId>` when the link carries a share id.
+  bool get isRegistryLink => canonical.host == appOpenHost;
+
+  static bool isValidEquipmentId(String? id) =>
+      id != null && _equipmentIdPattern.hasMatch(id);
+
+  factory EquipmentShareLink.fromShareId(String shareId) {
+    if (!isValidShareId(shareId)) throw ArgumentError('Invalid share token');
+    return EquipmentShareLink(
+      equipmentId: null,
+      canonical: Uri.https(appOpenHost, '/e/$shareId'),
+      shareId: shareId,
+    );
+  }
+
+  EquipmentShareLink withEquipmentId(String id) {
+    if (!isValidEquipmentId(id)) {
+      throw ArgumentError('Invalid equipment target');
+    }
+    return EquipmentShareLink(
+      equipmentId: id,
+      canonical: canonical,
+      shareId: shareId,
+    );
+  }
+
+  /// Registry token URL, or the legacy URL plus its optional `?s=<shareId>`.
   Uri get uri {
+    if (isRegistryLink) return canonical;
     final id = shareId;
     return id == null
         ? canonical
@@ -23,15 +51,25 @@ class EquipmentShareLink {
   }
 
   static EquipmentShareLink? tryParse(Uri uri) {
-    if (uri.scheme != 'https') return null;
+    if (uri.scheme != 'https' || uri.userInfo.isNotEmpty || uri.port != 443) {
+      return null;
+    }
     final host = uri.host.toLowerCase();
+    if (host == 'prokat.auyltech.kz') return null;
+    if (host == appOpenHost) {
+      if (uri.hasFragment ||
+          !RegExp(r'^/e/[A-Za-z0-9_-]{22}$').hasMatch(uri.path)) {
+        return null;
+      }
+      return EquipmentShareLink.fromShareId(uri.path.substring(3));
+    }
     if (!Env.shareTrustedHosts.contains(host)) return null;
 
     final segments = uri.pathSegments.where((part) => part.isNotEmpty).toList();
     if (segments.length != 2 || segments.first != 'e') return null;
 
-    final id = Uri.decodeComponent(segments[1]).trim();
-    if (id.isEmpty || id == '.' || id == '..' || id.contains('/')) return null;
+    final id = segments[1];
+    if (!isValidEquipmentId(id)) return null;
 
     String? shareId;
     try {

@@ -58,7 +58,10 @@ class _RecordingFirstTouch extends EquipmentShareFirstTouchStore {
   final saved = <FirstTouchAttribution>[];
 
   @override
-  Future<void> saveIfEmpty(FirstTouchAttribution attribution) async {
+  Future<void> saveIfEmpty(
+    FirstTouchAttribution attribution, {
+    bool Function()? isCurrent,
+  }) async {
     saved.add(attribution);
     if (fail) throw StateError('first touch failure');
   }
@@ -111,6 +114,91 @@ void main() {
   setUp(() {
     FlutterSecureStorage.setMockInitialValues({});
   });
+
+  test('recovery suppresses GA but uses durable eventId for OPENED', () async {
+    final h = _Harness();
+    const stableId = '00000009-0000-4000-8000-000000000001';
+    expect(
+      await h.recorder.record(
+        _open().withEventId(stableId),
+        emitAnalytics: false,
+      ),
+      isTrue,
+    );
+    expect(h.client.events, isEmpty);
+    expect((h.adapter.requests.single.data as Map)['clientEventId'], stableId);
+    expect(h.firstTouch.saved.single.shareId, _shareId);
+  });
+
+  test(
+    'revoked receipt cannot start GA ledger or first-touch effects',
+    () async {
+      final h = _Harness();
+      expect(await h.recorder.record(_open(), isCurrent: () => false), isFalse);
+      expect(h.client.events, isEmpty);
+      expect(h.adapter.requests, isEmpty);
+      expect(h.firstTouch.saved, isEmpty);
+    },
+  );
+
+  test('first-touch storage failure keeps receipt retryable despite successful ledger', () async {
+    final h = _Harness(firstTouchFails: true);
+    expect(await h.recorder.record(_open()), isFalse);
+    expect(h.adapter.requests, hasLength(1));
+  });
+
+  test('resolved registry open attributes GA, ledger and first touch to same shareId', () async {
+    final h = _Harness();
+    await h.recorder.record(
+      EquipmentShareOpen(
+        link: EquipmentShareLink.fromShareId(_shareId).withEquipmentId('eq-1'),
+        via: ShareOpenVia.appLink,
+        firstShareBootstrapRun: false,
+      ),
+    );
+    expect(h.client.events.single.name, 'share_link_opened');
+    expect(h.client.events.single.params, {
+      'share_id': _shareId,
+      'open_via': 'app_link',
+      'first_share_bootstrap_run': 0,
+    });
+    expect(h.adapter.requests.single.data, {
+      'clientEventId': _eventId,
+      'type': 'OPENED',
+      'shareId': _shareId,
+      'equipmentId': 'eq-1',
+      'openVia': 'APP_LINK',
+      'firstShareBootstrapRun': false,
+    });
+    expect(h.firstTouch.saved.single.shareId, _shareId);
+    expect(h.firstTouch.saved.single.equipmentId, 'eq-1');
+    expect(h.firstTouch.saved.single.via, ShareOpenVia.appLink);
+  });
+
+  test(
+    'unresolved tokens and reserved future source emit no unsupported events',
+    () async {
+      for (final open in [
+        EquipmentShareOpen(
+          link: EquipmentShareLink.fromShareId(_shareId),
+          via: ShareOpenVia.appLink,
+          firstShareBootstrapRun: false,
+        ),
+        EquipmentShareOpen(
+          link: EquipmentShareLink.fromShareId(_shareId)
+              .withEquipmentId('eq-1'),
+          via: ShareOpenVia.deferredInstall,
+          firstShareBootstrapRun: false,
+        ),
+      ]) {
+        final h = _Harness();
+        await h.recorder.record(open);
+        expect(h.client.events, isEmpty);
+        expect(h.adapter.requests, isEmpty);
+        expect(h.firstTouch.saved, isEmpty);
+      }
+    },
+  );
 
   test('logs share_link_opened with via and first run', () async {
     final h = _Harness();

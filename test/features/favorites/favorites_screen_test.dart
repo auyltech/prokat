@@ -96,7 +96,10 @@ class _FakeFavoriteService implements FavoriteService {
   }
 
   @override
-  Future<ApiResponse<void>> toggleFavorite(String equipmentId, {String? companyId}) {
+  Future<ApiResponse<void>> toggleFavorite(
+    String equipmentId, {
+    String? companyId,
+  }) {
     throw UnimplementedError();
   }
 }

@@ -150,6 +150,21 @@ Future<void> _confirmDelete(
       .read(equipmentMutationProvider.notifier)
       .deleteEquipment(equipmentId);
 
+  if (!context.mounted) return;
+  final failureMessage = ref
+      .read(equipmentMutationProvider.notifier)
+      .getActionError('equipment:delete:$equipmentId')
+      ?.message;
+
+  AppToast.show(
+    message: result
+        ? texts.deleted
+        : (failureMessage?.trim().isNotEmpty == true
+              ? failureMessage!
+              : texts.failed),
+    type: result ? AppToastType.success : AppToastType.error,
+  );
+
   if (result && context.mounted) {
     if (ref.read(equipmentServiceProvider).companyId != null) {
       Navigator.of(context).pop();
@@ -157,9 +172,4 @@ Future<void> _confirmDelete(
       context.pop();
     }
   }
-
-  AppToast.show(
-    message: result ? texts.deleted : texts.failed,
-    type: result ? AppToastType.success : AppToastType.error,
-  );
 }

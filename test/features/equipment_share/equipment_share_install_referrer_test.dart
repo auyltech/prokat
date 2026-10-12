@@ -142,15 +142,18 @@ void main() {
     });
   });
 
-  test('stores the share link from a successful referrer read', () async {
-    var marked = false;
-    final link = await captureShareInstallReferrer(
-      wasChecked: () async => false,
-      markChecked: () async => marked = true,
-      readReferrer: () async => 'id=eq-9',
-    );
+  test(
+    'valid referrer is not consumed before caller durably stores it',
+    () async {
+      var marked = false;
+      final link = await captureShareInstallReferrer(
+        wasChecked: () async => false,
+        markChecked: () async => marked = true,
+        readReferrer: () async => 'id=eq-9',
+      );
 
-    expect(link?.equipmentId, 'eq-9');
-    expect(marked, isTrue);
-  });
+      expect(link?.equipmentId, 'eq-9');
+      expect(marked, isFalse);
+    },
+  );
 }

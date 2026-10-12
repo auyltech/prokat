@@ -8,6 +8,7 @@
 	<array>
 		<string>applinks:prokat-bfbec.web.app</string>
 		<string>applinks:prokat-bfbec.firebaseapp.com</string>
+		<string>applinks:open.prokat.auyltech.kz</string>
 	</array>
 </dict>
 </plist>
