@@ -6,6 +6,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
+import 'package:prokat/core/theme/prokat_flow_palette.dart';
+import 'package:prokat/core/widgets/ui_kit/flow/prokat_flow_actions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/widgets/empty_state_tile.dart';
@@ -16,6 +18,7 @@ import 'package:prokat/features/auth/providers/auth_provider.dart';
 import 'package:prokat/features/bookings/booking_create_error_message.dart';
 import 'package:prokat/features/bookings/providers/booking_mutation_provider.dart';
 import 'package:prokat/features/bookings/widgets/equipment_image_header.dart';
+import 'package:prokat/features/chat/providers/chat_dependencies.dart';
 import 'package:prokat/features/equipment_share/widgets/share_equipment_button.dart';
 import 'package:prokat/features/favorites/state/favorites_provider.dart';
 import 'package:prokat/features/locations/state/location_provider.dart';
@@ -31,12 +34,14 @@ import 'package:prokat/l10n/app_localizations.dart';
 class CreateBookingScreen extends ConsumerStatefulWidget {
   final String equipmentId;
   final String? companyId;
+  final String? inquiryChatId;
   final Widget? beforeOrderFields;
 
   const CreateBookingScreen({
     super.key,
     required this.equipmentId,
     this.companyId,
+    this.inquiryChatId,
     this.beforeOrderFields,
   });
 
@@ -48,6 +53,26 @@ class CreateBookingScreen extends ConsumerStatefulWidget {
 class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
   JobScheduleMode _scheduleMode = JobScheduleMode.none;
   final _commentController = TextEditingController();
+  bool _openingInquiry = false;
+
+  Future<void> _openInquiry() async {
+    if (_openingInquiry || widget.companyId != null) return;
+    setState(() => _openingInquiry = true);
+    final result = await ref
+        .read(chatServiceProvider)
+        .startEquipmentInquiry(widget.equipmentId);
+    if (!mounted) return;
+    setState(() => _openingInquiry = false);
+    final chatId = result.data;
+    if (!result.success || chatId == null || chatId.isEmpty) {
+      AppToast.show(
+        message: AppLocalizations.of(context)!.somethingWentWrongTryAgain,
+        type: AppToastType.error,
+      );
+      return;
+    }
+    unawaited(context.push('${AppRoutes.clientChatList}/direct/$chatId'));
+  }
 
   @override
   void initState() {
@@ -210,7 +235,10 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
 
     final result = await ref
         .read(bookingMutationProvider.notifier)
-        .createBooking(companyId: widget.companyId);
+        .createBooking(
+          companyId: widget.companyId,
+          inquiryChatId: widget.inquiryChatId,
+        );
 
     AppToast.show(
       message: result.success
@@ -224,13 +252,18 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
     );
 
     if (result.success && mounted) {
-      unawaited(context.push(AppRoutes.clientOrders));
+      final chatId = result.chatId;
+      if (chatId != null && chatId.isNotEmpty) {
+        context.go('${AppRoutes.clientChatList}/direct/$chatId');
+      } else {
+        unawaited(context.push(AppRoutes.clientOrders));
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final flow = ProkatFlowPalette.of(context);
     final l10n = AppLocalizations.of(context)!;
 
     final authSession = ref.watch(authProvider).session;
@@ -290,7 +323,7 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
         .isActionActive("booking:create");
 
     return Scaffold(
-      backgroundColor: theme.colorScheme.surface,
+      backgroundColor: flow.background,
       body: ListView(
         children: [
           if (equipment == null)
@@ -306,8 +339,13 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
                 /// 1. ASSET HEADER CARD
                 EquipmentImageHeader(imageUrls: imageUrls),
 
-                Padding(
+                Container(
+                  margin: const EdgeInsets.fromLTRB(12, 12, 12, 20),
                   padding: const EdgeInsets.all(AppDimens.s16$base),
+                  decoration: BoxDecoration(
+                    color: flow.surface,
+                    borderRadius: BorderRadius.circular(24),
+                  ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
@@ -320,13 +358,15 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
                               children: [
                                 Text(
                                   equipment.name,
-                                  style: AppFonts.headingM(context),
+                                  style: AppFonts.headingM(context)
+                                      .copyWith(color: flow.title),
                                   maxLines: 2,
                                   overflow: TextOverflow.ellipsis,
                                 ),
                                 Text(
                                   equipment.model,
-                                  style: AppFonts.caption(context),
+                                  style: AppFonts.caption(context)
+                                      .copyWith(color: flow.secondary),
                                   maxLines: 2,
                                   overflow: TextOverflow.ellipsis,
                                 ),
@@ -390,6 +430,19 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
                       const SizedBox(height: AppDimens.s16$base),
                       if (widget.beforeOrderFields != null)
                         widget.beforeOrderFields!,
+                      Text(
+                        widget.inquiryChatId == null
+                            ? l10n.requestTermsTitle
+                            : l10n.agreedTermsTitle,
+                        style: AppFonts.headingS(context)
+                            .copyWith(color: flow.title),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        l10n.requestTermsHint,
+                        style: AppFonts.body14(context)
+                            .copyWith(color: flow.secondary),
+                      ),
                       BookingOrderFields(
                         isEquipmentGroup: bookingIsEquipmentGroup(equipment),
                         address:
@@ -420,6 +473,7 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
                         canSubmit: canSubmit,
                         submitting: isSubmitting,
                         onSubmit: () => unawaited(onSubmit()),
+                        showSubmitButton: false,
                       ),
                     ],
                   ),
@@ -428,6 +482,43 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
             ),
         ],
       ),
+      bottomNavigationBar: equipment == null
+          ? null
+          : SafeArea(
+              top: false,
+              child: Container(
+                padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+                decoration: BoxDecoration(
+                  color: flow.surface,
+                  border: Border(top: BorderSide(color: flow.border)),
+                ),
+                child: Row(
+                  children: [
+                    if (widget.companyId == null &&
+                        widget.inquiryChatId == null) ...[
+                      ProkatFlowIconButton(
+                        icon: LucideIcons.messageCircle,
+                        label: l10n.discussEquipmentTooltip,
+                        loading: _openingInquiry,
+                        onPressed: _openInquiry,
+                      ),
+                      const SizedBox(width: 12),
+                    ],
+                    Expanded(
+                      child: ProkatFlowPrimaryButton(
+                        title: widget.inquiryChatId == null
+                            ? l10n.sendBookingRequest
+                            : l10n.sendAgreedTerms,
+                        onPressed: canSubmit && !isSubmitting
+                            ? () => unawaited(onSubmit())
+                            : null,
+                        loading: isSubmitting,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
     );
   }
 }

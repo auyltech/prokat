@@ -53,10 +53,12 @@ class MutationResponse {
   final bool success;
   final String message;
   final String? errorCode;
+  final String? chatId;
 
   MutationResponse({
     required this.success,
     required this.message,
     this.errorCode,
+    this.chatId,
   });
 }

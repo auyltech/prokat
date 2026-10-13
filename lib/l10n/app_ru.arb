@@ -1431,5 +1431,13 @@
   "interactionUnavailableBody": "Взаимодействие с этим пользователем недоступно",
   "notNow": "Не сейчас",
   "blockedUsersSettingsSubtitle": "Пользователи, которых вы заблокировали",
-  "contentNotAllowed": "Текст содержит недопустимое содержимое. Измените его и попробуйте снова."
+  "contentNotAllowed": "Текст содержит недопустимое содержимое. Измените его и попробуйте снова.",
+  "discussEquipmentTooltip": "Написать владельцу",
+  "sendBookingRequest": "Отправить запрос",
+  "sendAgreedTerms": "Отправить условия",
+  "inquiryStatus": "Обсуждение",
+  "inquiryCreateOrder": "Оформить условия",
+  "requestTermsTitle": "Условия запроса",
+  "agreedTermsTitle": "Согласованные условия",
+  "requestTermsHint": "Укажите адрес, время и тариф. Владелец подтвердит запрос или предложит изменения."
 }

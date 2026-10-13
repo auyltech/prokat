@@ -2,6 +2,7 @@ import 'package:prokat/core/utils/parse.dart';
 import 'package:prokat/features/auth/models/user_model.dart';
 import 'package:prokat/features/bookings/models/booking_model.dart';
 import 'package:prokat/features/bookings/models/booking_summary_model.dart';
+import 'package:prokat/features/equipment/models/equipment_model.dart';
 import 'package:prokat/features/chat/models/chat_message_model.dart';
 import 'package:prokat/features/offers/models/offer_model.dart';
 import 'package:prokat/features/offers/models/offer_status.dart';
@@ -47,6 +48,8 @@ class ChatModel {
   final UserModel? owner;
 
   final String? bookingId;
+  final String? inquiryEquipmentId;
+  final Equipment? inquiryEquipment;
   final BookingModel? booking;
   final BookingSummaryModel? bookingSummary;
 
@@ -69,6 +72,8 @@ class ChatModel {
     this.type = ChatType.direct,
     this.status = ChatStatus.active,
     this.bookingId,
+    this.inquiryEquipmentId,
+    this.inquiryEquipment,
     this.requestId,
     this.booking,
     this.bookingSummary,
@@ -139,6 +144,8 @@ class ChatModel {
     UserModel? client,
     UserModel? owner,
     String? bookingId,
+    String? inquiryEquipmentId,
+    Equipment? inquiryEquipment,
     BookingModel? booking,
     BookingSummaryModel? bookingSummary,
     String? requestId,
@@ -158,6 +165,8 @@ class ChatModel {
       client: client ?? this.client,
       owner: owner ?? this.owner,
       bookingId: bookingId ?? this.bookingId,
+      inquiryEquipmentId: inquiryEquipmentId ?? this.inquiryEquipmentId,
+      inquiryEquipment: inquiryEquipment ?? this.inquiryEquipment,
       booking: booking ?? this.booking,
       bookingSummary: bookingSummary ?? this.bookingSummary,
       requestId: requestId ?? this.requestId,
@@ -185,6 +194,10 @@ class ChatModel {
         owner: json['owner'] != null ? UserModel.fromJson(json['owner']) : null,
 
         bookingId: json['bookingId']?.toString() ?? "",
+        inquiryEquipmentId: json['inquiryEquipmentId']?.toString(),
+        inquiryEquipment: json['inquiryEquipment'] is Map<String, dynamic>
+            ? Equipment.fromJson(json['inquiryEquipment'])
+            : null,
         booking: json['booking'] == null
             ? null
             : BookingModel.fromJson(json['booking']),

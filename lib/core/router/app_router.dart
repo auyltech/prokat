@@ -283,7 +283,10 @@ final routerProvider = Provider<GoRouter>((ref) {
                 path: AppRoutes.createBooking,
                 builder: (context, state) {
                   final id = state.pathParameters['id']!;
-                  return CreateBookingScreen(equipmentId: id);
+                  return CreateBookingScreen(
+                    equipmentId: id,
+                    inquiryChatId: state.uri.queryParameters['inquiryChatId'],
+                  );
                 },
               ),
               GoRoute(

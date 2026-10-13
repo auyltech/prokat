@@ -7461,6 +7461,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The text contains content that is not allowed. Please edit it and try again.'**
   String get contentNotAllowed;
+
+  /// No description provided for @discussEquipmentTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Message owner'**
+  String get discussEquipmentTooltip;
+
+  /// No description provided for @sendBookingRequest.
+  ///
+  /// In en, this message translates to:
+  /// **'Send request'**
+  String get sendBookingRequest;
+
+  /// No description provided for @sendAgreedTerms.
+  ///
+  /// In en, this message translates to:
+  /// **'Send terms'**
+  String get sendAgreedTerms;
+
+  /// No description provided for @inquiryStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Discussion'**
+  String get inquiryStatus;
+
+  /// No description provided for @inquiryCreateOrder.
+  ///
+  /// In en, this message translates to:
+  /// **'Set order terms'**
+  String get inquiryCreateOrder;
+
+  /// No description provided for @requestTermsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Request details'**
+  String get requestTermsTitle;
+
+  /// No description provided for @agreedTermsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Agreed terms'**
+  String get agreedTermsTitle;
+
+  /// No description provided for @requestTermsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Add the address, time and rate. The owner can confirm or suggest changes.'**
+  String get requestTermsHint;
 }
 
 class _AppLocalizationsDelegate

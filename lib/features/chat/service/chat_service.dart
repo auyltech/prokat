@@ -17,6 +17,32 @@ class ChatService {
 
   Dio get _dio => apiClient.dio;
 
+  Future<ApiResponse<String>> startEquipmentInquiry(String equipmentId) async {
+    try {
+      final response = await _dio.post(
+        '/chats/inquiries/equipment',
+        data: {'equipmentId': equipmentId},
+      );
+      return handleApiResponse<String>(
+        response: response,
+        parser: (body) {
+          final chatId = body['data']?['chatId']?.toString() ?? '';
+          if (chatId.isEmpty) throw const FormatException('Missing chatId');
+          return chatId;
+        },
+      );
+    } on DioException catch (error) {
+      final exception = ApiException.fromDio(error);
+      return ApiResponse.failure(
+        message: exception.message,
+        error: (exception.data ?? error).toString(),
+        statusCode: exception.statusCode,
+      );
+    } catch (error) {
+      return ApiResponse.failure(message: 'Unexpected error', error: '$error');
+    }
+  }
+
   // Get Chats
   // Fetch list of chat threads for owner/user
 

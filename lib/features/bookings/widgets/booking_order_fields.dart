@@ -50,6 +50,7 @@ class BookingOrderFields extends ConsumerWidget {
   final bool canSubmit;
   final bool submitting;
   final VoidCallback onSubmit;
+  final bool showSubmitButton;
 
   const BookingOrderFields({
     super.key,
@@ -73,6 +74,7 @@ class BookingOrderFields extends ConsumerWidget {
     required this.canSubmit,
     required this.submitting,
     required this.onSubmit,
+    this.showSubmitButton = true,
   });
 
   @override
@@ -143,12 +145,14 @@ class BookingOrderFields extends ConsumerWidget {
           maxLines: 4,
           onChanged: onCommentChanged,
         ),
-        const SizedBox(height: AppDimens.s32$xxl),
-        AppElevatedButton(
-          title: l10n.createOrder,
-          onTap: (!canSubmit || submitting) ? null : onSubmit,
-          isLoading: submitting,
-        ),
+        if (showSubmitButton) ...[
+          const SizedBox(height: AppDimens.s32$xxl),
+          AppElevatedButton(
+            title: l10n.sendBookingRequest,
+            onTap: (!canSubmit || submitting) ? null : onSubmit,
+            isLoading: submitting,
+          ),
+        ],
       ],
     );
   }

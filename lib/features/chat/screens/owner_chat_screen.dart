@@ -14,6 +14,7 @@ import 'package:prokat/features/chat/utils/get_chat_status.dart';
 import 'package:prokat/features/chat/widgets/chat_message_list.dart';
 import 'package:prokat/features/chat/widgets/chat_thread_load_error.dart';
 import 'package:prokat/features/chat/widgets/send_message_form.dart';
+import 'package:prokat/features/chat/widgets/inquiry_context_card.dart';
 import 'package:prokat/features/offers/state/offers_provider.dart';
 import 'package:prokat/features/offers/models/offer_query.dart';
 import 'package:prokat/features/price_negotiations/state/price_negotiation_provider.dart';
@@ -148,6 +149,8 @@ class _OwnerChatScreenState extends ConsumerState<OwnerChatScreen> {
         backgroundColor: theme.colorScheme.surface,
         body: Column(
           children: [
+            if (currentChat != null && currentChat.inquiryEquipment != null)
+              InquiryContextCard(chat: currentChat),
             if ((chatAsync.hasError || messagesAsync.hasError) &&
                 messages.isEmpty)
               Expanded(

@@ -3988,4 +3988,29 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get contentNotAllowed =>
       'The text contains content that is not allowed. Please edit it and try again.';
+
+  @override
+  String get discussEquipmentTooltip => 'Message owner';
+
+  @override
+  String get sendBookingRequest => 'Send request';
+
+  @override
+  String get sendAgreedTerms => 'Send terms';
+
+  @override
+  String get inquiryStatus => 'Discussion';
+
+  @override
+  String get inquiryCreateOrder => 'Set order terms';
+
+  @override
+  String get requestTermsTitle => 'Request details';
+
+  @override
+  String get agreedTermsTitle => 'Agreed terms';
+
+  @override
+  String get requestTermsHint =>
+      'Add the address, time and rate. The owner can confirm or suggest changes.';
 }

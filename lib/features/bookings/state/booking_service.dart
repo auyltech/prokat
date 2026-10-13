@@ -145,12 +145,13 @@ class BookingService {
     }
   }
 
-  Future<ApiResponse<void>> createBooking(Map<String, dynamic> data) async {
+  Future<ApiResponse<String>> createBooking(Map<String, dynamic> data) async {
     try {
       final response = await _dio.post("$prefix/bookings", data: data);
 
-      return handleEmptyApiResponse(
+      return handleApiResponse<String>(
         response: response,
+        parser: (body) => body['data']?['chatId']?.toString() ?? '',
         fallbackMessage: "Booking created",
       );
     } on DioException catch (error) {

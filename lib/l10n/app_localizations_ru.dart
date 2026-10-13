@@ -4024,4 +4024,29 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get contentNotAllowed =>
       'Текст содержит недопустимое содержимое. Измените его и попробуйте снова.';
+
+  @override
+  String get discussEquipmentTooltip => 'Написать владельцу';
+
+  @override
+  String get sendBookingRequest => 'Отправить запрос';
+
+  @override
+  String get sendAgreedTerms => 'Отправить условия';
+
+  @override
+  String get inquiryStatus => 'Обсуждение';
+
+  @override
+  String get inquiryCreateOrder => 'Оформить условия';
+
+  @override
+  String get requestTermsTitle => 'Условия запроса';
+
+  @override
+  String get agreedTermsTitle => 'Согласованные условия';
+
+  @override
+  String get requestTermsHint =>
+      'Укажите адрес, время и тариф. Владелец подтвердит запрос или предложит изменения.';
 }

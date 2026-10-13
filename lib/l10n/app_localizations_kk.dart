@@ -3988,4 +3988,29 @@ class AppLocalizationsKk extends AppLocalizations {
   @override
   String get contentNotAllowed =>
       'Мәтінде жол берілмейтін мазмұн бар. Оны өзгертіп, қайтадан көріңіз.';
+
+  @override
+  String get discussEquipmentTooltip => 'Иесіне жазу';
+
+  @override
+  String get sendBookingRequest => 'Сұрау жіберу';
+
+  @override
+  String get sendAgreedTerms => 'Шарттарды жіберу';
+
+  @override
+  String get inquiryStatus => 'Талқылау';
+
+  @override
+  String get inquiryCreateOrder => 'Тапсырыс шарттарын толтыру';
+
+  @override
+  String get requestTermsTitle => 'Сұрау шарттары';
+
+  @override
+  String get agreedTermsTitle => 'Келісілген шарттар';
+
+  @override
+  String get requestTermsHint =>
+      'Мекенжайды, уақытты және тарифті көрсетіңіз. Иесі растауы немесе өзгертуді ұсынуы мүмкін.';
 }

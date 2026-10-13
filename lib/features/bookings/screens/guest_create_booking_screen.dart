@@ -502,7 +502,12 @@ class _GuestCreateBookingScreenState
     if (result.success) {
       await ref.read(equipmentShareStorageProvider).clearBookingIntent();
       if (!mounted) return;
-      context.go(AppRoutes.clientOrders);
+      final chatId = result.chatId;
+      context.go(
+        chatId != null && chatId.isNotEmpty
+            ? '${AppRoutes.clientChatList}/direct/$chatId'
+            : AppRoutes.clientOrders,
+      );
       return;
     }
 

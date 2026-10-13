@@ -4,25 +4,25 @@ import 'package:prokat/features/chat/models/chat_model.dart';
 import 'package:prokat/features/owner/models/owner_status.dart';
 import 'package:prokat/features/owner/owner_offline_guard.dart';
 
-/// Offline composer/action lock for a direct booking awaiting owner confirm.
+/// Offline composer/action lock for the owner of a new direct lead.
 ///
 /// - Owner: uses local [ownerProfileProvider].
-/// - Client: locks only when [chat.owner.onlineStatus] is explicitly offline.
-///   `null` does not lock (pilot compatibility before/without detail DTO).
+/// - Client may always write; the message is delivered when the owner returns.
 bool isDirectBookingOwnerOfflineLock({
   required Object ref,
   required AppMode mode,
   required ChatModel? chat,
 }) {
+  if (mode != AppMode.ownerMode) return false;
   final booking = chat?.booking;
-  if (booking == null || booking.status != BookingStatus.created) {
+  final isOpenInquiry =
+      chat?.inquiryEquipmentId?.isNotEmpty == true && booking == null;
+  final isPendingDirectBooking =
+      booking?.status == BookingStatus.created &&
+      (chat?.requestId?.isNotEmpty != true);
+  if (!isOpenInquiry && !isPendingDirectBooking) {
     return false;
   }
-
-  if (mode == AppMode.ownerMode) {
-    final status = ownerOnlineStatusOf(ref);
-    return status != null && status != OwnerStatus.online;
-  }
-
-  return chat?.owner?.onlineStatus == OwnerStatus.offline;
+  final status = ownerOnlineStatusOf(ref);
+  return status != null && status != OwnerStatus.online;
 }

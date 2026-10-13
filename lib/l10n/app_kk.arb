@@ -1432,5 +1432,13 @@
   "interactionUnavailableBody": "Бұл пайдаланушымен өзара әрекеттесу қолжетімсіз",
   "notNow": "Қазір емес",
   "blockedUsersSettingsSubtitle": "Сіз бұғаттаған пайдаланушылар",
-  "contentNotAllowed": "Мәтінде жол берілмейтін мазмұн бар. Оны өзгертіп, қайтадан көріңіз."
+  "contentNotAllowed": "Мәтінде жол берілмейтін мазмұн бар. Оны өзгертіп, қайтадан көріңіз.",
+  "discussEquipmentTooltip": "Иесіне жазу",
+  "sendBookingRequest": "Сұрау жіберу",
+  "sendAgreedTerms": "Шарттарды жіберу",
+  "inquiryStatus": "Талқылау",
+  "inquiryCreateOrder": "Тапсырыс шарттарын толтыру",
+  "requestTermsTitle": "Сұрау шарттары",
+  "agreedTermsTitle": "Келісілген шарттар",
+  "requestTermsHint": "Мекенжайды, уақытты және тарифті көрсетіңіз. Иесі растауы немесе өзгертуді ұсынуы мүмкін."
 }

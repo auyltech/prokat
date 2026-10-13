@@ -1434,5 +1434,13 @@
   "interactionUnavailableBody": "Interaction with this user is unavailable",
   "notNow": "Not now",
   "blockedUsersSettingsSubtitle": "Users you have blocked",
-  "contentNotAllowed": "The text contains content that is not allowed. Please edit it and try again."
+  "contentNotAllowed": "The text contains content that is not allowed. Please edit it and try again.",
+  "discussEquipmentTooltip": "Message owner",
+  "sendBookingRequest": "Send request",
+  "sendAgreedTerms": "Send terms",
+  "inquiryStatus": "Discussion",
+  "inquiryCreateOrder": "Set order terms",
+  "requestTermsTitle": "Request details",
+  "agreedTermsTitle": "Agreed terms",
+  "requestTermsHint": "Add the address, time and rate. The owner can confirm or suggest changes."
 }
