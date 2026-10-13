@@ -24,6 +24,7 @@ class InquiryContextCard extends StatelessWidget {
       BookingStatus.created => l10n.requestPending,
       BookingStatus.confirmed => l10n.orderConfirmed,
       BookingStatus.completed || BookingStatus.reviewed => l10n.orderCompleted,
+      BookingStatus.rejected => l10n.requestRejected,
       _ => l10n.orderCancelled,
     };
     final canSetTerms =
@@ -64,7 +65,7 @@ class InquiryContextCard extends StatelessWidget {
                     children: [
                       Text(
                         equipment.name,
-                        maxLines: 1,
+                        maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                           fontFamily: 'Manrope',

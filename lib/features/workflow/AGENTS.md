@@ -14,7 +14,7 @@
 
 ## Что патчится
 
-- Открытый чат: `CurrentChatNotifier.applyWorkflowDelta` (бейдж, лок ввода, `getChatConfig`). Если в payload оффер с новым id — ещё `currentChat.refresh()`. HTTP-рефреш треда не затирает более новый сокет: `mergeChatPreferringNewerWorkflow` оставляет previous.booking только когда оба `updatedAt` есть и previous новее.
+- Открытый чат: `CurrentChatNotifier.applyWorkflowDelta` (бейдж, лок ввода, `getChatConfig`). Если в payload оффер или заказ с новым id — ещё `currentChat.refresh()`: короткая delta не содержит технику/адрес/дату нового заказа. Изменение статуса уже загруженного заказа не вызывает дополнительный HTTP. HTTP-рефреш треда не затирает более новый сокет: `mergeChatPreferringNewerWorkflow` оставляет previous.booking только когда оба `updatedAt` есть и previous новее.
 - Списки чатов: `clientChatsByFilterProvider` / `ownerChatsByFilterProvider` (`ACTIVE` / `ARCHIVED`). Источник архива — `Chat.status` (`closed` / `archived`) из HTTP и из `payload.chat`. `SUPPORT` всегда в Active.
 - Заказы: active — патч или remove + decrement; history — патч или `invalidate()`. Guard по `updatedAt`; HTTP-рефреш не затирает более новый сокет.
 - Заявки: `REQUEST_CREATED` обновляет ленту владельцев через HTTP; `ACCEPTED` / `CANCELLED` / `EXPIRED` удаляют из active у всех. History клиента — патч или `invalidate()` только если `requestClientId` совпадает с текущим пользователем. Старый payload без поля сохраняет прежнее поведение.

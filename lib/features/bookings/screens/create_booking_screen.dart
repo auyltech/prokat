@@ -4,9 +4,11 @@ import 'package:prokat/features/company_profile/company_catalog_screen.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:prokat/core/theme/prokat_flow_palette.dart';
+import 'package:prokat/core/theme/prokat_flow_scope.dart';
 import 'package:prokat/core/widgets/ui_kit/flow/prokat_flow_actions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/router/app_routes.dart';
@@ -17,8 +19,9 @@ import 'package:prokat/features/equipment/models/price_entry_model.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
 import 'package:prokat/features/bookings/booking_create_error_message.dart';
 import 'package:prokat/features/bookings/providers/booking_mutation_provider.dart';
-import 'package:prokat/features/bookings/widgets/equipment_image_header.dart';
+import 'package:prokat/features/bookings/widgets/equipment_listing_content.dart';
 import 'package:prokat/features/chat/providers/chat_dependencies.dart';
+import 'package:prokat/features/chat/state/post_mutation_cache_coordinator.dart';
 import 'package:prokat/features/equipment_share/widgets/share_equipment_button.dart';
 import 'package:prokat/features/favorites/state/favorites_provider.dart';
 import 'package:prokat/features/locations/state/location_provider.dart';
@@ -26,7 +29,6 @@ import 'package:prokat/features/locations/models/location_model.dart';
 import 'package:prokat/features/locations/widgets/select_address_sheet.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/features/user/state/client_profile_provider.dart';
-import 'package:prokat/features/user/widgets/user_info_tile.dart';
 import 'package:prokat/features/user_safety/models/report_target.dart';
 import 'package:prokat/features/user_safety/widgets/ugc_more_button.dart';
 import 'package:prokat/l10n/app_localizations.dart';
@@ -54,6 +56,7 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
   JobScheduleMode _scheduleMode = JobScheduleMode.none;
   final _commentController = TextEditingController();
   bool _openingInquiry = false;
+  bool _showRequestForm = false;
 
   Future<void> _openInquiry() async {
     if (_openingInquiry || widget.companyId != null) return;
@@ -71,12 +74,18 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
       );
       return;
     }
-    unawaited(context.push('${AppRoutes.clientChatList}/direct/$chatId'));
+    unawaited(
+      ref
+          .read(postMutationCacheCoordinatorProvider)
+          .refreshAffectedChats(chatId),
+    );
+    context.go('${AppRoutes.clientChatList}/direct/$chatId');
   }
 
   @override
   void initState() {
     super.initState();
+    _showRequestForm = widget.inquiryChatId != null || widget.companyId != null;
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final address = await ref
@@ -240,9 +249,11 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
           inquiryChatId: widget.inquiryChatId,
         );
 
+    if (!mounted) return;
+
     AppToast.show(
       message: result.success
-          ? l10n.orderCreated
+          ? l10n.requestSentSuccess
           : bookingCreateErrorMessage(
               l10n: l10n,
               errorCode: result.errorCode,
@@ -258,6 +269,17 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
       } else {
         unawaited(context.push(AppRoutes.clientOrders));
       }
+    }
+  }
+
+  void _back() {
+    FocusManager.instance.primaryFocus?.unfocus();
+    if (_showRequestForm && widget.companyId == null) {
+      setState(() => _showRequestForm = false);
+    } else if (context.canPop()) {
+      context.pop();
+    } else {
+      context.go(AppRoutes.searchList);
     }
   }
 
@@ -295,10 +317,6 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
         ) ??
         false;
 
-    final ownerComment = equipment?.ownerComment?.trim() ?? '';
-
-    final imageUrls = equipment?.displayImageUrls ?? const <String>[];
-
     final prices = equipment == null
         ? const <PriceEntry>[]
         : bookablePrices(equipment);
@@ -322,121 +340,149 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
         .watch(bookingMutationProvider)
         .isActionActive("booking:create");
 
-    return Scaffold(
-      backgroundColor: flow.background,
-      body: ListView(
-        children: [
-          if (equipment == null)
-            EmptyStateTile(
-              imageName: 'empty_equipment.png',
-              title: l10n.notFound,
-              subtitle: l10n.equipmentNotFound,
-            )
-          else
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                /// 1. ASSET HEADER CARD
-                EquipmentImageHeader(imageUrls: imageUrls),
-
-                Container(
-                  margin: const EdgeInsets.fromLTRB(12, 12, 12, 20),
-                  padding: const EdgeInsets.all(AppDimens.s16$base),
-                  decoration: BoxDecoration(
-                    color: flow.surface,
-                    borderRadius: BorderRadius.circular(24),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  equipment.name,
-                                  style: AppFonts.headingM(context)
-                                      .copyWith(color: flow.title),
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                                Text(
-                                  equipment.model,
-                                  style: AppFonts.caption(context)
-                                      .copyWith(color: flow.secondary),
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ],
+    return ProkatFlowScope(
+      palette: flow,
+      child: AnnotatedRegion<SystemUiOverlayStyle>(
+        value: _showRequestForm
+            ? SystemUiOverlayStyle.dark
+            : SystemUiOverlayStyle.light,
+        child: PopScope(
+          canPop: !_showRequestForm || widget.companyId != null,
+          onPopInvokedWithResult: (didPop, result) {
+            if (!didPop) _back();
+          },
+          child: Scaffold(
+            backgroundColor: flow.surface,
+            appBar: _showRequestForm && widget.companyId == null
+                ? AppBar(
+                    backgroundColor: flow.surface,
+                    foregroundColor: flow.title,
+                    elevation: 0,
+                    surfaceTintColor: Colors.transparent,
+                    leading: IconButton(
+                      icon: const Icon(LucideIcons.chevronLeft),
+                      onPressed: _back,
+                      tooltip: l10n.back,
+                    ),
+                    title: Text(
+                      widget.inquiryChatId == null
+                          ? l10n.requestOwnerTitle
+                          : l10n.agreedTermsTitle,
+                      style: AppFonts.headingM(context)
+                          .copyWith(color: flow.title),
+                    ),
+                  )
+                : null,
+            body: equipment == null
+                ? EmptyStateTile(
+                    imageName: 'empty_equipment.png',
+                    title: l10n.notFound,
+                    subtitle: l10n.equipmentNotFound,
+                  )
+                : !_showRequestForm
+                ? EquipmentListingContent(
+                    equipment: equipment,
+                    selectedPrice: selectedPrice,
+                    onPriceChanged: bookingNotifier.selectPriceEntry,
+                    onBack: _back,
+                    additionalDetails: widget.beforeOrderFields,
+                    heroActions: [
+                      if (isClient && widget.companyId == null)
+                        _heroAction(
+                          UgcMoreButton(
+                            counterpartUserId: equipment.owner?.id,
+                            counterpartName:
+                                equipment.owner?.displayNameOr('') ?? '',
+                            reportTarget: ReportTarget(
+                              ReportTargetType.equipment,
+                              equipment.id,
                             ),
+                            variant: AppIconButtonVariant.plain,
+                            onBlocked: _back,
                           ),
-                          if (isClient && widget.companyId == null) ...[
-                            const SizedBox(width: AppDimens.s08$sm),
-                            UgcMoreButton(
-                              counterpartUserId: equipment.owner?.id,
-                              counterpartName:
-                                  equipment.owner?.displayNameOr('') ?? '',
-                              reportTarget: ReportTarget(
-                                ReportTargetType.equipment,
-                                equipment.id,
-                              ),
-                              variant: AppIconButtonVariant.plain,
-                              onBlocked: () {
-                                if (context.mounted && context.canPop()) {
-                                  context.pop();
-                                }
-                              },
-                            ),
-                          ],
-                          const SizedBox(width: AppDimens.s08$sm),
-                          if (widget.companyId == null)
-                            ShareEquipmentButton(equipment: equipment)
-                          else
-                            AppIconButton(
-                              icon: LucideIcons.share2,
-                              variant: AppIconButtonVariant.soft,
-                              onTap: () => shareCompany(context, ref, {
-                                'company': companyForShare(equipment),
-                              }),
-                            ),
-                          const SizedBox(width: AppDimens.s08$sm),
+                        ),
+                      if (widget.companyId == null)
+                        _heroAction(
+                          ShareEquipmentButton(
+                            equipment: equipment,
+                            variant: AppIconButtonVariant.plain,
+                          ),
+                        )
+                      else
+                        _heroAction(
                           AppIconButton(
-                            icon: isFavorite
-                                ? Icons.favorite
-                                : Icons.favorite_border,
-                            tone: AppIconButtonTone.destructive,
-                            onTap: isClient
-                                ? () async {
-                                    await ref
-                                        .read(favoritesProvider.notifier)
-                                        .toggleFavorite(
-                                          equipment.id,
-                                          companyId: widget.companyId,
-                                        );
-                                  }
-                                : null,
+                            icon: LucideIcons.share2,
+                            variant: AppIconButtonVariant.plain,
+                            onTap: () => shareCompany(context, ref, {
+                              'company': companyForShare(equipment),
+                            }),
                           ),
-                        ],
+                        ),
+                      IconButton.filled(
+                        tooltip: l10n.navFavorites,
+                        style: IconButton.styleFrom(
+                          backgroundColor: Colors.white,
+                          foregroundColor: const Color(0xFFE54B56),
+                          fixedSize: const Size(44, 44),
+                        ),
+                        icon: Icon(
+                          isFavorite
+                              ? Icons.favorite_rounded
+                              : LucideIcons.heart,
+                          size: 23,
+                        ),
+                        onPressed: isClient
+                            ? () async {
+                                await ref
+                                    .read(favoritesProvider.notifier)
+                                    .toggleFavorite(
+                                      equipment.id,
+                                      companyId: widget.companyId,
+                                    );
+                              }
+                            : null,
                       ),
-                      const SizedBox(height: AppDimens.s12$md),
-                      UserInfoTile(user: equipment.owner, showPresence: true),
-                      if (ownerComment.isNotEmpty) ...[
-                        const SizedBox(height: AppDimens.s12$md),
-                        Text(ownerComment, style: AppFonts.body14(context)),
-                      ],
-                      const SizedBox(height: AppDimens.s16$base),
+                    ],
+                  )
+                : ListView(
+                    padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: flow.background,
+                          borderRadius: BorderRadius.circular(18),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              equipment.name,
+                              style: AppFonts.body16SemiBold(context)
+                                  .copyWith(color: flow.title),
+                            ),
+                            if (equipment.model.trim().isNotEmpty) ...[
+                              const SizedBox(height: 4),
+                              Text(
+                                equipment.model,
+                                style: AppFonts.body14(context)
+                                    .copyWith(color: flow.secondary),
+                              ),
+                            ],
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 20),
                       if (widget.beforeOrderFields != null)
                         widget.beforeOrderFields!,
-                      Text(
-                        widget.inquiryChatId == null
-                            ? l10n.requestTermsTitle
-                            : l10n.agreedTermsTitle,
-                        style: AppFonts.headingS(context)
-                            .copyWith(color: flow.title),
-                      ),
+                      if (widget.companyId != null)
+                        Text(
+                          widget.inquiryChatId == null
+                              ? l10n.requestTermsTitle
+                              : l10n.agreedTermsTitle,
+                          style: AppFonts.headingS(context)
+                              .copyWith(color: flow.title),
+                        ),
                       const SizedBox(height: 4),
                       Text(
                         l10n.requestTermsHint,
@@ -477,48 +523,62 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
                       ),
                     ],
                   ),
-                ),
-              ],
-            ),
-        ],
-      ),
-      bottomNavigationBar: equipment == null
-          ? null
-          : SafeArea(
-              top: false,
-              child: Container(
-                padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
-                decoration: BoxDecoration(
-                  color: flow.surface,
-                  border: Border(top: BorderSide(color: flow.border)),
-                ),
-                child: Row(
-                  children: [
-                    if (widget.companyId == null &&
-                        widget.inquiryChatId == null) ...[
-                      ProkatFlowIconButton(
-                        icon: LucideIcons.messageCircle,
-                        label: l10n.discussEquipmentTooltip,
-                        loading: _openingInquiry,
-                        onPressed: _openInquiry,
+            bottomNavigationBar: equipment == null
+                ? null
+                : SafeArea(
+                    top: false,
+                    child: Container(
+                      padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+                      decoration: BoxDecoration(
+                        color: flow.surface,
+                        border: Border(top: BorderSide(color: flow.border)),
                       ),
-                      const SizedBox(width: 12),
-                    ],
-                    Expanded(
-                      child: ProkatFlowPrimaryButton(
-                        title: widget.inquiryChatId == null
-                            ? l10n.sendBookingRequest
-                            : l10n.sendAgreedTerms,
-                        onPressed: canSubmit && !isSubmitting
-                            ? () => unawaited(onSubmit())
-                            : null,
-                        loading: isSubmitting,
+                      child: Row(
+                        children: [
+                          if (!_showRequestForm &&
+                              widget.companyId == null) ...[
+                            ProkatFlowIconButton(
+                              icon: LucideIcons.messageCircle,
+                              label: l10n.discussEquipmentTooltip,
+                              loading: _openingInquiry,
+                              onPressed: isSubmitting ? null : _openInquiry,
+                            ),
+                            const SizedBox(width: 12),
+                          ],
+                          Expanded(
+                            child: ProkatFlowPrimaryButton(
+                              title: widget.inquiryChatId == null
+                                  ? l10n.sendBookingRequest
+                                  : l10n.sendAgreedTerms,
+                              onPressed: isSubmitting || _openingInquiry
+                                  ? null
+                                  : !_showRequestForm
+                                  ? () =>
+                                        setState(() => _showRequestForm = true)
+                                  : canSubmit
+                                  ? () => unawaited(onSubmit())
+                                  : null,
+                              loading: isSubmitting,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                  ],
-                ),
-              ),
-            ),
+                  ),
+          ),
+        ),
+      ),
     );
   }
+
+  Widget _heroAction(Widget child) => Container(
+    width: 44,
+    height: 44,
+    alignment: Alignment.center,
+    decoration: const BoxDecoration(
+      color: Colors.white,
+      shape: BoxShape.circle,
+    ),
+    child: child,
+  );
 }

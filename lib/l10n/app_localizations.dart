@@ -7509,6 +7509,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Add the address, time and rate. The owner can confirm or suggest changes.'**
   String get requestTermsHint;
+
+  /// No description provided for @listingSpecifications.
+  ///
+  /// In en, this message translates to:
+  /// **'All specifications'**
+  String get listingSpecifications;
+
+  /// No description provided for @listingNoReviews.
+  ///
+  /// In en, this message translates to:
+  /// **'No ratings yet'**
+  String get listingNoReviews;
+
+  /// No description provided for @requestOwnerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Request to owner'**
+  String get requestOwnerTitle;
+
+  /// No description provided for @requestSentSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Request sent to owner'**
+  String get requestSentSuccess;
+
+  /// No description provided for @inquiryOwnerOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'Go online to reply to the client.'**
+  String get inquiryOwnerOffline;
 }
 
 class _AppLocalizationsDelegate

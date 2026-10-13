@@ -180,6 +180,14 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(path: AppRoutes.launch, builder: (_, _) => const LaunchScreen()),
       GoRoute(path: AppRoutes.error, builder: (_, _) => const ErrorScreen()),
       GoRoute(path: AppRoutes.login, builder: (_, _) => const LoginScreen()),
+      // Listing and request form sit above the tab shell, preserving its state.
+      GoRoute(
+        path: AppRoutes.createBooking,
+        builder: (context, state) => CreateBookingScreen(
+          equipmentId: state.pathParameters['id']!,
+          inquiryChatId: state.uri.queryParameters['inquiryChatId'],
+        ),
+      ),
       GoRoute(
         path: AppRoutes.equipmentShare,
         builder: (_, state) =>
@@ -277,17 +285,6 @@ final routerProvider = Provider<GoRouter>((ref) {
               GoRoute(
                 path: AppRoutes.searchMap,
                 builder: (_, _) => const MapClientEquipmentScreen(),
-              ),
-              // display equipment details in full screen
-              GoRoute(
-                path: AppRoutes.createBooking,
-                builder: (context, state) {
-                  final id = state.pathParameters['id']!;
-                  return CreateBookingScreen(
-                    equipmentId: id,
-                    inquiryChatId: state.uri.queryParameters['inquiryChatId'],
-                  );
-                },
               ),
               GoRoute(
                 path: AppRoutes.clientAddresses,

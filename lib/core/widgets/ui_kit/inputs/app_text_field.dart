@@ -4,6 +4,7 @@ import 'package:prokat/core/theme/app_dimens.dart';
 import 'package:prokat/core/theme/app_fonts.dart';
 import 'package:prokat/core/theme/app_icons.dart';
 import 'package:prokat/core/theme/extensions/app_theme_getter.dart';
+import 'package:prokat/core/theme/prokat_flow_scope.dart';
 import 'package:prokat/core/widgets/ui_kit/inputs/app_input_field_box.dart';
 import 'package:prokat/core/widgets/ui_kit/inputs/app_input_field_style.dart';
 
@@ -133,6 +134,7 @@ class _AppTextFieldState extends State<AppTextField> {
   Widget build(BuildContext context) {
     final colors = context.colors;
     final fieldTheme = colors.textField;
+    final flow = ProkatFlowScope.maybeOf(context);
     final hasError =
         widget.showError &&
         widget.errorText != null &&
@@ -144,13 +146,13 @@ class _AppTextFieldState extends State<AppTextField> {
         !chromeReadOnly &&
         (widget.selectOnly ? widget.forceFocused : _focused);
     final background = !widget.enabled
-        ? fieldTheme.backgroundDisabled
+        ? flow?.background ?? fieldTheme.backgroundDisabled
         : (showFocusChrome
-              ? fieldTheme.backgroundFocused
-              : fieldTheme.background);
+              ? flow?.primarySoft ?? fieldTheme.backgroundFocused
+              : flow?.surface ?? fieldTheme.background);
     final textColor = (!widget.enabled || chromeReadOnly)
-        ? fieldTheme.textDisabled
-        : fieldTheme.text;
+        ? flow?.secondary ?? fieldTheme.textDisabled
+        : flow?.title ?? fieldTheme.text;
     final textStyle = AppFonts.body16(context).copyWith(
       color: textColor,
       height: 1.3,
@@ -215,7 +217,11 @@ class _AppTextFieldState extends State<AppTextField> {
                 child: Text.rich(
                   TextSpan(
                     text: title,
-                    style: AppFonts.headingS(context),
+                    style: AppFonts.headingS(context).copyWith(
+                      color: flow?.title,
+                      fontSize: flow == null ? null : 16,
+                      fontWeight: flow == null ? null : FontWeight.w700,
+                    ),
                     children: [
                       if (showRequiredMark)
                         TextSpan(
@@ -274,7 +280,9 @@ class _AppTextFieldState extends State<AppTextField> {
     return InputDecoration(
       isDense: true,
       hintText: widget.hint,
-      hintStyle: AppFonts.body16(context).copyWith(color: fieldTheme.hint),
+      hintStyle: AppFonts.body16(context).copyWith(
+        color: ProkatFlowScope.maybeOf(context)?.secondary ?? fieldTheme.hint,
+      ),
       border: AppInputFieldStyle.noBorder,
       enabledBorder: AppInputFieldStyle.noBorder,
       focusedBorder: AppInputFieldStyle.noBorder,

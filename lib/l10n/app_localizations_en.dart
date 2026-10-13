@@ -4013,4 +4013,19 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get requestTermsHint =>
       'Add the address, time and rate. The owner can confirm or suggest changes.';
+
+  @override
+  String get listingSpecifications => 'All specifications';
+
+  @override
+  String get listingNoReviews => 'No ratings yet';
+
+  @override
+  String get requestOwnerTitle => 'Request to owner';
+
+  @override
+  String get requestSentSuccess => 'Request sent to owner';
+
+  @override
+  String get inquiryOwnerOffline => 'Go online to reply to the client.';
 }

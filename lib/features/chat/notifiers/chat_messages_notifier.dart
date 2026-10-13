@@ -13,6 +13,7 @@ import 'package:prokat/features/chat/service/chat_send_rejected.dart';
 import 'package:prokat/features/chat/service/chat_service.dart';
 import 'package:prokat/features/chat/service/chat_socket_service.dart';
 import 'package:prokat/features/user_safety/user_safety_error_message.dart';
+import 'package:prokat/features/owner/state/owner_registration_provider.dart';
 import 'package:prokat/features/chat/utils/chat_message_utils.dart';
 import 'package:prokat/core/config/env.dart';
 import 'package:prokat/core/providers/locale_provider.dart';
@@ -453,6 +454,16 @@ class ChatMessagesNotifier
                 .contentNotAllowed,
             type: AppToastType.error,
           );
+        }
+        if (error is ChatSendRejected && error.code == 'OWNER_OFFLINE') {
+          AppToast.show(
+            message: lookupAppLocalizations(ref.read(localeProvider))
+                .inquiryOwnerOffline,
+            type: AppToastType.error,
+          );
+          if (ref.exists(ownerProfileProvider)) {
+            unawaited(ref.read(ownerProfileProvider.notifier).refresh());
+          }
         }
       }
       return false;

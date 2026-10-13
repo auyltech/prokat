@@ -1442,5 +1442,10 @@
   "inquiryCreateOrder": "Set order terms",
   "requestTermsTitle": "Request details",
   "agreedTermsTitle": "Agreed terms",
-  "requestTermsHint": "Add the address, time and rate. The owner can confirm or suggest changes."
+  "requestTermsHint": "Add the address, time and rate. The owner can confirm or suggest changes.",
+  "listingSpecifications": "All specifications",
+  "listingNoReviews": "No ratings yet",
+  "requestOwnerTitle": "Request to owner",
+  "requestSentSuccess": "Request sent to owner",
+  "inquiryOwnerOffline": "Go online to reply to the client."
 }

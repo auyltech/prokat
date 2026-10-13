@@ -4049,4 +4049,20 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get requestTermsHint =>
       'Укажите адрес, время и тариф. Владелец подтвердит запрос или предложит изменения.';
+
+  @override
+  String get listingSpecifications => 'Все характеристики';
+
+  @override
+  String get listingNoReviews => 'Пока без оценок';
+
+  @override
+  String get requestOwnerTitle => 'Запрос владельцу';
+
+  @override
+  String get requestSentSuccess => 'Запрос отправлен владельцу';
+
+  @override
+  String get inquiryOwnerOffline =>
+      'Включите «Онлайн», чтобы ответить клиенту.';
 }

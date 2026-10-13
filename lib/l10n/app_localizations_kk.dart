@@ -4013,4 +4013,20 @@ class AppLocalizationsKk extends AppLocalizations {
   @override
   String get requestTermsHint =>
       'Мекенжайды, уақытты және тарифті көрсетіңіз. Иесі растауы немесе өзгертуді ұсынуы мүмкін.';
+
+  @override
+  String get listingSpecifications => 'Барлық сипаттамалар';
+
+  @override
+  String get listingNoReviews => 'Әзірге бағалар жоқ';
+
+  @override
+  String get requestOwnerTitle => 'Иесіне сұрау';
+
+  @override
+  String get requestSentSuccess => 'Сұрау иесіне жіберілді';
+
+  @override
+  String get inquiryOwnerOffline =>
+      'Клиентке жауап беру үшін «Онлайн» режимін қосыңыз.';
 }

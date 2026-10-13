@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:prokat/core/theme/app_dimens.dart';
 import 'package:prokat/core/theme/extensions/app_theme_getter.dart';
+import 'package:prokat/core/theme/prokat_flow_scope.dart';
 import 'package:prokat/core/widgets/ui_kit/inputs/app_input_field_style.dart';
 
 class AppInputFieldBox extends StatelessWidget {
@@ -24,16 +25,19 @@ class AppInputFieldBox extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = context.colors.textField;
+    final flow = ProkatFlowScope.maybeOf(context);
     final borderColor = hasError
         ? theme.borderError
         : isFocused
-        ? theme.borderFocused
-        : theme.border;
+        ? flow?.primary ?? theme.borderFocused
+        : flow?.border ?? theme.border;
 
     return DecoratedBox(
       decoration: BoxDecoration(
         color: backgroundColor,
-        borderRadius: AppInputFieldStyle.borderRadius,
+        borderRadius: flow == null
+            ? AppInputFieldStyle.borderRadius
+            : BorderRadius.circular(16),
         border: Border.all(
           color: borderColor,
           width: AppDimens.inputBorderWidth,

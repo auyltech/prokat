@@ -1439,5 +1439,10 @@
   "inquiryCreateOrder": "Оформить условия",
   "requestTermsTitle": "Условия запроса",
   "agreedTermsTitle": "Согласованные условия",
-  "requestTermsHint": "Укажите адрес, время и тариф. Владелец подтвердит запрос или предложит изменения."
+  "requestTermsHint": "Укажите адрес, время и тариф. Владелец подтвердит запрос или предложит изменения.",
+  "listingSpecifications": "Все характеристики",
+  "listingNoReviews": "Пока без оценок",
+  "requestOwnerTitle": "Запрос владельцу",
+  "requestSentSuccess": "Запрос отправлен владельцу",
+  "inquiryOwnerOffline": "Включите «Онлайн», чтобы ответить клиенту."
 }

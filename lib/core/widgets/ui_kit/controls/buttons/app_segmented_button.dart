@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:prokat/core/theme/app_dimens.dart';
 import 'package:prokat/core/theme/app_fonts.dart';
 import 'package:prokat/core/theme/extensions/app_theme_getter.dart';
+import 'package:prokat/core/theme/prokat_flow_scope.dart';
 
 class AppSegmentedOption<T> {
   final String title;
@@ -49,8 +50,15 @@ class AppSegmentedButton<T> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = context.colors.segmentedButton;
-    final borderColor = context.colors.textField.border;
-    final textStyle = AppFonts.button(context);
+    final borderColor =
+        ProkatFlowScope.maybeOf(context)?.border ??
+        context.colors.textField.border;
+    final textStyle = AppFonts.button(context).copyWith(
+      fontSize: ProkatFlowScope.maybeOf(context) == null ? null : 14,
+      fontWeight: ProkatFlowScope.maybeOf(context) == null
+          ? null
+          : FontWeight.w600,
+    );
     final flexes = isExpanded
         ? _contentFlexes(context, textStyle)
         : List<int>.filled(segments.length, 1);
@@ -190,12 +198,15 @@ class _Segment extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = context.colors.segmentedButton;
+    final flow = ProkatFlowScope.maybeOf(context);
     final background = selected
-        ? theme.selectedBackground
-        : theme.unselectedBackground;
+        ? flow?.primary ?? theme.selectedBackground
+        : flow?.surface ?? theme.unselectedBackground;
     final contentColor = selected
-        ? theme.selectedContent
-        : theme.unselectedContent;
+        ? flow == null
+              ? theme.selectedContent
+              : Colors.white
+        : flow?.secondary ?? theme.unselectedContent;
 
     return DecoratedBox(
       decoration: BoxDecoration(
@@ -209,7 +220,9 @@ class _Segment extends StatelessWidget {
           onTap: onTap,
           borderRadius: borderRadius,
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: AppDimens.s20$lg),
+            padding: EdgeInsets.symmetric(
+              horizontal: flow == null ? AppDimens.s20$lg : 12,
+            ),
             child: IconTheme.merge(
               data: IconThemeData(color: contentColor, size: AppDimens.s20$lg),
               child: Row(
@@ -222,8 +235,11 @@ class _Segment extends StatelessWidget {
                     Flexible(
                       child: Text(
                         option.title,
-                        style: AppFonts.button(context)
-                            .copyWith(color: contentColor),
+                        style: AppFonts.button(context).copyWith(
+                          color: contentColor,
+                          fontSize: flow == null ? null : 14,
+                          fontWeight: flow == null ? null : FontWeight.w600,
+                        ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         textAlign: TextAlign.center,
@@ -232,8 +248,11 @@ class _Segment extends StatelessWidget {
                   else
                     Text(
                       option.title,
-                      style: AppFonts.button(context)
-                          .copyWith(color: contentColor),
+                      style: AppFonts.button(context).copyWith(
+                        color: contentColor,
+                        fontSize: flow == null ? null : 14,
+                        fontWeight: flow == null ? null : FontWeight.w600,
+                      ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),

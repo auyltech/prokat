@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/core/widgets/job_schedule_section.dart';
 import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
+import 'package:prokat/core/theme/prokat_flow_scope.dart';
 import 'package:prokat/features/catalog/models/catalog_group.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
 import 'package:prokat/features/equipment/models/price_entry_model.dart';
@@ -80,6 +81,7 @@ class BookingOrderFields extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context)!;
+    final flow = ProkatFlowScope.maybeOf(context);
     final singleTariff = prices.length == 1;
     final tariffValue = singleTariff ? prices.first : selectedPrice;
     final addressLabel = address == null
@@ -91,14 +93,19 @@ class BookingOrderFields extends ConsumerWidget {
       children: [
         const SizedBox(height: AppDimens.s12$md),
         AppDropdownField<LocationModel>(
-          title: l10n.bookingDestinationTitle,
-          hint: isEquipmentGroup
+          title: flow == null ? l10n.bookingDestinationTitle : l10n.address,
+          hint: flow != null
+              ? l10n.selectAddress
+              : isEquipmentGroup
               ? l10n.bookingDestinationEquipmentHint
               : l10n.bookingDestinationMachineryHint,
           isRequired: true,
           sheetTitle: l10n.selectAddress,
           value: address,
           selectedLabel: addressLabel,
+          prefix: flow == null
+              ? null
+              : Icon(Icons.location_on_outlined, color: flow.primary, size: 20),
           openCustomSheet: openAddressSheet,
           onChanged: onAddressChanged,
         ),
@@ -112,6 +119,9 @@ class BookingOrderFields extends ConsumerWidget {
           enabled: !singleTariff,
           sheetTitle: l10n.bookingTariffSelectTitle,
           value: tariffValue,
+          prefix: flow == null
+              ? null
+              : Icon(Icons.payments_outlined, color: flow.primary, size: 20),
           selectedLabel: tariffValue == null
               ? null
               : bookingTariffLabel(tariffValue, l10n),

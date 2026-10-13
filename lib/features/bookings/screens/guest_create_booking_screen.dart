@@ -1,25 +1,33 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/router/post_login_location.dart';
+import 'package:prokat/core/theme/prokat_flow_palette.dart';
+import 'package:prokat/core/theme/prokat_flow_scope.dart';
 import 'package:prokat/core/widgets/empty_state_tile.dart';
 import 'package:prokat/core/widgets/job_schedule_section.dart';
 import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
+import 'package:prokat/core/widgets/ui_kit/flow/prokat_flow_actions.dart';
 import 'package:prokat/features/appstartup/app_startup_provider.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
 import 'package:prokat/features/bookings/booking_create_error_message.dart';
 import 'package:prokat/features/bookings/providers/booking_mutation_provider.dart';
 import 'package:prokat/features/bookings/widgets/booking_order_fields.dart';
-import 'package:prokat/features/bookings/widgets/equipment_image_header.dart';
+import 'package:prokat/features/bookings/widgets/equipment_listing_content.dart';
+import 'package:prokat/features/chat/providers/chat_dependencies.dart';
+import 'package:prokat/features/chat/state/post_mutation_cache_coordinator.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
 import 'package:prokat/features/equipment/models/price_entry_model.dart';
 import 'package:prokat/features/equipment/providers/public_equipment_provider.dart';
-import 'package:prokat/features/equipment/utils/vacuum_tariffs.dart';
 import 'package:prokat/features/equipment_share/equipment_share_booking_intent.dart';
 import 'package:prokat/features/equipment_share/equipment_share_storage.dart';
+import 'package:prokat/features/equipment_share/equipment_share_overlay.dart';
+import 'package:prokat/features/equipment_share/widgets/share_equipment_button.dart';
 import 'package:prokat/features/locations/models/location_model.dart';
 import 'package:prokat/features/locations/state/location_provider.dart';
 import 'package:prokat/features/locations/widgets/select_address_sheet.dart';
@@ -49,6 +57,8 @@ class _GuestCreateBookingScreenState
   bool _unavailable = false;
   bool _tariffAnnounced = false;
   bool _locationsRefreshStarted = false;
+  bool _showRequestForm = false;
+  bool _openingInquiry = false;
 
   @override
   void initState() {
@@ -74,6 +84,10 @@ class _GuestCreateBookingScreenState
   }
 
   void _handleAppBarBack() {
+    if (_showRequestForm) {
+      setState(() => _showRequestForm = false);
+      return;
+    }
     final router = GoRouter.of(context);
     if (router.canPop()) {
       router.pop();
@@ -87,6 +101,10 @@ class _GuestCreateBookingScreenState
 
   void _handlePopInvoked(bool didPop, Object? result) {
     if (didPop) return;
+    if (_showRequestForm) {
+      setState(() => _showRequestForm = false);
+      return;
+    }
     final landing = startupLandingLocation(
       ref.read(appStartupProvider).routeState,
     );
@@ -110,6 +128,7 @@ class _GuestCreateBookingScreenState
     if (decision != ShareIntentDecision.apply || intent == null) return;
 
     setState(() {
+      _showRequestForm = true;
       _selectedPriceId = intent.priceEntryId;
       _restoredSnapshot = intent.priceSnapshot;
       _commentController.text = intent.comment;
@@ -420,6 +439,73 @@ class _GuestCreateBookingScreenState
     }
   }
 
+  Future<void> _openInquiry(Equipment equipment) async {
+    if (_openingInquiry || _submitting || equipment.companyId != null) return;
+    final l10n = AppLocalizations.of(context)!;
+    final session = ref.read(authProvider).session;
+    if (session == null) {
+      setState(() => _openingInquiry = true);
+      // Return to this listing after login. Opening a chat still requires the
+      // user to tap the icon again; a booking intent is never fabricated here.
+      try {
+        await ref
+            .read(equipmentShareStorageProvider)
+            .saveOverlay(
+              EquipmentShareOverlay(
+                path: AppRoutes.equipmentSharePath(equipment.id),
+                afterAuth: true,
+              ),
+            );
+      } catch (_) {
+        if (mounted) {
+          setState(() => _openingInquiry = false);
+          AppToast.show(
+            message: l10n.somethingWentWrongTryAgain,
+            type: AppToastType.error,
+          );
+        }
+        return;
+      }
+      if (!mounted) return;
+      setState(() => _openingInquiry = false);
+      final from = Uri.encodeComponent(
+        AppRoutes.equipmentSharePath(equipment.id),
+      );
+      context.go('${AppRoutes.login}?from=$from');
+      return;
+    }
+
+    if (equipment.owner?.id == session.user?.id) {
+      await AppAlertBottomSheet.show(
+        context,
+        title: l10n.shareCannotBookOwnEquipment,
+        primaryLabel: l10n.ok,
+      );
+      return;
+    }
+
+    setState(() => _openingInquiry = true);
+    final result = await ref
+        .read(chatServiceProvider)
+        .startEquipmentInquiry(equipment.id);
+    if (!mounted) return;
+    setState(() => _openingInquiry = false);
+    final chatId = result.data;
+    if (!result.success || chatId == null || chatId.isEmpty) {
+      AppToast.show(
+        message: l10n.somethingWentWrongTryAgain,
+        type: AppToastType.error,
+      );
+      return;
+    }
+    unawaited(
+      ref
+          .read(postMutationCacheCoordinatorProvider)
+          .refreshAffectedChats(chatId),
+    );
+    context.go('${AppRoutes.clientChatList}/direct/$chatId');
+  }
+
   Future<void> _createOrder(Equipment equipment) async {
     final l10n = AppLocalizations.of(context)!;
     var address = _address!;
@@ -502,6 +588,10 @@ class _GuestCreateBookingScreenState
     if (result.success) {
       await ref.read(equipmentShareStorageProvider).clearBookingIntent();
       if (!mounted) return;
+      AppToast.show(
+        message: l10n.requestSentSuccess,
+        type: AppToastType.success,
+      );
       final chatId = result.chatId;
       context.go(
         chatId != null && chatId.isNotEmpty
@@ -549,6 +639,9 @@ class _GuestCreateBookingScreenState
         .watch(locationProvider)
         .isActionActive('location:create');
     final canPop = GoRouter.of(context).canPop();
+    final palette = ProkatFlowPalette.of(context);
+    final item = _unavailable ? null : equipment.valueOrNull;
+    final busy = _submitting || creating || savingAddress;
 
     ref.listen(authProvider, (previous, next) {
       if (previous?.session == null && next.session != null) {
@@ -604,37 +697,119 @@ class _GuestCreateBookingScreenState
                     error.statusCode == 404,
               ),
             ),
-            data: (item) => _Card(
-              equipment: item,
-              selectedPrice: _resolvedPrice(item),
-              address: _address,
-              scheduleMode: _scheduleMode,
-              selectedDate: _selectedDate,
-              selectedTime: _selectedTime,
-              commentController: _commentController,
-              locale: l10n.localeName,
-              submitting: _submitting || creating || savingAddress,
-              openAddressSheet: _openAddressSheet,
-              onAddressChanged: (address) => setState(() => _address = address),
-              onPriceChanged: (entry) =>
-                  setState(() => _selectedPriceId = entry.id),
-              onScheduled: _selectScheduled,
-              onAsap: _selectAsap,
-              onPickDate: _pickDate,
-              onPickTime: _pickTime,
-              onBook: () => unawaited(_book(item)),
-            ),
+            data: (item) => _showRequestForm
+                ? _RequestForm(
+                    equipment: item,
+                    selectedPrice: _resolvedPrice(item),
+                    address: _address,
+                    scheduleMode: _scheduleMode,
+                    selectedDate: _selectedDate,
+                    selectedTime: _selectedTime,
+                    commentController: _commentController,
+                    locale: l10n.localeName,
+                    submitting: _submitting || creating || savingAddress,
+                    openAddressSheet: _openAddressSheet,
+                    onAddressChanged: (address) =>
+                        setState(() => _address = address),
+                    onPriceChanged: (entry) =>
+                        setState(() => _selectedPriceId = entry.id),
+                    onScheduled: _selectScheduled,
+                    onAsap: _selectAsap,
+                    onPickDate: _pickDate,
+                    onPickTime: _pickTime,
+                    onBook: () => unawaited(_book(item)),
+                  )
+                : EquipmentListingContent(
+                    equipment: item,
+                    selectedPrice: _resolvedPrice(item),
+                    onPriceChanged: (entry) =>
+                        setState(() => _selectedPriceId = entry.id),
+                    onBack: _handleAppBarBack,
+                    heroActions: [
+                      ShareEquipmentButton(
+                        equipment: item,
+                        variant: AppIconButtonVariant.soft,
+                      ),
+                    ],
+                  ),
           );
 
     return PopScope(
-      canPop: canPop,
+      canPop: !_showRequestForm && canPop,
       onPopInvokedWithResult: _handlePopInvoked,
-      child: Scaffold(
-        appBar: ProkatAppBar(
-          title: Text(l10n.createBooking),
-          onBack: _handleAppBarBack,
+      child: AnnotatedRegion<SystemUiOverlayStyle>(
+        value: _showRequestForm
+            ? SystemUiOverlayStyle.dark
+            : SystemUiOverlayStyle.light,
+        child: ProkatFlowScope(
+          palette: palette,
+          child: Scaffold(
+            backgroundColor: palette.surface,
+            appBar: _showRequestForm || item == null
+                ? AppBar(
+                    backgroundColor: palette.surface,
+                    foregroundColor: palette.title,
+                    elevation: 0,
+                    surfaceTintColor: Colors.transparent,
+                    leading: IconButton(
+                      icon: const Icon(LucideIcons.chevronLeft),
+                      onPressed: _handleAppBarBack,
+                      tooltip: l10n.back,
+                    ),
+                    title: Text(
+                      l10n.requestOwnerTitle,
+                      style: AppFonts.headingM(context)
+                          .copyWith(color: palette.title),
+                    ),
+                  )
+                : null,
+            body: body,
+            bottomNavigationBar: item == null
+                ? null
+                : Container(
+                    decoration: BoxDecoration(
+                      color: palette.surface,
+                      border: Border(top: BorderSide(color: palette.border)),
+                    ),
+                    child: SafeArea(
+                      top: false,
+                      minimum: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+                      child: Row(
+                        children: [
+                          if (!_showRequestForm && item.companyId == null) ...[
+                            ProkatFlowIconButton(
+                              icon: LucideIcons.messageCircle,
+                              label: l10n.discussEquipmentTooltip,
+                              loading: _openingInquiry,
+                              onPressed: busy
+                                  ? null
+                                  : () => unawaited(_openInquiry(item)),
+                            ),
+                            const SizedBox(width: 12),
+                          ],
+                          Expanded(
+                            child: ProkatFlowPrimaryButton(
+                              title: l10n.sendBookingRequest,
+                              loading: busy,
+                              onPressed:
+                                  busy ||
+                                      _openingInquiry ||
+                                      (_showRequestForm &&
+                                          _validationMessage(l10n, item) !=
+                                              null)
+                                  ? null
+                                  : _showRequestForm
+                                  ? () => unawaited(_book(item))
+                                  : () =>
+                                        setState(() => _showRequestForm = true),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+          ),
         ),
-        body: body,
       ),
     );
   }
@@ -666,7 +841,7 @@ class _Unavailable extends StatelessWidget {
   }
 }
 
-class _Card extends StatelessWidget {
+class _RequestForm extends StatelessWidget {
   final Equipment equipment;
   final PriceEntry? selectedPrice;
   final LocationModel? address;
@@ -685,7 +860,7 @@ class _Card extends StatelessWidget {
   final Future<void> Function() onPickTime;
   final VoidCallback onBook;
 
-  const _Card({
+  const _RequestForm({
     required this.equipment,
     required this.selectedPrice,
     required this.address,
@@ -707,7 +882,8 @@ class _Card extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final description = shortDescriptionOf(equipment);
+    final l10n = AppLocalizations.of(context)!;
+    final palette = ProkatFlowPalette.of(context);
     final prices = bookablePrices(equipment);
     final hasSchedule = scheduleMode == JobScheduleMode.asap
         ? true
@@ -716,15 +892,13 @@ class _Card extends StatelessWidget {
               selectedTime != null;
 
     return ListView(
-      padding: const EdgeInsets.only(bottom: AppDimens.s24$xl),
+      padding: const EdgeInsets.all(AppDimens.s16$base),
       children: [
-        EquipmentImageHeader(imageUrls: equipment.displayImageUrls),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(
-            AppDimens.s16$base,
-            AppDimens.s16$base,
-            AppDimens.s16$base,
-            0,
+        Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: palette.surface,
+            borderRadius: BorderRadius.circular(24),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -733,12 +907,15 @@ class _Card extends StatelessWidget {
                 equipment.name,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-                style: AppFonts.headingM(context),
+                style: AppFonts.headingM(context)
+                    .copyWith(color: palette.title),
               ),
-              if (description.isNotEmpty) ...[
-                const SizedBox(height: AppDimens.s08$sm),
-                Text(description, style: AppFonts.body14(context)),
-              ],
+              const SizedBox(height: AppDimens.s08$sm),
+              Text(
+                l10n.requestTermsHint,
+                style: AppFonts.body14(context)
+                    .copyWith(color: palette.secondary),
+              ),
               const SizedBox(height: AppDimens.s16$base),
               BookingOrderFields(
                 isEquipmentGroup: bookingIsEquipmentGroup(equipment),
@@ -763,6 +940,7 @@ class _Card extends StatelessWidget {
                     hasSchedule,
                 submitting: submitting,
                 onSubmit: onBook,
+                showSubmitButton: false,
               ),
             ],
           ),

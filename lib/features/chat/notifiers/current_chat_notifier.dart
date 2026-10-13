@@ -53,8 +53,13 @@ class CurrentChatNotifier extends FamilyAsyncNotifier<ChatModel?, String> {
     if (!_canMutateCurrentScope) return;
     final chat = state.valueOrNull;
     if (chat == null) return;
+    // Workflow deltas carry status and price, not the listing or schedule.
+    // Hydrate a newly attached order while preserving immediate status updates.
+    final introducesBooking =
+        update.booking != null && chat.booking?.id != update.booking!.id;
     state = AsyncData(applyWorkflowDeltaToChat(chat, update));
-    if (workflowUpdateIntroducesUnknownOffer(chat, update)) {
+    if (introducesBooking ||
+        workflowUpdateIntroducesUnknownOffer(chat, update)) {
       unawaited(refresh());
     }
   }
