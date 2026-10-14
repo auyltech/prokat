@@ -5,7 +5,7 @@ import 'package:prokat/features/chat/providers/current_chat_provider.dart';
 import 'package:prokat/features/chat/widgets/chat_header_error.dart';
 import 'package:prokat/features/chat/widgets/chat_header_skeleton.dart';
 import 'package:prokat/features/chat/widgets/user_avatar.dart';
-import 'package:prokat/core/utils/format.dart';
+import 'package:prokat/core/theme/prokat_flow_palette.dart';
 import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
@@ -28,6 +28,7 @@ class _ChatHeaderTileState extends ConsumerState<ChatHeaderTile> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
+    final flow = ProkatFlowPalette.of(context);
 
     final bool isValidId = widget.chatId.trim().isNotEmpty;
 
@@ -58,7 +59,8 @@ class _ChatHeaderTileState extends ConsumerState<ChatHeaderTile> {
           ownerFallback: l10n.nameNotSpecified,
           clientFallback: l10n.nameNotSpecified,
         );
-        final lastMessageAt = chat.lastMessage?.createdAt;
+        final showsOwner = chat.client?.id == widget.currentUserId;
+        final availability = showsOwner && chat.owner?.onlineStatus != null;
 
         if (chat.type == ChatType.support) {
           return Text(
@@ -70,7 +72,7 @@ class _ChatHeaderTileState extends ConsumerState<ChatHeaderTile> {
 
         return Row(
           children: [
-            UserAvatar(radius: 22, avatarUrl: avatarUrl, fullName: title),
+            UserAvatar(radius: 20, avatarUrl: avatarUrl, fullName: title),
 
             const SizedBox(width: 12),
             Expanded(
@@ -85,20 +87,25 @@ class _ChatHeaderTileState extends ConsumerState<ChatHeaderTile> {
                       fontWeight: title == l10n.nameNotSpecified
                           ? FontWeight.w400
                           : FontWeight.bold,
+                      fontSize: 15,
                       color: title == l10n.nameNotSpecified
-                          ? theme.colorScheme.onSurface.withValues(alpha: 0.55)
-                          : null,
+                          ? flow.secondary
+                          : flow.title,
                     ),
                   ),
-                  if (lastMessageAt != null)
-                    Text(
-                      formatDateTime(
-                        lastMessageAt,
-                        lastMessageAt,
-                        locale: l10n.localeName,
-                      ),
-                      style: theme.textTheme.labelSmall,
+                  const SizedBox(height: 3),
+                  Text(
+                    availability
+                        ? '${chat.owner!.isAccountOnline ? '● ' : ''}${chat.owner!.isAccountOnline ? l10n.accountOnline : l10n.accountOffline}'
+                        : showsOwner
+                        ? l10n.owner
+                        : l10n.clientRole,
+                    style: theme.textTheme.labelSmall?.copyWith(
+                      color: availability && chat.owner!.isAccountOnline
+                          ? flow.success
+                          : flow.secondary,
                     ),
+                  ),
                 ],
               ),
             ),

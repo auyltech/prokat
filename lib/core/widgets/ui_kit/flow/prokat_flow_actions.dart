@@ -19,8 +19,8 @@ class ProkatFlowPrimaryButton extends StatelessWidget {
     final enabled = onPressed != null && !loading;
     return Material(
       color: enabled
-          ? palette.primary
-          : palette.primary.withValues(alpha: 0.45),
+          ? palette.filledPrimary
+          : palette.filledPrimary.withValues(alpha: 0.45),
       borderRadius: BorderRadius.circular(16),
       clipBehavior: Clip.antiAlias,
       child: InkWell(

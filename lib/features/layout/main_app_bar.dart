@@ -1,10 +1,12 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
+import 'package:prokat/core/theme/prokat_flow_palette.dart';
 import 'package:prokat/features/appstartup/app_startup_provider.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
 import 'package:prokat/features/chat/providers/chat_providers.dart';
@@ -172,6 +174,44 @@ class MainAppBar extends ConsumerWidget implements PreferredSizeWidget {
       AppRoutes.personalDataConsent,
     ].contains(currentPath)) {
       actions.add(const NotificationBadge());
+    }
+
+    if (isChatByIdScreen) {
+      final flow = ProkatFlowPalette.of(context);
+      return AppBar(
+        toolbarHeight: AppDimens.appBarHeight,
+        backgroundColor: flow.surface,
+        foregroundColor: flow.title,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        surfaceTintColor: Colors.transparent,
+        systemOverlayStyle: Theme.of(context).brightness == Brightness.dark
+            ? SystemUiOverlayStyle.light
+            : SystemUiOverlayStyle.dark,
+        centerTitle: false,
+        titleSpacing: 0,
+        title: title,
+        leading: IconButton(
+          tooltip: l10n.back,
+          icon: const Icon(Icons.chevron_left_rounded),
+          onPressed: () => _handleBack(
+            context,
+            ref,
+            currentPath: currentPath,
+            isChatByIdScreen: true,
+            chatId: segments[3],
+          ),
+        ),
+        actions: actions,
+        actionsPadding: const EdgeInsets.only(right: 8),
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(AppDimens.appBarDividerHeight),
+          child: Container(
+            height: AppDimens.appBarDividerHeight,
+            color: flow.border,
+          ),
+        ),
+      );
     }
 
     return ProkatAppBar(

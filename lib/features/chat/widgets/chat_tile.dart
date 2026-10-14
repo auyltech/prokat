@@ -78,7 +78,9 @@ class ChatTile extends ConsumerWidget {
     final chatStatus = getChatConfig(chat: chat, l10n: l10n, mode: mode);
     final statusLabel = chatStatus.statusLabel.trim();
     final showStatusBadge =
-        summary != null && summary.status.isNotEmpty && statusLabel.isNotEmpty;
+        statusLabel.isNotEmpty &&
+        ((summary != null && summary.status.isNotEmpty) ||
+            chat.inquiryEquipmentId != null);
 
     return InkWell(
       onTap: onTap,
@@ -139,12 +141,26 @@ class ChatTile extends ConsumerWidget {
                               const SizedBox(width: 8),
                               _StatusBadge(
                                 label: statusLabel,
-                                color: _getStatusColor(summary.status, theme),
+                                color: _getStatusColor(
+                                  summary?.status ?? chat.status.name,
+                                  theme,
+                                ),
                                 theme: theme,
                               ),
                             ],
                           ],
                         ),
+                        if (chat.inquiryEquipment?.name.isNotEmpty == true) ...[
+                          const SizedBox(height: 4),
+                          Text(
+                            chat.inquiryEquipment!.name,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
                         const SizedBox(height: 6),
                         Row(
                           children: [

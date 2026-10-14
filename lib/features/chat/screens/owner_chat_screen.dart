@@ -4,6 +4,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/core/theme/prokat_flow_palette.dart';
+import 'package:prokat/core/theme/prokat_flow_scope.dart';
 import 'package:prokat/core/utils/logger.dart';
 import 'package:prokat/features/appstartup/app_mode_storage.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
@@ -64,6 +66,7 @@ class _OwnerChatScreenState extends ConsumerState<OwnerChatScreen> {
   Widget build(BuildContext context) {
     ref.watch(openChatRegistrationProvider(widget.chatId));
     final theme = Theme.of(context);
+    final flow = ProkatFlowPalette.of(context);
     final l10n = AppLocalizations.of(context)!;
 
     final authState = ref.watch(authProvider);
@@ -139,53 +142,65 @@ class _OwnerChatScreenState extends ConsumerState<OwnerChatScreen> {
       mode: AppMode.ownerMode,
     );
 
-    return Theme(
-      data: theme.copyWith(
-        bottomNavigationBarTheme: theme.bottomNavigationBarTheme.copyWith(
-          backgroundColor: theme.colorScheme.surface,
+    return ProkatFlowScope(
+      palette: flow,
+      child: Theme(
+        data: theme.copyWith(
+          colorScheme: theme.colorScheme.copyWith(
+            primary: flow.filledPrimary,
+            onPrimary: Colors.white,
+            surface: flow.surface,
+            onSurface: flow.title,
+            outline: flow.border,
+          ),
+          bottomNavigationBarTheme: theme.bottomNavigationBarTheme.copyWith(
+            backgroundColor: theme.colorScheme.surface,
+          ),
         ),
-      ),
-      child: Scaffold(
-        backgroundColor: theme.colorScheme.surface,
-        body: Column(
-          children: [
-            if (currentChat != null && currentChat.inquiryEquipment != null)
-              InquiryContextCard(chat: currentChat),
-            if ((chatAsync.hasError || messagesAsync.hasError) &&
-                messages.isEmpty)
-              Expanded(
-                child: ChatThreadLoadError(
-                  error: chatAsync.error ?? messagesAsync.error ?? '',
-                  onRetry: () async {
-                    await ref
-                        .read(currentChatProvider(widget.chatId).notifier)
-                        .refresh();
-                    await ref
-                        .read(chatMessagesProvider(widget.chatId).notifier)
-                        .refresh();
-                  },
-                ),
-              )
-            else
-              Expanded(
-                child: Container(
-                  color: theme.colorScheme.surface,
-                  child: ChatMessageList(
-                    chatId: widget.chatId,
-                    currentUserId: currentUserId,
-                    mode: AppMode.ownerMode,
-                    currentChat: currentChat,
+        child: Scaffold(
+          backgroundColor: flow.background,
+          body: Column(
+            children: [
+              if (currentChat != null &&
+                  (currentChat.inquiryEquipment != null ||
+                      currentChat.booking?.equipment != null))
+                InquiryContextCard(chat: currentChat),
+              if ((chatAsync.hasError || messagesAsync.hasError) &&
+                  messages.isEmpty)
+                Expanded(
+                  child: ChatThreadLoadError(
+                    error: chatAsync.error ?? messagesAsync.error ?? '',
+                    onRetry: () async {
+                      await ref
+                          .read(currentChatProvider(widget.chatId).notifier)
+                          .refresh();
+                      await ref
+                          .read(chatMessagesProvider(widget.chatId).notifier)
+                          .refresh();
+                    },
+                  ),
+                )
+              else
+                Expanded(
+                  child: Container(
+                    color: flow.background,
+                    child: ChatMessageList(
+                      chatId: widget.chatId,
+                      currentUserId: currentUserId,
+                      mode: AppMode.ownerMode,
+                      currentChat: currentChat,
+                    ),
                   ),
                 ),
-              ),
-          ],
-        ),
-        bottomNavigationBar: SendMessageForm(
-          chatId: widget.chatId,
-          chatStatus: chatConfig.status,
-          mode: AppMode.ownerMode,
-          currentChat: currentChat,
-          actionBarTitle: chatConfig.actionBartitle,
+            ],
+          ),
+          bottomNavigationBar: SendMessageForm(
+            chatId: widget.chatId,
+            chatStatus: chatConfig.status,
+            mode: AppMode.ownerMode,
+            currentChat: currentChat,
+            actionBarTitle: chatConfig.actionBartitle,
+          ),
         ),
       ),
     );

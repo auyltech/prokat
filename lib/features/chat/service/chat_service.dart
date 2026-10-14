@@ -17,6 +17,22 @@ class ChatService {
 
   Dio get _dio => apiClient.dio;
 
+  Future<ApiResponse<bool>> closeEquipmentInquiry(String chatId) async {
+    try {
+      final response = await _dio.post('/chats/id/$chatId/inquiry/close');
+      return handleApiResponse<bool>(response: response, parser: (_) => true);
+    } on DioException catch (error) {
+      final exception = ApiException.fromDio(error);
+      return ApiResponse.failure(
+        message: exception.message,
+        error: (exception.data ?? error).toString(),
+        statusCode: exception.statusCode,
+      );
+    } catch (error) {
+      return ApiResponse.failure(message: 'Unexpected error', error: '$error');
+    }
+  }
+
   Future<ApiResponse<String>> startEquipmentInquiry(String equipmentId) async {
     try {
       final response = await _dio.post(

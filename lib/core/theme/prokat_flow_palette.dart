@@ -26,6 +26,9 @@ class ProkatFlowPalette {
   static ProkatFlowPalette of(BuildContext context) =>
       Theme.of(context).brightness == Brightness.dark ? dark : light;
 
+  /// Filled controls keep white content readable in both appearance modes.
+  Color get filledPrimary => light.primary;
+
   static const light = ProkatFlowPalette(
     background: Color(0xFFF3F6FC),
     surface: Colors.white,

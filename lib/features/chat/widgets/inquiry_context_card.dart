@@ -1,36 +1,105 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:prokat/core/theme/prokat_flow_palette.dart';
+import 'package:prokat/core/utils/format.dart';
+import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:prokat/core/widgets/optimized_network_image.dart';
 import 'package:prokat/features/bookings/models/booking_status.dart';
 import 'package:prokat/features/chat/models/chat_model.dart';
+import 'package:prokat/features/chat/providers/chat_dependencies.dart';
+import 'package:prokat/features/chat/state/post_mutation_cache_coordinator.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
 /// Context for a direct listing discussion, including after it becomes an order.
-class InquiryContextCard extends StatelessWidget {
+class InquiryContextCard extends ConsumerStatefulWidget {
   final ChatModel chat;
   final VoidCallback? onSetTerms;
 
   const InquiryContextCard({super.key, required this.chat, this.onSetTerms});
 
   @override
+  ConsumerState<InquiryContextCard> createState() => _InquiryContextCardState();
+}
+
+class _InquiryContextCardState extends ConsumerState<InquiryContextCard> {
+  bool _closing = false;
+
+  Future<void> _closeDiscussion() async {
+    if (_closing) return;
+    final chatId = widget.chat.id;
+    final l10n = AppLocalizations.of(context)!;
+    final confirmed = await AppAlertBottomSheet.show(
+      context,
+      title: l10n.inquiryCloseQuestion,
+      description: l10n.inquiryCloseDescription,
+      primaryLabel: l10n.inquiryCloseAction,
+      secondaryLabel: l10n.cancel,
+    );
+    if (!mounted || confirmed != true || widget.chat.id != chatId) return;
+    setState(() => _closing = true);
+    try {
+      final result = await ref
+          .read(chatServiceProvider)
+          .closeEquipmentInquiry(chatId);
+      if (!mounted) return;
+      await ref
+          .read(postMutationCacheCoordinatorProvider)
+          .refreshAffectedChats(chatId);
+      if (!mounted) return;
+      AppToast.show(
+        message: result.success
+            ? l10n.inquiryClosedStatus
+            : l10n.inquiryCloseFailed,
+        type: result.success ? AppToastType.success : AppToastType.error,
+      );
+    } finally {
+      if (mounted) setState(() => _closing = false);
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final chat = widget.chat;
+    final onSetTerms = widget.onSetTerms;
     final equipment = chat.inquiryEquipment;
-    if (equipment == null) return const SizedBox.shrink();
+    final bookedEquipment = chat.booking?.equipment;
+    if (equipment == null && bookedEquipment == null) {
+      return const SizedBox.shrink();
+    }
     final palette = ProkatFlowPalette.of(context);
     final l10n = AppLocalizations.of(context)!;
     final status = switch (chat.booking?.status) {
-      null => l10n.inquiryStatus,
+      null =>
+        chat.bookingId != null
+            ? l10n.requestPending
+            : chat.status == ChatStatus.active
+            ? l10n.inquiryStatus
+            : l10n.inquiryClosedStatus,
       BookingStatus.created => l10n.requestPending,
       BookingStatus.confirmed => l10n.orderConfirmed,
       BookingStatus.completed || BookingStatus.reviewed => l10n.orderCompleted,
       BookingStatus.rejected => l10n.requestRejected,
       _ => l10n.orderCancelled,
     };
-    final canSetTerms =
+    final isOpenInquiry =
+        chat.inquiryEquipmentId != null &&
+        chat.bookingId == null &&
         chat.booking == null &&
+        chat.bookingSummary == null &&
+        chat.requestId == null &&
+        equipment?.companyId == null &&
+        chat.status == ChatStatus.active;
+    final canSetTerms =
+        isOpenInquiry &&
+        !_closing &&
         onSetTerms != null &&
         chat.status == ChatStatus.active;
+    final statusColor = chat.booking?.status == BookingStatus.confirmed
+        ? palette.success
+        : chat.booking?.status == BookingStatus.created
+        ? palette.primary
+        : palette.secondary;
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(12, 8, 12, 6),
@@ -43,7 +112,11 @@ class InquiryContextCard extends StatelessWidget {
           child: Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              border: Border.all(color: palette.border),
+              border: Border.all(
+                color: chat.booking?.status == BookingStatus.confirmed
+                    ? palette.success.withValues(alpha: .35)
+                    : palette.border,
+              ),
               borderRadius: BorderRadius.circular(18),
             ),
             child: Row(
@@ -53,7 +126,9 @@ class InquiryContextCard extends StatelessWidget {
                   child: SizedBox.square(
                     dimension: 54,
                     child: OptimizedNetworkImage(
-                      imageUrl: equipment.primaryImageUrl,
+                      imageUrl:
+                          equipment?.primaryImageUrl ??
+                          bookedEquipment?.imageUrl,
                       fit: BoxFit.cover,
                     ),
                   ),
@@ -64,7 +139,9 @@ class InquiryContextCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        equipment.name,
+                        equipment?.name ??
+                            bookedEquipment?.name ??
+                            l10n.unknownEquipment,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
@@ -76,23 +153,58 @@ class InquiryContextCard extends StatelessWidget {
                       ),
                       const SizedBox(height: 3),
                       Text(
-                        canSetTerms
-                            ? '$status · ${l10n.inquiryCreateOrder}'
-                            : status,
+                        status,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                           fontFamily: 'Manrope',
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
-                          color: canSetTerms
-                              ? palette.primary
-                              : palette.secondary,
+                          color: statusColor,
+                        ),
+                      ),
+                      if (canSetTerms) ...[
+                        const SizedBox(height: 3),
+                        Text(
+                          l10n.inquiryCreateOrder,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontFamily: 'Manrope',
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
+                            color: palette.primary,
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+                if (chat.booking != null) ...[
+                  const SizedBox(width: 8),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text(
+                        formatPrice(chat.booking!.price),
+                        style: TextStyle(
+                          fontFamily: 'Manrope',
+                          fontSize: 13,
+                          fontWeight: FontWeight.w800,
+                          color: palette.primary,
+                        ),
+                      ),
+                      Text(
+                        getPriceRate(chat.booking!.priceRate, l10n: l10n),
+                        style: TextStyle(
+                          fontFamily: 'Manrope',
+                          fontSize: 11,
+                          color: palette.secondary,
                         ),
                       ),
                     ],
                   ),
-                ),
+                ],
                 if (canSetTerms) ...[
                   const SizedBox(width: 4),
                   Icon(
@@ -101,6 +213,25 @@ class InquiryContextCard extends StatelessWidget {
                     size: 20,
                   ),
                 ],
+                if (isOpenInquiry)
+                  IconButton(
+                    key: const ValueKey('inquiry-close-button'),
+                    tooltip: l10n.inquiryCloseAction,
+                    onPressed: _closing ? null : _closeDiscussion,
+                    icon: _closing
+                        ? SizedBox.square(
+                            dimension: 16,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: palette.secondary,
+                            ),
+                          )
+                        : Icon(
+                            LucideIcons.archive,
+                            color: palette.secondary,
+                            size: 19,
+                          ),
+                  ),
               ],
             ),
           ),

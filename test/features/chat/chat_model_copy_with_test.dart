@@ -4,6 +4,21 @@ import 'package:prokat/features/chat/models/chat_model.dart';
 
 void main() {
   group('ChatModel.copyWith', () {
+    test('server inquiry with no booking keeps a nullable booking id', () {
+      for (final value in [null, '', '  ']) {
+        final chat = ChatModel.fromJson({
+          'id': 'inquiry-chat',
+          'bookingId': value,
+          'inquiryEquipmentId': 'equipment-1',
+        });
+        expect(chat.bookingId, isNull);
+        expect(chat.copyWith(lastMessage: null).bookingId, isNull);
+      }
+      expect(
+        ChatModel.fromJson({'id': 'chat', 'bookingId': 'booking-1'}).bookingId,
+        'booking-1',
+      );
+    });
     test('retains newMessagesCount when lastMessage is updated', () {
       const chat = ChatModel(id: 'chat-1', newMessagesCount: 3);
       const lastMessage = ChatMessageModel(

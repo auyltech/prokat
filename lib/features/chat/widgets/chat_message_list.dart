@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/widgets/empty_state_tile.dart';
+import 'package:prokat/core/theme/prokat_flow_scope.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 import 'package:prokat/features/appstartup/app_mode_storage.dart';
 import 'package:prokat/features/chat/models/chat_model.dart';
 import 'package:prokat/features/chat/providers/chat_providers.dart';
@@ -161,6 +163,51 @@ class _ChatMessageListState extends ConsumerState<ChatMessageList>
       error: (_, _) => const Center(child: EmptyStateTile()),
       data: (messagesData) {
         if (messagesData.items.isEmpty) {
+          final flow = ProkatFlowScope.maybeOf(context);
+          if (flow != null &&
+              widget.currentChat?.inquiryEquipmentId != null &&
+              widget.currentChat?.bookingId == null) {
+            final l10n = AppLocalizations.of(context)!;
+            return Center(
+              child: Padding(
+                padding: const EdgeInsets.all(32),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.chat_bubble_outline_rounded,
+                      size: 36,
+                      color: flow.primary,
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      l10n.inquiryStatus,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontFamily: 'Manrope',
+                        color: flow.title,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      widget.mode == AppMode.clientMode
+                          ? l10n.inquiryClientEmptyHint
+                          : l10n.inquiryOwnerEmptyHint,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontFamily: 'Manrope',
+                        color: flow.secondary,
+                        fontSize: 14,
+                        height: 1.5,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }
           return const Center(child: EmptyStateTile());
         }
 

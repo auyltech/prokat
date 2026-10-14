@@ -4065,4 +4065,33 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get inquiryOwnerOffline =>
       'Включите «Онлайн», чтобы ответить клиенту.';
+
+  @override
+  String get inquiryCloseAction => 'Завершить обсуждение';
+
+  @override
+  String get inquiryCloseQuestion => 'Завершить обсуждение без заказа?';
+
+  @override
+  String get inquiryCloseDescription =>
+      'Переписка сохранится в архиве чатов. Заказ создан не будет.';
+
+  @override
+  String get inquiryClosedStatus => 'Обсуждение завершено';
+
+  @override
+  String get inquiryCloseFailed =>
+      'Не удалось завершить обсуждение. Обновите чат и попробуйте снова.';
+
+  @override
+  String get inquiryClientEmptyHint =>
+      'Спросите о доступности, цене или деталях. Заказ пока не создан.';
+
+  @override
+  String get inquiryOwnerEmptyHint =>
+      'Обсудите задачу с клиентом. Заказ появится после отправки условий.';
+
+  @override
+  String get inquiryReadOnlyHint =>
+      'Переписка сохранена. Доступен только просмотр.';
 }

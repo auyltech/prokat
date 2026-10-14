@@ -2,7 +2,9 @@
 
 Тред обсуждения объявления или сделки. Список vs открытый чат: `lib/features/workflow/AGENTS.md`.
 
-Прямое обсуждение частного объявления: `inquiryEquipmentId` + безопасный `inquiryEquipment` (тарифы, обложка, публичные поля), `bookingId == null`. Верхняя `InquiryContextCard` открывает условия только клиенту и только пока тред ACTIVE без заказа. После отправки условий тот же чат получает Booking CREATED; карточка сохраняет контекст и меняет статус. Полный редизайн чата, закрытие брошенных обсуждений и интеграция с админкой — отдельные последующие срезы.
+Прямое обсуждение частного объявления: `inquiryEquipmentId` + безопасный `inquiryEquipment` (тарифы, обложка, публичные поля), `bookingId == null`; parser нормализует пустые bookingId в null. `InquiryContextCard` показывает также Booking.equipment для прямого запроса. Условия открывает только клиент и только ACTIVE без заказа. После отправки условий тот же чат получает Booking CREATED. Иконка завершения вызывает POST /chats/id/:id/inquiry/close после подтверждения: без Booking/request/company, обе стороны, история сохранена, статус CLOSED, текущий ввод и ленты обновляются через existing workflow. OFFLINE/block закрытию не мешают. Автоматический TTL не реализован.
+
+Новый вид opt-in через ProkatFlowScope в ClientChatScreen/OwnerChatScreen: pale background, white/blue bubbles, компактная Booking card и composer; Support вне scope сохраняет старый вид. FilledPrimary общий для белого текста в обеих темах. Header availability — OwnerProfile onlineStatus, не время посещения.
 
 ## Сообщения
 

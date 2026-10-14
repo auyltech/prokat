@@ -90,6 +90,18 @@ ChatConfig getChatConfig({
   final workStatus =
       chat?.booking?.workStatus ?? chat?.bookingSummary?.workStatus;
 
+  if (chat?.inquiryEquipmentId != null &&
+      bookingStatus == null &&
+      chat?.bookingId == null) {
+    return ChatConfig(
+      status: ChatStatusDetail.unknown,
+      actionBartitle: '',
+      statusLabel: chat?.status == ChatStatus.active
+          ? l10n.inquiryStatus
+          : l10n.inquiryClosedStatus,
+    );
+  }
+
   switch (bookingStatus) {
     case BookingStatus.reviewed:
       {

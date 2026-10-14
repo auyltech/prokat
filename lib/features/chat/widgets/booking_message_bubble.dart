@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:prokat/core/theme/prokat_flow_palette.dart';
+import 'package:prokat/core/theme/prokat_flow_scope.dart';
 import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -9,6 +11,7 @@ import 'package:prokat/core/widgets/optimized_network_image.dart';
 import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/core/widgets/info_tile.dart';
 import 'package:prokat/features/appstartup/app_mode_storage.dart';
+import 'package:prokat/features/bookings/models/booking_model.dart';
 import 'package:prokat/features/bookings/models/booking_status.dart';
 import 'package:prokat/features/bookings/models/work_status.dart';
 import 'package:prokat/features/bookings/providers/booking_mutation_provider.dart';
@@ -62,6 +65,10 @@ class _BookingMessageBubbleState extends ConsumerState<BookingMessageBubble> {
 
     final equipment = booking.equipment;
     final location = booking.location;
+    final palette = ProkatFlowScope.maybeOf(context);
+    if (palette != null) {
+      return _buildFlowCard(context, booking, l10n, palette);
+    }
 
     return Container(
       width: double.infinity,
@@ -257,13 +264,7 @@ class _BookingMessageBubbleState extends ConsumerState<BookingMessageBubble> {
                   AppIconButton(
                     icon: LucideIcons.x,
                     tone: AppIconButtonTone.destructive,
-                    onTap: () => unawaited(
-                      CancelBookingSheet.show(
-                        context,
-                        booking: booking,
-                        mode: widget.mode,
-                      ),
-                    ),
+                    onTap: () => _cancelBooking(context, booking),
                   ),
               ],
 
@@ -286,25 +287,7 @@ class _BookingMessageBubbleState extends ConsumerState<BookingMessageBubble> {
                   AppIconButton(
                     icon: LucideIcons.coins,
                     tone: AppIconButtonTone.primary,
-                    onTap: () async {
-                      if (widget.mode == AppMode.ownerMode) {
-                        final online = await ensureOwnerOnline(
-                          context,
-                          ref,
-                          message: l10n.ownerOfflineMustBeOnlineToBargain,
-                        );
-                        if (!online || !context.mounted) return;
-                      }
-
-                      await CounterOfferSheet.show(
-                        context,
-                        bookingId: booking.id,
-                        chatId: widget.message.chatId,
-                        initialPrice: booking.price,
-                        initialPriceRate: booking.priceRate,
-                        mode: widget.mode,
-                      );
-                    },
+                    onTap: () => _counterOffer(context, booking, l10n),
                   ),
               ],
 
@@ -328,50 +311,466 @@ class _BookingMessageBubbleState extends ConsumerState<BookingMessageBubble> {
                   AppIconButton(
                     icon: LucideIcons.check,
                     tone: AppIconButtonTone.success,
-                    onTap: () async {
-                      final online = await ensureOwnerOnline(
-                        context,
-                        ref,
-                        message: l10n.ownerOfflineMustBeOnlineToAcceptOrder,
-                      );
-                      if (!online || !context.mounted) return;
-
-                      final confirmed = await AppAlertBottomSheet.show(
-                        context,
-                        title: l10n.acceptOrderQuestion,
-                        description: l10n.acceptOrderConfirmation,
-                        primaryLabel: l10n.accept,
-                        secondaryLabel: l10n.cancel,
-                      );
-
-                      if (confirmed != true || !context.mounted) return;
-
-                      final result = await ref
-                          .read(bookingMutationProvider.notifier)
-                          .updateBookingStatus(
-                            id: booking.id,
-                            status: BookingStatus.confirmed,
-                          );
-
-                      if (!context.mounted) return;
-                      AppToast.show(
-                        message: result.success
-                            ? l10n.orderConfirmed
-                            : ownerOfflineActionErrorMessage(
-                                l10n: l10n,
-                                errorCode: result.errorCode,
-                                fallback: l10n.failedToConfirmOrder,
-                              ),
-                        type: result.success
-                            ? AppToastType.success
-                            : AppToastType.error,
-                      );
-                    },
+                    onTap: () => _acceptBooking(context, booking, l10n),
                   ),
               ],
             ],
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildFlowCard(
+    BuildContext context,
+    BookingModel booking,
+    AppLocalizations l10n,
+    ProkatFlowPalette palette,
+  ) {
+    final theme = Theme.of(context);
+    final equipment = booking.equipment;
+    final location = booking.location;
+    final languageCode = Localizations.localeOf(context).languageCode;
+    final address = location?.streetLine(languageCode) ?? '';
+    final isPending = booking.status == BookingStatus.created;
+    final statusColor = switch (booking.status) {
+      BookingStatus.created => palette.primary,
+      BookingStatus.confirmed => palette.success,
+      BookingStatus.completed || BookingStatus.reviewed => palette.primary,
+      BookingStatus.cancelled ||
+      BookingStatus.rejected ||
+      BookingStatus.failed => theme.colorScheme.error,
+      BookingStatus.draft => palette.secondary,
+    };
+    final date = booking.bookedOn == null
+        ? l10n.dateNotSet
+        : DateFormat.yMMMd(languageCode).format(booking.bookedOn!.toLocal());
+    final schedule = booking.bookedAt == null
+        ? date
+        : '$date · ${DateFormat.Hm().format(booking.bookedAt!.toLocal())}';
+    final actions = _flowActions(context, booking, l10n, palette);
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: palette.surface,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: palette.border),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 32,
+                height: 32,
+                decoration: BoxDecoration(
+                  color: palette.primarySoft,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(
+                  Icons.assignment_outlined,
+                  size: 18,
+                  color: palette.primary,
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      isPending ? l10n.requestOwnerTitle : l10n.orderUnit,
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: palette.title,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    const SizedBox(height: 3),
+                    Text(
+                      isPending
+                          ? l10n.requestPending
+                          : getBookingStatus(booking.status, l10n: l10n),
+                      style: theme.textTheme.labelSmall?.copyWith(
+                        color: statusColor,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Tooltip(
+            message: l10n.equipmentDetails,
+            child: Material(
+              color: Colors.transparent,
+              borderRadius: BorderRadius.circular(12),
+              clipBehavior: Clip.antiAlias,
+              child: InkWell(
+                onTap: () => EquipmentDetailsSheet.show(
+                  context,
+                  name: equipment?.name,
+                  model: equipment?.model,
+                  plateNumber: equipment?.plateNumber,
+                  imageUrl: equipment?.imageUrl,
+                ),
+                child: Row(
+                  children: [
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(12),
+                      child: equipment?.imageUrl?.isNotEmpty == true
+                          ? OptimizedNetworkImage(
+                              imageUrl: equipment!.imageUrl,
+                              width: 52,
+                              height: 52,
+                              fit: BoxFit.cover,
+                            )
+                          : Container(
+                              width: 52,
+                              height: 52,
+                              color: palette.background,
+                              child: Icon(
+                                Icons.local_shipping_outlined,
+                                size: 24,
+                                color: palette.secondary,
+                              ),
+                            ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            equipment?.name ?? l10n.unknownEquipment,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              color: palette.title,
+                              fontWeight: FontWeight.w700,
+                              height: 1.3,
+                            ),
+                          ),
+                          if (equipment?.model?.isNotEmpty == true) ...[
+                            const SizedBox(height: 2),
+                            Text(
+                              equipment!.model!,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color: palette.secondary,
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    Icon(
+                      Icons.chevron_right_rounded,
+                      size: 18,
+                      color: palette.secondary,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+          Container(
+            decoration: BoxDecoration(
+              color: palette.background,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Column(
+              children: [
+                _FlowBookingDetail(
+                  palette: palette,
+                  icon: Icons.event_outlined,
+                  value: schedule,
+                ),
+                if (location != null)
+                  _FlowBookingDetail(
+                    palette: palette,
+                    icon: Icons.location_on_outlined,
+                    value: address,
+                    onTap: () => showLocationSheet(context, location),
+                  ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      formatPrice(booking.price),
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        color: palette.title,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                    Text(
+                      getPriceRate(booking.priceRate, l10n: l10n),
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: palette.secondary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              if (actions.isNotEmpty) ...[
+                const SizedBox(width: 8),
+                Wrap(spacing: 6, children: actions),
+              ],
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  List<Widget> _flowActions(
+    BuildContext context,
+    BookingModel booking,
+    AppLocalizations l10n,
+    ProkatFlowPalette palette,
+  ) {
+    final canCancel =
+        [
+          BookingStatus.created,
+          BookingStatus.confirmed,
+        ].contains(booking.status) &&
+        booking.workStatus != WorkStatus.completed;
+    final canNegotiate =
+        booking.status == BookingStatus.created &&
+        !(widget.mode == AppMode.clientMode && _isOfflineLockedForBubble());
+    final canAccept =
+        widget.mode == AppMode.ownerMode &&
+        booking.status == BookingStatus.created;
+    if (!canCancel && !canNegotiate && !canAccept) return const [];
+
+    final mutation = ref.watch(bookingMutationProvider);
+    return [
+      if (canCancel)
+        _FlowBookingAction(
+          label:
+              widget.mode == AppMode.ownerMode &&
+                  booking.status == BookingStatus.created
+              ? l10n.rejectOrder
+              : l10n.cancelBooking,
+          icon: LucideIcons.x,
+          color: Theme.of(context).colorScheme.error,
+          surface: palette.surface,
+          loading:
+              mutation.isActionActive('booking:${booking.id}:cancel') ||
+              mutation.isActionActive('booking:${booking.id}:reject'),
+          onPressed: () => _cancelBooking(context, booking),
+        ),
+      if (canNegotiate)
+        _FlowBookingAction(
+          label: l10n.proposeYourPrice,
+          icon: LucideIcons.coins,
+          color: palette.primary,
+          surface: palette.surface,
+          loading: mutation.isActionActive('price:create'),
+          onPressed: () => _counterOffer(context, booking, l10n),
+        ),
+      if (canAccept)
+        _FlowBookingAction(
+          label: l10n.acceptOrder,
+          icon: LucideIcons.check,
+          color: palette.primary,
+          surface: palette.primarySoft,
+          loading: mutation.isActionActive(
+            'booking:${booking.id}:update:${BookingStatus.confirmed}',
+          ),
+          onPressed: () => _acceptBooking(context, booking, l10n),
+        ),
+    ];
+  }
+
+  void _cancelBooking(BuildContext context, BookingModel booking) {
+    unawaited(
+      CancelBookingSheet.show(context, booking: booking, mode: widget.mode),
+    );
+  }
+
+  Future<void> _counterOffer(
+    BuildContext context,
+    BookingModel booking,
+    AppLocalizations l10n,
+  ) async {
+    if (widget.mode == AppMode.ownerMode) {
+      final online = await ensureOwnerOnline(
+        context,
+        ref,
+        message: l10n.ownerOfflineMustBeOnlineToBargain,
+      );
+      if (!online || !context.mounted) return;
+    }
+
+    await CounterOfferSheet.show(
+      context,
+      bookingId: booking.id,
+      chatId: widget.message.chatId,
+      initialPrice: booking.price,
+      initialPriceRate: booking.priceRate,
+      mode: widget.mode,
+    );
+  }
+
+  Future<void> _acceptBooking(
+    BuildContext context,
+    BookingModel booking,
+    AppLocalizations l10n,
+  ) async {
+    final online = await ensureOwnerOnline(
+      context,
+      ref,
+      message: l10n.ownerOfflineMustBeOnlineToAcceptOrder,
+    );
+    if (!online || !context.mounted) return;
+
+    final confirmed = await AppAlertBottomSheet.show(
+      context,
+      title: l10n.acceptOrderQuestion,
+      description: l10n.acceptOrderConfirmation,
+      primaryLabel: l10n.accept,
+      secondaryLabel: l10n.cancel,
+    );
+    if (confirmed != true || !context.mounted) return;
+
+    final result = await ref
+        .read(bookingMutationProvider.notifier)
+        .updateBookingStatus(id: booking.id, status: BookingStatus.confirmed);
+    if (!context.mounted) return;
+    AppToast.show(
+      message: result.success
+          ? l10n.orderConfirmed
+          : ownerOfflineActionErrorMessage(
+              l10n: l10n,
+              errorCode: result.errorCode,
+              fallback: l10n.failedToConfirmOrder,
+            ),
+      type: result.success ? AppToastType.success : AppToastType.error,
+    );
+  }
+}
+
+class _FlowBookingDetail extends StatelessWidget {
+  final ProkatFlowPalette palette;
+  final IconData icon;
+  final String value;
+  final VoidCallback? onTap;
+
+  const _FlowBookingDetail({
+    required this.palette,
+    required this.icon,
+    required this.value,
+    this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      borderRadius: BorderRadius.circular(12),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(icon, size: 17, color: palette.secondary),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  value,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context).textTheme.bodySmall
+                      ?.copyWith(height: 1.4, color: palette.title),
+                ),
+              ),
+              if (onTap != null) ...[
+                const SizedBox(width: 4),
+                Icon(
+                  Icons.chevron_right_rounded,
+                  size: 16,
+                  color: palette.secondary,
+                ),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _FlowBookingAction extends StatelessWidget {
+  final String label;
+  final IconData icon;
+  final Color color;
+  final Color surface;
+  final bool loading;
+  final VoidCallback onPressed;
+
+  const _FlowBookingAction({
+    required this.label,
+    required this.icon,
+    required this.color,
+    required this.surface,
+    required this.loading,
+    required this.onPressed,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      button: true,
+      label: label,
+      enabled: !loading,
+      child: Tooltip(
+        message: label,
+        child: Material(
+          color: surface,
+          borderRadius: BorderRadius.circular(12),
+          clipBehavior: Clip.antiAlias,
+          child: InkWell(
+            onTap: loading ? null : onPressed,
+            child: Container(
+              width: 44,
+              height: 44,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: color.withValues(alpha: 0.3)),
+              ),
+              child: loading
+                  ? SizedBox.square(
+                      dimension: 17,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: color,
+                      ),
+                    )
+                  : Icon(icon, size: 21, color: color),
+            ),
+          ),
+        ),
       ),
     );
   }

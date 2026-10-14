@@ -4028,4 +4028,33 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get inquiryOwnerOffline => 'Go online to reply to the client.';
+
+  @override
+  String get inquiryCloseAction => 'End discussion';
+
+  @override
+  String get inquiryCloseQuestion => 'End this discussion without an order?';
+
+  @override
+  String get inquiryCloseDescription =>
+      'The conversation will stay in archived chats. No order will be created.';
+
+  @override
+  String get inquiryClosedStatus => 'Discussion ended';
+
+  @override
+  String get inquiryCloseFailed =>
+      'Could not end the discussion. Refresh the chat and try again.';
+
+  @override
+  String get inquiryClientEmptyHint =>
+      'Ask about availability, prices or details. No order has been created yet.';
+
+  @override
+  String get inquiryOwnerEmptyHint =>
+      'Discuss the task with the client. An order will appear after the terms are submitted.';
+
+  @override
+  String get inquiryReadOnlyHint =>
+      'The conversation is saved. You can view it here.';
 }

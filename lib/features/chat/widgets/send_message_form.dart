@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
+import 'package:prokat/core/theme/prokat_flow_scope.dart';
 import 'package:prokat/features/appstartup/app_mode_storage.dart';
 import 'package:prokat/features/chat/widgets/booking_actions/chat_action_bar.dart';
 import 'package:prokat/features/chat/providers/chat_providers.dart';
@@ -220,26 +221,29 @@ class _SendMessageFormState extends ConsumerState<SendMessageForm> {
 
   Widget _roundedPanel({required Widget child}) {
     final theme = Theme.of(context);
+    final flow = ProkatFlowScope.maybeOf(context);
     return Container(
       decoration: BoxDecoration(
-        color: theme.cardColor.withValues(alpha: 0.80),
+        color: flow?.surface ?? theme.cardColor.withValues(alpha: 0.80),
         borderRadius: const BorderRadius.only(
           topLeft: Radius.circular(24),
           topRight: Radius.circular(24),
         ),
         border: Border(
           top: BorderSide(
-            color: theme.dividerColor.withValues(alpha: 0.4),
+            color: flow?.border ?? theme.dividerColor.withValues(alpha: 0.4),
             width: 1,
           ),
         ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.06),
-            blurRadius: 20,
-            offset: const Offset(0, -4),
-          ),
-        ],
+        boxShadow: flow != null
+            ? const []
+            : [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.06),
+                  blurRadius: 20,
+                  offset: const Offset(0, -4),
+                ),
+              ],
       ),
       child: SafeArea(
         top: false,
@@ -292,6 +296,7 @@ class _SendMessageFormState extends ConsumerState<SendMessageForm> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
+    final flow = ProkatFlowScope.maybeOf(context);
 
     if (widget.mode == AppMode.ownerMode) {
       ref.watch(
@@ -335,7 +340,10 @@ class _SendMessageFormState extends ConsumerState<SendMessageForm> {
               const SizedBox(width: 8),
               Flexible(
                 child: Text(
-                  l10n.chatLocked,
+                  widget.currentChat?.inquiryEquipmentId != null &&
+                          widget.currentChat?.bookingId == null
+                      ? l10n.inquiryReadOnlyHint
+                      : l10n.chatLocked,
                   textAlign: TextAlign.center,
                   style: theme.textTheme.labelMedium?.copyWith(
                     color: theme.colorScheme.onSurfaceVariant,
@@ -418,20 +426,22 @@ class _SendMessageFormState extends ConsumerState<SendMessageForm> {
                     maxLines: 5,
                     textCapitalization: TextCapitalization.sentences,
                     style: TextStyle(
-                      color: theme.colorScheme.onPrimary,
+                      color: flow?.title ?? theme.colorScheme.onPrimary,
                       fontSize: 16,
                       fontWeight: FontWeight.w500,
                     ),
                     decoration: InputDecoration(
                       hintText: l10n.typeMessageHint,
-                      hintStyle: const TextStyle(
-                        color: Color.fromARGB(255, 126, 126, 126),
+                      hintStyle: TextStyle(
+                        color:
+                            flow?.secondary ??
+                            const Color.fromARGB(255, 126, 126, 126),
                         fontWeight: FontWeight.w400,
                       ),
                       filled: true,
-                      fillColor: theme.scaffoldBackgroundColor.withValues(
-                        alpha: 0.85,
-                      ),
+                      fillColor:
+                          flow?.background ??
+                          theme.scaffoldBackgroundColor.withValues(alpha: 0.85),
                       contentPadding: const EdgeInsets.symmetric(
                         horizontal: 20,
                         vertical: 12,
@@ -439,21 +449,25 @@ class _SendMessageFormState extends ConsumerState<SendMessageForm> {
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(24),
                         borderSide: BorderSide(
-                          color: theme.dividerColor.withValues(alpha: 0.4),
+                          color:
+                              flow?.border ??
+                              theme.dividerColor.withValues(alpha: 0.4),
                         ),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(24),
                         borderSide: BorderSide(
-                          color: theme.dividerColor.withValues(alpha: 0.4),
+                          color:
+                              flow?.border ??
+                              theme.dividerColor.withValues(alpha: 0.4),
                         ),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(24),
                         borderSide: BorderSide(
-                          color: theme.colorScheme.primary.withValues(
-                            alpha: 0.4,
-                          ),
+                          color:
+                              flow?.primary ??
+                              theme.colorScheme.primary.withValues(alpha: 0.4),
                           width: 1.5,
                         ),
                       ),
@@ -464,12 +478,31 @@ class _SendMessageFormState extends ConsumerState<SendMessageForm> {
                 Stack(
                   clipBehavior: Clip.none,
                   children: [
-                    AppIconButton(
-                      icon: Icons.send_rounded,
-                      onTap: _sendMessage,
-                      variant: AppIconButtonVariant.floating,
-                      tone: AppIconButtonTone.primary,
-                    ),
+                    if (flow == null)
+                      AppIconButton(
+                        icon: Icons.send_rounded,
+                        onTap: _sendMessage,
+                        variant: AppIconButtonVariant.floating,
+                        tone: AppIconButtonTone.primary,
+                      )
+                    else
+                      ValueListenableBuilder<TextEditingValue>(
+                        valueListenable: _controller,
+                        builder: (context, value, _) => IconButton.filled(
+                          tooltip: l10n.send,
+                          style: IconButton.styleFrom(
+                            backgroundColor: flow.filledPrimary,
+                            foregroundColor: Colors.white,
+                            disabledBackgroundColor: flow.primarySoft,
+                            disabledForegroundColor: flow.secondary,
+                            fixedSize: const Size(48, 48),
+                          ),
+                          onPressed: value.text.trim().isEmpty
+                              ? null
+                              : _sendMessage,
+                          icon: const Icon(LucideIcons.send, size: 23),
+                        ),
+                      ),
                     if (isSendingAny)
                       const Positioned(
                         right: -2,

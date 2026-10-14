@@ -4029,4 +4029,32 @@ class AppLocalizationsKk extends AppLocalizations {
   @override
   String get inquiryOwnerOffline =>
       'Клиентке жауап беру үшін «Онлайн» режимін қосыңыз.';
+
+  @override
+  String get inquiryCloseAction => 'Талқылауды аяқтау';
+
+  @override
+  String get inquiryCloseQuestion => 'Талқылауды тапсырыссыз аяқтайсыз ба?';
+
+  @override
+  String get inquiryCloseDescription =>
+      'Хат алмасу чаттар мұрағатында сақталады. Тапсырыс жасалмайды.';
+
+  @override
+  String get inquiryClosedStatus => 'Талқылау аяқталды';
+
+  @override
+  String get inquiryCloseFailed =>
+      'Талқылауды аяқтау мүмкін болмады. Чатты жаңартып, қайта көріңіз.';
+
+  @override
+  String get inquiryClientEmptyHint =>
+      'Қолжетімділік, баға немесе мәліметтер туралы сұраңыз. Тапсырыс әлі жасалған жоқ.';
+
+  @override
+  String get inquiryOwnerEmptyHint =>
+      'Клиентпен тапсырманы талқылаңыз. Шарттар жіберілгеннен кейін тапсырыс пайда болады.';
+
+  @override
+  String get inquiryReadOnlyHint => 'Хат алмасу сақталды. Тек қарауға болады.';
 }

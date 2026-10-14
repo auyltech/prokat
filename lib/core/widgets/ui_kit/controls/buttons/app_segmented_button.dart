@@ -200,7 +200,7 @@ class _Segment extends StatelessWidget {
     final theme = context.colors.segmentedButton;
     final flow = ProkatFlowScope.maybeOf(context);
     final background = selected
-        ? flow?.primary ?? theme.selectedBackground
+        ? flow?.filledPrimary ?? theme.selectedBackground
         : flow?.surface ?? theme.unselectedBackground;
     final contentColor = selected
         ? flow == null

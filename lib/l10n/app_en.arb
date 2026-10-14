@@ -1447,5 +1447,13 @@
   "listingNoReviews": "No ratings yet",
   "requestOwnerTitle": "Request to owner",
   "requestSentSuccess": "Request sent to owner",
-  "inquiryOwnerOffline": "Go online to reply to the client."
+  "inquiryOwnerOffline": "Go online to reply to the client.",
+  "inquiryCloseAction": "End discussion",
+  "inquiryCloseQuestion": "End this discussion without an order?",
+  "inquiryCloseDescription": "The conversation will stay in archived chats. No order will be created.",
+  "inquiryClosedStatus": "Discussion ended",
+  "inquiryCloseFailed": "Could not end the discussion. Refresh the chat and try again.",
+  "inquiryClientEmptyHint": "Ask about availability, prices or details. No order has been created yet.",
+  "inquiryOwnerEmptyHint": "Discuss the task with the client. An order will appear after the terms are submitted.",
+  "inquiryReadOnlyHint": "The conversation is saved. You can view it here."
 }

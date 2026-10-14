@@ -7539,6 +7539,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Go online to reply to the client.'**
   String get inquiryOwnerOffline;
+
+  /// No description provided for @inquiryCloseAction.
+  ///
+  /// In en, this message translates to:
+  /// **'End discussion'**
+  String get inquiryCloseAction;
+
+  /// No description provided for @inquiryCloseQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'End this discussion without an order?'**
+  String get inquiryCloseQuestion;
+
+  /// No description provided for @inquiryCloseDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'The conversation will stay in archived chats. No order will be created.'**
+  String get inquiryCloseDescription;
+
+  /// No description provided for @inquiryClosedStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Discussion ended'**
+  String get inquiryClosedStatus;
+
+  /// No description provided for @inquiryCloseFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not end the discussion. Refresh the chat and try again.'**
+  String get inquiryCloseFailed;
+
+  /// No description provided for @inquiryClientEmptyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask about availability, prices or details. No order has been created yet.'**
+  String get inquiryClientEmptyHint;
+
+  /// No description provided for @inquiryOwnerEmptyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Discuss the task with the client. An order will appear after the terms are submitted.'**
+  String get inquiryOwnerEmptyHint;
+
+  /// No description provided for @inquiryReadOnlyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'The conversation is saved. You can view it here.'**
+  String get inquiryReadOnlyHint;
 }
 
 class _AppLocalizationsDelegate

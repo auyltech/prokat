@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:prokat/core/theme/prokat_flow_palette.dart';
+import 'package:prokat/core/theme/prokat_flow_scope.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/features/bookings/providers/booking_mutation_provider.dart';
 import 'package:prokat/core/utils/logger.dart';
@@ -65,6 +67,7 @@ class _ClientChatScreenState extends ConsumerState<ClientChatScreen> {
     ref.watch(openChatRegistrationProvider(widget.chatId));
     final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
+    final flow = ProkatFlowPalette.of(context);
 
     final authState = ref.watch(authProvider);
     final currentUserId = authState.session?.user?.id ?? "";
@@ -139,70 +142,90 @@ class _ClientChatScreenState extends ConsumerState<ClientChatScreen> {
       mode: AppMode.clientMode,
     );
 
-    return Theme(
-      data: theme.copyWith(
-        bottomNavigationBarTheme: theme.bottomNavigationBarTheme.copyWith(
-          backgroundColor: theme.colorScheme.surface,
-        ),
-      ),
-      child: Scaffold(
-        backgroundColor: theme.colorScheme.surface,
-        body: SafeArea(
-          child: Column(
-            children: [
-              if (currentChat != null && currentChat.inquiryEquipment != null)
-                InquiryContextCard(
-                  chat: currentChat,
-                  onSetTerms:
-                      currentChat.booking == null &&
-                          currentChat.blockState?.isBlocked != true
-                      ? () {
-                          final equipment = currentChat.inquiryEquipment!;
-                          ref
-                              .read(bookingMutationProvider.notifier)
-                              .startBooking(equipment);
-                        unawaited(context.push(
-                            '${AppRoutes.equipment}/${equipment.id}/${AppRoutes.book}'
-                            '?inquiryChatId=${Uri.encodeQueryComponent(widget.chatId)}',
-                        ));
-                        }
-                      : null,
-                ),
-              Expanded(
-                child:
-                    (chatAsync.hasError || messagesAsync.hasError) &&
-                        messages.isEmpty
-                    ? ChatThreadLoadError(
-                        error: loadError ?? '',
-                        onRetry: () async {
-                          await ref
-                              .read(currentChatProvider(widget.chatId).notifier)
-                              .refresh();
-                          await ref
-                              .read(
-                                chatMessagesProvider(widget.chatId).notifier,
-                              )
-                              .refresh();
-                        },
-                      )
-                    : chatAsync.isLoading && currentChat == null
-                    ? const Center(child: CircularProgressIndicator.adaptive())
-                    : ChatMessageList(
-                        chatId: widget.chatId,
-                        currentUserId: currentUserId,
-                        mode: AppMode.clientMode,
-                        currentChat: currentChat,
-                      ),
-              ),
-            ],
+    return ProkatFlowScope(
+      palette: flow,
+      child: Theme(
+        data: theme.copyWith(
+          colorScheme: theme.colorScheme.copyWith(
+            primary: flow.filledPrimary,
+            onPrimary: Colors.white,
+            surface: flow.surface,
+            onSurface: flow.title,
+            outline: flow.border,
+          ),
+          bottomNavigationBarTheme: theme.bottomNavigationBarTheme.copyWith(
+            backgroundColor: theme.colorScheme.surface,
           ),
         ),
-        bottomNavigationBar: SendMessageForm(
-          chatId: widget.chatId,
-          chatStatus: chatConfig.status,
-          mode: AppMode.clientMode,
-          currentChat: currentChat,
-          actionBarTitle: chatConfig.actionBartitle,
+        child: Scaffold(
+          backgroundColor: flow.background,
+          body: SafeArea(
+            child: Column(
+              children: [
+                if (currentChat != null &&
+                    (currentChat.inquiryEquipment != null ||
+                        currentChat.booking?.equipment != null))
+                  InquiryContextCard(
+                    chat: currentChat,
+                    onSetTerms:
+                        currentChat.inquiryEquipment != null &&
+                            currentChat.bookingId == null &&
+                            currentChat.booking == null &&
+                            currentChat.blockState?.isBlocked != true
+                        ? () {
+                            final equipment = currentChat.inquiryEquipment!;
+                            ref
+                                .read(bookingMutationProvider.notifier)
+                                .startBooking(equipment);
+                            unawaited(
+                              context.push(
+                                '${AppRoutes.equipment}/${equipment.id}/${AppRoutes.book}'
+                                '?inquiryChatId=${Uri.encodeQueryComponent(widget.chatId)}',
+                              ),
+                            );
+                          }
+                        : null,
+                  ),
+                Expanded(
+                  child:
+                      (chatAsync.hasError || messagesAsync.hasError) &&
+                          messages.isEmpty
+                      ? ChatThreadLoadError(
+                          error: loadError ?? '',
+                          onRetry: () async {
+                            await ref
+                                .read(
+                                  currentChatProvider(widget.chatId).notifier,
+                                )
+                                .refresh();
+                            await ref
+                                .read(
+                                  chatMessagesProvider(widget.chatId).notifier,
+                                )
+                                .refresh();
+                          },
+                        )
+                      : chatAsync.isLoading && currentChat == null
+                      ? const Center(
+                          child: CircularProgressIndicator.adaptive(),
+                        )
+                      : ChatMessageList(
+                          chatId: widget.chatId,
+                          currentUserId: currentUserId,
+                          mode: AppMode.clientMode,
+                          currentChat: currentChat,
+                        ),
+                ),
+              ],
+            ),
+          ),
+          bottomNavigationBar: SendMessageForm(
+            chatId: widget.chatId,
+            chatStatus: chatConfig.status,
+            mode: AppMode.clientMode,
+            currentChat: currentChat,
+            actionBarTitle: chatConfig.actionBartitle,
+          ),
         ),
       ),
     );

@@ -1444,5 +1444,13 @@
   "listingNoReviews": "Пока без оценок",
   "requestOwnerTitle": "Запрос владельцу",
   "requestSentSuccess": "Запрос отправлен владельцу",
-  "inquiryOwnerOffline": "Включите «Онлайн», чтобы ответить клиенту."
+  "inquiryOwnerOffline": "Включите «Онлайн», чтобы ответить клиенту.",
+  "inquiryCloseAction": "Завершить обсуждение",
+  "inquiryCloseQuestion": "Завершить обсуждение без заказа?",
+  "inquiryCloseDescription": "Переписка сохранится в архиве чатов. Заказ создан не будет.",
+  "inquiryClosedStatus": "Обсуждение завершено",
+  "inquiryCloseFailed": "Не удалось завершить обсуждение. Обновите чат и попробуйте снова.",
+  "inquiryClientEmptyHint": "Спросите о доступности, цене или деталях. Заказ пока не создан.",
+  "inquiryOwnerEmptyHint": "Обсудите задачу с клиентом. Заказ появится после отправки условий.",
+  "inquiryReadOnlyHint": "Переписка сохранена. Доступен только просмотр."
 }

@@ -193,7 +193,7 @@ class ChatModel {
             : null,
         owner: json['owner'] != null ? UserModel.fromJson(json['owner']) : null,
 
-        bookingId: json['bookingId']?.toString() ?? "",
+        bookingId: _nonEmpty(json['bookingId']?.toString()),
         inquiryEquipmentId: json['inquiryEquipmentId']?.toString(),
         inquiryEquipment: json['inquiryEquipment'] is Map<String, dynamic>
             ? Equipment.fromJson(json['inquiryEquipment'])

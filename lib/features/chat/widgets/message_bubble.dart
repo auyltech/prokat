@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:prokat/core/theme/prokat_flow_palette.dart';
+import 'package:prokat/core/theme/prokat_flow_scope.dart';
 import 'package:prokat/features/appstartup/app_mode_storage.dart';
 import 'package:prokat/features/chat/models/chat_message_model.dart';
 import 'package:prokat/features/chat/models/chat_model.dart';
@@ -75,6 +77,11 @@ class _MessageBubbleState extends State<MessageBubble> {
         message: widget.message,
         isMe: widget.isMe,
       );
+    }
+
+    final palette = ProkatFlowScope.maybeOf(context);
+    if (palette != null) {
+      return _buildFlowMessage(context, palette);
     }
 
     // if (specialized != null) {
@@ -156,6 +163,141 @@ class _MessageBubbleState extends State<MessageBubble> {
               alignment: widget.isMe
                   ? Alignment.centerRight
                   : Alignment.centerLeft,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFlowMessage(BuildContext context, ProkatFlowPalette palette) {
+    final theme = Theme.of(context);
+    final content = widget.message.localizedContent(
+      Localizations.localeOf(context).languageCode,
+    );
+    // A losing-tender event is a support message, not an offer or status card.
+    final isSystemEvent =
+        widget.message.type == 'EVENT' &&
+        widget.message.meta?['reason'] != 'NOT_SELECTED';
+    if (isSystemEvent) {
+      return Align(
+        alignment: Alignment.center,
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: _toggleTimestamp,
+          child: Container(
+            constraints: BoxConstraints(
+              maxWidth: MediaQuery.sizeOf(context).width * 0.86,
+            ),
+            margin: const EdgeInsets.symmetric(vertical: 3),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+            decoration: BoxDecoration(
+              color: palette.primarySoft,
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  content,
+                  textAlign: TextAlign.center,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    height: 1.4,
+                    color: palette.secondary,
+                  ),
+                ),
+                _TimestampRow(
+                  visible: _showTimestamp,
+                  timestamp: widget.message.createdAt,
+                  alignment: Alignment.center,
+                  color: palette.secondary,
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
+    final textColor = widget.isMe ? Colors.white : palette.title;
+    final metadataColor = widget.isMe
+        ? Colors.white.withValues(alpha: 0.72)
+        : palette.secondary;
+    final timestamp = widget.message.createdAt?.toLocal();
+
+    return Align(
+      alignment: widget.isMe ? Alignment.centerRight : Alignment.centerLeft,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: _toggleTimestamp,
+        child: Column(
+          crossAxisAlignment: widget.isMe
+              ? CrossAxisAlignment.end
+              : CrossAxisAlignment.start,
+          children: [
+            Container(
+              constraints: BoxConstraints(
+                maxWidth: MediaQuery.sizeOf(context).width * 0.78,
+              ),
+              padding: const EdgeInsets.fromLTRB(14, 10, 12, 8),
+              decoration: BoxDecoration(
+                color: widget.isMe ? palette.filledPrimary : palette.surface,
+                border: widget.isMe
+                    ? null
+                    : Border.all(color: palette.border.withValues(alpha: 0.65)),
+                borderRadius: BorderRadius.only(
+                  topLeft: const Radius.circular(18),
+                  topRight: const Radius.circular(18),
+                  bottomLeft: Radius.circular(widget.isMe ? 18 : 5),
+                  bottomRight: Radius.circular(widget.isMe ? 5 : 18),
+                ),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    content,
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      height: 1.4,
+                      fontWeight: FontWeight.w400,
+                      color: textColor,
+                    ),
+                  ),
+                  if (timestamp != null || widget.isMe) ...[
+                    const SizedBox(height: 4),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (timestamp != null)
+                          Text(
+                            DateFormat.Hm().format(timestamp),
+                            style: theme.textTheme.labelSmall?.copyWith(
+                              fontSize: 10,
+                              color: metadataColor,
+                            ),
+                          ),
+                        if (widget.isMe) ...[
+                          const SizedBox(width: 4),
+                          _SendStatusIndicator(
+                            isPending: widget.message.isPending,
+                            isFailed: widget.message.isFailed,
+                            color: metadataColor,
+                          ),
+                        ],
+                      ],
+                    ),
+                  ],
+                ],
+              ),
+            ),
+            _TimestampRow(
+              visible: _showTimestamp,
+              timestamp: widget.message.createdAt,
+              alignment: widget.isMe
+                  ? Alignment.centerRight
+                  : Alignment.centerLeft,
+              color: palette.secondary,
             ),
           ],
         ),
@@ -272,11 +414,13 @@ class _TimestampRow extends StatelessWidget {
   final bool visible;
   final DateTime? timestamp;
   final Alignment alignment;
+  final Color? color;
 
   const _TimestampRow({
     required this.visible,
     required this.timestamp,
     required this.alignment,
+    this.color,
   });
 
   @override
@@ -287,15 +431,16 @@ class _TimestampRow extends StatelessWidget {
 
     final theme = Theme.of(context);
     final now = DateTime.now();
+    final localTimestamp = timestamp!.toLocal();
 
     final isToday =
-        now.year == timestamp!.year &&
-        now.month == timestamp!.month &&
-        now.day == timestamp!.day;
+        now.year == localTimestamp.year &&
+        now.month == localTimestamp.month &&
+        now.day == localTimestamp.day;
 
     final timeText = isToday
-        ? DateFormat.Hm().format(timestamp!)
-        : DateFormat('dd MMM • HH:mm').format(timestamp!);
+        ? DateFormat.Hm().format(localTimestamp)
+        : DateFormat('dd MMM • HH:mm').format(localTimestamp);
 
     return Align(
       alignment: alignment,
@@ -304,7 +449,7 @@ class _TimestampRow extends StatelessWidget {
         child: Text(
           timeText,
           style: theme.textTheme.labelSmall?.copyWith(
-            color: theme.colorScheme.onSurface.withValues(alpha: 0.55),
+            color: color ?? theme.colorScheme.onSurface.withValues(alpha: 0.55),
           ),
         ),
       ),
