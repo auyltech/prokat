@@ -2,16 +2,71 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:prokat/core/updates/app_update_policy.dart';
+import 'package:prokat/core/utils/logger.dart';
 import 'package:upgrader/upgrader.dart';
+import 'package:url_launcher/url_launcher.dart';
 
-/// This release only offers updates. Store description minimum-version tags
-/// and critical-update metadata must never turn it into a blocking prompt.
-class SoftAppUpgrader extends Upgrader {
-  SoftAppUpgrader({super.storeController, super.upgraderOS})
+class PolicyAppUpgrader extends Upgrader {
+  PolicyAppUpgrader({super.storeController, super.upgraderOS})
     : super(countryCode: 'KZ');
 
+  String? _emergencyMinimum;
+  void setEmergencyMinimum(String? value) {
+    if (_emergencyMinimum == value) return;
+    _emergencyMinimum = value;
+    updateStream();
+  }
+
+  String? get effectiveMinimum => effectiveAppMinimum(
+    remote: _emergencyMinimum,
+    store: effectiveAppMinimum(
+      remote: state.minAppVersion?.toString(),
+      store: versionInfo?.minAppVersion?.toString(),
+    )?.toString(),
+  )?.toString();
+
+  AppUpdatePolicy get policy => classifyAppUpdate(
+    installed: state.packageInfo?.version,
+    latest: versionInfo?.appStoreVersion?.toString(),
+    minimum: effectiveMinimum,
+  );
+
   @override
-  bool blocked() => false;
+  bool belowMinAppVersion() =>
+      classifyAppUpdate(
+        installed: state.packageInfo?.version,
+        latest: null,
+        minimum: effectiveMinimum,
+      ) ==
+      AppUpdatePolicy.hard;
+
+  @override
+  bool blocked() => policy == AppUpdatePolicy.hard;
+
+  @override
+  bool shouldDisplayUpgrade() => switch (policy) {
+    AppUpdatePolicy.hard => true,
+    AppUpdatePolicy.soft => super.shouldDisplayUpgrade(),
+    _ => false,
+  };
+
+  @override
+  Future<void> sendUserToAppStore() async {
+    if (currentAppStoreListingURL?.isNotEmpty ?? false) {
+      return super.sendUserToAppStore();
+    }
+    // Emergency minimum can arrive before store lookup succeeds. Keep Update
+    // useful without inventing an available version or waiting for networking.
+    final url = state.upgraderOS.currentOSType == UpgraderOSType.ios
+        ? 'https://apps.apple.com/kz/app/prokat/id6817078475'
+        : 'https://play.google.com/store/apps/details?id=com.auyltech.prokat';
+    try {
+      await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+    } catch (error) {
+      Logger.log('Update store launch failed: $error');
+    }
+  }
 }
 
 class AppUpgradeMessages extends UpgraderMessages {
@@ -42,29 +97,34 @@ class AppUpdatePrompt extends StatefulWidget {
   const AppUpdatePrompt({
     super.key,
     required this.navigatorKey,
+    required this.backButtonDispatcher,
     required this.locale,
     required this.enabled,
     required this.child,
     this.upgrader,
+    this.emergencyMinimum,
   });
 
   final GlobalKey<NavigatorState> navigatorKey;
+  final BackButtonDispatcher backButtonDispatcher;
   final Locale locale;
   final bool enabled;
   final Widget child;
-  final SoftAppUpgrader? upgrader;
+  final PolicyAppUpgrader? upgrader;
+  final String? emergencyMinimum;
 
   @override
   State<AppUpdatePrompt> createState() => _AppUpdatePromptState();
 }
 
 class _AppUpdatePromptState extends State<AppUpdatePrompt> {
-  late final SoftAppUpgrader _upgrader;
+  late final PolicyAppUpgrader _upgrader;
 
   @override
   void initState() {
     super.initState();
-    _upgrader = widget.upgrader ?? SoftAppUpgrader();
+    _upgrader = widget.upgrader ?? PolicyAppUpgrader();
+    _upgrader.setEmergencyMinimum(widget.emergencyMinimum);
     _applyLocale();
   }
 
@@ -82,6 +142,9 @@ class _AppUpdatePromptState extends State<AppUpdatePrompt> {
   void didUpdateWidget(AppUpdatePrompt oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.locale != widget.locale) _applyLocale();
+    if (oldWidget.emergencyMinimum != widget.emergencyMinimum) {
+      _upgrader.setEmergencyMinimum(widget.emergencyMinimum);
+    }
   }
 
   @override
@@ -101,6 +164,7 @@ class _AppUpdatePromptState extends State<AppUpdatePrompt> {
       enabled: widget.enabled,
       upgrader: _upgrader,
       navigatorKey: widget.navigatorKey,
+      backButtonDispatcher: widget.backButtonDispatcher,
       child: widget.child,
     );
   }
@@ -108,6 +172,7 @@ class _AppUpdatePromptState extends State<AppUpdatePrompt> {
 
 class _RouteSafeUpgradeAlert extends UpgradeAlert {
   _RouteSafeUpgradeAlert({
+    required this.backButtonDispatcher,
     required this.enabled,
     required super.upgrader,
     required super.navigatorKey,
@@ -115,15 +180,38 @@ class _RouteSafeUpgradeAlert extends UpgradeAlert {
   }) : super(barrierDismissible: true);
 
   final bool enabled;
+  final BackButtonDispatcher backButtonDispatcher;
 
   @override
   UpgradeAlertState createState() => _RouteSafeUpgradeAlertState();
 }
 
 class _RouteSafeUpgradeAlertState extends UpgradeAlertState {
+  DialogRoute<void>? _softRoute;
+  late ChildBackButtonDispatcher _hardBackDispatcher;
+  PolicyAppUpgrader get _controller => widget.upgrader as PolicyAppUpgrader;
+  bool get _hard => _controller.policy == AppUpdatePolicy.hard;
+
+  Future<bool> _consumeHardBack() async => _hard;
+
+  void _removeSoftRoute() {
+    final route = _softRoute;
+    if (route?.isActive ?? false) route!.navigator?.removeRoute(route);
+  }
+
   void _checkAfterFrame() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted || displayed) return;
+      if (!mounted) return;
+      if (_hard) {
+        _removeSoftRoute();
+        _hardBackDispatcher.takePriority();
+        return;
+      }
+      (widget as _RouteSafeUpgradeAlert).backButtonDispatcher.forget(
+        _hardBackDispatcher,
+      );
+      if (_controller.policy != AppUpdatePolicy.soft) _removeSoftRoute();
+      if (displayed) return;
       final context = widget.navigatorKey?.currentContext;
       if (context != null) checkVersion(context: context);
     });
@@ -132,6 +220,10 @@ class _RouteSafeUpgradeAlertState extends UpgradeAlertState {
   @override
   void initState() {
     super.initState();
+    _hardBackDispatcher =
+        (widget as _RouteSafeUpgradeAlert).backButtonDispatcher
+            .createChildBackButtonDispatcher()
+          ..addCallback(_consumeHardBack);
     _checkAfterFrame();
   }
 
@@ -142,8 +234,59 @@ class _RouteSafeUpgradeAlertState extends UpgradeAlertState {
   }
 
   @override
+  void dispose() {
+    _hardBackDispatcher.removeCallback(_consumeHardBack);
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => StreamBuilder<UpgraderState>(
+    initialData: widget.upgrader.state,
+    stream: widget.upgrader.stateStream,
+    builder: (context, _) {
+      _checkAfterFrame();
+      final hard = _hard;
+      final messages = widget.upgrader.determineMessages(context);
+      return Stack(
+        fit: StackFit.expand,
+        children: [
+          ExcludeFocus(
+            excluding: hard,
+            child: ExcludeSemantics(
+              excluding: hard,
+              child: widget.child ?? const SizedBox.shrink(),
+            ),
+          ),
+          if (hard) ...[
+            const ModalBarrier(dismissible: false, color: Colors.black54),
+            FocusScope(
+              autofocus: true,
+              child: SafeArea(
+                child: Center(
+                  child: alertDialog(
+                    const Key('upgrader_hard_dialog'),
+                    messages.title,
+                    widget.upgrader.body(messages),
+                    shouldDisplayReleaseNotes
+                        ? widget.upgrader.releaseNotes
+                        : null,
+                    context,
+                    false,
+                    messages,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ],
+      );
+    },
+  );
+
+  @override
   void checkVersion({required BuildContext context}) {
-    if (!(widget as _RouteSafeUpgradeAlert).enabled ||
+    if (_controller.policy != AppUpdatePolicy.soft ||
+        !(widget as _RouteSafeUpgradeAlert).enabled ||
         widget.navigatorKey?.currentContext == null) {
       return;
     }
@@ -161,6 +304,7 @@ class _RouteSafeUpgradeAlertState extends UpgradeAlertState {
     required UpgraderMessages messages,
   }) {
     if (!mounted ||
+        _controller.policy != AppUpdatePolicy.soft ||
         !context.mounted ||
         !(widget as _RouteSafeUpgradeAlert).enabled) {
       displayed = false;
@@ -183,16 +327,21 @@ class _RouteSafeUpgradeAlertState extends UpgradeAlertState {
         ),
       ),
     );
+    _softRoute = route;
     unawaited(
       Navigator.of(context, rootNavigator: true).push(route).whenComplete(() {
         // Barrier/back, router replacement, and buttons all release the guard.
-        displayed = false;
+        if (_softRoute == route) {
+          _softRoute = null;
+          displayed = false;
+        }
       }),
     );
   }
 
   @override
   void popNavigator(BuildContext context) {
+    if (_hard) return;
     final route = ModalRoute.of(context);
     if (route == null || !route.isActive) return;
     final navigator = Navigator.of(context);

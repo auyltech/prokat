@@ -169,6 +169,7 @@ Future<_Harness> _start(
                   final startup = ref.watch(appStartupProvider).routeState;
                   return AppUpdatePrompt(
                     navigatorKey: router.routerDelegate.navigatorKey,
+                    backButtonDispatcher: router.backButtonDispatcher,
                     locale: const Locale('en'),
                     enabled: shareStartupReady(startup),
                     upgrader: upgrader,
@@ -186,6 +187,60 @@ Future<_Harness> _start(
 }
 
 void main() {
+  for (final legacy in [false, true]) {
+    testWidgets(
+      'HARD preserves ${legacy ? 'legacy' : 'registry'} pending and accepted share context',
+      (tester) async {
+        resetUpgradePreferences();
+        final upgrader = TestAppUpgrader(
+          TestUpgradeStore(availableVersion: '2.0.0'),
+        );
+        addTearDown(upgrader.dispose);
+        final resolver = _Resolver(
+          (_) async =>
+              const ShareResolution(ShareResolutionStatus.resolved, 'eq-hard'),
+        );
+        final h = await _start(
+          tester,
+          initialLink: legacy
+              ? _shareUrl('eq-hard', shareId: _shareId)
+              : 'https://open.prokat.auyltech.kz/e/$_shareId',
+          route: AppStartupRouteState.loading,
+          resolver: resolver,
+          upgrader: upgrader,
+        );
+        expect((await h.storage.readPendingOpen())?.link.shareId, _shareId);
+        expect(find.byKey(const Key('upgrader_hard_dialog')), findsOneWidget);
+        h.startup.setRoute(AppStartupRouteState.guest);
+        await tester.pumpAndSettle();
+        expect(h.router.state.uri.path, '/e/eq-hard');
+        await tester.binding.handlePopRoute();
+        await tester.pumpAndSettle();
+        expect(h.router.state.uri.path, '/e/eq-hard');
+        expect(
+          (await h.storage.readAcceptedOpen(equipmentId: 'eq-hard'))
+              ?.link
+              .shareId,
+          _shareId,
+        );
+        expect(h.recorder.opens, hasLength(1));
+        h.startup.setRoute(AppStartupRouteState.otp);
+        await tester.pumpAndSettle();
+        h.startup.setRoute(AppStartupRouteState.client);
+        await tester.pumpAndSettle();
+        expect(find.byKey(const Key('upgrader_hard_dialog')), findsOneWidget);
+        expect(
+          (await h.storage.readAcceptedOpen(equipmentId: 'eq-hard'))
+              ?.link
+              .shareId,
+          _shareId,
+        );
+        expect(h.recorder.opens, hasLength(1));
+      },
+      variant: const TargetPlatformVariant({TargetPlatform.android}),
+    );
+  }
+
   for (final legacy in [false, true]) {
     for (final warm in [false, true]) {
       for (final action in ['LATER', 'IGNORE']) {

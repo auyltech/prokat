@@ -4,16 +4,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/core/updates/app_update_prompt.dart';
+import 'package:prokat/core/updates/app_update_policy.dart';
+import 'package:prokat/core/updates/emergency_update_config.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:upgrader/upgrader.dart';
 
 import '../../helpers/test_app_upgrader.dart';
+import '../../helpers/fake_emergency_config_client.dart';
 
 Future<GoRouter> _mount(
   WidgetTester tester,
   TestAppUpgrader upgrader, {
   String language = 'en',
   ValueNotifier<bool>? enabled,
+  ValueNotifier<String?>? emergency,
   bool preinitialize = true,
 }) async {
   upgrader.updateState(upgrader.state.copyWith(languageCodeOverride: language));
@@ -35,24 +39,18 @@ Future<GoRouter> _mount(
   await tester.pumpWidget(
     MaterialApp.router(
       routerConfig: router,
-      builder: (_, child) => enabled == null
-          ? AppUpdatePrompt(
-              navigatorKey: router.routerDelegate.navigatorKey,
-              locale: Locale(language),
-              enabled: true,
-              upgrader: upgrader,
-              child: child!,
-            )
-          : ValueListenableBuilder<bool>(
-              valueListenable: enabled,
-              builder: (_, ready, _) => AppUpdatePrompt(
-                navigatorKey: router.routerDelegate.navigatorKey,
-                locale: Locale(language),
-                enabled: ready,
-                upgrader: upgrader,
-                child: child!,
-              ),
-            ),
+      builder: (_, child) => ListenableBuilder(
+        listenable: Listenable.merge([enabled, emergency]),
+        builder: (_, _) => AppUpdatePrompt(
+          navigatorKey: router.routerDelegate.navigatorKey,
+          backButtonDispatcher: router.backButtonDispatcher,
+          locale: Locale(language),
+          enabled: enabled?.value ?? true,
+          emergencyMinimum: emergency?.value,
+          upgrader: upgrader,
+          child: child!,
+        ),
+      ),
     ),
   );
   await tester.pumpAndSettle();
@@ -63,6 +61,134 @@ void main() {
   setUp(() {
     resetUpgradePreferences();
   });
+
+  for (final latest in ['1.0.1', '1.0.10', '1.0.0+19']) {
+    _mobileTest('patch/build release $latest has no UI', (tester) async {
+      final upgrader = TestAppUpgrader(
+        TestUpgradeStore(availableVersion: latest),
+      );
+      addTearDown(upgrader.dispose);
+      await _mount(tester, upgrader);
+      expect(find.byType(AlertDialog), findsNothing);
+      expect(upgrader.shouldDisplayUpgrade(), isFalse);
+    });
+  }
+
+  for (final (latest, remote, store) in <(String?, String?, String?)>[
+    ('2.0.0', null, null),
+    ('1.0.1', '1.0.1', null),
+    ('1.0.1', null, '1.0.1'),
+    ('1.0.1', '1.0.1', '1.0.2'),
+    ('1.0.1', '1.1.0', '1.0.1'),
+    (null, '1.0.1', null),
+  ]) {
+    _mobileTest(
+      'HARD latest=$latest remote=$remote store=$store cannot be bypassed',
+      (tester) async {
+        final minimum = ValueNotifier(remote);
+        addTearDown(minimum.dispose);
+        final upgrader = TestAppUpgrader(
+          TestUpgradeStore(availableVersion: latest, minimum: store),
+        );
+        addTearDown(upgrader.dispose);
+        final router = await _mount(tester, upgrader, emergency: minimum);
+        expect(upgrader.policy, AppUpdatePolicy.hard);
+        expect(find.byKey(const Key('upgrader_hard_dialog')), findsOneWidget);
+        expect(find.text('LATER'), findsNothing);
+        expect(find.text('IGNORE'), findsNothing);
+        expect(find.text('UPDATE NOW'), findsOneWidget);
+        await tester.tapAt(const Offset(5, 5));
+        await tester.binding.handlePopRoute();
+        await tester.pumpAndSettle();
+        expect(find.byType(AlertDialog), findsOneWidget);
+        expect(router.state.uri.path, '/');
+        unawaited(router.push('/e/pending-share'));
+        await tester.pumpAndSettle();
+        expect(find.byType(AlertDialog), findsOneWidget);
+        await tester.binding.handlePopRoute();
+        await tester.pumpAndSettle();
+        expect(router.state.uri.path, '/e/pending-share');
+        await tester.tap(find.text('UPDATE NOW'));
+        await tester.pumpAndSettle();
+        expect(upgrader.updateCalls, 1);
+        expect(find.byType(AlertDialog), findsOneWidget);
+      },
+    );
+  }
+
+  for (final initial in ['1.0.1', '1.1.0']) {
+    _mobileTest(
+      'real-time minimum escalates $initial safely with one dialog and releases back on rollback',
+      (tester) async {
+        final client = FakeEmergencyConfigClient();
+        addTearDown(client.events.close);
+        final controller = EmergencyMinimumController(
+          platform: TargetPlatform.android,
+          client: client,
+          autoStart: false,
+        );
+        addTearDown(controller.dispose);
+        await controller.start();
+        final minimum = ValueNotifier<String?>(controller.state);
+        addTearDown(minimum.dispose);
+        final cancel = controller.addListener((value) => minimum.value = value);
+        addTearDown(cancel);
+        final upgrader = TestAppUpgrader(
+          TestUpgradeStore(availableVersion: initial),
+        );
+        addTearDown(upgrader.dispose);
+        final router = await _mount(tester, upgrader, emergency: minimum);
+        final navigator = router.routerDelegate.navigatorKey.currentState;
+        client.pending['min_supported_version_android'] = '1.0.1';
+        client.events.add({'min_supported_version_android'});
+        client.events.add({'min_supported_version_android'});
+        await tester.pump();
+        await tester.pumpAndSettle();
+        expect(find.byType(AlertDialog, skipOffstage: false), findsOneWidget);
+        expect(find.text('IGNORE'), findsNothing);
+        unawaited(router.push('/e/eq-realtime'));
+        await tester.pumpAndSettle();
+        await tester.binding.handlePopRoute();
+        await tester.pumpAndSettle();
+        expect(router.state.uri.path, '/e/eq-realtime');
+        expect(
+          router.routerDelegate.navigatorKey.currentState,
+          same(navigator),
+        );
+        expect(client.fetchCalls, 1);
+        client.pending['min_supported_version_android'] = '';
+        client.events.add({'min_supported_version_android'});
+        await tester.pump();
+        await tester.pumpAndSettle();
+        expect(find.byKey(const Key('upgrader_hard_dialog')), findsNothing);
+        expect(router.state.uri.path, '/e/eq-realtime');
+        if (initial == '1.0.1') {
+          await tester.binding.handlePopRoute();
+          await tester.pumpAndSettle();
+          expect(router.state.uri.path, '/');
+        }
+      },
+    );
+  }
+
+  _mobileTest(
+    'emergency minimum bypasses a previous Ignore without resetting route',
+    (tester) async {
+      final minimum = ValueNotifier<String?>(null);
+      addTearDown(minimum.dispose);
+      final upgrader = TestAppUpgrader(TestUpgradeStore());
+      addTearDown(upgrader.dispose);
+      final router = await _mount(tester, upgrader, emergency: minimum);
+      await tester.tap(find.text('IGNORE'));
+      await tester.pumpAndSettle();
+      minimum.value = '1.0.1';
+      await tester.pump();
+      await tester.pumpAndSettle();
+      expect(upgrader.alreadyIgnoredThisVersion(), isTrue);
+      expect(find.byKey(const Key('upgrader_hard_dialog')), findsOneWidget);
+      expect(router.state.uri.path, '/');
+    },
+  );
 
   for (final version in [null, '0.9.0', '1.0.0']) {
     _mobileTest('store version $version does not prompt', (tester) async {
@@ -89,7 +215,7 @@ void main() {
   );
 
   test('production uses standard Android and iOS store adapters', () {
-    final upgrader = SoftAppUpgrader();
+    final upgrader = PolicyAppUpgrader();
     addTearDown(upgrader.dispose);
     expect(
       upgrader.storeController.getUpgraderStore(TestUpgradeOS()),
@@ -111,7 +237,7 @@ void main() {
   _mobileTest('newer version prompts with all soft actions and safe defaults', (
     tester,
   ) async {
-    final upgrader = TestAppUpgrader(TestUpgradeStore(mandatory: true));
+    final upgrader = TestAppUpgrader(TestUpgradeStore());
     addTearDown(upgrader.dispose);
     await _mount(tester, upgrader);
     expect(find.byType(AlertDialog), findsOneWidget);
@@ -140,7 +266,7 @@ void main() {
       if (action == 'IGNORE') {
         expect(upgrader.alreadyIgnoredThisVersion(), isTrue);
         final prefs = await SharedPreferences.getInstance();
-        expect(prefs.getString('userIgnoredVersion'), '2.0.0');
+        expect(prefs.getString('userIgnoredVersion'), '1.1.0');
       }
       if (action == 'LATER') expect(upgrader.isTooSoon(), isTrue);
       if (action == 'UPDATE NOW') {

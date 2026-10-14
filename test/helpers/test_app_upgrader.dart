@@ -13,9 +13,14 @@ class TestUpgradeOS extends UpgraderOS {
 }
 
 class TestUpgradeStore extends UpgraderStore {
-  TestUpgradeStore({this.availableVersion = '2.0.0', this.mandatory = false});
+  TestUpgradeStore({
+    this.availableVersion = '1.1.0',
+    this.mandatory = false,
+    this.minimum,
+  });
   final String? availableVersion;
   final bool mandatory;
+  final String? minimum;
   final lookups = <({String package, String? country, String? language})>[];
 
   @override
@@ -38,13 +43,17 @@ class TestUpgradeStore extends UpgraderStore {
       appStoreListingURL: state.upgraderOS.currentOSType == UpgraderOSType.ios
           ? 'https://apps.apple.com/kz/app/prokat/id6817078475'
           : 'https://play.google.com/store/apps/details?id=com.auyltech.prokat',
-      minAppVersion: mandatory ? Version.parse('9.0.0') : null,
+      minAppVersion: minimum != null
+          ? Version.parse(minimum!)
+          : mandatory
+          ? Version.parse('9.0.0')
+          : null,
       isCriticalUpdate: mandatory,
     );
   }
 }
 
-class TestAppUpgrader extends SoftAppUpgrader {
+class TestAppUpgrader extends PolicyAppUpgrader {
   TestAppUpgrader(
     TestUpgradeStore store, {
     UpgraderOSType platform = UpgraderOSType.android,
@@ -64,12 +73,12 @@ class TestAppUpgrader extends SoftAppUpgrader {
   }
 }
 
-void resetUpgradePreferences() {
+void resetUpgradePreferences({String installed = '1.0.0'}) {
   SharedPreferences.setMockInitialValues({});
   PackageInfo.setMockInitialValues(
     appName: 'PROKAT',
     packageName: 'com.auyltech.prokat',
-    version: '1.0.0',
+    version: installed,
     buildNumber: '1',
     buildSignature: '',
   );

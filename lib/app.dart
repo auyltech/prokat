@@ -6,6 +6,7 @@ import 'package:prokat/core/analytics/analytics_identity.dart';
 import 'package:prokat/core/analytics/screen_tracking.dart';
 import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:prokat/core/updates/app_update_prompt.dart';
+import 'package:prokat/core/updates/emergency_update_config.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 import 'package:prokat/core/providers/locale_provider.dart';
 import 'package:prokat/core/router/app_router.dart';
@@ -63,6 +64,7 @@ class _MyAppState extends ConsumerState<MyApp> {
     final router = ref.watch(routerProvider);
     final themeMode = ref.watch(themeModeProvider);
     final locale = ref.watch(localeProvider);
+    final emergencyMinimum = ref.watch(emergencyMinimumProvider);
     final startup = ref.watch(appStartupProvider).routeState;
     final updatePromptEnabled = switch (startup) {
       AppStartupRouteState.guest ||
@@ -78,6 +80,8 @@ class _MyAppState extends ConsumerState<MyApp> {
         child: AppToastHost(
           child: AppUpdatePrompt(
             navigatorKey: router.routerDelegate.navigatorKey,
+            backButtonDispatcher: router.backButtonDispatcher,
+            emergencyMinimum: emergencyMinimum,
             locale: locale,
             enabled: updatePromptEnabled,
             child: child ?? const SizedBox.shrink(),

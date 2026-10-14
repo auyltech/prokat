@@ -14,20 +14,27 @@ remote `dev` before branching). Branch: `feat/upgrader-public-share-outbound`.
 
 `upgrader: ^13.7.0` resolves to 13.7.0. `MyApp` adds `AppUpdatePrompt` below
 `MaterialApp.router`, with the root GoRouter navigator key. The controller
-survives route, startup and language changes; prompts are eligible only in guest,
-client or owner startup states, not loading, OTP or error states. Android and iOS
+survives route, startup and language changes. SOFT prompts are eligible only in
+guest, client or owner startup states; HARD blocks once installed metadata is
+available while bootstrap/navigation continues underneath. Android and iOS
 use the standard Play Store / App Store adapters and installed package metadata
 (`com.auyltech.prokat` on both). `countryCode: 'KZ'` selects Kazakhstan;
 `languageCodeOverride` follows the application's selected `ru`, `kk` or `en`.
 The public Apple bundle lookup in KZ returned listing 6817078475 during validation.
 No available version is hard-coded.
 
-The prompt offers Update, Later and Ignore, permits barrier/back dismissal,
-keeps the package's normal three-day re-alert interval, and persists Ignore for
-the offered version. Production leaves both debug-display options off,
-`minAppVersion` unset and `showOnlyMandatoryUpdates` off. `SoftAppUpgrader.blocked`
-always returns false so store-description minimum-version tags or critical
-metadata cannot force this release's users to update.
+The [semantic update policy](semantic-update-policy.md) controls presentation:
+patch releases are SILENT, minor releases SOFT, and major releases HARD.
+Build metadata has no effect. The higher valid Firebase Remote Config / Store
+minimum takes precedence and can turn a patch update into HARD. There is no
+hard-coded emergency minimum. The forced-soft limitation was removed.
+
+SOFT offers Update, Later and Ignore with barrier/back dismissal, the package's
+normal three-day re-alert interval, and persisted version-specific Ignore.
+HARD offers Update only, blocks interaction/back above the router, and leaves
+durable share context and the intended route intact. Both debug-display options
+remain off; no minimum is configured in source and `showOnlyMandatoryUpdates`
+remains off so optional minor updates are offered.
 
 Package 13.7.0 includes RU, KK and EN translations. Supported message overrides
 clarify RU/KK Ignore, improve the Kazakh body and translate the Kazakh
@@ -107,7 +114,7 @@ Ignored developer build profiles no longer contain the retired host. Generated
 binaries/caches are not production outbound source and are excluded from this
 source audit. Remaining native domain associations are deliberately unchanged.
 
-## Completed validation
+## Initial PR validation (before semantic-policy follow-up)
 
 - `flutter pub get` and `flutter pub get --enforce-lockfile`: passed; upgrader
   resolved to 13.7.0 with no existing package downgrades.
@@ -138,8 +145,10 @@ source audit. Remaining native domain associations are deliberately unchanged.
 ## Manual QA (to perform on devices before release)
 
 - Update prompt: verify no prompt when the installed version is current/newer;
-  simulate an older installed version/newer store in the injected widget harness
-  (`flutter test test/core/updates`), then verify Later, Ignore and Update. Check
+  simulate patch/minor/major updates and both minimum sources in the injected
+  widget harness (`flutter test test/core/updates`). Patch must be silent;
+  minor offers Later/Ignore/Update; major and violated minimums offer Update
+  only and cannot be dismissed. Check
   RU, KK and EN, and confirm Ignore suppresses that version across restart.
   Never enable debug forcing or change production metadata for simulation.
 - Share: test guest and authenticated sharing from client, owner and booking
