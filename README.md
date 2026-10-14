@@ -10,7 +10,8 @@ Templates are available in `.env.example` and `.env.local.example`.
 Local endpoint mapping:
 
 - Windows, web, Android emulator, and physical Android: `http://localhost:4000`
-- Physical phones and emulators both need `adb reverse tcp:4000 tcp:4000`
+- Physical phones and emulators need `adb reverse tcp:4000 tcp:4000`
+  and `adb reverse tcp:3000 tcp:3000` for the share landing
   (`scripts/local-start.ps1` and `scripts/local-refresh.ps1` apply it to every
   `adb devices` entry with status `device`). The stack is not published on LAN.
 
@@ -20,6 +21,27 @@ and `.env.hoster`).
 Grant OS notification permission on first launch so the FCM token can register
 with the backend. Socket.IO still delivers in-app events while the app is open.
 Local and production auth sessions use separate secure-storage keys.
+
+The local Docker project is `prokat-local`. Its database and private MinIO
+bucket are a verified production snapshot with production device tokens
+excluded, imported delivery jobs cancelled, and pending OTPs invalidated.
+The local OTP is `000000` for any valid phone number. Automatic billing,
+expiry and deletion jobs are paused; delivery of new local notifications works.
+GA, Crashlytics and new share attribution are disabled in local builds.
+
+Local shares use the existing web app at `http://localhost:3000/e/<shareId>`.
+The app registers the token with the local backend before sharing, including
+for guests. The landing's Open button uses `prokat-local://app/e/<shareId>`.
+Build with `.env.local`; it includes the Mapbox token and both endpoints.
+These links work on the PC and Android devices connected through adb reverse.
+
+To replace the local data with a fresh production snapshot, run from
+`../prokat-backend`: `node scripts/local-replica-refresh.mjs --replace-local-data`,
+then `powershell -File scripts/local-start.ps1`. The refresh replaces only
+`prokat-local` volumes, reads production through SSH, and retains a checked
+database/object backup under `prokat-backend/backups/replica-*`.
+Production stays running, so database and object snapshots can represent
+slightly different moments if production writes occur during copying.
 
 Hoster lab (own VPS in KZ): copy `.env.hoster.example` → `.env.hoster`, set the
 VPS IP (API on port `4000`), then run the **Prokat Hoster** configuration or:

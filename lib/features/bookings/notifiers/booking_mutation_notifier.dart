@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:prokat/core/config/env.dart';
+
 import 'package:prokat/core/errors/app_error.dart';
 import 'package:prokat/core/mutation/mutation_model.dart';
 import 'package:prokat/core/mutation/mutation_notifier.dart';
@@ -150,7 +152,7 @@ class BookingMutationNotifier extends MutationNotifier<BookingMutationState> {
         "bookedOn": state.selectedDate!.toUtc().toIso8601String(),
         "bookedAt": state.selectedTime!.toUtc().toIso8601String(),
         "comment": state.comment,
-        "shareId": ?shareId,
+        "shareId": ?(Env.shareAnalyticsEnabled ? shareId : null),
       });
 
       finishAction(

@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:prokat/core/utils/logger.dart';
+import 'package:prokat/core/config/env.dart';
 
 class CrashReportingService {
   CrashReportingService._();
@@ -22,7 +23,7 @@ class CrashReportingService {
     }
 
     final crashlytics = FirebaseCrashlytics.instance;
-    const collectionEnabled = !kDebugMode;
+    final collectionEnabled = Env.crashReportingEnabled;
     _collectionEnabled = collectionEnabled;
 
     await crashlytics.setCrashlyticsCollectionEnabled(collectionEnabled);

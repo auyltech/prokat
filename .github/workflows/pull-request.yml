@@ -76,3 +76,14 @@ jobs:
           flutter test --no-pub --reporter expanded
           --dart-define=ENABLE_FIREBASE_SERVICES=false
           --dart-define=ENABLE_PUSH_NOTIFICATIONS=false
+
+      - name: Check local replica configuration without external calls
+        run: >-
+          flutter test --no-pub --reporter expanded
+          --dart-define=APP_ENV=local
+          --dart-define=SHARE_LINK_MODE=registry
+          --dart-define=SHARE_BASE_URL=http://localhost:3000
+          --dart-define=APP_OPEN_BASE_URL=prokat-local://app
+          --dart-define=ENABLE_FIREBASE_SERVICES=true
+          --dart-define=ENABLE_PUSH_NOTIFICATIONS=true
+          test/core/config/local_replica_test.dart

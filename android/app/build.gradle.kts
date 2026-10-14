@@ -1,5 +1,6 @@
 import java.io.FileInputStream
 import java.util.Properties
+import java.util.Base64
 
 val keystoreProperties = Properties()
 val keystorePropertiesFile = rootProject.file("key.properties")
@@ -13,6 +14,13 @@ plugins {
 }
 
 val googleServicesFile = file("google-services.json")
+val dartDefines = (project.findProperty("dart-defines") as? String).orEmpty()
+    .split(',').filter { it.isNotBlank() }.associate {
+        val decoded = String(Base64.getDecoder().decode(it), Charsets.UTF_8)
+        val parts = decoded.split('=', limit = 2)
+        parts[0] to parts.getOrElse(1) { "" }
+    }
+val isLocalReplica = dartDefines["APP_ENV"] == "local"
 if (googleServicesFile.exists()) {
     apply(plugin = "com.google.gms.google-services")
     apply(plugin = "com.google.firebase.crashlytics")
@@ -112,6 +120,9 @@ android {
         }
 
         manifestPlaceholders["MAPBOX_TOKEN"] = mapboxToken
+        manifestPlaceholders["LOCAL_APP_OPEN_SCHEME"] = if (isLocalReplica) "prokat-local" else "prokat-local-disabled"
+        manifestPlaceholders["LOCAL_REPLICA"] = isLocalReplica.toString()
+        manifestPlaceholders["LOCAL_CLEARTEXT"] = isLocalReplica.toString()
         resValue("string", "mapbox_access_token", mapboxToken)
     }
 

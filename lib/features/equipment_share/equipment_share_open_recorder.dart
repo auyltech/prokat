@@ -6,6 +6,7 @@ import 'package:prokat/features/auth/providers/auth_provider.dart';
 import 'package:prokat/features/equipment_share/equipment_share_events_api.dart';
 import 'package:prokat/features/equipment_share/equipment_share_first_touch.dart';
 import 'package:prokat/features/equipment_share/equipment_share_open.dart';
+import 'package:prokat/core/config/env.dart';
 
 /// Records one accepted share open. The three side effects start together and
 /// are isolated: a failure or delay in one never blocks or skips another.
@@ -29,6 +30,7 @@ class ShareOpenRecorder {
     bool emitAnalytics = true,
     bool Function()? isCurrent,
   }) async {
+    if (!Env.shareAnalyticsEnabled) return true;
     final link = open.link;
     final equipmentId = link.equipmentId;
     final openVia = open.via.api;

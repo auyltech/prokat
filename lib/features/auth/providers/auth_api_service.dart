@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:prokat/core/config/env.dart';
 import 'package:prokat/core/api/api_helper.dart';
 import 'package:prokat/core/api/api_response.dart';
 import 'package:prokat/core/errors/api_exception.dart';
@@ -69,7 +70,7 @@ class AuthApiService {
   }) async {
     try {
       final data = <String, Object?>{"phoneNumber": phone, "otp": otp};
-      if (attribution != null) {
+      if (attribution != null && Env.shareAnalyticsEnabled) {
         data["attribution"] = attribution;
       }
 

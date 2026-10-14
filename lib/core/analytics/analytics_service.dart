@@ -118,7 +118,7 @@ class AnalyticsService {
 
 final analyticsServiceProvider = Provider<AnalyticsService>(
   (ref) => AnalyticsService(
-    Env.firebaseServicesEnabled
+    Env.analyticsCollectionEnabled
         ? FirebaseAnalyticsClient()
         : const NoopAnalyticsClient(),
   ),
