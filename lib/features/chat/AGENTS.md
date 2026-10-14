@@ -16,6 +16,8 @@ HTTP `GET /chats/id/:id/messages` не ждёт handshake сокета. `chat:jo
 
 Тайл: имя/аватар **клиента** из `UserProfile`, **владельца** из `OwnerProfile` (как карточка техники), иначе простой профиль. Не собирать ФИО на клиенте из двух таблиц.
 
+Название объявления: полное `inquiryEquipment.name`, иначе безопасная строка списка `inquiryEquipmentName`. Не создавать неполный Equipment из list DTO. Частичные sidebar/workflow/detail обновления сохраняют прежнюю строку, если поле пропущено.
+
 ## Статус треда
 
 `getChatConfig` берёт booking (в списке — `bookingSummary`), иначе заявку **этого** треда.

@@ -1,6 +1,6 @@
 # Пауза редизайна PROKAT — 14 октября 2026
 
-Пауза запрошена пользователем. Продолжать только после его сообщения. Все изменения кода сохранены в локальных `feat/redesign-20261013` трёх репозиториев. Не push, не merge в dev/main, не deploy. Stash повышения лимита оборудования не применять; остальные stash тоже сохранены.
+Историческая точка паузы. Пользователь возобновил работу14 октября; текущее состояние описано в [redesign-resume-20261014.md](redesign-resume-20261014.md). Все изменения кода сохраняются в локальных `feat/redesign-20261013` трёх репозиториев. Не push, не merge в dev/main, не deploy. Stash повышения лимита оборудования не применять; остальные stash тоже сохранены.
 
 ## Что сохранено
 
@@ -59,7 +59,7 @@ Ignored backend `backups/chat-redesign-e2e*`, `backups/redesign-e2e*` содер
 
 ## Как поднять вновь
 
-1. Запустить Docker Desktop из `C:\Users\Admin\AppData\Local\Programs\DockerDesktop\Docker Desktop.exe` (Start-Process -WindowStyle Hidden). Дождаться успешного `docker info`; не вызывать compose до готовности Engine. CLI: `C:\Users\Admin\AppData\Local\Programs\DockerDesktop\resources\bin\docker.exe`.
+1. Из Codex запускать Docker Desktop через `powershell.exe -NoProfile -ExecutionPolicy Bypass -File C:\Projects\Prokat-Mobile\prokat-backend\scripts\local-docker-desktop-start.ps1`. Прямой Start-Process из этой среды воспроизводит ошибку AppData AF_UNIX1920; отдельный WMI процесс запускает Engine успешно. Дождаться успешного `docker info`; не вызывать compose до готовности Engine. CLI: `C:\Users\Admin\AppData\Local\Programs\DockerDesktop\resources\bin\docker.exe`.
 2. Запустить `powershell.exe -NoProfile -ExecutionPolicy Bypass -File C:\Projects\Prokat-Mobile\prokat-backend\scripts\local-start.ps1` (policy только для этого процесса, не менять общую политику Windows). Скрипт проверяет local identity/миграции, поднимает прежние volumes, приложения и smoke. Не использовать local-refresh/дамп, если база сохранена.
 3. Проверить /health4000 и /login3000, число/маркер миграций при необходимости; подключить S22 и повторить reverse4000. Flutter SDK `C:\src\flutter\bin\flutter.bat`, ADB `C:\Users\Admin\AppData\Local\Android\Sdk\platform-tools\adb.exe`.
 4. Продолжить с маленького незавершённого шага имени техники в списке, не начинать аудит/редизайн заново.

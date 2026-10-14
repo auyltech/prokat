@@ -72,6 +72,10 @@ class ChatTile extends ConsumerWidget {
     );
 
     final unreadCount = chat.newMessagesCount ?? 0;
+    final fullInquiryName = chat.inquiryEquipment?.name.trim() ?? '';
+    final inquiryName = fullInquiryName.isNotEmpty
+        ? fullInquiryName
+        : chat.inquiryEquipmentName?.trim() ?? '';
 
     final summary = chat.bookingSummary;
 
@@ -150,10 +154,10 @@ class ChatTile extends ConsumerWidget {
                             ],
                           ],
                         ),
-                        if (chat.inquiryEquipment?.name.isNotEmpty == true) ...[
+                        if (inquiryName.isNotEmpty) ...[
                           const SizedBox(height: 4),
                           Text(
-                            chat.inquiryEquipment!.name,
+                            inquiryName,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: theme.textTheme.bodySmall?.copyWith(

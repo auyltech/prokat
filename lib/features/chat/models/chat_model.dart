@@ -49,6 +49,9 @@ class ChatModel {
 
   final String? bookingId;
   final String? inquiryEquipmentId;
+
+  /// Safe label from the list DTO, which does not carry full equipment.
+  final String? inquiryEquipmentName;
   final Equipment? inquiryEquipment;
   final BookingModel? booking;
   final BookingSummaryModel? bookingSummary;
@@ -73,6 +76,7 @@ class ChatModel {
     this.status = ChatStatus.active,
     this.bookingId,
     this.inquiryEquipmentId,
+    this.inquiryEquipmentName,
     this.inquiryEquipment,
     this.requestId,
     this.booking,
@@ -145,6 +149,7 @@ class ChatModel {
     UserModel? owner,
     String? bookingId,
     String? inquiryEquipmentId,
+    String? inquiryEquipmentName,
     Equipment? inquiryEquipment,
     BookingModel? booking,
     BookingSummaryModel? bookingSummary,
@@ -166,6 +171,7 @@ class ChatModel {
       owner: owner ?? this.owner,
       bookingId: bookingId ?? this.bookingId,
       inquiryEquipmentId: inquiryEquipmentId ?? this.inquiryEquipmentId,
+      inquiryEquipmentName: inquiryEquipmentName ?? this.inquiryEquipmentName,
       inquiryEquipment: inquiryEquipment ?? this.inquiryEquipment,
       booking: booking ?? this.booking,
       bookingSummary: bookingSummary ?? this.bookingSummary,
@@ -195,6 +201,9 @@ class ChatModel {
 
         bookingId: _nonEmpty(json['bookingId']?.toString()),
         inquiryEquipmentId: json['inquiryEquipmentId']?.toString(),
+        inquiryEquipmentName: json['inquiryEquipmentName'] is String
+            ? _nonEmpty(json['inquiryEquipmentName'])
+            : null,
         inquiryEquipment: json['inquiryEquipment'] is Map<String, dynamic>
             ? Equipment.fromJson(json['inquiryEquipment'])
             : null,
