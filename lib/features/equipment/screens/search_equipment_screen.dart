@@ -8,6 +8,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
+import 'package:prokat/core/theme/prokat_flow_scope.dart';
 import 'package:prokat/features/bookings/providers/booking_mutation_provider.dart';
 import 'package:prokat/features/catalog/models/catalog_group.dart';
 import 'package:prokat/features/categories/state/browse_group_session.dart';
@@ -187,7 +188,11 @@ class _SearchEquipmentScreenState extends ConsumerState<SearchEquipmentScreen> {
                   initialIndex: groups.indexOf(selected),
                   titles: [
                     for (final group in groups)
-                      _searchTabTitle(AppLocalizations.of(context)!, group),
+                      _searchTabTitle(
+                        AppLocalizations.of(context)!,
+                        group,
+                        flow: ProkatFlowScope.maybeOf(context) != null,
+                      ),
                   ],
                   onChanged: (index) {
                     final group = groups[index];
@@ -210,10 +215,16 @@ String? _emptyToNull(String? value) {
   return trimmed;
 }
 
-String _searchTabTitle(AppLocalizations l10n, CatalogGroup group) {
+String _searchTabTitle(
+  AppLocalizations l10n,
+  CatalogGroup group, {
+  bool flow = false,
+}) {
   return switch (group) {
-    CatalogGroup.machinery => l10n.searchMachineryTab,
-    CatalogGroup.equipment => l10n.searchEquipmentTab,
+    CatalogGroup.machinery =>
+      flow ? l10n.catalogGroupMachinery : l10n.searchMachineryTab,
+    CatalogGroup.equipment =>
+      flow ? l10n.catalogGroupEquipment : l10n.searchEquipmentTab,
   };
 }
 
@@ -242,6 +253,8 @@ class _SearchGroupPageState extends ConsumerState<_SearchGroupPage> {
     final queryState = equipmentAsync.valueOrNull;
     final items = queryState?.items ?? [];
     final bookingNotifier = ref.read(bookingMutationProvider.notifier);
+    final flow = ProkatFlowScope.maybeOf(context);
+    final l10n = AppLocalizations.of(context)!;
 
     return RefreshIndicator(
       onRefresh: _reload,
@@ -256,7 +269,11 @@ class _SearchGroupPageState extends ConsumerState<_SearchGroupPage> {
           else if (equipmentAsync.hasError)
             EquipmentErrorTile(onRetry: () => unawaited(_reload()))
           else if (items.isEmpty)
-            const EquipmentEmptyTile()
+            EquipmentEmptyTile(
+              title: flow == null ? null : l10n.catalogNoResults,
+              description: flow == null ? null : l10n.catalogNoResultsHint,
+              icon: flow == null ? null : Icons.search_rounded,
+            )
           else
             ListView.separated(
               shrinkWrap: true,

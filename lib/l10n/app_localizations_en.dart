@@ -4057,4 +4057,13 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get inquiryReadOnlyHint =>
       'The conversation is saved. You can view it here.';
+
+  @override
+  String get clearSearch => 'Clear search';
+
+  @override
+  String get catalogNoResults => 'No listings found';
+
+  @override
+  String get catalogNoResultsHint => 'Try another search, category or city.';
 }

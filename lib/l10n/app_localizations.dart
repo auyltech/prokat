@@ -7587,6 +7587,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The conversation is saved. You can view it here.'**
   String get inquiryReadOnlyHint;
+
+  /// No description provided for @clearSearch.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear search'**
+  String get clearSearch;
+
+  /// No description provided for @catalogNoResults.
+  ///
+  /// In en, this message translates to:
+  /// **'No listings found'**
+  String get catalogNoResults;
+
+  /// No description provided for @catalogNoResultsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Try another search, category or city.'**
+  String get catalogNoResultsHint;
 }
 
 class _AppLocalizationsDelegate

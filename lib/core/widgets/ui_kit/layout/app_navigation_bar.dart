@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:prokat/core/theme/app_dimens.dart';
 import 'package:prokat/core/theme/app_fonts.dart';
 import 'package:prokat/core/theme/extensions/app_theme_getter.dart';
+import 'package:prokat/core/theme/prokat_flow_scope.dart';
 
 enum AppNavigationBarTone { primary, owner, company }
 
@@ -36,20 +37,22 @@ class AppNavigationBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final navigationBarTheme = context.colors.navigationBar;
+    final flow = ProkatFlowScope.maybeOf(context);
     final ripple = context.colors.ripple;
     final selectedColor = switch (tone) {
-      AppNavigationBarTone.primary => navigationBarTheme.selected,
+      AppNavigationBarTone.primary =>
+        flow?.primary ?? navigationBarTheme.selected,
       AppNavigationBarTone.owner => navigationBarTheme.ownerSelected,
       AppNavigationBarTone.company => const Color(0xff702d45),
     };
 
     return Material(
-      color: navigationBarTheme.background,
+      color: flow?.surface ?? navigationBarTheme.background,
       child: DecoratedBox(
         decoration: BoxDecoration(
           border: Border(
             top: BorderSide(
-              color: navigationBarTheme.divider,
+              color: flow?.border ?? navigationBarTheme.divider,
               width: AppDimens.navigationBarDividerHeight,
             ),
           ),
@@ -57,7 +60,7 @@ class AppNavigationBar extends StatelessWidget {
         child: SafeArea(
           top: false,
           child: SizedBox(
-            height: AppDimens.navigationBarHeight,
+            height: flow == null ? AppDimens.navigationBarHeight : 72,
             child: Row(
               children: [
                 for (final (index, item) in items.indexed)
@@ -66,7 +69,8 @@ class AppNavigationBar extends StatelessWidget {
                       item: item,
                       isSelected: index == currentIndex,
                       selectedColor: selectedColor,
-                      unselectedColor: navigationBarTheme.unselected,
+                      unselectedColor:
+                          flow?.secondary ?? navigationBarTheme.unselected,
                       splashColor: ripple.splash,
                       highlightColor: ripple.highlight,
                       onTap: () => onItemTap(index),
@@ -103,7 +107,8 @@ class _NavigationBarItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final contentColor = isSelected ? selectedColor : unselectedColor;
-    final glowShadows = isSelected
+    final flow = ProkatFlowScope.maybeOf(context);
+    final glowShadows = isSelected && flow == null
         ? <Shadow>[
             Shadow(
               color: contentColor.withValues(alpha: 0.7),
@@ -118,7 +123,7 @@ class _NavigationBarItem extends StatelessWidget {
 
     final icon = Icon(
       item.icon,
-      size: AppDimens.navigationBarIconSize,
+      size: flow == null ? AppDimens.navigationBarIconSize : 24,
       color: contentColor,
       shadows: glowShadows,
     );
@@ -135,7 +140,20 @@ class _NavigationBarItem extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                item.iconWrapper?.call(icon) ?? icon,
+                if (flow == null)
+                  item.iconWrapper?.call(icon) ?? icon
+                else
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 5,
+                    ),
+                    decoration: BoxDecoration(
+                      color: isSelected ? flow.primarySoft : Colors.transparent,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: item.iconWrapper?.call(icon) ?? icon,
+                  ),
                 const SizedBox(height: AppDimens.s04$xs),
                 Padding(
                   padding: const EdgeInsets.symmetric(
@@ -148,6 +166,12 @@ class _NavigationBarItem extends StatelessWidget {
                     softWrap: false,
                     textAlign: TextAlign.center,
                     style: AppFonts.captionMedium(context).copyWith(
+                      fontSize: flow == null ? null : 12,
+                      fontWeight: flow == null
+                          ? null
+                          : isSelected
+                          ? FontWeight.w700
+                          : FontWeight.w500,
                       color: contentColor,
                       height: 1.1,
                       shadows: glowShadows,

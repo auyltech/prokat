@@ -4057,4 +4057,14 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get inquiryReadOnlyHint => 'Хат алмасу сақталды. Тек қарауға болады.';
+
+  @override
+  String get clearSearch => 'Іздеуді тазарту';
+
+  @override
+  String get catalogNoResults => 'Хабарландырулар табылмады';
+
+  @override
+  String get catalogNoResultsHint =>
+      'Іздеу сұрауын, санатты немесе қаланы өзгертіп көріңіз.';
 }

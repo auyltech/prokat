@@ -4094,4 +4094,14 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get inquiryReadOnlyHint =>
       'Переписка сохранена. Доступен только просмотр.';
+
+  @override
+  String get clearSearch => 'Очистить поиск';
+
+  @override
+  String get catalogNoResults => 'Объявления не найдены';
+
+  @override
+  String get catalogNoResultsHint =>
+      'Попробуйте другой запрос, категорию или город.';
 }

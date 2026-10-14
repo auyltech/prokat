@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/core/router/app_routes.dart';
+import 'package:prokat/core/theme/prokat_flow_palette.dart';
+import 'package:prokat/core/theme/prokat_flow_scope.dart';
 import 'package:prokat/features/layout/main_app_bar.dart';
 import 'package:prokat/features/layout/main_navigation_bar.dart';
 
@@ -40,15 +42,37 @@ class MainScaffold extends StatelessWidget {
         ].contains(currentPath) ||
         currentPath == '/search/companies';
 
-    return Scaffold(
-      key: _scaffoldKey,
-      backgroundColor: theme.scaffoldBackgroundColor,
-      resizeToAvoidBottomInset: !isPinMapScreen,
-      appBar: hideAppBar ? null : const MainAppBar(),
-      bottomNavigationBar: isChatDetailScreen || isPinMapScreen
-          ? null
-          : const MainNavigationBar(),
-      body: navigationShell,
+    final flow = ProkatFlowPalette.of(context);
+    final useCatalogFlow = currentPath == AppRoutes.searchList;
+    return ProkatFlowScope(
+      palette: flow,
+      enabled: useCatalogFlow,
+      child: Theme(
+        data: useCatalogFlow
+            ? theme.copyWith(
+                scaffoldBackgroundColor: flow.background,
+                colorScheme: theme.colorScheme.copyWith(
+                  primary: flow.filledPrimary,
+                  onPrimary: Colors.white,
+                  surface: flow.surface,
+                  onSurface: flow.title,
+                  outline: flow.border,
+                ),
+              )
+            : theme,
+        child: Scaffold(
+          key: _scaffoldKey,
+          backgroundColor: useCatalogFlow
+              ? flow.background
+              : theme.scaffoldBackgroundColor,
+          resizeToAvoidBottomInset: !isPinMapScreen,
+          appBar: hideAppBar ? null : const MainAppBar(),
+          bottomNavigationBar: isChatDetailScreen || isPinMapScreen
+              ? null
+              : const MainNavigationBar(),
+          body: navigationShell,
+        ),
+      ),
     );
   }
 }

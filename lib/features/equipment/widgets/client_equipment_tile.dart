@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:prokat/core/theme/prokat_flow_palette.dart';
+import 'package:prokat/core/theme/prokat_flow_scope.dart';
+import 'package:prokat/core/widgets/ui_kit/flow/prokat_flow_actions.dart';
 import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/utils/format.dart';
@@ -46,6 +49,24 @@ class ClientEquipmentTile extends ConsumerWidget {
         : null;
 
     final priceRate = getPriceRate(priceEntry?.priceRate, l10n: l10n);
+
+    final flowPalette = ProkatFlowScope.maybeOf(context);
+    if (flowPalette != null) {
+      return _buildFlowCard(
+        context,
+        palette: flowPalette,
+        l10n: l10n,
+        catalog: catalog,
+        isClient: isClient,
+        isFavorite: isFavorite,
+        onFavorite: isClient
+            ? () => notifier.toggleFavorite(
+                equipment.id,
+                companyId: equipment.companyId,
+              )
+            : null,
+      );
+    }
 
     return AppCard(
       radius: AppDimens.r16$xl,
@@ -283,6 +304,344 @@ class ClientEquipmentTile extends ConsumerWidget {
     );
   }
 
+  Widget _buildFlowCard(
+    BuildContext context, {
+    required ProkatFlowPalette palette,
+    required AppLocalizations l10n,
+    required CatalogBundle? catalog,
+    required bool isClient,
+    required bool isFavorite,
+    required VoidCallback? onFavorite,
+  }) {
+    final locale = Localizations.localeOf(context).languageCode;
+    final online = equipment.owner?.isAccountOnline == true;
+    final city = catalogCityLabel(
+      city: equipment.city,
+      languageCode: locale,
+      catalog: catalog,
+    );
+    final price = equipment.prices.isEmpty ? null : equipment.prices.first;
+    final specs =
+        (equipment.specs ?? [])
+            .where((spec) => spec.visibleToClient != false)
+            .where((spec) => spec.showInCard != false)
+            .where(
+              (spec) => spec
+                  .displayValue(languageCode: locale, catalog: catalog)
+                  .isNotEmpty,
+            )
+            .toList()
+          ..sort((a, b) => (a.sortIndex ?? 0).compareTo(b.sortIndex ?? 0));
+    final rating = equipment.owner?.rating ?? 0;
+
+    Widget actionSurface(Widget action) => DecoratedBox(
+      decoration: BoxDecoration(
+        color: palette.surface,
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: action,
+    );
+
+    return Material(
+      color: palette.surface,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(24),
+        side: BorderSide(color: palette.border),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onTap,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Stack(
+              key: const ValueKey('catalog-card-photo'),
+              children: [
+                Positioned.fill(
+                  child: OptimizedNetworkImage(
+                    imageUrl: equipment.imageUrl ?? '',
+                    fit: BoxFit.cover,
+                    fallbackIcon: Icons.precision_manufacturing_outlined,
+                  ),
+                ),
+                ConstrainedBox(
+                  constraints: const BoxConstraints(minHeight: 184),
+                  child: Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(
+                              child: Wrap(
+                                key: const ValueKey('catalog-card-badges'),
+                                spacing: 6,
+                                runSpacing: 6,
+                                children: [
+                                  _flowBadge(
+                                    context,
+                                    text: online
+                                        ? l10n.accountOnline
+                                        : l10n.accountOffline,
+                                    icon: Icons.circle,
+                                    color: online
+                                        ? palette.success
+                                        : palette.secondary,
+                                    background: palette.surface,
+                                  ),
+                                  if ((equipment.city ?? '').trim().isNotEmpty)
+                                    _flowBadge(
+                                      context,
+                                      text: city,
+                                      icon: LucideIcons.mapPin,
+                                      color: palette.secondary,
+                                      background: palette.surface,
+                                    ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            SizedBox(
+                              key: const ValueKey('catalog-card-hero-actions'),
+                              width: 104,
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  actionSurface(
+                                    companyCard
+                                        ? AppIconButton(
+                                            icon: LucideIcons.share2,
+                                            tooltip: l10n.shareEquipment,
+                                            onTap: onShare,
+                                          )
+                                        : ShareEquipmentButton(
+                                            equipment: equipment,
+                                            variant: AppIconButtonVariant.plain,
+                                          ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  actionSurface(
+                                    AppIconButton(
+                                      key: const ValueKey(
+                                        'catalog-card-favorite',
+                                      ),
+                                      icon: isFavorite
+                                          ? Icons.favorite
+                                          : Icons.favorite_border,
+                                      tooltip: l10n.navFavorites,
+                                      tone: AppIconButtonTone.destructive,
+                                      onTap: onFavorite,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                        if (!companyCard || price != null) ...[
+                          const SizedBox(height: 16),
+                          Align(
+                            alignment: Alignment.bottomRight,
+                            child: Container(
+                              key: const ValueKey('catalog-card-price'),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 8,
+                              ),
+                              decoration: BoxDecoration(
+                                color: palette.surface,
+                                borderRadius: BorderRadius.circular(14),
+                              ),
+                              child: Text.rich(
+                                TextSpan(
+                                  text: price == null
+                                      ? l10n.poa
+                                      : '${price.isStartingFrom ? '${l10n.priceFromPrefix} ' : ''}${formatPrice(price.price)}',
+                                  children: [
+                                    if (price != null)
+                                      TextSpan(
+                                        text:
+                                            ' ${getPriceRate(price.priceRate, l10n: l10n)}',
+                                        style: AppFonts.body14(context)
+                                            .copyWith(
+                                              color: palette.secondary,
+                                              fontSize: 12,
+                                            ),
+                                      ),
+                                  ],
+                                ),
+                                style: AppFonts.headingS(context).copyWith(
+                                  color: palette.primary,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            Padding(
+              padding: const EdgeInsets.all(14),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text(
+                    equipment.name,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppFonts.headingS(context).copyWith(
+                      color: palette.title,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  if (companyCard &&
+                      (equipment.ownerComment ?? '').isNotEmpty) ...[
+                    const SizedBox(height: 6),
+                    Text(
+                      equipment.ownerComment!,
+                      style: AppFonts.body14(context)
+                          .copyWith(color: palette.secondary),
+                    ),
+                  ],
+                  const SizedBox(height: 4),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: Text.rich(
+                          TextSpan(
+                            text:
+                                equipment.owner?.displayNameOr(
+                                  l10n.nameNotSpecified,
+                                ) ??
+                                l10n.nameNotSpecified,
+                            children: [
+                              const TextSpan(text: ' · '),
+                              if (rating > 0)
+                                const WidgetSpan(
+                                  alignment: PlaceholderAlignment.middle,
+                                  child: Icon(
+                                    Icons.star_rounded,
+                                    color: Color(0xFFFFBA36),
+                                    size: 14,
+                                  ),
+                                ),
+                              TextSpan(
+                                text: rating > 0
+                                    ? ' ${rating.toStringAsFixed(1)}'
+                                    : l10n.listingNoReviews,
+                                style: const TextStyle(fontSize: 12),
+                              ),
+                            ],
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: AppFonts.body14(context)
+                              .copyWith(color: palette.secondary, fontSize: 13),
+                        ),
+                      ),
+                      if (isClient && !companyCard) ...[
+                        const SizedBox(width: 8),
+                        UgcMoreButton(
+                          counterpartUserId: equipment.owner?.id,
+                          counterpartName:
+                              equipment.owner?.displayNameOr('') ?? '',
+                          reportTarget: ReportTarget(
+                            ReportTargetType.equipment,
+                            equipment.id,
+                          ),
+                          variant: AppIconButtonVariant.plain,
+                        ),
+                      ],
+                    ],
+                  ),
+                  if (specs.isNotEmpty) ...[
+                    const SizedBox(height: 8),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: [
+                        for (final spec in specs.take(3))
+                          _flowBadge(
+                            context,
+                            text:
+                                '${spec.displayName(locale)}: ${spec.boolValue == null
+                                    ? spec.displayValue(languageCode: locale, catalog: catalog)
+                                    : spec.boolValue!
+                                    ? l10n.yes
+                                    : l10n.no}',
+                            icon: _getScopedSpecIcon(
+                              spec.iconLibrary,
+                              spec.iconName,
+                            ),
+                            color: palette.secondary,
+                            background: palette.background,
+                          ),
+                      ],
+                    ),
+                  ],
+                  const SizedBox(height: 12),
+                  ProkatFlowPrimaryButton(
+                    key: const ValueKey('catalog-card-details'),
+                    onPressed: onTap,
+                    title: l10n.details,
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _flowBadge(
+    BuildContext context, {
+    required String text,
+    required IconData? icon,
+    required Color color,
+    required Color background,
+    double maxWidth = double.infinity,
+  }) => ConstrainedBox(
+    constraints: BoxConstraints(maxWidth: maxWidth),
+    child: Container(
+      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 7),
+      decoration: BoxDecoration(
+        color: background,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (icon != null) ...[
+            Icon(icon, size: icon == Icons.circle ? 7 : 14, color: color),
+            const SizedBox(width: 6),
+          ],
+          Flexible(
+            child: Text(
+              text,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: AppFonts.caption(context).copyWith(
+                color: color,
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
+
   /// REUSABLE BADGE
   Widget _badge({required String text, required Color color}) {
     return Container(
@@ -301,6 +660,11 @@ class ClientEquipmentTile extends ConsumerWidget {
       ),
     );
   }
+}
+
+IconData? _getScopedSpecIcon(String? library, String? name) {
+  final icon = _getIconData(library, name);
+  return icon == Icons.star_border || icon == LucideIcons.info ? null : icon;
 }
 
 IconData _getIconData(String? library, String? name) {

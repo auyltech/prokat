@@ -3,6 +3,7 @@ import 'package:prokat/core/theme/app_dimens.dart';
 import 'package:prokat/core/theme/app_fonts.dart';
 import 'package:prokat/core/theme/app_icons.dart';
 import 'package:prokat/core/theme/extensions/app_theme_getter.dart';
+import 'package:prokat/core/theme/prokat_flow_scope.dart';
 import 'package:prokat/core/widgets/ui_kit/controls/buttons/app_icon_button.dart';
 
 class ProkatAppBar extends StatelessWidget implements PreferredSizeWidget {
@@ -33,20 +34,23 @@ class ProkatAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     final hasBack = onBack != null;
+    final flow = ProkatFlowScope.maybeOf(context);
     final appBarTheme = context.colors.appBar;
     final backButtonTooltip = MaterialLocalizations.of(context)
         .backButtonTooltip;
 
-    final elevation = blendWithTabs ? 0.0 : AppDimens.appBarElevation;
+    final elevation = flow != null || blendWithTabs
+        ? 0.0
+        : AppDimens.appBarElevation;
 
     return AppBar(
       toolbarHeight: AppDimens.appBarHeight,
       elevation: elevation,
       scrolledUnderElevation: elevation,
-      backgroundColor: appBarTheme.background,
-      foregroundColor: appBarTheme.content,
+      backgroundColor: flow?.surface ?? appBarTheme.background,
+      foregroundColor: flow?.title ?? appBarTheme.content,
       shadowColor: appBarTheme.shadow,
-      surfaceTintColor: appBarTheme.background,
+      surfaceTintColor: flow?.surface ?? appBarTheme.background,
       automaticallyImplyLeading: false,
       titleSpacing: hasBack
           ? AppDimens.appBarTitleGap
@@ -72,7 +76,8 @@ class ProkatAppBar extends StatelessWidget implements PreferredSizeWidget {
               ),
             ),
       title: DefaultTextStyle.merge(
-        style: AppFonts.headingL(context).copyWith(color: appBarTheme.content),
+        style: AppFonts.headingL(context)
+            .copyWith(color: flow?.title ?? appBarTheme.content),
         maxLines: titleMaxLines,
         overflow: TextOverflow.ellipsis,
         textAlign: TextAlign.start,
@@ -95,7 +100,9 @@ class ProkatAppBar extends StatelessWidget implements PreferredSizeWidget {
         child: SizedBox(
           height: AppDimens.appBarDividerHeight,
           child: ColoredBox(
-            color: blendWithTabs ? appBarTheme.background : appBarTheme.divider,
+            color: blendWithTabs
+                ? flow?.surface ?? appBarTheme.background
+                : flow?.border ?? appBarTheme.divider,
           ),
         ),
       ),
