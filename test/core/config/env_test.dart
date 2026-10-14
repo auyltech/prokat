@@ -79,11 +79,12 @@ void main() {
     expect(Env.analyticsCollectionEnabled, isFalse);
   }, skip: firebaseEnabled ? 'requires ENABLE_FIREBASE_SERVICES=false' : false);
 
-  test('builds an equipment share URL on the default host', () {
-    expect(Env.shareBaseUrl, 'https://prokat-bfbec.web.app');
+  test('builds only canonical token URLs and keeps legacy inbound hosts', () {
+    const token = 'AbCdEfGhIjKlMnOpQr_-12';
+    expect(Env.shareBaseUrl, 'https://prokat.auyltech.kz');
     expect(
-      Env.equipmentShareUrl('equipment-1'),
-      'https://prokat-bfbec.web.app/e/equipment-1',
+      Env.publicEquipmentShareUrl(token),
+      'https://prokat.auyltech.kz/e/$token',
     );
     expect(Env.shareTrustedHosts, {
       'prokat-bfbec.web.app',
@@ -105,55 +106,39 @@ void main() {
       throwsStateError,
     );
     expect(
-      Env.parseShareBaseUrl('https://links.example.com'),
-      'https://links.example.com',
-    );
-    expect(() => Env.equipmentShareUrl(''), throwsArgumentError);
-    expect(() => Env.equipmentShareUrl('a/b'), throwsArgumentError);
-  });
-
-  test('share url without share id unchanged', () {
-    expect(
-      Env.equipmentShareUrl('equipment-1'),
-      'https://prokat-bfbec.web.app/e/equipment-1',
+      () => Env.parseShareBaseUrl('https://links.example.com'),
+      throwsStateError,
     );
     expect(
-      Env.equipmentShareUrl('equipment-1', shareId: null),
-      'https://prokat-bfbec.web.app/e/equipment-1',
+      () => Env.parseShareBaseUrl('https://open.prokat.auyltech.kz'),
+      throwsStateError,
     );
+    expect(
+      () => Env.parseShareBaseUrl('https://prokat-bfbec.web.app'),
+      throwsStateError,
+    );
+    expect(() => Env.publicEquipmentShareUrl(''), throwsArgumentError);
+    expect(() => Env.publicEquipmentShareUrl('a/b'), throwsArgumentError);
   });
 
   test('share url with share id', () {
     const shareId = 'AbCdEfGhIjKlMnOpQr_-12';
     expect(
-      Env.equipmentShareUrl('equipment-1', shareId: shareId),
-      'https://prokat-bfbec.web.app/e/equipment-1?s=$shareId',
+      Env.publicEquipmentShareUrl(shareId),
+      'https://prokat.auyltech.kz/e/$shareId',
     );
     expect(
-      Uri.parse(Env.equipmentShareUrl('equipment-1', shareId: shareId))
-          .queryParameters,
-      {'s': shareId},
+      Uri.parse(Env.publicEquipmentShareUrl(shareId)).queryParameters,
+      isEmpty,
     );
   });
 
   test('invalid share id throws', () {
+    expect(() => Env.publicEquipmentShareUrl(''), throwsArgumentError);
+    expect(() => Env.publicEquipmentShareUrl('a' * 21), throwsArgumentError);
+    expect(() => Env.publicEquipmentShareUrl('a' * 23), throwsArgumentError);
     expect(
-      () => Env.equipmentShareUrl('equipment-1', shareId: ''),
-      throwsArgumentError,
-    );
-    expect(
-      () => Env.equipmentShareUrl('equipment-1', shareId: 'a' * 21),
-      throwsArgumentError,
-    );
-    expect(
-      () => Env.equipmentShareUrl('equipment-1', shareId: 'a' * 23),
-      throwsArgumentError,
-    );
-    expect(
-      () => Env.equipmentShareUrl(
-        'equipment-1',
-        shareId: 'AbCdEfGhIjKlMnOpQrSt==',
-      ),
+      () => Env.publicEquipmentShareUrl('AbCdEfGhIjKlMnOpQrSt=='),
       throwsArgumentError,
     );
   });

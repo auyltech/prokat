@@ -99,9 +99,9 @@ void main() {
           l10n,
           name: equipment.name,
           priceLine: sharePriceLine(equipment, l10n)!,
-          url: Env.equipmentShareUrl(equipment.id),
+          url: Env.publicEquipmentShareUrl('AbCdEfGhIjKlMnOpQr_-12'),
         ),
-        'Илосос\n12 000 ₸ / час\nhttps://prokat-bfbec.web.app/e/eq-1',
+        'Илосос\n12 000 ₸ / час\nhttps://prokat.auyltech.kz/e/AbCdEfGhIjKlMnOpQr_-12',
       );
     });
 

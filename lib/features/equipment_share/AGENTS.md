@@ -1,7 +1,7 @@
 # Equipment share
 
-- Ссылка: `Env.equipmentShareUrl(id)` → `https://<SHARE_BASE_URL>/e/<id>`. Хосты: `Env.shareTrustedHosts`.
-- Исходящий шаринг: `?s=<shareId>`. `shareId` — 22 символа base64url без `=`, непрозрачный, новый на каждый акт шаринга (`generateShareId` сразу перед `SharePlus`).
+- Outbound equipment sharing always registers a new 22-character base64url token with `POST /equipment-shares/links` before opening SharePlus. `Env.publicEquipmentShareUrl(shareId)` produces only `https://prokat.auyltech.kz/e/<shareId>` in production. Registration failure uses the existing localized retry toast; no legacy fallback exists.
+- `Env.shareTrustedHosts` and `Env.legacyShareBaseUri` are legacy inbound compatibility only. Production ignores obsolete `SHARE_LINK_MODE` and outbound base overrides; local replicas retain loopback registry links.
 - Analytics `share` и backend `SHARED` — только при `ShareResultStatus.success` (`reportShareResult`); `SHARED` только для авторизованного. Оба best-effort, независимы, не блокируют UI.
 - `isShareableNow`: `AVAILABLE` + `isVisible` + есть цена `> 0`. Только тогда PNG и ссылка.
 - `canShowShareButton`: `isModerated` (не draft / created / rejected / archived).
