@@ -80,6 +80,10 @@ class EquipmentShareService {
       final eventsApi = ref.read(equipmentShareEventsApiProvider);
       final isAuthenticated = ref.read(authProvider).isAuthenticated;
       final shareId = generateShareId();
+      if (Env.registrySharingEnabled) {
+        await eventsApi.registerLink(shareId: shareId, equipmentId: current.id);
+        if (!context.mounted) return;
+      }
       final result = await SharePlus.instance.share(
         ShareParams(
           files: [XFile(file.path, mimeType: 'image/png', name: 'prokat.png')],

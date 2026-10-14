@@ -16,7 +16,18 @@ class EquipmentShareLink {
     this.shareId,
   });
 
-  bool get isRegistryLink => canonical.host == appOpenHost;
+  bool get isRegistryLink =>
+      canonical.host == appOpenHost ||
+      (Env.isLocal &&
+          Env.registrySharingEnabled &&
+          (_sameOrigin(canonical, Uri.parse(Env.shareBaseUrl)) ||
+              _sameOrigin(canonical, Uri.parse(Env.appOpenBaseUrl))));
+
+  static bool _sameOrigin(Uri a, Uri b) =>
+      a.scheme == b.scheme &&
+      a.host == b.host &&
+      a.port == b.port &&
+      a.userInfo.isEmpty;
 
   static bool isValidEquipmentId(String? id) =>
       id != null && _equipmentIdPattern.hasMatch(id);
@@ -51,6 +62,21 @@ class EquipmentShareLink {
   }
 
   static EquipmentShareLink? tryParse(Uri uri) {
+    if (Env.isLocal &&
+        Env.registrySharingEnabled &&
+        (_sameOrigin(uri, Uri.parse(Env.shareBaseUrl)) ||
+            _sameOrigin(uri, Uri.parse(Env.appOpenBaseUrl)))) {
+      if (uri.hasFragment ||
+          uri.hasQuery ||
+          !RegExp(r'^/e/[A-Za-z0-9_-]{22}$').hasMatch(uri.path)) {
+        return null;
+      }
+      return EquipmentShareLink(
+        equipmentId: null,
+        canonical: uri,
+        shareId: uri.path.substring(3),
+      );
+    }
     if (uri.scheme != 'https' || uri.userInfo.isNotEmpty || uri.port != 443) {
       return null;
     }

@@ -32,6 +32,36 @@ class Env {
   static const _analyticsForceCollection = bool.fromEnvironment(
     'ANALYTICS_FORCE_COLLECTION',
   );
+  static const _analyticsEnabled = bool.fromEnvironment(
+    'ENABLE_ANALYTICS',
+    defaultValue: true,
+  );
+  static const _crashReportingEnabled = bool.fromEnvironment(
+    'ENABLE_CRASH_REPORTING',
+    defaultValue: true,
+  );
+  static const _shareAnalyticsEnabled = bool.fromEnvironment(
+    'ENABLE_SHARE_ANALYTICS',
+    defaultValue: true,
+  );
+  static const _shareLinkMode = String.fromEnvironment(
+    'SHARE_LINK_MODE',
+    defaultValue: 'legacy',
+  );
+  static const appOpenBaseUrl = String.fromEnvironment(
+    'APP_OPEN_BASE_URL',
+    defaultValue: 'https://open.prokat.auyltech.kz',
+  );
+  static bool get registrySharingEnabled {
+    if (_shareLinkMode != 'legacy' && _shareLinkMode != 'registry') {
+      throw StateError('SHARE_LINK_MODE must be legacy or registry');
+    }
+    return _shareLinkMode == 'registry';
+  }
+
+  static bool get shareAnalyticsEnabled => !isLocal && _shareAnalyticsEnabled;
+  static bool get crashReportingEnabled =>
+      !isLocal && _crashReportingEnabled && !kDebugMode;
   static const _defaultShareBaseUrl = 'https://prokat-bfbec.web.app';
   static const _shareBaseUrl = String.fromEnvironment(
     'SHARE_BASE_URL',
@@ -54,6 +84,8 @@ class Env {
 
   static bool get analyticsCollectionEnabled =>
       firebaseServicesEnabled &&
+      !isLocal &&
+      _analyticsEnabled &&
       ((environment == AppEnvironment.production && !kDebugMode) ||
           _analyticsForceCollection);
 
@@ -99,6 +131,12 @@ class Env {
         'must be 22 unpadded base64url characters',
       );
     }
+    if (registrySharingEnabled) {
+      if (shareId == null) {
+        throw ArgumentError('Registry sharing requires a registered shareId');
+      }
+      return '$shareBaseUrl/e/$shareId';
+    }
     final url = '$shareBaseUrl/e/${Uri.encodeComponent(id)}';
     if (shareId == null) return url;
     return Uri.parse(url).replace(queryParameters: {'s': shareId}).toString();
@@ -109,10 +147,13 @@ class Env {
     final uri = Uri.tryParse(value);
     final valid =
         uri != null &&
-        uri.scheme == 'https' &&
+        (uri.scheme == 'https' ||
+            (isLocal &&
+                uri.scheme == 'http' &&
+                const {'localhost', '127.0.0.1', '::1'}.contains(uri.host))) &&
         uri.host.isNotEmpty &&
         uri.userInfo.isEmpty &&
-        uri.port == 443 &&
+        (isLocal || uri.port == 443) &&
         uri.path.isEmpty &&
         uri.query.isEmpty &&
         uri.fragment.isEmpty &&
