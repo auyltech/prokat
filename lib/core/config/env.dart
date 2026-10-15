@@ -44,33 +44,26 @@ class Env {
     'ENABLE_SHARE_ANALYTICS',
     defaultValue: true,
   );
-  static const _shareLinkMode = String.fromEnvironment(
-    'SHARE_LINK_MODE',
-    defaultValue: 'legacy',
-  );
   static const appOpenBaseUrl = String.fromEnvironment(
     'APP_OPEN_BASE_URL',
     defaultValue: 'https://open.prokat.auyltech.kz',
   );
-  static bool get registrySharingEnabled {
-    if (_shareLinkMode != 'legacy' && _shareLinkMode != 'registry') {
-      throw StateError('SHARE_LINK_MODE must be legacy or registry');
-    }
-    return _shareLinkMode == 'registry';
-  }
 
   static bool get shareAnalyticsEnabled => !isLocal && _shareAnalyticsEnabled;
   static bool get crashReportingEnabled =>
       !isLocal && _crashReportingEnabled && !kDebugMode;
-  static const _defaultShareBaseUrl = 'https://prokat-bfbec.web.app';
+  static const _defaultShareBaseUrl = 'https://prokat.auyltech.kz';
   static const _shareBaseUrl = String.fromEnvironment(
     'SHARE_BASE_URL',
     defaultValue: _defaultShareBaseUrl,
   );
-  static const _builtInShareHosts = <String>[
+
+  /// Legacy inbound hosts only; never used to generate outbound shares.
+  static const shareTrustedHosts = <String>{
     'prokat-bfbec.web.app',
     'prokat-bfbec.firebaseapp.com',
-  ];
+  };
+  static Uri get legacyShareBaseUri => Uri.https(shareTrustedHosts.first);
 
   static AppEnvironment get environment => switch (_environmentName) {
     'production' => AppEnvironment.production,
@@ -108,38 +101,20 @@ class Env {
     );
   }
 
-  static String get shareBaseUrl => parseShareBaseUrl(_shareBaseUrl);
+  // Production is canonical even when an old build config supplies a legacy
+  // SHARE_BASE_URL or SHARE_LINK_MODE. Local replica URLs stay loopback-only.
+  static String get shareBaseUrl =>
+      isLocal ? parseShareBaseUrl(_shareBaseUrl) : _defaultShareBaseUrl;
 
-  static Set<String> get shareTrustedHosts => {
-    ..._builtInShareHosts,
-    Uri.parse(shareBaseUrl).host.toLowerCase(),
-  };
-
-  static String equipmentShareUrl(String equipmentId, {String? shareId}) {
-    final id = equipmentId.trim();
-    if (id.isEmpty || id == '.' || id == '..' || id.contains('/')) {
-      throw ArgumentError.value(
-        equipmentId,
-        'equipmentId',
-        'must be a single non-empty path segment',
-      );
-    }
-    if (shareId != null && !isValidShareId(shareId)) {
+  static String publicEquipmentShareUrl(String shareId) {
+    if (!isValidShareId(shareId)) {
       throw ArgumentError.value(
         shareId,
         'shareId',
         'must be 22 unpadded base64url characters',
       );
     }
-    if (registrySharingEnabled) {
-      if (shareId == null) {
-        throw ArgumentError('Registry sharing requires a registered shareId');
-      }
-      return '$shareBaseUrl/e/$shareId';
-    }
-    final url = '$shareBaseUrl/e/${Uri.encodeComponent(id)}';
-    if (shareId == null) return url;
-    return Uri.parse(url).replace(queryParameters: {'s': shareId}).toString();
+    return '$shareBaseUrl/e/$shareId';
   }
 
   static String parseShareBaseUrl(String raw) {
@@ -147,9 +122,11 @@ class Env {
     final uri = Uri.tryParse(value);
     final valid =
         uri != null &&
-        (uri.scheme == 'https' ||
+        ((uri.scheme == 'https' &&
+                uri.host == 'prokat.auyltech.kz' &&
+                uri.port == 443) ||
             (isLocal &&
-                uri.scheme == 'http' &&
+                const {'http', 'https'}.contains(uri.scheme) &&
                 const {'localhost', '127.0.0.1', '::1'}.contains(uri.host))) &&
         uri.host.isNotEmpty &&
         uri.userInfo.isEmpty &&

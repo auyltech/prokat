@@ -19,7 +19,6 @@ class EquipmentShareLink {
   bool get isRegistryLink =>
       canonical.host == appOpenHost ||
       (Env.isLocal &&
-          Env.registrySharingEnabled &&
           (_sameOrigin(canonical, Uri.parse(Env.shareBaseUrl)) ||
               _sameOrigin(canonical, Uri.parse(Env.appOpenBaseUrl))));
 
@@ -63,7 +62,6 @@ class EquipmentShareLink {
 
   static EquipmentShareLink? tryParse(Uri uri) {
     if (Env.isLocal &&
-        Env.registrySharingEnabled &&
         (_sameOrigin(uri, Uri.parse(Env.shareBaseUrl)) ||
             _sameOrigin(uri, Uri.parse(Env.appOpenBaseUrl)))) {
       if (uri.hasFragment ||

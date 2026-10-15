@@ -29,7 +29,8 @@ EquipmentShareLink? shareLinkFromInstallReferrer(String? raw) {
   final id = (params['id'] ?? '').trim();
   if (id.isEmpty) return null;
 
-  final base = Uri.parse(Env.shareBaseUrl);
+  // Historical id=... referrers describe equipment IDs, not registry tokens.
+  final base = Env.legacyShareBaseUri;
   final link = EquipmentShareLink.tryParse(
     base.replace(path: '/e/${Uri.encodeComponent(id)}'),
   );

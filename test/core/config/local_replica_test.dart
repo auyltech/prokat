@@ -4,12 +4,9 @@ import 'package:prokat/features/equipment_share/equipment_share_link.dart';
 
 void main() {
   const id = 'AbCdEfGhIjKlMnOpQrSt_-';
-  final local = Env.isLocal && Env.registrySharingEnabled;
+  final local = Env.isLocal;
   test('local registry links preserve their token and origin', () {
-    expect(
-      Env.equipmentShareUrl('equipment-1', shareId: id),
-      'http://localhost:3000/e/$id',
-    );
+    expect(Env.publicEquipmentShareUrl(id), 'http://localhost:3000/e/$id');
     for (final url in [
       'http://localhost:3000/e/$id',
       'prokat-local://app/e/$id',
