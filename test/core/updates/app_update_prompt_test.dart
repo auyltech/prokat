@@ -18,6 +18,7 @@ Future<GoRouter> _mount(
   String language = 'en',
   ValueNotifier<bool>? enabled,
   ValueNotifier<String?>? emergency,
+  ValueNotifier<List<ForcedAppVersion>>? forced,
   bool preinitialize = true,
 }) async {
   upgrader.updateState(upgrader.state.copyWith(languageCodeOverride: language));
@@ -40,13 +41,14 @@ Future<GoRouter> _mount(
     MaterialApp.router(
       routerConfig: router,
       builder: (_, child) => ListenableBuilder(
-        listenable: Listenable.merge([enabled, emergency]),
+        listenable: Listenable.merge([enabled, emergency, forced]),
         builder: (_, _) => AppUpdatePrompt(
           navigatorKey: router.routerDelegate.navigatorKey,
           backButtonDispatcher: router.backButtonDispatcher,
           locale: Locale(language),
           enabled: enabled?.value ?? true,
           emergencyMinimum: emergency?.value,
+          forcedVersions: forced?.value ?? const [],
           upgrader: upgrader,
           child: child!,
         ),
@@ -78,9 +80,8 @@ void main() {
     ('2.0.0', null, null),
     ('1.0.1', '1.0.1', null),
     ('1.0.1', null, '1.0.1'),
-    ('1.0.1', '1.0.1', '1.0.2'),
-    ('1.0.1', '1.1.0', '1.0.1'),
-    (null, '1.0.1', null),
+    ('1.0.2', '1.0.1', '1.0.2'),
+    ('1.1.0', '1.1.0', '1.0.1'),
   ]) {
     _mobileTest(
       'HARD latest=$latest remote=$remote store=$store cannot be bypassed',
@@ -118,20 +119,150 @@ void main() {
 
   for (final initial in ['1.0.1', '1.1.0']) {
     _mobileTest(
-      'real-time minimum escalates $initial safely with one dialog and releases back on rollback',
+      'real-time exact force escalates $initial without duplicate dialogs or route loss',
       (tester) async {
         final client = FakeEmergencyConfigClient();
         addTearDown(client.events.close);
-        final controller = EmergencyMinimumController(
+        final controller = EmergencyUpdateController(
           platform: TargetPlatform.android,
           client: client,
           autoStart: false,
         );
         addTearDown(controller.dispose);
         await controller.start();
-        final minimum = ValueNotifier<String?>(controller.state);
+        final forced = ValueNotifier(controller.state.forcedVersions);
+        addTearDown(forced.dispose);
+        final cancel = controller.addListener(
+          (value) => forced.value = value.forcedVersions,
+        );
+        addTearDown(cancel);
+        final upgrader = TestAppUpgrader(
+          TestUpgradeStore(availableVersion: initial),
+        );
+        addTearDown(upgrader.dispose);
+        final router = await _mount(tester, upgrader, forced: forced);
+        final navigator = router.routerDelegate.navigatorKey.currentState;
+        client.pending['force_update_versions_android'] = '["1.0.0+1"]';
+        client.events.add({'force_update_versions_android'});
+        client.events.add({'force_update_versions_android'});
+        await tester.pump();
+        await tester.pumpAndSettle();
+        expect(upgrader.decision.reason, AppUpdateReason.forcedVersion);
+        expect(find.byType(AlertDialog, skipOffstage: false), findsOneWidget);
+        expect(find.text('LATER'), findsNothing);
+        expect(find.text('IGNORE'), findsNothing);
+        await tester.tapAt(const Offset(5, 5));
+        await tester.binding.handlePopRoute();
+        await tester.pumpAndSettle();
+        expect(find.byKey(const Key('upgrader_hard_dialog')), findsOneWidget);
+        unawaited(router.push('/e/forced-share'));
+        await tester.pumpAndSettle();
+        await tester.binding.handlePopRoute();
+        await tester.pumpAndSettle();
+        expect(router.state.uri.path, '/e/forced-share');
+        expect(
+          router.routerDelegate.navigatorKey.currentState,
+          same(navigator),
+        );
+        await tester.tap(find.text('UPDATE NOW'));
+        await tester.pumpAndSettle();
+        expect(upgrader.updateCalls, 1);
+        expect(find.byKey(const Key('upgrader_hard_dialog')), findsOneWidget);
+        expect(client.fetchCalls, 1);
+        client.pending['force_update_versions_android'] = '[]';
+        client.events.add({'force_update_versions_android'});
+        await tester.pump();
+        await tester.pumpAndSettle();
+        expect(find.byKey(const Key('upgrader_hard_dialog')), findsNothing);
+        expect(router.state.uri.path, '/e/forced-share');
+      },
+    );
+  }
+
+  for (final (build, rule, hard) in [
+    ('27', '1.0.0+27', true),
+    ('26', '1.0.0+27', false),
+    ('28', '1.0.0+27', false),
+    ('999', '1.0.0', true),
+  ]) {
+    _mobileTest('native build $build matches $rule: $hard', (tester) async {
+      resetUpgradePreferences(buildNumber: build);
+      final forced = ValueNotifier([ForcedAppVersion.tryParse(rule)!]);
+      addTearDown(forced.dispose);
+      final upgrader = TestAppUpgrader(
+        TestUpgradeStore(availableVersion: '1.0.1'),
+      );
+      addTearDown(upgrader.dispose);
+      await _mount(tester, upgrader, forced: forced);
+      expect(upgrader.blocked(), hard);
+      expect(find.byType(AlertDialog), hard ? findsOneWidget : findsNothing);
+    });
+  }
+
+  for (final latest in <String?>[null, '0.9.0', '1.0.0', '1.0.0+28']) {
+    _mobileTest('force and minimum cannot deadlock with Store $latest', (
+      tester,
+    ) async {
+      resetUpgradePreferences(buildNumber: '27');
+      final forced = ValueNotifier([ForcedAppVersion.tryParse('1.0.0+27')!]);
+      final minimum = ValueNotifier<String?>('1.0.1');
+      addTearDown(forced.dispose);
+      addTearDown(minimum.dispose);
+      final upgrader = TestAppUpgrader(
+        TestUpgradeStore(availableVersion: latest),
+      );
+      addTearDown(upgrader.dispose);
+      await _mount(tester, upgrader, forced: forced, emergency: minimum);
+      expect(upgrader.policy, AppUpdatePolicy.upToDate);
+      expect(upgrader.blocked(), isFalse);
+      expect(upgrader.belowMinAppVersion(), isFalse);
+      expect(find.byType(AlertDialog), findsNothing);
+      expect(find.text('Home'), findsOneWidget);
+    });
+  }
+
+  _mobileTest('cached force waits for proven Store availability', (
+    tester,
+  ) async {
+    final forced = ValueNotifier([ForcedAppVersion.tryParse('1.0.0')!]);
+    addTearDown(forced.dispose);
+    final upgrader = TestAppUpgrader(TestUpgradeStore(availableVersion: null));
+    addTearDown(upgrader.dispose);
+    final router = await _mount(tester, upgrader, forced: forced);
+    expect(find.byType(AlertDialog), findsNothing);
+    unawaited(router.push('/e/waiting-share'));
+    await tester.pumpAndSettle();
+    final info = await TestUpgradeStore(availableVersion: '1.0.1')
+        .getVersionInfo(
+          state: upgrader.state,
+          installedVersion: upgrader.versionInfo!.installedVersion!,
+          country: 'KZ',
+          language: 'en',
+        );
+    upgrader.updateState(upgrader.state.copyWith(versionInfo: info));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('upgrader_hard_dialog')), findsOneWidget);
+    expect(router.state.uri.path, '/e/waiting-share');
+  });
+
+  for (final initial in ['1.0.1', '1.1.0']) {
+    _mobileTest(
+      'real-time minimum escalates $initial safely with one dialog and releases back on rollback',
+      (tester) async {
+        final client = FakeEmergencyConfigClient();
+        addTearDown(client.events.close);
+        final controller = EmergencyUpdateController(
+          platform: TargetPlatform.android,
+          client: client,
+          autoStart: false,
+        );
+        addTearDown(controller.dispose);
+        await controller.start();
+        final minimum = ValueNotifier<String?>(controller.state.minimum);
         addTearDown(minimum.dispose);
-        final cancel = controller.addListener((value) => minimum.value = value);
+        final cancel = controller.addListener(
+          (value) => minimum.value = value.minimum,
+        );
         addTearDown(cancel);
         final upgrader = TestAppUpgrader(
           TestUpgradeStore(availableVersion: initial),

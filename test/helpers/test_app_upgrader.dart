@@ -73,13 +73,16 @@ class TestAppUpgrader extends PolicyAppUpgrader {
   }
 }
 
-void resetUpgradePreferences({String installed = '1.0.0'}) {
+void resetUpgradePreferences({
+  String installed = '1.0.0',
+  String buildNumber = '1',
+}) {
   SharedPreferences.setMockInitialValues({});
   PackageInfo.setMockInitialValues(
     appName: 'PROKAT',
     packageName: 'com.auyltech.prokat',
     version: installed,
-    buildNumber: '1',
+    buildNumber: buildNumber,
     buildSignature: '',
   );
 }

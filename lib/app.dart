@@ -64,7 +64,7 @@ class _MyAppState extends ConsumerState<MyApp> {
     final router = ref.watch(routerProvider);
     final themeMode = ref.watch(themeModeProvider);
     final locale = ref.watch(localeProvider);
-    final emergencyMinimum = ref.watch(emergencyMinimumProvider);
+    final emergencyConfig = ref.watch(emergencyUpdateConfigProvider);
     final startup = ref.watch(appStartupProvider).routeState;
     final updatePromptEnabled = switch (startup) {
       AppStartupRouteState.guest ||
@@ -81,7 +81,8 @@ class _MyAppState extends ConsumerState<MyApp> {
           child: AppUpdatePrompt(
             navigatorKey: router.routerDelegate.navigatorKey,
             backButtonDispatcher: router.backButtonDispatcher,
-            emergencyMinimum: emergencyMinimum,
+            emergencyMinimum: emergencyConfig.minimum,
+            forcedVersions: emergencyConfig.forcedVersions,
             locale: locale,
             enabled: updatePromptEnabled,
             child: child ?? const SizedBox.shrink(),

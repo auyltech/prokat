@@ -9,6 +9,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/core/config/env.dart';
+import 'package:prokat/core/updates/app_update_policy.dart';
 import 'package:prokat/core/updates/app_update_prompt.dart';
 import 'package:prokat/core/router/app_router.dart';
 import 'package:prokat/core/router/app_routes.dart';
@@ -89,6 +90,7 @@ Future<_Harness> _start(
   _Resolver? resolver,
   Future<String?>? initialReply,
   TestAppUpgrader? upgrader,
+  List<ForcedAppVersion> forcedVersions = const [],
 }) async {
   FlutterSecureStorage.setMockInitialValues(Map.of(storage));
 
@@ -173,6 +175,7 @@ Future<_Harness> _start(
                     locale: const Locale('en'),
                     enabled: shareStartupReady(startup),
                     upgrader: upgrader,
+                    forcedVersions: forcedVersions,
                     child: child!,
                   );
                 },
@@ -187,13 +190,18 @@ Future<_Harness> _start(
 }
 
 void main() {
-  for (final legacy in [false, true]) {
+  for (final (legacy, forced) in [
+    (false, false),
+    (true, false),
+    (false, true),
+    (true, true),
+  ]) {
     testWidgets(
-      'HARD preserves ${legacy ? 'legacy' : 'registry'} pending and accepted share context',
+      '${forced ? 'Exact-force' : 'Major'} HARD preserves ${legacy ? 'legacy' : 'registry'} pending and accepted share context',
       (tester) async {
         resetUpgradePreferences();
         final upgrader = TestAppUpgrader(
-          TestUpgradeStore(availableVersion: '2.0.0'),
+          TestUpgradeStore(availableVersion: forced ? '1.0.1' : '2.0.0'),
         );
         addTearDown(upgrader.dispose);
         final resolver = _Resolver(
@@ -208,6 +216,9 @@ void main() {
           route: AppStartupRouteState.loading,
           resolver: resolver,
           upgrader: upgrader,
+          forcedVersions: forced
+              ? [ForcedAppVersion.tryParse('1.0.0+1')!]
+              : const [],
         );
         expect((await h.storage.readPendingOpen())?.link.shareId, _shareId);
         expect(find.byKey(const Key('upgrader_hard_dialog')), findsOneWidget);

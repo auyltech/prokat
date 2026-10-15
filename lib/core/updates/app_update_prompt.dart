@@ -12,10 +12,23 @@ class PolicyAppUpgrader extends Upgrader {
     : super(countryCode: 'KZ');
 
   String? _emergencyMinimum;
-  void setEmergencyMinimum(String? value) {
-    if (_emergencyMinimum == value) return;
-    _emergencyMinimum = value;
+  List<ForcedAppVersion> _forcedVersions = const [];
+  String? _lastDiagnostic;
+  void setEmergencyRules({
+    String? minimum,
+    List<ForcedAppVersion> forcedVersions = const [],
+  }) {
+    if (_emergencyMinimum == minimum &&
+        listEquals(_forcedVersions, forcedVersions)) {
+      return;
+    }
+    _emergencyMinimum = minimum;
+    _forcedVersions = List.unmodifiable(forcedVersions);
     updateStream();
+  }
+
+  void setEmergencyMinimum(String? value) {
+    setEmergencyRules(minimum: value, forcedVersions: _forcedVersions);
   }
 
   String? get effectiveMinimum => effectiveAppMinimum(
@@ -26,20 +39,37 @@ class PolicyAppUpgrader extends Upgrader {
     )?.toString(),
   )?.toString();
 
-  AppUpdatePolicy get policy => classifyAppUpdate(
+  AppUpdateDecision get decision => evaluateAppUpdate(
     installed: state.packageInfo?.version,
+    installedBuild: state.packageInfo?.buildNumber,
     latest: versionInfo?.appStoreVersion?.toString(),
     minimum: effectiveMinimum,
+    forcedVersions: _forcedVersions,
   );
+
+  AppUpdatePolicy get policy {
+    final result = decision;
+    final diagnostic = result.diagnostics.isEmpty
+        ? null
+        : '${result.diagnostics}: installed=${state.packageInfo?.version}+${state.packageInfo?.buildNumber}, '
+              'store=${versionInfo?.appStoreVersion}, minimum=$effectiveMinimum';
+    if (diagnostic != _lastDiagnostic) {
+      _lastDiagnostic = diagnostic;
+      if (diagnostic != null) {
+        Logger.log('Update enforcement deferred: $diagnostic');
+      }
+    }
+    return result.policy;
+  }
 
   @override
   bool belowMinAppVersion() =>
-      classifyAppUpdate(
+      evaluateAppUpdate(
         installed: state.packageInfo?.version,
-        latest: null,
+        latest: versionInfo?.appStoreVersion?.toString(),
         minimum: effectiveMinimum,
-      ) ==
-      AppUpdatePolicy.hard;
+      ).reason ==
+      AppUpdateReason.minimum;
 
   @override
   bool blocked() => policy == AppUpdatePolicy.hard;
@@ -56,8 +86,8 @@ class PolicyAppUpgrader extends Upgrader {
     if (currentAppStoreListingURL?.isNotEmpty ?? false) {
       return super.sendUserToAppStore();
     }
-    // Emergency minimum can arrive before store lookup succeeds. Keep Update
-    // useful without inventing an available version or waiting for networking.
+    // A voluntary store action may use the known listing before lookup. This
+    // URL fallback does not constitute proof for mandatory update availability.
     final url = state.upgraderOS.currentOSType == UpgraderOSType.ios
         ? 'https://apps.apple.com/kz/app/prokat/id6817078475'
         : 'https://play.google.com/store/apps/details?id=com.auyltech.prokat';
@@ -103,6 +133,7 @@ class AppUpdatePrompt extends StatefulWidget {
     required this.child,
     this.upgrader,
     this.emergencyMinimum,
+    this.forcedVersions = const [],
   });
 
   final GlobalKey<NavigatorState> navigatorKey;
@@ -112,6 +143,7 @@ class AppUpdatePrompt extends StatefulWidget {
   final Widget child;
   final PolicyAppUpgrader? upgrader;
   final String? emergencyMinimum;
+  final List<ForcedAppVersion> forcedVersions;
 
   @override
   State<AppUpdatePrompt> createState() => _AppUpdatePromptState();
@@ -124,7 +156,10 @@ class _AppUpdatePromptState extends State<AppUpdatePrompt> {
   void initState() {
     super.initState();
     _upgrader = widget.upgrader ?? PolicyAppUpgrader();
-    _upgrader.setEmergencyMinimum(widget.emergencyMinimum);
+    _upgrader.setEmergencyRules(
+      minimum: widget.emergencyMinimum,
+      forcedVersions: widget.forcedVersions,
+    );
     _applyLocale();
   }
 
@@ -142,8 +177,12 @@ class _AppUpdatePromptState extends State<AppUpdatePrompt> {
   void didUpdateWidget(AppUpdatePrompt oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.locale != widget.locale) _applyLocale();
-    if (oldWidget.emergencyMinimum != widget.emergencyMinimum) {
-      _upgrader.setEmergencyMinimum(widget.emergencyMinimum);
+    if (oldWidget.emergencyMinimum != widget.emergencyMinimum ||
+        !listEquals(oldWidget.forcedVersions, widget.forcedVersions)) {
+      _upgrader.setEmergencyRules(
+        minimum: widget.emergencyMinimum,
+        forcedVersions: widget.forcedVersions,
+      );
     }
   }
 

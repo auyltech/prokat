@@ -1,129 +1,165 @@
-# Semantic update policy and emergency minimum
+# Semantic update policy and emergency rules
 
-This follow-up continues PR #62 on `feat/upgrader-public-share-outbound` from
-`1f16f6a738ca4fe75aadb4d81cafdc0f5fb86b52`. Application metadata remains
-`1.2.2+18`. Public Share implementation, Backend, Admin/Web, database and remote
-production configuration are unchanged. No deployment or upload is performed.
+PR #62 continues on `feat/upgrader-public-share-outbound`. The exact-force
+follow-up starts at `0ffe2f338776c8b85511cc3501db854b3efefdc5`. Application metadata
+remains `1.2.2+18`. Public Share implementation, Backend, Admin/Web, database and
+production Remote Config are unchanged. No deployment or upload is performed.
 
-## Policy
+## Policy and precedence
 
-`classifyAppUpdate` is pure and uses the existing `version` parser with complete
-SemVer validation, then normalizes to numeric major.minor.patch. Build metadata
-(and prerelease labels) do not participate in this policy. Malformed installed
-or Store versions fail safely; malformed/empty emergency values mean no remote
-override and are diagnosed using the application's Logger convention.
+`evaluateAppUpdate` is pure; `classifyAppUpdate` exposes its central
+`AppUpdatePolicy` result. Complete SemVer inputs are validated with the existing
+`version` parser and normalized to numeric major.minor.patch. Normal comparisons
+ignore build metadata (and retain the existing normalization of prerelease
+labels). For example, 1.2.10 is newer than 1.2.9, but 1.2.3+19 is not a newer
+semantic version than 1.2.3+18. Malformed installed/Store versions fail safely.
 
-Precedence:
+Highest priority first:
 
-1. Installed below the effective minimum: HARD, even when Store lookup is absent
-   or the normally available update would be silent or soft.
-2. Newer major: HARD.
-3. Same major, newer minor: SOFT.
-4. Same major/minor, newer patch: SILENT.
-5. Otherwise: UP_TO_DATE.
+1. A matching exact-force rule plus a proven newer Store semantic version: HARD.
+2. Installed below the effective minimum, with a proven newer Store version that
+   reaches that minimum: HARD.
+3. Newer major: HARD.
+4. Same major, newer minor: SOFT.
+5. Same major/minor, newer patch: SILENT.
+6. Otherwise: UP_TO_DATE.
 
-UP_TO_DATE and SILENT show no UI. SOFT retains Update/Later/Ignore, barrier/back
-dismissal and upgrader's normal re-alert/Ignore persistence. HARD shows Update
-only and overrides previous Ignore or snooze. Both sources of minimum version
-are honored: the higher valid Remote Config or Store minimum wins; invalid or
-absent sources cannot weaken a valid minimum from the other source.
+The effective minimum is the higher valid Firebase Remote Config / Store
+minimum. Missing or invalid sources cannot weaken the other valid source.
+`upgrader` 13.7.0 still reads Store minimum metadata through
+`versionInfo.minAppVersion`; this behavior has not been disabled.
 
-`upgrader` stays at 13.7.0. The Store adapters still obtain minimum versions from
-Store metadata; the application reads `versionInfo.minAppVersion`. No production
-`minAppVersion`, emergency value, latest version or debug forcing is configured
-in source. Standard KZ Play/App Store lookup and RU/KK/EN messages remain.
+UP_TO_DATE and SILENT show nothing. SOFT retains Update/Later/Ignore, barrier/back
+dismissal and upgrader's normal three-day re-alert/Ignore persistence. HARD has
+Update only and overrides previous Ignore/snooze. All HARD reasons use the same
+mandatory UI. Standard KZ Play/App Store lookup and RU/KK/EN messages remain.
+No production latest version, emergency value or debug forcing is configured.
+
+## Deadlock protection and Store limitations
+
+The actual upgrader 13.7.0 `UpgraderVersionInfo` and standard Store adapters expose
+Store semantic versions, not reliable native Store build numbers. Therefore:
+
+- Only `latestStore.major.minor.patch > installed.major.minor.patch` proves a
+  usable newer release for exact-force enforcement.
+- Same-semantic-version builds are never treated as proof of availability, even
+  if a version display string has a larger `+build` suffix. For a defective
+  1.3.0+27 build, publish a newer semantic release before enforcing its rule.
+- Minimum enforcement additionally requires `latestStore >= effectiveMinimum`.
+- Missing, invalid, equal or older Store versions cannot cause HARD through
+  either emergency rule. The result is UP_TO_DATE when no newer release exists.
+- An unreachable minimum is diagnosed and falls back to normal SemVer policy:
+  patch SILENT, minor SOFT, or major HARD. The major case itself proves a newer
+  release. Exact-force remains higher priority when its own condition is met.
+
+Deferred emergency enforcement is logged through the existing Logger, deduplicated
+until the relevant state changes. Remote Config and a known Store URL alone do
+not prove release availability. A subsequent successful Store lookup can enable
+HARD without replacing the router or losing pending navigation.
 
 ## Firebase Console configuration
 
-Configure parameters manually in **Firebase Console -> Remote Config**:
+Configure these manually in **Firebase Console -> Remote Config**:
 
 | Platform | Parameter | In-app default |
 | --- | --- | --- |
 | Android | `min_supported_version_android` | empty string |
 | iOS | `min_supported_version_ios` | empty string |
+| Android | `force_update_versions_android` | `[]` (JSON string) |
+| iOS | `force_update_versions_ios` | `[]` (JSON string) |
 
-These are non-secret version strings, not credentials or sensitive data. This
-PR does not create or publish Firebase Console parameters. Use complete semantic
-versions such as `major.minor.patch`; examples in tests are not production values.
-Empty, missing and malformed remote values mean no remote override. Removing a
-remote minimum does not bypass a stricter Store minimum or a normal major update.
+Illustrative configuration only; this PR does not publish these values:
 
-The official FlutterFire `firebase_remote_config` 6.7.0 dependency follows the
-repository's pinned Firebase conventions. Integration starts once from the
-provider used by MyApp, after the existing FirebaseBootstrap initializes Firebase.
+```text
+min_supported_version_android = "1.1.0"
+force_update_versions_android = ["1.2.4", "1.3.0+27"]
+min_supported_version_ios = ""
+force_update_versions_ios = []
+```
+
+Use a **minimum** when all clients below X are no longer supported. Use a
+**force list** when a particular released version/build is defective, but earlier
+versions do not necessarily need to be blocked. Parameters are not secrets;
+never put credentials or sensitive data in them. No emergency minimum or force
+entry is configured by this PR.
+
+### Exact-force syntax and parsing
+
+- `"1.2.4"` matches every installed build of semantic version 1.2.4, including
+  1.2.4+19 and 1.2.4+999.
+- `"1.3.0+27"` requires semantic version 1.3.0 and native build exactly `27`.
+  Builds `26`, `28` and `027` do not match.
+- Installed build comes from structured `PackageInfo.buildNumber`, not an
+  arbitrary display-version suffix. Native build identifiers are trimmed and
+  otherwise compared exactly and case-sensitively. Dotted native builds such as
+  `27.1` are supported by `"1.3.0+27.1"`.
+- Rules require a complete stable semantic version, optionally followed by a
+  legal SemVer build identifier. Prerelease force entries are unsupported and
+  ignored. Numeric semantic cores cannot have leading zeroes.
+- Empty/missing values and `[]` mean no forced versions. Outer whitespace around
+  the JSON and each version is trimmed. Duplicates are harmless and deduplicated.
+- Malformed JSON or a non-array root rejects the entire list with diagnostics.
+  Non-string or invalid members are skipped individually with diagnostics;
+  valid members remain active. Internal whitespace is not silently repaired.
+- Empty/missing/invalid minimum strings mean no remote minimum. Malformed
+  configuration never invents a HARD result; an independent valid rule may
+  still apply.
+
+## Cache, fetch and real-time safety
+
+The existing official FlutterFire `firebase_remote_config` 6.7.0 integration
+starts once from MyApp's provider, after FirebaseBootstrap initializes Firebase.
 Firebase-disabled builds, local replicas and non-mobile platforms use no remote
-source. There is no new bootstrap await or dependency on Remote Config networking.
+source. There is no new bootstrap await or startup network dependency.
 
-The controller reads activated cache immediately, hydrates SDK cache/defaults in
-the background, then performs one background fetch/activate. Native fetch timeout
-is 10 seconds, normal minimum fetch interval one hour, and each controller async
-operation has a 15-second deadline. Preparation, cache, fetch, activation and
-listener failures are contained and logged; failed fetch retains activated cache.
-No timer polling or fetch on widget rebuild is introduced.
+The controller immediately reads activated cache, hydrates SDK cache/defaults in
+the background, then makes one background fetch/activate. Native fetch timeout is
+10 seconds, normal minimum fetch interval one hour, and each async operation has
+a 15-second deadline. Preparation, cache, fetch, activation and listener failures
+are contained and logged; failed fetch retains activated cache. There is no
+polling or fetch on widget rebuild.
 
-Real-time `onConfigUpdated` events already fetch new values in the native SDK.
-Relevant platform-key updates activate serially and publish changed valid values.
-Identical values do not publish duplicate state changes. Subscriptions are removed
-on disposal. See [FlutterFire Remote Config guidance](https://github.com/firebase/flutterfire/blob/main/docs/remote-config/_get-started.md).
+Real-time `onConfigUpdated` events already fetch in the native SDK. Events for
+either relevant platform key activate serially. Minimum and force list publish
+as one configuration snapshot; identical snapshots do not trigger duplicate UI
+state. Other-platform keys are not used. Subscriptions are removed on disposal.
 
 ## Navigation and mandatory presentation
 
-SOFT continues using the existing specific dialog-route dismissal, preserving a
-share route pushed above it. HARD uses a stable modal layer above the router:
-it blocks taps, background focus/semantics, and system back through a prioritized
-child BackButtonDispatcher. Incoming cold/warm links and startup can still resolve
-and persist their intended route beneath that layer; they cannot cover the block.
-No navigation, pending share, durable context or attribution is cleared by policy.
+SOFT keeps specific dialog-route dismissal, preserving a share route pushed above
+it. HARD uses the existing stable modal layer above the router, blocking taps,
+background focus/semantics and system Back through a prioritized child
+BackButtonDispatcher. Cold/warm links and startup can still resolve and persist
+their intended route underneath. Policy never deletes pending share URIs,
+durable envelopes, guest intents, login/OTP continuation or attribution state.
 
-When a live emergency value escalates SOFT to HARD, only the soft dialog route is
-removed. One HARD layer remains. Clearing the remote minimum removes the layer
-only if neither normal SemVer nor the Store minimum still requires HARD, and
-releases back handling without replacing the router or deleting the equipment
-route. Update uses upgrader's Store path; known platform Store URLs provide a
-fallback if emergency enforcement arrives before Store lookup succeeds.
+A real-time emergency escalation removes only the SOFT dialog route and retains
+one HARD layer. Removing the emergency rule releases the layer only if no other
+rule still requires HARD. The router, equipment route and durable context remain.
+Update uses upgrader's existing Store launch path. Known platform listing URLs
+remain available as a voluntary launch fallback, not as availability evidence.
 
 ## Validation and manual QA
 
-Completed validation:
+Deterministic tests inject installed version/native build, Store version/minimum,
+Remote Config transport/events and URL launcher. No live Store/Firebase calls or
+production metadata edits are needed. See PR #62 for final validation results.
 
-- `flutter pub get` and `flutter pub get --enforce-lockfile`: passed with no
-  existing dependency version changes. `version` moved from dev to runtime
-  dependency; the launcher platform interface is declared for test injection.
-- `flutter analyze --no-pub --fatal-infos --fatal-warnings`: no issues.
-- Full CI-equivalent `flutter test --no-pub --reporter expanded
-  --dart-define=ENABLE_FIREBASE_SERVICES=false
-  --dart-define=ENABLE_PUSH_NOTIFICATIONS=false`: 1,003 passed, three local-only
-  cases skipped. All three local replica configuration cases passed separately.
-- Focused update-policy/upgrader/Remote Config/Public Share/auth/booking/router
-  run: 493 passed, one Firebase-disabled configuration case skipped under
-  default defines. Includes store-launch fallback and existing attribution suites.
-- HARD pending/accepted share-context tests pass for registry and legacy links;
-  prior cold/warm, Later/Ignore and login/OTP continuation tests still pass.
-- Formatting, localization generation/drift and `git diff --check`: passed.
-- Android `flutter build appbundle --release --dart-define-from-file=.env`:
-  passed, `build/app/outputs/bundle/release/app-release.aab` (134,736,813 bytes).
-  Generated manifests retain versionName 1.2.2 / versionCode 18. Non-fatal
-  KGP/icon-font diagnostics were emitted; no artifact was uploaded.
-- iOS compile/build was not run because this environment is Windows without
-  macOS/Xcode. Device/Console manual QA is not claimed as performed.
-
-Deterministic tests inject installed versions, Store versions/minimums, Remote
-Config transport/updates and the URL launcher. No Store/Firebase networking or
-production version changes are used in tests.
-
-- Check patch and build-only releases: no dialog.
+- Check equal, build-only and patch releases: no dialog.
 - Check minor: Update/Later/Ignore; dismiss and restart behavior.
-- Check major and remote/Store emergency patch minimum: Update only, no barrier,
-  hardware back or underlying route can bypass it.
-- Check Android/iOS key selection, immediate activated cache, empty/malformed
-  values, fetch timeout/failure and Store-vs-remote minimum precedence.
-- Publish only in a separate QA Firebase environment when manually exercising
-  real-time behavior: increase the minimum during a soft prompt, confirm one hard
-  block, deliver a share link and verify its durable context beneath the block.
-- Clear that QA minimum and verify that an otherwise silent update releases the
-  block and preserves the intended equipment route.
-- Re-run canonical outbound, legacy inbound, registry inbound, login/OTP and
-  booking-attribution regression checks from the linked Public Share notes.
+- Check major, supported minimum and matching force rules: Update only, no
+  barrier dismissal or system Back bypass.
+- With installed 1.3.0+27, force `1.3.0+27` and Store 1.3.1: HARD. Builds 26/28
+  with that rule remain SILENT. Force `1.3.0` instead to cover every build.
+- With the same Store semantic version, a force rule or higher minimum must not
+  hard-lock the app. A Store version below the floor follows normal policy.
+- Check Android/iOS keys, cached activation, malformed JSON/members, timeout and
+  fetch failure, and higher Remote Config / Store minimum precedence.
+- In a separate QA Firebase environment only, add/remove a force rule during a
+  SOFT prompt. Confirm one HARD layer, retained share route/context and safe
+  rollback. Do not change production parameters for this verification.
+- Re-run canonical outbound, legacy/new cold/warm inbound, guest/login/OTP and
+  booking-attribution checks from the linked Public Share notes.
 
-Device/Console QA is prepared, not claimed as performed. Production Remote Config
-and rollout values are unchanged; no emergency minimum is configured by this PR.
+Device/Console QA is prepared, not claimed as performed. iOS compile validation
+requires macOS/Xcode and cannot run in this Windows environment.

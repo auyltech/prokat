@@ -51,7 +51,7 @@ void main() {
         );
         expect(upgrader.currentAppStoreListingURL, isNull);
         upgrader.setEmergencyMinimum('1.0.1');
-        expect(upgrader.blocked(), isTrue);
+        expect(upgrader.blocked(), isFalse);
         await upgrader.sendUserToAppStore();
         expect(
           launcher.urls.single,

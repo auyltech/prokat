@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
@@ -11,7 +12,63 @@ import 'package:prokat/core/utils/logger.dart';
 const emergencyVersionDefaults = <String, Object>{
   'min_supported_version_android': '',
   'min_supported_version_ios': '',
+  'force_update_versions_android': '[]',
+  'force_update_versions_ios': '[]',
 };
+
+String? forcedVersionsKey(TargetPlatform platform) => switch (platform) {
+  TargetPlatform.android => 'force_update_versions_android',
+  TargetPlatform.iOS => 'force_update_versions_ios',
+  _ => null,
+};
+
+/// Wrong root/JSON rejects the whole list. Non-string or invalid members are
+/// skipped individually with diagnostics; valid entries remain usable.
+List<ForcedAppVersion> parseForcedAppVersions(
+  String? raw, {
+  void Function(Object)? log,
+}) {
+  final value = raw?.trim() ?? '';
+  if (value.isEmpty) return const [];
+  final diagnose = log ?? Logger.log;
+  Object? decoded;
+  try {
+    decoded = jsonDecode(value);
+  } on FormatException {
+    diagnose('Invalid force-update JSON; ignoring list.');
+    return const [];
+  }
+  if (decoded is! List) {
+    diagnose('Force-update configuration must be an array; ignoring list.');
+    return const [];
+  }
+  final rules = <ForcedAppVersion>{};
+  for (final entry in decoded) {
+    final rule = entry is String ? ForcedAppVersion.tryParse(entry) : null;
+    if (rule == null) {
+      diagnose('Invalid force-update entry: $entry; ignored.');
+    } else {
+      rules.add(rule);
+    }
+  }
+  return List.unmodifiable(rules);
+}
+
+@immutable
+class EmergencyUpdateConfig {
+  const EmergencyUpdateConfig({this.minimum, this.forcedVersions = const []});
+  final String? minimum;
+  final List<ForcedAppVersion> forcedVersions;
+
+  @override
+  bool operator ==(Object other) =>
+      other is EmergencyUpdateConfig &&
+      other.minimum == minimum &&
+      listEquals(other.forcedVersions, forcedVersions);
+
+  @override
+  int get hashCode => Object.hash(minimum, Object.hashAll(forcedVersions));
+}
 
 String? emergencyVersionKey(TargetPlatform platform) => switch (platform) {
   TargetPlatform.android => 'min_supported_version_android',
@@ -58,15 +115,15 @@ class FirebaseEmergencyConfigClient implements EmergencyConfigClient {
       config.onConfigUpdated.map((event) => event.updatedKeys);
 }
 
-class EmergencyMinimumController extends StateNotifier<String?> {
-  EmergencyMinimumController({
+class EmergencyUpdateController extends StateNotifier<EmergencyUpdateConfig> {
+  EmergencyUpdateController({
     required this.platform,
     this.client,
     this.timeout = const Duration(seconds: 15),
     bool autoStart = true,
     void Function(Object)? log,
   }) : _log = log ?? Logger.log,
-       super(null) {
+       super(const EmergencyUpdateConfig()) {
     _readActivated();
     if (autoStart) unawaited(start());
   }
@@ -85,13 +142,20 @@ class EmergencyMinimumController extends StateNotifier<String?> {
     if (_disposed || client == null || key == null) return;
     try {
       final raw = client!.getString(key).trim();
+      final forced = parseForcedAppVersions(
+        client!.getString(forcedVersionsKey(platform)!),
+        log: _log,
+      );
       final parsed = parseAppVersion(raw);
       if (raw.isNotEmpty && parsed == null) {
         _log(
           'Invalid Remote Config emergency minimum for $key: "$raw"; ignored.',
         );
       }
-      final next = parsed?.toString();
+      final next = EmergencyUpdateConfig(
+        minimum: parsed?.toString(),
+        forcedVersions: forced,
+      );
       if (next != state) state = next;
     } catch (error) {
       _log('Emergency minimum cache unavailable: $error');
@@ -116,7 +180,10 @@ class EmergencyMinimumController extends StateNotifier<String?> {
     try {
       _subscription = source.updates.listen(
         (keys) {
-          if (!keys.contains(key)) return;
+          if (!keys.contains(key) &&
+              !keys.contains(forcedVersionsKey(platform))) {
+            return;
+          }
           // Real-time SDK events already fetch; activate serially, never poll.
           _activation = _activation.then((_) async {
             if (_disposed) return;
@@ -152,8 +219,10 @@ class EmergencyMinimumController extends StateNotifier<String?> {
   }
 }
 
-final emergencyMinimumProvider =
-    StateNotifierProvider<EmergencyMinimumController, String?>((ref) {
+final emergencyUpdateConfigProvider =
+    StateNotifierProvider<EmergencyUpdateController, EmergencyUpdateConfig>((
+      ref,
+    ) {
       EmergencyConfigClient? client;
       if (Env.firebaseServicesEnabled &&
           !Env.isLocal &&
@@ -166,7 +235,7 @@ final emergencyMinimumProvider =
           Logger.log('Emergency Remote Config unavailable: $error');
         }
       }
-      return EmergencyMinimumController(
+      return EmergencyUpdateController(
         platform: defaultTargetPlatform,
         client: client,
       );

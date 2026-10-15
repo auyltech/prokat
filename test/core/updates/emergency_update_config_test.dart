@@ -34,6 +34,88 @@ class _RecordingFirebaseConfig implements FirebaseRemoteConfig {
 }
 
 void main() {
+  for (final (raw, expected, diagnosticCount) in <(String?, List<String>, int)>[
+    (null, [], 0),
+    ('', [], 0),
+    ('  ', [], 0),
+    ('[]', [], 0),
+    ('["1.2.4"]', ['1.2.4'], 0),
+    ('["1.2.4", "1.3.0+27"]', ['1.2.4', '1.3.0+27'], 0),
+    (' [ " 1.2.4 ", "1.2.4", " 1.3.0+27 " ] ', ['1.2.4', '1.3.0+27'], 0),
+    ('[', [], 1),
+    ('{}', [], 1),
+    ('"1.2.4"', [], 1),
+    ('42', [], 1),
+    ('["broken"]', [], 1),
+    ('["01.2.4"]', [], 1),
+    ('["1.2.4-beta", "1.3.0+", "1.3.0 +27"]', [], 3),
+    (
+      '["1.2.4", null, 27, {}, true, "1.3.0+27", "broken"]',
+      ['1.2.4', '1.3.0+27'],
+      5,
+    ),
+  ]) {
+    test('forced JSON $raw parses safely and deterministically', () {
+      final logs = <Object>[];
+      final rules = parseForcedAppVersions(raw, log: logs.add);
+      expect(rules.map((rule) => rule.toString()).toList(), expected);
+      expect(logs, hasLength(diagnosticCount));
+    });
+  }
+
+  for (final platform in [TargetPlatform.android, TargetPlatform.iOS]) {
+    test(
+      '$platform preserves cached forced rules on failed fetch then accepts real-time list',
+      () async {
+        final key = forcedVersionsKey(platform)!;
+        final client = FakeEmergencyConfigClient()..failFetch = true;
+        addTearDown(client.events.close);
+        client.values[key] = '["1.2.4", "1.3.0+27"]';
+        client.values[forcedVersionsKey(
+              platform == TargetPlatform.android
+                  ? TargetPlatform.iOS
+                  : TargetPlatform.android,
+            )!] =
+            '["9.9.9"]';
+        final controller = EmergencyUpdateController(
+          platform: platform,
+          client: client,
+          autoStart: false,
+          log: (_) {},
+        );
+        addTearDown(controller.dispose);
+        expect(controller.state.forcedVersions.map((rule) => rule.toString()), [
+          '1.2.4',
+          '1.3.0+27',
+        ]);
+        await controller.start();
+        expect(controller.state.forcedVersions.map((rule) => rule.toString()), [
+          '1.2.4',
+          '1.3.0+27',
+        ]);
+        client.pending[key] = '["1.2.5"]';
+        client.events.add({key});
+        await pumpEventQueue();
+        expect(controller.state.forcedVersions.single.toString(), '1.2.5');
+        expect(client.fetchCalls, 1);
+      },
+    );
+    test('$platform fetch activates force list and minimum together', () async {
+      final client = FakeEmergencyConfigClient();
+      addTearDown(client.events.close);
+      client.pending[forcedVersionsKey(platform)!] = '["1.2.4"]';
+      client.pending[emergencyVersionKey(platform)!] = '1.1.0';
+      final controller = EmergencyUpdateController(
+        platform: platform,
+        client: client,
+        autoStart: false,
+      );
+      addTearDown(controller.dispose);
+      await controller.start();
+      expect(controller.state.minimum, '1.1.0');
+      expect(controller.state.forcedVersions.single.toString(), '1.2.4');
+    });
+  }
   test(
     'FlutterFire adapter hydrates cache and sets safe SDK defaults/settings',
     () async {
@@ -55,9 +137,17 @@ void main() {
       'min_supported_version_ios',
     );
     expect(emergencyVersionKey(TargetPlatform.windows), isNull);
+    expect(
+      forcedVersionsKey(TargetPlatform.android),
+      'force_update_versions_android',
+    );
+    expect(forcedVersionsKey(TargetPlatform.iOS), 'force_update_versions_ios');
+    expect(forcedVersionsKey(TargetPlatform.windows), isNull);
     expect(emergencyVersionDefaults, {
       'min_supported_version_android': '',
       'min_supported_version_ios': '',
+      'force_update_versions_android': '[]',
+      'force_update_versions_ios': '[]',
     });
   });
 
@@ -71,20 +161,23 @@ void main() {
           final key = emergencyVersionKey(platform)!;
           client.values[key] = cache;
           final logs = <Object>[];
-          final controller = EmergencyMinimumController(
+          final controller = EmergencyUpdateController(
             platform: platform,
             client: client,
             autoStart: false,
             log: logs.add,
           );
           addTearDown(controller.dispose);
-          expect(controller.state, cache == '1.2.4+18' ? '1.2.4' : null);
-          expect(client.keysRead, [key]);
+          expect(
+            controller.state.minimum,
+            cache == '1.2.4+18' ? '1.2.4' : null,
+          );
+          expect(client.keysRead, [key, forcedVersionsKey(platform)!]);
           expect(client.fetchCalls, 0);
           client.pending[key] = '1.3.0';
           await controller.start();
           await controller.start();
-          expect(controller.state, '1.3.0');
+          expect(controller.state.minimum, '1.3.0');
           expect(client.fetchCalls, 1);
           expect(client.prepareCalls, 1);
           if (cache == 'malformed') expect(logs, isNotEmpty);
@@ -100,7 +193,7 @@ void main() {
       addTearDown(client.events.close);
       client.values['min_supported_version_android'] = '1.4.0';
       final logs = <Object>[];
-      final controller = EmergencyMinimumController(
+      final controller = EmergencyUpdateController(
         platform: TargetPlatform.android,
         client: client,
         autoStart: false,
@@ -108,18 +201,18 @@ void main() {
       );
       addTearDown(controller.dispose);
       await expectLater(controller.start(), completes);
-      expect(controller.state, '1.4.0');
+      expect(controller.state.minimum, '1.4.0');
       expect(logs.single.toString(), contains('keeping cache'));
     },
   );
 
   test('missing Firebase safely uses no override', () async {
-    final controller = EmergencyMinimumController(
+    final controller = EmergencyUpdateController(
       platform: TargetPlatform.android,
     );
     addTearDown(controller.dispose);
     await expectLater(controller.start(), completes);
-    expect(controller.state, isNull);
+    expect(controller.state.minimum, isNull);
   });
 
   test('initialization/cache errors are contained', () async {
@@ -128,7 +221,7 @@ void main() {
       ..failRead = true;
     addTearDown(client.events.close);
     final logs = <Object>[];
-    final controller = EmergencyMinimumController(
+    final controller = EmergencyUpdateController(
       platform: TargetPlatform.iOS,
       client: client,
       autoStart: false,
@@ -136,7 +229,7 @@ void main() {
     );
     addTearDown(controller.dispose);
     await expectLater(controller.start(), completes);
-    expect(controller.state, isNull);
+    expect(controller.state.minimum, isNull);
     expect(logs, isNotEmpty);
   });
 
@@ -145,7 +238,7 @@ void main() {
       ..fetchReply = Completer<bool>().future;
     addTearDown(client.events.close);
     client.values['min_supported_version_android'] = '1.2.4';
-    final controller = EmergencyMinimumController(
+    final controller = EmergencyUpdateController(
       platform: TargetPlatform.android,
       client: client,
       autoStart: false,
@@ -154,7 +247,7 @@ void main() {
     );
     addTearDown(controller.dispose);
     await expectLater(controller.start(), completes);
-    expect(controller.state, '1.2.4');
+    expect(controller.state.minimum, '1.2.4');
   });
 
   test(
@@ -163,7 +256,7 @@ void main() {
       final client = FakeEmergencyConfigClient();
       addTearDown(client.events.close);
       final logs = <Object>[];
-      final controller = EmergencyMinimumController(
+      final controller = EmergencyUpdateController(
         platform: TargetPlatform.android,
         client: client,
         autoStart: false,
@@ -173,7 +266,7 @@ void main() {
       await controller.start();
       final observed = <String?>[];
       final cancel = controller.addListener(
-        observed.add,
+        (config) => observed.add(config.minimum),
         fireImmediately: false,
       );
       addTearDown(cancel);
@@ -190,13 +283,13 @@ void main() {
       client.events.add({'min_supported_version_android'});
       client.events.addError(StateError('stream disconnected'));
       await pumpEventQueue();
-      expect(controller.state, '1.2.4');
+      expect(controller.state.minimum, '1.2.4');
       expect(logs, hasLength(2));
       client.failActivate = false;
       client.pending['min_supported_version_android'] = 'bad';
       client.events.add({'min_supported_version_android'});
       await pumpEventQueue();
-      expect(controller.state, isNull);
+      expect(controller.state.minimum, isNull);
       expect(logs.last.toString(), contains('Invalid Remote Config'));
     },
   );

@@ -25,9 +25,13 @@ No available version is hard-coded.
 
 The [semantic update policy](semantic-update-policy.md) controls presentation:
 patch releases are SILENT, minor releases SOFT, and major releases HARD.
-Build metadata has no effect. The higher valid Firebase Remote Config / Store
-minimum takes precedence and can turn a patch update into HARD. There is no
-hard-coded emergency minimum. The forced-soft limitation was removed.
+Build metadata has no effect on normal classification. Platform-specific Remote
+Config exact-version/build rules have first priority, followed by the higher
+valid Firebase / Store minimum. Either can turn a patch update into HARD, but
+only when a newer Store semantic version proves an update is available; minimum
+enforcement also requires that release to reach the minimum. Native exact-build
+matching uses PackageInfo.buildNumber. No emergency values are hard-coded or
+published. See the linked policy for all four parameters and deadlock safeguards.
 
 SOFT offers Update, Later and Ignore with barrier/back dismissal, the package's
 normal three-day re-alert interval, and persisted version-specific Ignore.
