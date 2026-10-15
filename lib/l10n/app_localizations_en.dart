@@ -10,6 +10,16 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
+  String machineryQuotaReached(int maximum) {
+    return 'Machinery limit reached: $maximum units. To add more, free up space or contact the administration.';
+  }
+
+  @override
+  String equipmentQuotaReached(int maximum) {
+    return 'Equipment limit reached: $maximum units. To add more, free up space or contact the administration.';
+  }
+
+  @override
   String get appLanguage => 'App Language';
 
   @override
