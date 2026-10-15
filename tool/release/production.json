@@ -1,0 +1,11 @@
+{
+  "APP_ENV": "production",
+  "API_BASE_URL": "https://api.prokat.auyltech.kz",
+  "SOCKET_BASE_URL": "https://api.prokat.auyltech.kz",
+  "SHARE_BASE_URL": "https://prokat.auyltech.kz",
+  "APP_OPEN_BASE_URL": "https://open.prokat.auyltech.kz",
+  "ENABLE_FIREBASE_SERVICES": "true",
+  "ENABLE_PUSH_NOTIFICATIONS": "true",
+  "ENABLE_CRASH_REPORTING": "true",
+  "ENABLE_ANALYTICS": "true"
+}

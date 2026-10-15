@@ -120,7 +120,7 @@ delete necessary symbols to satisfy binary retention preferences.
 | Stage | Status | Exit condition |
 | --- | --- | --- |
 | A0 | VERIFIED local audit | Baseline and official docs recorded |
-| A1 | IN PROGRESS | Shared validation, tests, metadata, fail-closed gates |
+| A1 | VERIFIED locally (provider scaffolds follow) | Shared validation, tests, metadata, fail-closed gates |
 | U1 | PENDING USER ACTION | Free eligibility, private connection, tag-only UI |
 | A2 | Independent work permitted | Android workflow + account validation after U1 |
 | U2 | PENDING USER ACTION | Play API, existing key, historical build floor |
@@ -136,6 +136,14 @@ Next autonomous steps: implement/test Dart tag and metadata tools; Android
 signing/materialization, Supply preflight and workflow; final Codemagic-only iOS
 configuration; setup/runbook/verification; separate commits. No merge, tags,
 store writes or billed-account changes. Stop at U1 after independent work.
+
+A1 implementation: dependency-free Dart release parser/preparer with explicit
+SHA, fresh main ancestry, remote tag identity and provider event checks;
+fail-closed production switch; UTF-8 RU/EN/KK metadata and store exports;
+Flutter/FVM pins; CI-only secret materialization. `flutter test` verifies the
+core policy; `dart analyze tool/release test/release` is clean. No release draft
+is approved automatically. Native iOS lock validation intentionally blocks the
+audited stale lock. Integration checks are tracked separately in VERIFICATION.
 
 ## Official references (checked 2026-10-15)
 

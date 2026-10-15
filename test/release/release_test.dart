@@ -1,0 +1,204 @@
+import 'dart:convert';
+import 'dart:io';
+
+import 'package:flutter_test/flutter_test.dart';
+
+import '../../tool/release/release.dart' as release;
+import '../../tool/release/check_toolchain.dart' as toolchain;
+import '../../tool/release/inputs.dart' as inputs;
+
+void main() {
+  test('Java properties preserve password punctuation and whitespace', () {
+    expect(inputs.propertiesValue(' a\\b\n:=\t'), r'\ a\\b\n\:\=\t');
+  });
+  test('baseline iOS lock is explicitly blocked', () {
+    expect(
+      () => toolchain.validateIosLock(
+        'PODS:\n  - Flutter (1.0.0)\nCOCOAPODS: 1.17.0',
+      ),
+      throwsA(isA<release.ReleaseFailure>()),
+    );
+  });
+  test('incomplete or cyclic option syntax is rejected', () {
+    expect(
+      () => release.options(['--tag']),
+      throwsA(isA<release.ReleaseFailure>()),
+    );
+    expect(
+      () => release.options(['--tag', 'a', '--tag', 'b']),
+      throwsA(isA<release.ReleaseFailure>()),
+    );
+  });
+  group('strict release tags', () {
+    for (final platform in ['android', 'ios']) {
+      for (final prefix in ['', 'rc/']) {
+        test('$prefix$platform/v1.8.0+108', () {
+          final tag = release.ReleaseTag.parse('$prefix$platform/v1.8.0+108');
+          expect(tag.version, '1.8.0');
+          expect(tag.build, 108);
+          expect(tag.production, prefix.isEmpty);
+          expect(tag.platform, platform);
+        });
+      }
+    }
+    for (final tag in [
+      'v1.8.0+108',
+      'ios/v1.8+108',
+      'ios/v01.8.0+108',
+      'ios/v1.8.0+0',
+      'ios/v1.8.0+0108',
+      'ios/v1.8.0+10000',
+      'android/v1.8.0+2100000001',
+      'ios/v1.8.0+108\n',
+      'rc/ios/v1.8.0+108/extra',
+      'rc/android/v1.8.0-rc.1+108',
+      'android/v1.8.0+999999999999999999999999999999',
+      'android/v10000.0.0+1',
+      'android/v1.8.0+108;echo bad',
+    ]) {
+      test(
+        'reject $tag',
+        () => expect(
+          () => release.ReleaseTag.parse(tag),
+          throwsA(isA<release.ReleaseFailure>()),
+        ),
+      );
+    }
+    test('store boundaries', () {
+      expect(
+        release.ReleaseTag.parse('android/v0.0.1+2100000000').build,
+        2100000000,
+      );
+      expect(release.ReleaseTag.parse('ios/v1.0.0+9999').build, 9999);
+    });
+    test('RC cannot choose production destinations', () {
+      expect(
+        release.ReleaseTag.parse('rc/android/v1.0.0+1').toJson()['destination'],
+        'internal',
+      );
+      expect(
+        release.ReleaseTag.parse('rc/ios/v1.0.0+1').toJson()['destination'],
+        'testflight',
+      );
+    });
+  });
+
+  test('production is fail-closed; RC ignores production switch', () {
+    final prod = release.ReleaseTag.parse('android/v1.0.0+1');
+    for (final value in [null, '', 'false', 'TRUE', '1']) {
+      expect(
+        () => release.validateProduction(prod, {
+          'PRODUCTION_PUBLISHING_ENABLED': ?value,
+        }),
+        throwsA(isA<release.ReleaseFailure>()),
+      );
+    }
+    release.validateProduction(prod, {'PRODUCTION_PUBLISHING_ENABLED': 'true'});
+    release.validateProduction(
+      release.ReleaseTag.parse('rc/android/v1.0.0+1'),
+      {},
+    );
+  });
+
+  test('manual/cross-platform provider context is rejected', () {
+    for (final platform in ['android', 'ios']) {
+      expect(
+        () => release.validateEvent(
+          release.ReleaseTag.parse('rc/$platform/v1.0.0+1'),
+          {},
+        ),
+        throwsA(isA<release.ReleaseFailure>()),
+      );
+    }
+  });
+
+  test('iOS webhook context enforces repository and excludes PR', () {
+    final tag = release.ReleaseTag.parse('rc/ios/v1.0.0+1');
+    final env = {
+      'CM_BUILD_ID': 'fixture',
+      'CM_TAG': tag.tag,
+      'CM_REPO_SLUG': 'auyltech/prokat',
+      'CM_PULL_REQUEST': 'false',
+    };
+    release.validateEvent(tag, env);
+    expect(
+      () => release.validateEvent(tag, {...env, 'CM_PULL_REQUEST': 'true'}),
+      throwsA(isA<release.ReleaseFailure>()),
+    );
+    expect(
+      () =>
+          release.validateEvent(tag, {...env, 'CM_REPO_SLUG': 'someone/fork'}),
+      throwsA(isA<release.ReleaseFailure>()),
+    );
+  });
+
+  group('metadata and shared notes', () {
+    late Directory temp;
+    final tag = release.ReleaseTag.parse('rc/ios/v1.8.0+108');
+    setUp(() {
+      temp = Directory.systemTemp.createTempSync('prokat-release-test-');
+      release.writeJson('${temp.path}/releases/1.8.0/release.json', {
+        'schema': 1,
+        'version': '1.8.0',
+        'ready': true,
+      });
+      for (final language in ['ru', 'en', 'kk']) {
+        File('${temp.path}/releases/1.8.0/$language.txt')
+            .writeAsStringSync('Update $language\r\nSecond line');
+      }
+    });
+    tearDown(() => temp.deleteSync(recursive: true));
+    test('notes generate correct store formats and retain original Kazakh', () {
+      release.prepare(tag, 'a' * 40, temp);
+      final apple = jsonDecode(
+        File('${temp.path}/build/release/apple-localizations.json')
+            .readAsStringSync(),
+      ) as List;
+      expect(apple.map((n) => n['locale']), ['ru', 'en-US', 'en-GB']);
+      expect(
+        File('${temp.path}/build/release/play/kk/changelogs/108.txt')
+            .readAsStringSync(),
+        'Update kk\nSecond line\n',
+      );
+      expect(File('${temp.path}/releases/1.8.0/kk.txt').existsSync(), isTrue);
+      expect(
+        File('${temp.path}/build/release/release.env').readAsStringSync(),
+        contains('RELEASE_BUILD=108\n'),
+      );
+    });
+    test('missing notes fail', () {
+      File('${temp.path}/releases/1.8.0/ru.txt').deleteSync();
+      expect(
+        () => release.readNotes(temp, tag),
+        throwsA(isA<release.ReleaseFailure>()),
+      );
+    });
+    for (final text in [
+      '',
+      'TODO',
+      '<html>',
+      'x' * 501,
+      '\uFEFFtext',
+      'bad\u0000text',
+    ]) {
+      test('invalid notes fail (${text.length} chars)', () {
+        File('${temp.path}/releases/1.8.0/en.txt').writeAsStringSync(text);
+        expect(
+          () => release.readNotes(temp, tag),
+          throwsA(isA<release.ReleaseFailure>()),
+        );
+      });
+    }
+    test('unapproved draft fails', () {
+      release.writeJson('${temp.path}/releases/1.8.0/release.json', {
+        'schema': 1,
+        'version': '1.8.0',
+        'ready': false,
+      });
+      expect(
+        () => release.readNotes(temp, tag),
+        throwsA(isA<release.ReleaseFailure>()),
+      );
+    });
+  });
+}
