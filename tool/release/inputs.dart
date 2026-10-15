@@ -18,7 +18,14 @@ String propertiesValue(String value) => value
     .replaceAll('\t', '\\t')
     .replaceAll(' ', '\\ ')
     .replaceAll('=', '\\=')
-    .replaceAll(':', '\\:');
+    .replaceAll(':', '\\:')
+    .codeUnits
+    .map(
+      (unit) => unit > 0x7e
+          ? '\\u${unit.toRadixString(16).padLeft(4, '0')}'
+          : String.fromCharCode(unit),
+    )
+    .join();
 
 void newFile(String path, List<int> bytes) {
   final file = File(path);

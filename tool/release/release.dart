@@ -95,6 +95,24 @@ void validateProduction(ReleaseTag release, Map<String, String> env) {
   }
 }
 
+void validateBuildHistory(ReleaseTag release, Iterable<String> tags) {
+  for (final name in tags) {
+    if (name == release.tag) continue;
+    ReleaseTag previous;
+    try {
+      previous = ReleaseTag.parse(name);
+    } on ReleaseFailure {
+      continue; // Legacy/archive/unrelated tags do not claim a build number.
+    }
+    if (previous.platform == release.platform &&
+        previous.build >= release.build) {
+      blocked(
+        'Build number must exceed other ${release.platform} release tags, including failed attempts: $name',
+      );
+    }
+  }
+}
+
 void validateEvent(ReleaseTag release, Map<String, String> env) {
   if (release.platform == 'android') {
     if (env['GITHUB_ACTIONS'] != 'true' ||
@@ -121,26 +139,34 @@ void validateEvent(ReleaseTag release, Map<String, String> env) {
   }
 }
 
-void validateRevision(ReleaseTag release, String revision, {required bool ci}) {
+void validateRevision(
+  ReleaseTag release,
+  String revision, {
+  required bool ci,
+  String? directory,
+}) {
+  String runGit(List<String> args) => git(args, directory: directory);
   if (!RegExp(r'^[0-9a-f]{40}$').hasMatch(revision)) {
     blocked(
       'Specify an explicit approved 40-character commit SHA with --revision',
     );
   }
-  if (git(['rev-parse', 'HEAD']) != revision) {
+  if (runGit(['rev-parse', 'HEAD']) != revision) {
     blocked('Checkout differs from approved revision');
   }
-  if (git(['status', '--porcelain', '--untracked-files=no']).isNotEmpty) {
+  if (runGit(['status', '--porcelain', '--untracked-files=no']).isNotEmpty) {
     blocked(
       'Tracked worktree changes must be committed before preparing a release',
     );
   }
   if (ci) {
+    runGit(['fetch', '--tags', 'origin']);
+    validateBuildHistory(release, runGit(['tag', '--list']).split('\n'));
     final ref = 'refs/tags/${release.tag}';
-    if (git(['rev-parse', '$ref^{commit}']) != revision) {
+    if (runGit(['rev-parse', '$ref^{commit}']) != revision) {
       blocked('Local tag differs from checkout');
     }
-    final lines = git(['ls-remote', '--exit-code', 'origin', ref, '$ref^{}'])
+    final lines = runGit(['ls-remote', '--exit-code', 'origin', ref, '$ref^{}'])
         .split('\n');
     final peeled = lines.where((line) => line.trim().endsWith('$ref^{}'));
     final matching = peeled.isNotEmpty ? peeled.single : lines.single;
@@ -150,13 +176,13 @@ void validateRevision(ReleaseTag release, String revision, {required bool ci}) {
   }
   if (release.production) {
     // Fetch is explicit, even if checkout previously populated origin/main.
-    git(['fetch', 'origin', 'main:refs/remotes/origin/main']);
+    runGit(['fetch', 'origin', 'main:refs/remotes/origin/main']);
     final result = Process.runSync('git', [
       'merge-base',
       '--is-ancestor',
       revision,
       'origin/main',
-    ]);
+    ], workingDirectory: directory);
     if (result.exitCode != 0) {
       blocked('Production commit is not reachable from current origin/main');
     }
@@ -237,7 +263,7 @@ void prepare(ReleaseTag release, String revision, Directory root) {
   for (final entry in {'ru-RU': 'ru', 'en-US': 'en', 'kk': 'kk'}.entries) {
     final file = File('$out/play/${entry.key}/changelogs/${release.build}.txt');
     file.parent.createSync(recursive: true);
-    file.writeAsStringSync('${notes[entry.value]}\n');
+    file.writeAsStringSync(notes[entry.value]!);
   }
 }
 

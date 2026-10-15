@@ -120,22 +120,42 @@ delete necessary symbols to satisfy binary retention preferences.
 | Stage | Status | Exit condition |
 | --- | --- | --- |
 | A0 | VERIFIED local audit | Baseline and official docs recorded |
-| A1 | VERIFIED locally (provider scaffolds follow) | Shared validation, tests, metadata, fail-closed gates |
+| A1 | VERIFIED locally | Shared validation, tests, metadata, fail-closed gates |
 | U1 | PENDING USER ACTION | Free eligibility, private connection, tag-only UI |
-| A2 | Independent work permitted | Android workflow + account validation after U1 |
+| A2 | Independent implementation prepared; NOT VERIFIED in provider | Android workflow + account validation after U1 |
 | U2 | PENDING USER ACTION | Play API, existing key, historical build floor |
-| A3 | Independent work permitted | Codemagic workflow + lock/signing validation |
+| A3 | Independent implementation prepared; BLOCKED native lock/accounts | Codemagic workflow + lock/signing validation |
 | U3 | PENDING USER ACTION | Apple integration, profiles, Firebase, native lock |
-| A4 | Local/static checks permitted | Provider integration remains pending |
+| A4 | VERIFIED local/static subset only | Provider integration remains pending |
 | U4 | PENDING USER ACTION | Explicit permission for exact RC tags/SHAs |
 | A5 | NOT VERIFIED | Actual test distribution, symbols, retries, cost |
 | U5 | PENDING USER ACTION | A5 success + one-time production authorization |
 | A6 | NOT VERIFIED | Honest final acceptance after integration |
 
-Next autonomous steps: implement/test Dart tag and metadata tools; Android
+Completed autonomous scope: Dart tag/metadata tools and tests; Android
 signing/materialization, Supply preflight and workflow; final Codemagic-only iOS
 configuration; setup/runbook/verification; separate commits. No merge, tags,
-store writes or billed-account changes. Stop at U1 after independent work.
+store writes or billed-account changes. Current stop is U1. The feature branch
+remains local until Codemagic UI auto-trigger settings can be checked; push after
+U1 is allowed, merge still requires separate authorization.
+
+A2 independent implementation: tag-only Ubuntu workflow, JDK 21.0.12, pinned
+Supply 2.241.0/Ruby 3.3.10/Bundler lock; native signing/Firebase materialization;
+API state checked twice; historical floor + Git tag history; no transport upload
+retries; AAB manifest/signature/fingerprint validation with bundletool 1.18.3;
+mapping upload before Play; no AAB artifact persistence. Provider delivery and
+existing upload-key usability remain NOT VERIFIED until authorized U4/A5.
+
+A3 independent implementation: two tag-only M2 workflows, Xcode 26.6 and
+CocoaPods 1.16.2, Codemagic CLI 0.70.0, existing profiles only, actual exported
+IPA entitlement checks, complete builds + Build Uploads API snapshots, internal
+TestFlight group or App Review AFTER_APPROVAL. Uses Codemagic's own CLI instead
+of persistent IPA artifacts/server-side postprocessing; bounded Apple processing
+wait consumes minutes but avoids 30-day IPA storage. No iOS Fastlane dependency.
+Only a failed dSYM upload leaves a recovery ZIP artifact (30-day Personal limit).
+Successful symbol upload removes ZIP before collection. No repository `.p8`/key.
+U3 must also resolve the absent export-compliance declaration in Info.plist; the
+agent has not guessed a legal declaration. No full CI readiness claim is made.
 
 A1 implementation: dependency-free Dart release parser/preparer with explicit
 SHA, fresh main ancestry, remote tag identity and provider event checks;

@@ -84,3 +84,5 @@ android/app/*.jks
 
 # FVM caches; keep .fvmrc in Git.
 .fvm/
+__pycache__/
+.bundle/

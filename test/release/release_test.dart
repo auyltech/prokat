@@ -8,9 +8,35 @@ import '../../tool/release/check_toolchain.dart' as toolchain;
 import '../../tool/release/inputs.dart' as inputs;
 
 void main() {
+  test(
+    'new platform attempts use new numbers, independently of other platform',
+    () {
+      final tag = release.ReleaseTag.parse('ios/v1.8.0+108');
+      release.validateBuildHistory(tag, [
+        'rc/ios/v1.8.0+107',
+        'android/v1.8.0+999',
+        tag.tag,
+        'archive/old',
+      ]);
+      expect(
+        () => release.validateBuildHistory(tag, ['rc/ios/v1.8.0+108']),
+        throwsA(isA<release.ReleaseFailure>()),
+      );
+      expect(
+        () => release.validateBuildHistory(tag, ['rc/ios/v1.8.0+109']),
+        throwsA(isA<release.ReleaseFailure>()),
+      );
+    },
+  );
   test('Java properties preserve password punctuation and whitespace', () {
     expect(inputs.propertiesValue(' a\\b\n:=\t'), r'\ a\\b\n\:\=\t');
   });
+  test(
+    'Java properties preserve non-ASCII passwords without encoding loss',
+    () {
+      expect(inputs.propertiesValue('К'), r'\u041a');
+    },
+  );
   test('baseline iOS lock is explicitly blocked', () {
     expect(
       () => toolchain.validateIosLock(
@@ -158,7 +184,7 @@ void main() {
       expect(
         File('${temp.path}/build/release/play/kk/changelogs/108.txt')
             .readAsStringSync(),
-        'Update kk\nSecond line\n',
+        'Update kk\nSecond line',
       );
       expect(File('${temp.path}/releases/1.8.0/kk.txt').existsSync(), isTrue);
       expect(
