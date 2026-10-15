@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:prokat/features/equipment/providers/equipment_dependencies.dart';
+import 'package:prokat/features/equipment/equipment_create_error_message.dart';
 import 'package:prokat/features/company_profile/company_workspace.dart';
 import 'package:prokat/features/company_profile/company_profile_api.dart';
 
@@ -216,8 +217,16 @@ class _CreateEquipmentScreenState extends ConsumerState<CreateEquipmentScreen> {
         }
         AppToast.show(message: l10n.equipmentAdded, type: AppToastType.success);
       } else if (mounted) {
+        final error = ref
+            .read(equipmentMutationProvider.notifier)
+            .getActionError('equipment:create');
         AppToast.show(
-          message: l10n.couldNotAddEquipment,
+          message: equipmentCreateErrorMessage(
+            l10n: l10n,
+            errorCode: error?.code,
+            details: error?.originalError,
+            selectedGroup: category.catalogGroup.apiValue,
+          ),
           type: AppToastType.error,
         );
       }
