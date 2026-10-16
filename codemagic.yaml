@@ -18,7 +18,8 @@ definitions:
         python3 -m pip install --disable-pip-version-check -r tool/release/requirements.txt
         flutter pub get --enforce-lockfile
         (cd ios && pod install --deployment)
-        git diff --exit-code -- pubspec.lock ios/Podfile.lock
+        xcodebuild -resolvePackageDependencies -workspace ios/Runner.xcworkspace -scheme Runner -clonedSourcePackagesDirPath "$CM_BUILD_DIR/build/release/SourcePackages" -onlyUsePackageVersionsFromResolvedFile
+        git diff --exit-code -- pubspec.lock ios/Podfile.lock ios/Runner.xcworkspace/xcshareddata/swiftpm/Package.resolved ios/Runner.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved
         xcodebuild -version
         pod --version
         app-store-connect --version
@@ -50,6 +51,7 @@ definitions:
         source build/release/release.env
         flutter build ipa --release --no-pub --build-name "$RELEASE_VERSION" --build-number "$RELEASE_BUILD" --dart-define-from-file=.env --export-options-plist="$HOME/export_options.plist"
         ditto -c -k --keepParent build/ios/archive/Runner.xcarchive/dSYMs build/release/ios-symbols.zip
+        git diff --exit-code -- ios/Podfile.lock ios/Runner.xcworkspace/xcshareddata/swiftpm/Package.resolved ios/Runner.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved
         python3 tool/release/verify_ios.py
     - &symbols
       name: Upload all native dSYMs to Firebase before any store upload
@@ -57,7 +59,8 @@ definitions:
         set -euo pipefail
         test -d build/ios/archive/Runner.xcarchive/dSYMs/Runner.app.dSYM
         test -d build/ios/archive/Runner.xcarchive/dSYMs/App.framework.dSYM
-        ios/Pods/FirebaseCrashlytics/upload-symbols -gsp ios/Runner/GoogleService-Info.plist -p ios build/ios/archive/Runner.xcarchive/dSYMs
+        test -f build/release/SourcePackages/checkouts/firebase-ios-sdk/Crashlytics/upload-symbols
+        build/release/SourcePackages/checkouts/firebase-ios-sdk/Crashlytics/upload-symbols -gsp ios/Runner/GoogleService-Info.plist -p ios build/ios/archive/Runner.xcarchive/dSYMs
         # The ZIP is only retained as a recovery artifact when upload failed.
         rm -f -- build/release/ios-symbols.zip
     - &publish

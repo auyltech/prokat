@@ -1,5 +1,6 @@
 """Contract checks of the actual workflow files; does not trigger CI."""
 import fnmatch
+import re
 from pathlib import Path
 import unittest
 
@@ -9,6 +10,18 @@ ROOT = Path(__file__).resolve().parents[2]
 
 
 class WorkflowContractTests(unittest.TestCase):
+    def test_exact_android_u2_input_inventory_and_prebuild_key_check(self):
+        text = (ROOT / '.github/workflows/android-release.yml').read_text()
+        secrets = set(re.findall(r'secrets\.([A-Z0-9_]+)', text))
+        variables = set(re.findall(r'vars\.([A-Z0-9_]+)', text))
+        self.assertEqual(secrets, {
+            'ANDROID_KEYSTORE_BASE64', 'ANDROID_KEYSTORE_PASSWORD', 'ANDROID_KEY_ALIAS',
+            'ANDROID_KEY_PASSWORD', 'PLAY_SERVICE_ACCOUNT_JSON_BASE64',
+            'GOOGLE_SERVICES_JSON_BASE64', 'MAPBOX_PUBLIC_TOKEN', 'PRODUCTION_PUBLISHING_ENABLED',
+        })
+        self.assertEqual(variables, {'PLAY_HISTORICAL_MAX_BUILD', 'ANDROID_UPLOAD_CERT_SHA256'})
+        self.assertLess(text.index('verify_upload_key.py'), text.index('flutter build appbundle'))
+
     def setUp(self):
         self.github = yaml.load((ROOT / ".github/workflows/android-release.yml").read_text(), Loader=yaml.BaseLoader)
         self.codemagic = yaml.load((ROOT / "codemagic.yaml").read_text(), Loader=yaml.BaseLoader)
@@ -45,6 +58,10 @@ class WorkflowContractTests(unittest.TestCase):
             self.assertEqual(workflow["environment"]["vars"]["RELEASE_EXPECTED_CHANNEL"], "rc" if name == "ios-rc" else "production")
             self.assertIn("release.dart ci", workflow["scripts"][0]["script"])
             self.assertIn("check_toolchain.dart ios", workflow["scripts"][0]["script"])
+            dependencies = workflow['scripts'][1]['script']
+            self.assertIn('-onlyUsePackageVersionsFromResolvedFile', dependencies)
+            self.assertIn('pod install --deployment', dependencies)
+            self.assertIn('SourcePackages/checkouts/firebase-ios-sdk/Crashlytics/upload-symbols', workflow['scripts'][5]['script'])
 
 
 if __name__ == "__main__":

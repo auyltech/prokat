@@ -37,10 +37,49 @@ void main() {
       expect(inputs.propertiesValue('К'), r'\u041a');
     },
   );
-  test('baseline iOS lock is explicitly blocked', () {
+  test(
+    'CocoaPods metadata must match the pinned tool, regardless of SwiftPM',
+    () {
+      expect(
+        () => toolchain.validateIosLock(
+          'PODS:\n  - Flutter (1.0.0)\nCOCOAPODS: 1.17.0',
+        ),
+        throwsA(isA<release.ReleaseFailure>()),
+      );
+    },
+  );
+  test('SwiftPM project permits a minimal CocoaPods fallback lock', () {
+    toolchain.validateIosLock('PODS:\n  - Flutter (1.0.0)\nCOCOAPODS: 1.16.2');
+    final pins = [
+      {
+        'identity': 'firebase-ios-sdk',
+        'location': 'https://github.com/firebase/firebase-ios-sdk',
+        'state': {'revision': 'a' * 40, 'version': '12.19.0'},
+      },
+      {
+        'identity': 'mapbox-maps-ios',
+        'location': 'https://github.com/mapbox/mapbox-maps-ios.git',
+        'state': {'revision': 'b' * 40, 'version': '11.29.1'},
+      },
+    ];
     expect(
-      () => toolchain.validateIosLock(
-        'PODS:\n  - Flutter (1.0.0)\nCOCOAPODS: 1.17.0',
+      toolchain
+          .validateIosSwiftLock(jsonEncode({'version': 2, 'pins': pins}))
+          .length,
+      2,
+    );
+    expect(
+      () => toolchain.validateIosSwiftLock(
+        jsonEncode({'version': 2, 'pins': pins.take(1).toList()}),
+      ),
+      throwsA(isA<release.ReleaseFailure>()),
+    );
+    expect(
+      () => toolchain.validateIosSwiftLock(
+        jsonEncode({
+          'version': 2,
+          'pins': [...pins, pins.first],
+        }),
       ),
       throwsA(isA<release.ReleaseFailure>()),
     );
