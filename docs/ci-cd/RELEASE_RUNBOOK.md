@@ -9,6 +9,10 @@
 7 Secrets, 2 Variables и проверка существующего upload certificate без экспорта
 private key. До U5 production Secret отсутствует/false, права Play — только
 просмотр приложения и тестовые треки.
+Для начала настройки аккаунтов есть [короткий checklist U2/U3](OWNER_CHECKLIST.md).
+Последний подтверждённый Android historical max — 18; повторно проверьте историю
+магазина перед выбором номера. Значение 18 не делает следующий номер 19 свободным:
+API перечитывается до сборки и до upload; старый floor не заменяет live snapshot.
 
 Для iOS следуйте [IOS_DEPENDENCIES](IOS_DEPENDENCIES.md) при восстановлении native
 locks на Mac. Проект использует SwiftPM: сохраняйте оба `Package.resolved` вместе
@@ -105,6 +109,13 @@ git push --atomic origin 'refs/tags/android/v1.2.3+20' 'refs/tags/ios/v1.2.3+20'
 При ошибке push проверьте remote refs, не создавайте альтернативный тег вслепую.
 
 ## Проверка результата
+
+App Store notes отправляет штатный Codemagic CLI через `apple_publish.py`:
+обновляются только уже настроенные локали; отсутствующий перевод или ошибка
+metadata API останавливают submission. Сам IPA к этому моменту может быть принят:
+проверьте существующий build и не перезагружайте вслепую. Для самой первой
+App Store версии Apple не принимает What's New: тексты остаются в Git, PATCH
+notes пропускается. При обновлении CLI сначала перепроверьте adapter/SDK tests.
 
 - [GitHub Actions](https://github.com/auyltech/prokat/actions): `Android tag
   release`, tag/SHA, run ID, attempt, tool versions, fingerprint/AAB validation,

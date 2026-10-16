@@ -8,6 +8,11 @@ push, Personal billing off, 0/500 M2 minutes used). GitHub privacy/billing and
 Personal Free commercial eligibility remain pending. Owner explicitly authorized
 independent A2/A3/A4 preparation while U1 is partial; real CI builds remain forbidden.
 
+Latest autonomous preflight: [PREFLIGHT.md](PREFLIGHT.md); short account guides:
+[OWNER_CHECKLIST.md](OWNER_CHECKLIST.md). Android/iOS remain NOT READY for U4,
+not because a local test failed, but because U1/U2/U3/native prerequisites and
+authorized delivery/RC source selection remain pending.
+
 ## Baseline (A0)
 
 - Repository remote: `git@github-work:auyltech/prokat.git`; owner `auyltech`.
@@ -203,7 +208,26 @@ the resolved Firebase Swift checkout, not an assumed Pods path. See
 IOS_DEPENDENCIES.md for the one-time Mac dependency-only procedure. No app build
 or signing/portal mutations are part of that procedure.
 
-## Official references (checked 2026-10-15)
+## Latest autonomous preflight follow-up
+
+Preflight follow-up 2026-10-16 (code commits `1aa9417`, `b85eb60`, `f41e3b0`):
+known Android historical floor 18 is enforced independently of fresh store reads;
+debug release-signing fallback removed; malformed Play codes fail UNKNOWN;
+internal TestFlight group and actual profile identity checks strengthened.
+Apple access probe reuses preflight without a tag and performs GET requests only.
+Pinned Codemagic CLI stays the publisher, with a narrow version-guarded adapter
+to stop App Review submission on localization errors and update existing locales
+only. First App Store version forbids What's New; its Git notes are retained but
+not PATCHed. No new locale/listing metadata is created by the adapter.
+Full Flutter regression 1103/3 skipped, focused41, Python34 and offline Ruby22
+policy cases passed. Earlier 6 disposable certificate tests were not rerun to
+avoid generating any key in this preflight. Detailed evidence is in VERIFICATION.
+
+The latest fetched dev has one application commit after this feature's base;
+no automatic integration was performed. Verification of an eventual approved
+integration commit remains a separate step. No merge/push/tags/real builds.
+
+## Official references (initial audit 2026-10-15; preflight references rechecked 2026-10-16)
 
 - [GitHub filters and workflow syntax](https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax)
 - [GitHub Actions billing](https://docs.github.com/en/billing/concepts/product-billing/github-actions)

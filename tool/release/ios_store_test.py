@@ -1,7 +1,9 @@
 import contextlib
 import io
+import json
 from pathlib import Path
 import tempfile
+from types import SimpleNamespace
 import unittest
 from unittest.mock import patch
 
@@ -39,6 +41,41 @@ class AppleStorePolicyTests(unittest.TestCase):
             store.main()
         publish.assert_not_called()
         self.assertNotIn("VERIFIED", output.getvalue())
+
+    def test_production_gate_blocks_before_api_or_publisher(self):
+        context = {**self.rc, "channel": "production", "destination": "app_store_review", "tag": "ios/v1.8.0+108"}
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / "build/release").mkdir(parents=True)
+            (root / "build/release/context.json").write_text(json.dumps(context))
+            for gate in ("", "false", "TRUE", "1"):
+                env = {"CM_BUILD_ID": "fixture", "CM_TAG": context["tag"], "PRODUCTION_PUBLISHING_ENABLED": gate}
+                with self.subTest(gate=gate), patch.object(store, "ROOT", root), patch.dict(store.os.environ, env, clear=True), \
+                        patch.object(store.sys, "argv", ["ios_store.py", "publish"]), patch.object(store, "preflight") as read, \
+                        patch.object(store.subprocess, "run") as publish, self.assertRaises(store.Blocked):
+                    store.main()
+                read.assert_not_called()
+                publish.assert_not_called()
+
+    def test_rc_publish_delegates_to_pinned_adapter_after_fresh_preflight(self):
+        context = {**self.rc, "tag": "rc/ios/v1.8.0+108"}
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / "build/release").mkdir(parents=True)
+            (root / "build/release/context.json").write_text(json.dumps(context))
+            (root / "build/ios/ipa").mkdir(parents=True)
+            (root / "build/ios/ipa/fixture.ipa").touch()  # Empty fixture, never a signed binary.
+            env = {"CM_BUILD_ID": "fixture", "CM_TAG": context["tag"], "TESTFLIGHT_GROUP": "PROKAT Internal"}
+            with patch.object(store, "ROOT", root), patch.dict(store.os.environ, env, clear=True), \
+                    patch.object(store.sys, "argv", ["ios_store.py", "publish"]), patch.object(store, "preflight") as read, \
+                    patch.object(store.subprocess, "run") as publish, \
+                    contextlib.redirect_stdout(io.StringIO()):
+                publish.side_effect = lambda *a, **k: (read.assert_called_once_with(context) or SimpleNamespace(returncode=0))
+                store.main()
+                args = publish.call_args.args[0]
+                self.assertEqual(args[1], str(root / "tool/release/apple_publish.py"))
+                self.assertIn("--beta-group", args)
+                self.assertNotIn("--app-store", args)
 
     def test_real_preflight_flow_uses_fresh_complete_reads_and_internal_group(self):
         env = {"APP_STORE_CONNECT_ISSUER_ID": "fixture", "APP_STORE_CONNECT_PRIVATE_KEY": "not-a-key",

@@ -4,6 +4,10 @@
 PASS appears only for an executed check; provider/account checks are BLOCKED or
 PENDING USER ACTION. No RC/production tag or store upload was performed.
 
+Latest complete preflight/status and risk ordering: [PREFLIGHT.md](PREFLIGHT.md).
+Short owner guides: [OWNER_CHECKLIST.md](OWNER_CHECKLIST.md). Android and iOS
+remain **NOT READY for U4** while external/native prerequisites are pending.
+
 ## Git delivery
 
 Local branch: `feat/tag-only-mobile-release`. Implementation commits:
@@ -24,11 +28,11 @@ No merge, tag creation, certificate/key changes or billing activation occurred.
 | Check | Method / actual result | Result | Limits |
 | --- | --- | --- | --- |
 | Repository/branch/HEAD/dirty worktree | SSH origin identity inspected; clean dev 7346fea; fetched origin; feature branch from origin/dev | PASS / VERIFIED | Privacy/settings cannot be established over Git transport |
-| main/dev relationship | merge-base c07bbd0; 1 main-exclusive / 177 dev-exclusive commits | PASS / VERIFIED | No automatic merge/approval inferred |
+| Initial A0 main/dev relationship | merge-base c07bbd0; 1 main-exclusive / 177 dev-exclusive commits at A0 | PASS / VERIFIED (historical) | Current fetch/state recorded in PREFLIGHT; no automatic merge/approval inferred |
 | SDK | Local Flutter 3.47.2, Dart 3.13.2, framework d3b14c8769; .flutter-version/pubspec/.fvmrc agree | PASS / VERIFIED | Provider image still untested |
 | Dependency resolution | `flutter pub get --enforce-lockfile`, exit 0; pubspec.lock unchanged | PASS / VERIFIED | Actual Mac native resolution remains untested |
 | Full Flutter analysis | `flutter analyze --no-pub --fatal-infos --fatal-warnings`, exit 0 | PASS / VERIFIED | Windows host |
-| Full existing+release Flutter suite | `flutter test --no-pub --dart-define=ENABLE_FIREBASE_SERVICES=false --dart-define=ENABLE_PUSH_NOTIFICATIONS=false`, 1103 passed, 3 skipped; local log `build/release/flutter-tests-20261016.log` | PASS / VERIFIED | No device/Firebase/store calls |
+| Full existing+release Flutter suite | Repeated preflight: `flutter test --no-pub --dart-define=ENABLE_FIREBASE_SERVICES=false --dart-define=ENABLE_PUSH_NOTIFICATIONS=false`, 1103 passed, 3 skipped; local log `build/release/flutter-tests-preflight.log` | PASS / VERIFIED | No device/Firebase/store calls; current feature source, not an uncreated merge commit |
 | Release-focused suite after final source hardening | `flutter test --no-pub test/release`, 41 passed | PASS / VERIFIED | No real release tags created; Git ancestry fixtures use local temporary repositories |
 | Dart release tooling analysis | `dart analyze tool/release test/release`, no issues | PASS / VERIFIED | Does not compile Gradle/Xcode |
 | Tag parsing and store limits | Positive four-channel cases; leading zero/newline/injection/suffix/overflow invalid tags rejected | PASS / VERIFIED | Globs intentionally broad; parser is strict |
@@ -39,12 +43,17 @@ No merge, tag creation, certificate/key changes or billing activation occurred.
 | Workflow isolation | Python tests parse actual YAML and check canonical tag table; only tag push/tag events, no branch/PR/manual/schedule release trigger | PASS / VERIFIED | Local glob contract check, actual webhook deliveries pending U4 |
 | GitHub syntax | actionlint 1.7.12 on android-release.yml, exit 0; downloaded asset SHA256 verified | PASS / VERIFIED | shellcheck/pyflakes not installed for this Windows validation |
 | Codemagic schema | JSON Schema downloaded from https://codemagic.io/codemagic-schema.json, jsonschema validation exit 0 | PASS / VERIFIED | UI/account overrides and provider runtime not validated |
-| Python store/config/signing policies | `python -m unittest discover -s tool/release -p '*_test.py'`, 25 passed | PASS / VERIFIED | API responses mocked; no real IPA |
+| Python preflight policies | Selected config/Apple-store/IPA/adapter modules: 34 passed (5/17/5/7) | PASS / VERIFIED | API responses/publish process mocked; earlier 6 key fixture tests not regenerated/rerun in this preflight |
 | Exact Android U2 inventory | Actual workflow expressions match 7 required Secrets, 2 Variables, optional production Secret; upload certificate verified before build | PASS / VERIFIED | Live repository settings/secret contents not read |
 | Upload certificate comparator | Earlier preparation: 6 tests using temporary disposable RSA fixtures: DER/PEM/hash match, mismatch, wrong password, missing alias, malformed certificate; original fixture unchanged | PASS / VERIFIED | No fixture keys generated in the subsequent real-key U2 check; separate keyPassword not verified |
 | Play access probe safety | Real locked Supply client with fake API: snapshot, API/abort failure, unsupported locale, retries=0; temporary edit always aborted after successful creation | PASS / VERIFIED | No actual Google authentication, upload-permission proof or historical ledger |
 | iOS dependency architecture correction | Runner project/scheme show existing SwiftPM; both tracked Package.resolved graphs agree on 19 pins (Python JSON comparison), Firebase 12.19.0 / Mapbox 11.29.1; 19 installed native plugins have Package.swift manifests | PASS / VERIFIED (source inspection) | Supersedes earlier incorrect missing-native-Pods diagnosis; actual Xcode resolution pending Mac |
-| Android Play state policy | Ruby 3.3.10 Linux container, 9 cases including existing/new/track mismatch and unknown-error redaction | PASS / VERIFIED | No network store calls |
+| Android Play state policy | Ruby 3.3.10 Linux container with network disabled, 22 cases including known floor18 and later live19/20, duplicates/track mismatch/redaction | PASS / VERIFIED | Latest store maximum still NOT VERIFIED; owner historical18 is a minimum, not cached current state |
+| Malformed Play codes | Snapshot mocks reject nil/unknown/zero/negative/overflow instead of converting them to 0; edit cleanup attempted | PASS / VERIFIED | No actual Google access |
+| Android release debug fallback | Removed debug identity fallback; configuration contract checks signing and stage order/cleanup | PASS / VERIFIED (source/config) | Real Gradle signing/AAB remains NOT VERIFIED |
+| TestFlight group destination | RC requires exactly one existing internal group; missing/duplicate/external blocked in unit test | PASS / VERIFIED | Actual group/read permissions pending U3 |
+| Apple access mode | GET-only path needs no tag, cannot call publisher; API failure never reports success; repeated fresh reads tested | PASS / VERIFIED (mocked API) | Not executed against actual account; does not prove write rights |
+| Apple localized notes adapter | Real pinned CLI inheritance/Locale types; only existing locales updated, missing notes/API failure stop submission, first-version exception handled | PASS / VERIFIED (7 tests + CLI help) | Native upload/review NOT VERIFIED; version guard requires revalidation on CLI upgrade |
 | Actual Fastlane SDK contract | Bundler frozen install, pinned Fastlane 2.241.0; real Google API methods/Supply option names checked; `ruby -c play.rb` exit 0 | PASS / VERIFIED | No credential authentication or edit commit |
 | Apple CLI syntax/retry semantics | Installed CLI 0.70.0 `publish --help` and builds list help; source confirms altool-retries=0 performs one attempt | PASS / VERIFIED | Mac altool/signing unavailable on Windows |
 | Signing input safety | CI-only input writer, refusal to overwrite, 0600 files; Java-properties escaping unit test; no secrets in added source | PASS / VERIFIED (code/local tests) | Live CI log masking not tested |

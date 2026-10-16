@@ -86,7 +86,7 @@ is assumed. There are **7 required secrets and 2 required variables for RC**:
 | Secret | `GOOGLE_SERVICES_JSON_BASE64` | Firebase prokat-bfbec → Android com.auyltech.prokat → google-services.json | Download copy can be deleted after setup |
 | Secret | `MAPBOX_PUBLIC_TOKEN` | Existing public runtime `pk.*` token | No private `sk.*` download token; delete staging text |
 | Variable | `ANDROID_UPLOAD_CERT_SHA256` | Public Upload certificate fingerprint verified above | Public value; 64 hex, optional colons |
-| Variable | `PLAY_HISTORICAL_MAX_BUILD` | Highest ever-used Play versionCode, including drafts/testing/inactive, 0 only for confirmed empty history | Record the confirmed integer; never guess from pubspec |
+| Variable | `PLAY_HISTORICAL_MAX_BUILD` | Highest ever-used Play versionCode, including drafts/testing/inactive; at least the owner-confirmed historical 18 | Reconfirm against current store history; never guess from pubspec or use 0 for this app |
 
 `PRODUCTION_PUBLISHING_ENABLED` is an **optional future Secret**: absent/false
 until A5 success and explicit U5. Do not set true or grant production permission.
@@ -148,6 +148,10 @@ executed against Play yet. Success proves app read access and temporary-edit
 cleanup, **not** upload rights or readiness for production. Those require U4/A5.
 The snapshot is not a full historical ledger: compare with the owner-confirmed
 history floor and do not infer that an old versionCode is reusable.
+The known historical maximum **18** is now a minimum guard in `PlayPolicy`.
+It is not a cached answer about today's store: preflight and pre-upload each
+read fresh bundles/APKs/tracks. A later accepted 19/20 blocks attempting 19 even
+when the configured history floor is still 18; API failure never permits upload.
 
 Sources: [Publishing API setup](https://developers.google.com/android-publisher/getting_started),
 [current Play signing navigation](https://support.google.com/googleplay/android-developer/answer/9842756?hl=EN-GB).

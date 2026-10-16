@@ -4,6 +4,9 @@
 подготовлены заранее; это не разрешение переходить к публикации. Не отправляйте
 в чат пароли, keystore, `.p8`, `.p12`, JSON credentials или их base64.
 
+Для первого прохода используйте [короткие инструкции U2/U3](OWNER_CHECKLIST.md).
+До получения административных прав создавать credentials не требуется.
+
 Обновление 2026-10-16: владелец подтвердил техническое U1: GitHub App одобрен,
 Personal без billing, 500 M2 минут / 0 использовано, UI triggers/schedules
 выключены; YAML и оба workflows видны, после push сборок нет. Видимость private,
@@ -187,8 +190,9 @@ GitHub Billing и применимость Personal Free ещё PENDING. Под�
 | `MAPBOX_PUBLIC_TOKEN` | Mapbox → Access tokens → существующий public `pk.*` | Только публичный runtime token, не `sk.*`; временную копию удалить |
 
 8. Во вкладке **Variables** задайте `ANDROID_UPLOAD_CERT_SHA256` (64 hex, можно
-   с `:`) и `PLAY_HISTORICAL_MAX_BUILD` (подтверждённый максимум, 0 только у новой
-   app с доказанно пустой историей). Это не секреты. Не включайте production gate.
+   с `:`) и `PLAY_HISTORICAL_MAX_BUILD` (свежеподтверждённый максимум, не ниже
+   исторически подтверждённого 18). Ноль для PROKAT недопустим. Live API всё равно
+   проверяется до сборки и до upload. Это не секреты. Не включайте production gate.
 9. Проверьте dashboard на незавершённые agreements, Data safety, privacy,
    reviewer app access, target API и требования тестирования/production access.
    Проверить **Managed publishing**: когда он включён, commit release может
@@ -225,10 +229,10 @@ GitHub Billing и применимость Personal Free ещё PENDING. Под�
 5. Codemagic Personal **Settings → Integrations → Developer Portal → Connect**:
    Integration/API key name ровно **`prokat-app-store`**, Issuer ID, Key ID, `.p8`.
    Подключение используется native CLI для publishing и работы с existing signing.
-   В scripts должны быть доступны стандартные `APP_STORE_CONNECT_PRIVATE_KEY`,
-   `APP_STORE_CONNECT_KEY_IDENTIFIER`, `APP_STORE_CONNECT_ISSUER_ID`. Если выбранный
-   режим интеграции не экспортирует их, сохраните те же значения как Secret
-   variables группы ниже; не создавайте второй ключ и не печатайте `printenv`.
+   Наш custom CLI использует `APP_STORE_CONNECT_PRIVATE_KEY`,
+   `APP_STORE_CONNECT_KEY_IDENTIFIER`, `APP_STORE_CONNECT_ISSUER_ID`. Сохраните
+   те же значения как Secret variables группы ниже, чтобы не зависеть от способа
+   экспорта integration. Это один ключ; не создавайте второй и не печатайте `printenv`.
 6. [Apple Certificates, Identifiers & Profiles](https://developer.apple.com/account/resources/):
    Identifier `com.auyltech.prokat` должен иметь **Push Notifications** и
    **Associated Domains**. Нужен действующий **App Store distribution profile**,
@@ -264,8 +268,8 @@ GitHub Billing и применимость Personal Free ещё PENDING. Под�
 | `IOS_HISTORICAL_MAX_BUILD` | Подтверждённый максимальный build всех предыдущих попыток; 0 только если история действительно пуста |
 | `TESTFLIGHT_GROUP` | Точное имя внутренней группы, например `PROKAT Internal` |
 
-   API key/.p8 передаются интеграцией; при необходимости их environment aliases
-   из шага 5 тоже Secret. `PRODUCTION_PUBLISHING_ENABLED` пока отсутствует/false.
+   Три API environment aliases из шага 5 тоже Secret; это тот же ключ, который
+   подключён integration. `PRODUCTION_PUBLISHING_ENABLED` пока отсутствует/false.
    `.p8`/`.p12` и пароли не хранятся в Git; `.p8` и `.p12` нельзя удалять из
    единственной резервной копии. Временные upload-копии удалите после проверки.
 9. **TestFlight → Internal Testing → +** создайте внутреннюю группу из
@@ -287,10 +291,12 @@ GitHub Billing и применимость Personal Free ещё PENDING. Под�
     агент добавит корректное значение/документ после этого. Нельзя автоматически
     заявлять отсутствие non-exempt encryption от имени владельца. Новые legal
     agreements или требования review могут потребовать отдельных действий позднее.
-12. API read-only check должен успешно читать и `/v1/builds`, и
-    `/v1/apps/<id>/buildUploads`; 403/unsupported/timeout означает UNKNOWN и
-    блокирует upload. Это проверим при доступной авторизации/RC, не по факту
-    наличия ключа. IPA validation отдельно проверит реальные signing entitlements.
+12. После отдельного разрешения можно выполнить с Windows
+    `python tool/release/ios_store.py access`: GET-only, без CI/tag/IPA/publishing.
+    Проверяются app identity, `/v1/builds`, `/v1/apps/<id>/buildUploads` и внутренняя
+    beta group. 403/unsupported/timeout означает UNKNOWN, а не отсутствие сборок.
+    Наличие ключа или успешный probe не доказывают signing/upload permission.
+    IPA validation отдельно проверит реальные signing entitlements.
 13. В **Billing** повторно проверьте Free M2 и **concurrency = 1**: она также
     сериализует RC/production. Не подключайте второй платный worker. Никаких IPA
     artifacts в YAML нет; только ZIP dSYM при неуспешной отправке символов.
