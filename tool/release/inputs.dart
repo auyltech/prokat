@@ -72,6 +72,12 @@ void main(List<String> args) {
       blocked('Local build overrides are forbidden in CI');
     }
     if (args.single == 'android') {
+      final floor = int.tryParse(secret('PLAY_HISTORICAL_MAX_BUILD'));
+      if (floor == null || floor < 0 || floor > 2100000000) {
+        blocked(
+          'PLAY_HISTORICAL_MAX_BUILD must be the confirmed Android history maximum (0..2100000000)',
+        );
+      }
       final google = base64Decode(secret('GOOGLE_SERVICES_JSON_BASE64'));
       final json = jsonDecode(utf8.decode(google)) as Map;
       final clients = json['client'] as List;

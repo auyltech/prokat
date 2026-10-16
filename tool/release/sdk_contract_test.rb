@@ -14,4 +14,8 @@ keys = Supply::Options.available_options.map(&:key)
    skip_upload_images skip_upload_screenshots skip_upload_apk skip_upload_changelogs timeout].each do |key|
   raise "Missing Supply option #{key}" unless keys.include?(key)
 end
+configuration = FastlaneCore::Configuration.create(Supply::Options.available_options, {
+  package_name: 'com.auyltech.prokat', version_code: 108, track: 'internal', skip_upload_metadata: true
+})
+raise 'Supply version_code must remain an Integer' unless configuration[:version_code] == 108
 puts 'VERIFIED: pinned Supply/Google API methods and publishing options; no store requests'

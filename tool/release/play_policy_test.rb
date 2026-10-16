@@ -18,4 +18,6 @@ assert_blocked { PlayPolicy.check!(rc.merge('destination' => 'production'), [], 
 assert_blocked { PlayPolicy.check!(rc.merge('platform' => 'ios'), [], 100, []) }
 prod = rc.merge('channel' => 'production', 'destination' => 'production')
 raise unless PlayPolicy.check!(prod, [], 100, []) == 'production'
-puts 'VERIFIED: 7 Play policy cases; no store requests'
+raise 'SDK/credential body leaked' if PlayPolicy.safe_error(RuntimeError.new('SIMULATED_PRIVATE_RESPONSE')).include?('SIMULATED_PRIVATE_RESPONSE')
+raise 'Policy diagnostic lost' unless PlayPolicy.safe_error(PlayPolicy::Blocked.new('Known safe policy diagnostic')) == 'Known safe policy diagnostic'
+puts 'VERIFIED: 9 Play policy/error-redaction cases; no store requests'
