@@ -5,6 +5,16 @@
 
 ## Подготовка версии и исходного коммита
 
+Однократная подготовка Android описана в [ANDROID_SETUP](ANDROID_SETUP.md):
+7 Secrets, 2 Variables и проверка существующего upload certificate без экспорта
+private key. До U5 production Secret отсутствует/false, права Play — только
+просмотр приложения и тестовые треки.
+
+Для iOS следуйте [IOS_DEPENDENCIES](IOS_DEPENDENCIES.md) при восстановлении native
+locks на Mac. Проект использует SwiftPM: сохраняйте оба `Package.resolved` вместе
+с `Podfile.lock`; отсутствие Firebase/Mapbox в Pods не означает потерю зависимостей.
+Mac нужен только для первоначальной проверки locks, а не для штатных релизов.
+
 1. Выполните `git fetch origin --prune --tags`, проверьте `git status --short`.
    Подготовьте исправления обычным процессом PR. Не выбирайте автоматически HEAD
    как release source. Владелец должен утвердить **полный 40-character SHA**.
@@ -167,7 +177,7 @@ git show 'ios/v1.2.3+20:releases/1.2.3/release.json'
 git worktree add --detach ..\prokat-investigate 'refs/tags/ios/v1.2.3+20^{commit}'
 ```
 
-SDK pins, pubspec.lock, Gemfile.lock, native Podfile.lock, Gradle wrapper/AGP,
+SDK pins, pubspec.lock, Gemfile.lock, native Podfile.lock и оба Package.resolved, Gradle wrapper/AGP,
 Xcode selection и production defines восстановим из Git. Credentials должны
 существовать в provider/защищённом backup; Git их не содержит. Битовую
 идентичность пересборки не обещаем (OS image, signing timestamps, store processing).

@@ -2,6 +2,12 @@
 
 Audit date: 2026-10-15. This is an implementation record, not permission to release.
 
+Follow-up 2026-10-16: technical U1 is owner-confirmed (GitHub App approval,
+Codemagic sees YAML/workflows, UI triggers/schedules off, no build after feature
+push, Personal billing off, 0/500 M2 minutes used). GitHub privacy/billing and
+Personal Free commercial eligibility remain pending. Owner explicitly authorized
+independent A2/A3/A4 preparation while U1 is partial; real CI builds remain forbidden.
+
 ## Baseline (A0)
 
 - Repository remote: `git@github-work:auyltech/prokat.git`; owner `auyltech`.
@@ -30,10 +36,14 @@ Audit date: 2026-10-15. This is an implementation record, not permission to rele
   minimum 15.0, Runner overrides use Xcode recommended minimum. Automatic signing
   in project; no distribution certificate or profile in Git. Info.plist already
   uses FLUTTER_BUILD_NAME/NUMBER, no manual version synchronization needed.
-- **BLOCKED reproducibility:** tracked `ios/Podfile.lock` contains only Flutter,
-  despite native Firebase/Mapbox/etc dependencies. It must be regenerated on a
-  supported macOS/Xcode environment and committed before an authorized RC.
-  Do not resolve floating native dependencies silently in a release job.
+- **Corrected 2026-10-16:** iOS already has SwiftPM integration and two tracked
+  Package.resolved files. Firebase 12.19.0 / Mapbox 11.29.1 pins match the locked
+  Flutter plugins; all 19 native iOS plugins inspected have SwiftPM support.
+  Podfile.lock containing only Flutter is valid for a SwiftPM graph without
+  fallback pods. The first audit wrongly treated absence of Firebase Pods as
+  lost dependencies. Remaining native verification: reconcile CocoaPods 1.17.0
+  lock metadata with CI 1.16.2 and resolve/check both graphs on Mac. Preserve
+  the existing SwiftPM architecture; never migrate merely to lengthen Podfile.lock.
 - Firebase project `prokat-bfbec`; `firebase_options.dart` tracked. Native Android
   JSON and iOS plist ignored; Android JSON exists locally, iOS plist absent.
   CI needs native configurations from Firebase, not personal Mac paths.
@@ -121,7 +131,7 @@ delete necessary symbols to satisfy binary retention preferences.
 | --- | --- | --- |
 | A0 | VERIFIED local audit | Baseline and official docs recorded |
 | A1 | VERIFIED locally | Shared validation, tests, metadata, fail-closed gates |
-| U1 | PENDING USER ACTION | Free eligibility, private connection, tag-only UI |
+| U1 | Technical connection owner-confirmed; financial/privacy PENDING | Free eligibility, private status, GitHub spending controls |
 | A2 | Independent implementation prepared; NOT VERIFIED in provider | Android workflow + account validation after U1 |
 | U2 | PENDING USER ACTION | Play API, existing key, historical build floor |
 | A3 | Independent implementation prepared; BLOCKED native lock/accounts | Codemagic workflow + lock/signing validation |
@@ -135,9 +145,15 @@ delete necessary symbols to satisfy binary retention preferences.
 Completed autonomous scope: Dart tag/metadata tools and tests; Android
 signing/materialization, Supply preflight and workflow; final Codemagic-only iOS
 configuration; setup/runbook/verification; separate commits. No merge, tags,
-store writes or billed-account changes. Current stop is U1. The feature branch
-remains local until Codemagic UI auto-trigger settings can be checked; push after
-U1 is allowed, merge still requires separate authorization.
+store writes or billed-account changes. The original five commits through
+f42a5a8 were pushed with explicit permission; owner confirmed no automatic builds.
+Current next owner gate is U2, while remaining U1 financial/privacy facts stay
+pending. New preparation commits are local until an appropriate branch-only push.
+An unrelated owner change to prokat.iml is preserved and excluded from our commits.
+Follow-up implementation commits: `f2bafdb` (Android upload identity, least-privilege
+Play access and safe diagnostics), `750fea4` (existing SwiftPM architecture,
+strict native locks and correct Crashlytics checkout). This task does not change
+`lib/main.dart` or activate either production gate.
 
 A2 independent implementation: tag-only Ubuntu workflow, JDK 21.0.12, pinned
 Supply 2.241.0/Ruby 3.3.10/Bundler lock; native signing/Firebase materialization;
@@ -162,8 +178,24 @@ SHA, fresh main ancestry, remote tag identity and provider event checks;
 fail-closed production switch; UTF-8 RU/EN/KK metadata and store exports;
 Flutter/FVM pins; CI-only secret materialization. `flutter test` verifies the
 core policy; `dart analyze tool/release test/release` is clean. No release draft
-is approved automatically. Native iOS lock validation intentionally blocks the
-audited stale lock. Integration checks are tracked separately in VERIFICATION.
+is approved automatically. Native validation now checks SwiftPM pins as well as
+CocoaPods metadata, rather than demanding Firebase Pods. Integration checks are
+tracked separately in VERIFICATION.
+
+Follow-up A2: exact RC inventory (7 Secrets, 2 Variables) is tested against the
+workflow. Existing private-key entry's public certificate is checked before
+build and AAB's certificate after build. Local verification prompts for password
+without echo and never exports private material. Prepared non-publishing
+play_access.rb diagnostic creates/deletes a temporary edit; it has not contacted
+Play. Initial permissions are app read + testing releases only. Google cannot
+restrict that right to Internal alone; code fixes RC to internal, and production
+permission/gate stay off. See ANDROID_SETUP.md.
+
+Follow-up A3: explicit project SwiftPM selection, strict Package.resolved
+resolution and post-build lock drift checks; Crashlytics upload tool comes from
+the resolved Firebase Swift checkout, not an assumed Pods path. See
+IOS_DEPENDENCIES.md for the one-time Mac dependency-only procedure. No app build
+or signing/portal mutations are part of that procedure.
 
 ## Official references (checked 2026-10-15)
 

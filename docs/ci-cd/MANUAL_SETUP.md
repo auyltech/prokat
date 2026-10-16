@@ -4,6 +4,12 @@
 подготовлены заранее; это не разрешение переходить к публикации. Не отправляйте
 в чат пароли, keystore, `.p8`, `.p12`, JSON credentials или их base64.
 
+Обновление 2026-10-16: владелец подтвердил техническое U1: GitHub App одобрен,
+Personal без billing, 500 M2 минут / 0 использовано, UI triggers/schedules
+выключены; YAML и оба workflows видны, после push сборок нет. Видимость private,
+GitHub Billing и применимость Personal Free ещё PENDING. Подготовка A2/A3/A4
+разрешена отдельно, реальные CI builds по-прежнему запрещены.
+
 ## STOP: U1 — Подключение GitHub и Codemagic без оплаты
 
 1. Уже выполнено: аудит, ветка `feat/tag-only-mobile-release`, release tooling,
@@ -101,15 +107,24 @@
 
 ## STOP: U2 — Google Play, существующий upload key и API
 
+Точный актуальный checklist, включая **7 Secrets / 2 Variables**, проверку
+публичного upload certificate и команду access probe:
+[ANDROID_SETUP.md](ANDROID_SETUP.md). Указанные ниже действия подготовки
+не означают разрешения upload/CI build; эти проверки остаются на U4.
+
 1. В [Play Console](https://play.google.com/console/) выберите PROKAT.
-   **App dashboard / App integrity → App signing**: package должен быть
+   **Protected with Play → Play Store distribution → Go to Play app signing**
+   (прежний UI: App integrity → App signing): package должен быть
    `com.auyltech.prokat`. Запишите **Upload key certificate SHA-256**, отдельно
    отличайте App signing certificate (он нужен для App Links). Ничего не
    сбрасывайте и не меняйте. Убедитесь, что локальный существующий keystore
    принадлежит этому upload certificate. Для проверки с запросом пароля:
 
+   Скачайте публичный **Upload key certificate** и выполните сравнение с
+   существующим keystore (пароль вводится скрыто, не в командной строке):
+
    ```powershell
-   keytool -list -v -keystore .\android\app\upload-keystore.jks -alias 'EXISTING_ALIAS'
+   python tool/release/verify_upload_key.py --keystore .\android\app\upload-keystore.jks --alias 'EXISTING_ALIAS' --play-certificate 'C:\secure\upload_cert.der'
    ```
 
 2. **Test and release → App bundle explorer**, Production и Internal testing:
@@ -134,8 +149,12 @@
    JSON keys, не ослабляйте её: потребуется отдельное решение identity на U2.
 6. Play Console **Users and permissions → Invite new user**: email созданного
    service account. **App permissions → Add app → PROKAT**. Выдайте чтение app
-   information и **Release apps to testing tracks**, **Manage testing tracks and
-   edit tester lists**, а для notes — **Manage store presence** при необходимости.
+   information (**View app information (read-only)**) и **Release apps to testing
+   tracks**. Manage testing tracks/tester lists и Manage store presence не нужны:
+   pipeline не меняет tester lists/store listing; testing-release permission
+   включает notes для непроизводственных релизов. Тестовую группу один раз
+   настраивает владелец. Google не выделяет Internal-only permission: это право
+   также охватывает Open/Closed. RC destination жёстко ограничен `internal` в коде.
    До U5 **Release to production, exclude devices, and use Play App Signing**
    не выдавайте. Нет финансовых permissions, orders, admin или доступа ко всем
    приложениям. Для отправки production эта дополнительная app permission
@@ -173,7 +192,8 @@
 10. Сообщите «U2 выполнен», package, текущие store версии/build maxima, совпадение
     fingerprint, readiness internal track, primary locale, состояние managed
     publishing и список имён сохранённых secrets/variables. Никаких значений
-    credentials. Агент проверит доступные read-only данные и перейдёт к A3/U3.
+    credentials. После отдельного согласования access probe агент проверит API
+    через временный edit без upload/commit, затем продолжит A3/U3.
 
 ## STOP: U3 — Apple и signing в Codemagic
 
@@ -246,27 +266,15 @@
 9. **TestFlight → Internal Testing → +** создайте внутреннюю группу из
    существующих App Store Connect users. Запишите точное имя в TESTFLIGHT_GROUP.
    RC публикуется в эту группу; внешние тестеры/beta review не требуются.
-10. **Блокер Podfile.lock:** в Git сейчас только Flutter, CocoaPods 1.17.0.
-    Для production нельзя молча разрешить native версии в CI. Нужен полноценный
-    lock от Flutter 3.47.2, CocoaPods 1.16.2/Xcode 26.6. Если есть исходники
-    последнего проверенного релиза на Mac, однократно выполните в отдельном
-    checkout этой feature branch:
-
-    ```bash
-    flutter --version
-    gem install cocoapods -v 1.16.2 --no-document
-    flutter pub get --enforce-lockfile
-    cd ios
-    pod _1.16.2_ install
-    git diff -- Podfile.lock
-    ```
-
-    Передайте/закоммитьте **только несекретный Podfile.lock** для проверки агентом.
-    Команды не запускают сборку или upload. Домашний Mac не становится CI runner;
-    он здесь только возможный способ однократного восстановления lock. Если Mac
-    использовать нельзя, сообщите: отдельно согласуем tag-only dependency resolve
-    на Codemagic без IPA/publishing и с разрешением на соответствующий тег.
-    Сейчас такой tag/job не создаётся; обход через branch build/Run build запрещён.
+10. **Уточнение iOS dependencies:** проект уже использует SwiftPM, а два
+    `Package.resolved` сохранены в Git. Минимальный Podfile.lock не является
+    доказательством потери Firebase/Mapbox: все 19 native plugins имеют SwiftPM
+    manifests. Нужно согласовать CocoaPods metadata 1.17.0 с pin 1.16.2 и
+    проверить весь native graph на Mac. Выполните отдельную инструкцию
+    [IOS_DEPENDENCIES.md](IOS_DEPENDENCIES.md): precache/pub get, pod install,
+    xcodebuild **только resolvePackageDependencies**; без compile/archive/sign,
+    provisioning updates или публикации. Нужны три публичных lockfile и diff
+    Xcode integration, а не только Podfile.lock. Production signing не меняется.
 11. App Store initial setup: category, screenshots, privacy URL/Data Privacy,
     age rating, content rights, reviewer account/contact, availability/pricing и
     export compliance должны быть заполнены. В текущем Info.plist нет
