@@ -10,12 +10,11 @@ CONTEXT = File.join(ROOT, 'build/release/context.json')
 KEY = File.join(ROOT, 'build/release/play-service-account.json')
 
 def snapshot_and_check(context)
-  floor = ENV.fetch('PLAY_HISTORICAL_MAX_BUILD')
-  raise PlayPolicy::Blocked, 'PLAY_HISTORICAL_MAX_BUILD must be confirmed at U2 (zero only for a confirmed new app)' unless floor.match?(/\A(?:0|[1-9][0-9]*)\z/)
-  state = ProkatPlayStore.snapshot(KEY).merge(historical_floor: Integer(floor))
+  floor = PlayPolicy.history_floor!(ENV['PLAY_HISTORICAL_MAX_BUILD'])
+  state = ProkatPlayStore.snapshot(KEY).merge(historical_floor: floor)
   File.write(File.join(ROOT, 'build/release/play-state.json'), JSON.pretty_generate(state))
   puts JSON.generate(state)
-  PlayPolicy.check!(context, state.fetch(:codes), Integer(floor), state.fetch(:tracks))
+  PlayPolicy.check!(context, state.fetch(:codes), floor, state.fetch(:tracks))
 end
 
 begin

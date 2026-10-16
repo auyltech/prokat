@@ -61,13 +61,9 @@ android {
 
     signingConfigs {
         create("release") {
-            if (keystoreProperties.isEmpty) {
-                // Fallback to debug configs so building in debug mode doesn't break if properties missing
-                storeFile = file("../debug.keystore")
-                storePassword = "android"
-                keyAlias = "androiddebugkey"
-                keyPassword = "android"
-            } else {
+            // An unconfigured release identity fails at validateSigningRelease.
+            // Debug builds use AGP's separate debug config, never a release fallback.
+            if (!keystoreProperties.isEmpty) {
                 storeFile = file(keystoreProperties["storeFile"] as String)
                 storePassword = keystoreProperties["storePassword"] as String
                 keyAlias = keystoreProperties["keyAlias"] as String

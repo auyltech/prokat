@@ -21,6 +21,13 @@ Google::Apis.logger.level = Logger::WARN
 module ProkatPlayStore
   PACKAGE = 'com.auyltech.prokat'.freeze
 
+  def self.version_code(value)
+    unless value.to_s.match?(/\A[1-9][0-9]*\z/) && Integer(value).between?(1, 2_100_000_000)
+      raise 'Malformed Play versionCode; state UNKNOWN'
+    end
+    Integer(value)
+  end
+
   def self.snapshot(key)
     account = JSON.parse(File.read(key))
     raise 'A dedicated service-account JSON is required' unless account['type'] == 'service_account'
@@ -34,9 +41,9 @@ module ProkatPlayStore
       bundles = api.list_edit_bundles(PACKAGE, edit).bundles || []
       apks = api.list_edit_apks(PACKAGE, edit).apks || []
       tracks = (api.list_edit_tracks(PACKAGE, edit).tracks || []).flat_map do |track|
-        (track.releases || []).map { |r| { 'track' => track.track, 'status' => r.status, 'codes' => (r.version_codes || []).map(&:to_i) } }
+        (track.releases || []).map { |r| { 'track' => track.track, 'status' => r.status, 'codes' => (r.version_codes || []).map { |code| version_code(code) } } }
       end
-      codes = (bundles.map(&:version_code) + apks.map(&:version_code) + tracks.flat_map { |t| t.fetch('codes') }).map(&:to_i).uniq
+      codes = (bundles.map(&:version_code) + apks.map(&:version_code) + tracks.flat_map { |t| t.fetch('codes') }).map { |code| version_code(code) }.uniq
       language = api.get_edit_detail(PACKAGE, edit).default_language
       raise 'Primary Play locale is not covered by Git release notes' unless %w[ru-RU en-US kk].include?(language)
       { package: PACKAGE, observed_at: Time.now.utc.to_s, primary_locale: language, codes: codes.sort, tracks: tracks }
