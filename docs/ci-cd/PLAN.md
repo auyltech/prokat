@@ -63,8 +63,10 @@ independent A2/A3/A4 preparation while U1 is partial; real CI builds remain forb
   are in `.env.example`, public Mapbox token must be supplied securely. Local
   replica overrides must never enter CI. No existing localized release metadata.
 - Release history suggests previous manual uploads. Actual published versions,
-  store app records, highest historical build numbers, key fingerprint and
-  certificate/profile usability are **NOT VERIFIED** without store accounts.
+  store app records, highest historical build numbers and certificate/profile
+  usability are **NOT VERIFIED** without store accounts. Follow-up U2 public
+  upload-certificate comparison is VERIFIED against the owner's supplied SHA256;
+  independent Play Console access and actual AAB signing remain NOT VERIFIED.
   Public search did not establish a reliable current production version.
 
 ## Target and decisions
@@ -133,7 +135,7 @@ delete necessary symbols to satisfy binary retention preferences.
 | A1 | VERIFIED locally | Shared validation, tests, metadata, fail-closed gates |
 | U1 | Technical connection owner-confirmed; financial/privacy PENDING | Free eligibility, private status, GitHub spending controls |
 | A2 | Independent implementation prepared; NOT VERIFIED in provider | Android workflow + account validation after U1 |
-| U2 | PENDING USER ACTION | Play API, existing key, historical build floor |
+| U2 | Upload certificate MATCH verified; remaining PENDING USER ACTION | Play API, GitHub inputs, historical build floor |
 | A3 | Independent implementation prepared; BLOCKED native lock/accounts | Codemagic workflow + lock/signing validation |
 | U3 | PENDING USER ACTION | Apple integration, profiles, Firebase, native lock |
 | A4 | VERIFIED local/static subset only | Provider integration remains pending |
@@ -161,6 +163,10 @@ API state checked twice; historical floor + Git tag history; no transport upload
 retries; AAB manifest/signature/fingerprint validation with bundletool 1.18.3;
 mapping upload before Play; no AAB artifact persistence. Provider delivery and
 existing upload-key usability remain NOT VERIFIED until authorized U4/A5.
+The existing upload certificate itself is now VERIFIED (MATCH, alias `upload`)
+against the owner's Play SHA256. Local ignored credentials were used without
+logging; keystore/properties remained byte-for-byte unchanged. No new key,
+signature, build or store request was made. Separate keyPassword is unverified.
 
 A3 independent implementation: two tag-only M2 workflows, Xcode 26.6 and
 CocoaPods 1.16.2, Codemagic CLI 0.70.0, existing profiles only, actual exported

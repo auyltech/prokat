@@ -120,12 +120,17 @@ GitHub Billing и применимость Personal Free ещё PENDING. Под�
    сбрасывайте и не меняйте. Убедитесь, что локальный существующий keystore
    принадлежит этому upload certificate. Для проверки с запросом пароля:
 
-   Скачайте публичный **Upload key certificate** и выполните сравнение с
-   существующим keystore (пароль вводится скрыто, не в командной строке):
+   Скачивание сертификата не обязательно. Скопируйте SHA-256 из **Upload key
+   certificate** и сравните с существующим keystore (пароль вводится скрыто,
+   не в командной строке):
 
    ```powershell
-   python tool/release/verify_upload_key.py --keystore .\android\app\upload-keystore.jks --alias 'EXISTING_ALIAS' --play-certificate 'C:\secure\upload_cert.der'
+   python tool/release/verify_upload_key.py --keystore .\android\app\upload-keystore.jks --alias 'upload' --expected-sha256 'REPLACE_WITH_PUBLIC_PLAY_UPLOAD_SHA256'
    ```
+
+   Текущая локальная проверка уже выполнена: **MATCH**, alias `upload`.
+   Keystore и key.properties не изменены; пароль не выводился. Режим
+   `--play-certificate` остаётся необязательной альтернативой.
 
 2. **Test and release → App bundle explorer**, Production и Internal testing:
    запишите максимальный **когда-либо загруженный** versionCode, включая draft,

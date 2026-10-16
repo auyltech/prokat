@@ -1,7 +1,8 @@
 # U2 — Android readiness and exact account inputs
 
-Updated 2026-10-16. Independent code preparation is complete; actual Play
-authentication, upload-key match and signed AAB remain NOT VERIFIED.
+Updated 2026-10-16. Existing upload certificate comparison is VERIFIED: MATCH,
+alias `upload`, using the owner's Play Console SHA256 and the existing local
+keystore. Actual Play API authentication and signed AAB remain NOT VERIFIED.
 No CI build, API probe, upload or publication is authorized by this document.
 
 ## Initial least privilege
@@ -33,31 +34,41 @@ Source: [Google permission definitions](https://support.google.com/googleplay/an
 
 1. Play Console → PROKAT → **Protected with Play → Play Store distribution →
    Go to Play app signing** (older UI: Test and release → App integrity → App
-   signing). Download the PUBLIC
+   signing). Copy SHA256 or optionally download the PUBLIC
    certificate from **Upload key certificate**, not App signing key certificate.
    The latter signs installed Play APKs and is used for App Links, not CI upload.
 2. Keep the existing keystore and its backup. Do not reset/rotate/recreate it.
    From a Windows terminal in this repository run:
 
    ```powershell
-   python tool/release/verify_upload_key.py --keystore .\android\app\upload-keystore.jks --alias 'EXISTING_ALIAS' --play-certificate 'C:\secure\upload_cert.der'
+   python tool/release/verify_upload_key.py --keystore .\android\app\upload-keystore.jks --alias 'upload' --expected-sha256 'REPLACE_WITH_PUBLIC_PLAY_UPLOAD_SHA256'
    ```
 
    Enter the existing store password only at the hidden prompt. Do not put it
    in the command, shell history, a screenshot or chat. The script uses an
    ephemeral child environment for keytool authentication, captures its output,
    exports only the public certificate into a temporary directory, and verifies
-   that the alias is a PrivateKeyEntry. It compares full public DER certificate
-   bytes and outputs only the public SHA256 on success. PEM certificates also work.
-3. If the downloaded file is unavailable, the script also accepts
-   `--expected-sha256 'PUBLIC_UPLOAD_SHA256'`, copied from the same Play section.
-   Prefer the downloaded public certificate to avoid transcription mistakes.
+   that the alias is a PrivateKeyEntry. It compares the public certificate's
+   SHA256 with the copied value. Neither the password nor private key is printed.
+3. Downloading a certificate is not required. As an alternative, replace
+   `--expected-sha256 ...` with `--play-certificate 'C:\secure\upload_cert.der'`.
+   That mode compares full public DER certificate bytes; PEM also works. Double
+   check transcription when copying a fingerprint; colons are optional.
 4. Mismatch/wrong alias/password → BLOCKED; do not change any key or try a
    replacement upload. Report the non-secret error classification. This check
    does not verify the private key's separate keyPassword or app signing
    fingerprint; actual signing is verified on the authorized RC.
 5. Set the resulting fingerprint as the GitHub Variable below. CI independently
    checks the restored keystore **before** building and the signed AAB afterwards.
+
+Executed U2 check: `android/app/upload-keystore.jks`, alias `upload`,
+PrivateKeyEntry, MATCH against the owner's expected SHA256. The existing password
+was consumed from ignored local `android/key.properties` in process memory only;
+keytool received it through a child environment, not argv or logs. Existing
+keystore and properties bytes were checked before/after and stayed unchanged.
+No keys were generated, binary signed or store request performed. This proves
+certificate correspondence to the owner-supplied value, not independent access
+to Play Console, separate keyPassword validity or actual AAB signing.
 
 ## Exact GitHub configuration
 
