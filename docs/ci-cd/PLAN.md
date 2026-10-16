@@ -210,6 +210,18 @@ or signing/portal mutations are part of that procedure.
 
 ## Latest autonomous preflight follow-up
 
+Focused follow-up (native dependencies/export compliance only): Windows verified
+the tracked Podfile checksum and matching19-pin Swift graphs. Mac procedure in
+[IOS_DEPENDENCIES](IOS_DEPENDENCIES.md) now uses strict resolution from the first
+attempt, explicit pod1.16.2 with isolated optional gems, a metadata-only diff gate,
+deployment recheck and exact file/PASS/FAIL boundaries. No native run performed.
+iOS Ruby is inherited from the provider image, not the Android Ruby pin.
+[APPLE_EXPORT_COMPLIANCE](APPLE_EXPORT_COMPLIANCE.md) records the technical crypto
+inventory and conditional false recommendation. Dart TLS is NOT OS-only;
+territories/France, existing declarations and SDK/exemption facts need owner
+confirmation. Info.plist remains untouched and U4 stays blocked. No unrelated
+code/config/signing/secret/prokat.iml changes were made.
+
 Preflight follow-up 2026-10-16 (code commits `1aa9417`, `b85eb60`, `f41e3b0`):
 known Android historical floor 18 is enforced independently of fresh store reads;
 debug release-signing fallback removed; malformed Play codes fail UNKNOWN;
