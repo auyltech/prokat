@@ -82,7 +82,16 @@ def all_pages(path, token):
     return resources
 
 
-def preflight(context):
+def check_internal_group(groups, name):
+    if not isinstance(name, str) or not name.strip():
+        raise Blocked("TESTFLIGHT_GROUP must name an existing internal group; complete U3")
+    matches = [group for group in groups if group["attributes"]["name"] == name]
+    if len(matches) != 1 or matches[0]["attributes"].get("isInternalGroup") is not True:
+        raise Blocked("TESTFLIGHT_GROUP is missing, ambiguous or external; RC requires exactly one internal group")
+    return matches[0]["id"]
+
+
+def preflight(context=None):
     import jwt  # Installed by pinned Codemagic CLI requirements.
 
     for name in ("APP_STORE_CONNECT_ISSUER_ID", "APP_STORE_CONNECT_PRIVATE_KEY", "APP_STORE_CONNECT_KEY_IDENTIFIER"):
@@ -108,11 +117,20 @@ def preflight(context):
     # Covers uploads not yet visible in /builds (new Apple API since WWDC25).
     # Unsupported/forbidden endpoint is UNKNOWN, never an empty list.
     uploads = all_pages(f"/v1/apps/{app_id}/buildUploads", token)
+    if context is None or context["channel"] == "rc":
+        # The pinned publisher only warns about a missing group and can exit 0.
+        # Reject that state (and external groups) before building/uploading.
+        groups = all_pages(f"/v1/apps/{app_id}/betaGroups?limit=200", token)
+        check_internal_group(groups, os.environ.get("TESTFLIGHT_GROUP"))
     state = {"app_id": app_id, "builds": [{"id": b["id"], "attributes": {k: b["attributes"][k] for k in ("version", "processingState")}} for b in builds],
              "uploads": [{"id": u["id"], "attributes": {k: u["attributes"][k] for k in ("cfBundleVersion", "state")}} for u in uploads], "historical_floor": int(floor)}
-    (ROOT / "build/release/apple-state.json").write_text(json.dumps(state, indent=2), encoding="utf-8")
+    snapshot = ROOT / "build/release/apple-state.json"
+    snapshot.parent.mkdir(parents=True, exist_ok=True)
+    snapshot.write_text(json.dumps(state, indent=2), encoding="utf-8")
     print(json.dumps(state), flush=True)
-    check_builds(context, builds, uploads, int(floor))
+    if context is not None:
+        check_builds(context, builds, uploads, int(floor))
+    return state
 
 
 def publish_arguments(context, ipa, group=None):
@@ -133,8 +151,12 @@ def publish_arguments(context, ipa, group=None):
 
 
 def main():
-    if len(sys.argv) != 2 or sys.argv[1] not in ("preflight", "publish"):
-        raise Blocked("Expected preflight or publish")
+    if len(sys.argv) != 2 or sys.argv[1] not in ("access", "preflight", "publish"):
+        raise Blocked("Expected access, preflight or publish")
+    if sys.argv[1] == "access":
+        preflight()
+        print("APPLE_ACCESS_VERIFIED: app/builds/uploads/internal group read through GET only; no signing, upload or submission. Publishing permissions NOT proven")
+        return
     context = json.loads((ROOT / "build/release/context.json").read_text(encoding="utf-8"))
     if not os.environ.get("CM_BUILD_ID") or os.environ.get("CM_TAG") != context["tag"]:
         raise Blocked("Codemagic iOS tag webhook required")

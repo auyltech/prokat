@@ -27,10 +27,15 @@ def validate(info, entitlements, profile, context):
             entitlements.get("com.apple.developer.team-identifier") != "VT7KXG8NBR" or
             set(entitlements.get("com.apple.developer.associated-domains", [])) != EXPECTED_DOMAINS):
         raise RuntimeError("IPA signing capabilities/team mismatch")
-    if profile.get("ProvisionedDevices") or profile.get("ProvisionsAllDevices") or profile["ExpirationDate"] <= datetime.datetime.now(datetime.timezone.utc).replace(tzinfo=None):
+    if "ProvisionedDevices" in profile or profile.get("ProvisionsAllDevices") or profile["ExpirationDate"] <= datetime.datetime.now(datetime.timezone.utc).replace(tzinfo=None):
         raise RuntimeError("Distribution profile expired or not App Store distribution")
-    if profile["Entitlements"].get("aps-environment") != "production":
-        raise RuntimeError("Profile does not allow production push")
+    allowed = profile["Entitlements"]
+    if (profile.get("TeamIdentifier") != ["VT7KXG8NBR"] or
+            allowed.get("application-identifier") != "VT7KXG8NBR.com.auyltech.prokat" or
+            allowed.get("com.apple.developer.team-identifier") != "VT7KXG8NBR" or
+            allowed.get("get-task-allow", False) or
+            allowed.get("aps-environment") != "production"):
+        raise RuntimeError("Profile app/team/distribution/APNs mismatch")
 
 
 def main():

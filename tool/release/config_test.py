@@ -10,6 +10,25 @@ ROOT = Path(__file__).resolve().parents[2]
 
 
 class WorkflowContractTests(unittest.TestCase):
+    def test_release_signing_and_fail_fast_order(self):
+        gradle = (ROOT / 'android/app/build.gradle.kts').read_text()
+        self.assertNotIn('androiddebugkey', gradle)
+        self.assertNotIn('debug.keystore', gradle)
+        self.assertIn('PROKAT_RELEASE_CI', gradle)
+        self.assertIn('signingConfig = signingConfigs.getByName("release")', gradle)
+        steps = self.github['jobs']['release']['steps']
+        scripts = '\n'.join(step.get('run', '') for step in steps)
+        self.assertLess(scripts.index('play.rb preflight'), scripts.index('flutter build appbundle'))
+        self.assertLess(scripts.index('verify_android.dart'), scripts.index('play.rb publish'))
+        self.assertEqual(steps[-1]['if'], 'always()')
+        self.assertIn('rm -f -- .env android/key.properties', steps[-1]['run'])
+        for workflow in self.codemagic['workflows'].values():
+            scripts = [step['script'] for step in workflow['scripts']]
+            self.assertIn('ios_store.py preflight', scripts[3])
+            self.assertIn('verify_ios.py', scripts[4])
+            self.assertIn('upload-symbols', scripts[5])
+            self.assertIn('ios_store.py publish', scripts[6])
+
     def test_exact_android_u2_input_inventory_and_prebuild_key_check(self):
         text = (ROOT / '.github/workflows/android-release.yml').read_text()
         secrets = set(re.findall(r'secrets\.([A-Z0-9_]+)', text))

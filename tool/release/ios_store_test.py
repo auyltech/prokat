@@ -1,3 +1,7 @@
+import contextlib
+import io
+from pathlib import Path
+import tempfile
 import unittest
 from unittest.mock import patch
 
@@ -10,6 +14,48 @@ class AppleStorePolicyTests(unittest.TestCase):
 
     def test_new_build(self):
         store.check_builds(self.rc, [{"id": "old", "attributes": {"version": "107", "processingState": "VALID"}}], [], 100)
+
+    def test_rc_group_must_exist_and_be_internal(self):
+        group = {"id": "fixture", "attributes": {"name": "PROKAT Internal", "isInternalGroup": True}}
+        self.assertEqual(store.check_internal_group([group], "PROKAT Internal"), "fixture")
+        for groups, name in (([], None), ([], "PROKAT Internal"), ([group], "typo"),
+                             ([group, group], "PROKAT Internal"),
+                             ([{**group, "attributes": {**group["attributes"], "isInternalGroup": False}}], "PROKAT Internal")):
+            with self.subTest(groups=groups, name=name), self.assertRaises(store.Blocked):
+                store.check_internal_group(groups, name)
+
+    def test_access_mode_needs_no_tag_and_never_invokes_publisher(self):
+        with patch.object(store.sys, "argv", ["ios_store.py", "access"]), patch.object(store, "preflight") as read, \
+                patch.object(store.subprocess, "run") as publish, contextlib.redirect_stdout(io.StringIO()) as output:
+            store.main()
+            read.assert_called_once_with()
+            publish.assert_not_called()
+            self.assertIn("APPLE_ACCESS_VERIFIED", output.getvalue())
+
+    def test_access_failure_never_reports_success_or_invokes_publisher(self):
+        with patch.object(store.sys, "argv", ["ios_store.py", "access"]), \
+                patch.object(store, "preflight", side_effect=TimeoutError), patch.object(store.subprocess, "run") as publish, \
+                contextlib.redirect_stdout(io.StringIO()) as output, self.assertRaises(TimeoutError):
+            store.main()
+        publish.assert_not_called()
+        self.assertNotIn("VERIFIED", output.getvalue())
+
+    def test_real_preflight_flow_uses_fresh_complete_reads_and_internal_group(self):
+        env = {"APP_STORE_CONNECT_ISSUER_ID": "fixture", "APP_STORE_CONNECT_PRIVATE_KEY": "not-a-key",
+               "APP_STORE_CONNECT_KEY_IDENTIFIER": "fixture", "APP_STORE_APP_ID": "123",
+               "IOS_HISTORICAL_MAX_BUILD": "100", "TESTFLIGHT_GROUP": "PROKAT Internal"}
+        app = {"data": {"attributes": {"bundleId": "com.auyltech.prokat", "primaryLocale": "ru"}}}
+        groups = [{"id": "fixture", "attributes": {"name": "PROKAT Internal", "isInternalGroup": True}}]
+        with tempfile.TemporaryDirectory() as directory, patch.object(store, "ROOT", Path(directory)), \
+                patch.dict(store.os.environ, env, clear=True), patch("jwt.encode", return_value="fake-not-a-jwt"), \
+                patch.object(store, "get_json", return_value=app), \
+                patch.object(store, "all_pages", side_effect=[[], [], groups, [], [], groups]) as pages, \
+                contextlib.redirect_stdout(io.StringIO()):
+            store.preflight(self.rc)
+            store.preflight(self.rc)
+            self.assertEqual(pages.call_count, 6)  # No cache between pre-build and pre-upload.
+            self.assertEqual(pages.call_args_list[2].args[0], "/v1/apps/123/betaGroups?limit=200")
+            self.assertTrue((Path(directory) / "build/release/apple-state.json").is_file())
 
     def test_existing_build_in_any_state_blocks(self):
         for state in ("VALID", "PROCESSING", "FAILED", "INVALID"):
