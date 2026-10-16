@@ -167,7 +167,8 @@ def main():
         packages = list((ROOT / "build/ios/ipa").glob("*.ipa"))
         if len(packages) != 1:
             raise Blocked("Expected exactly one signed IPA")
-        result = subprocess.run(publish_arguments(context, packages[0], os.environ.get("TESTFLIGHT_GROUP")), check=False)
+        args = publish_arguments(context, packages[0], os.environ.get("TESTFLIGHT_GROUP"))
+        result = subprocess.run([sys.executable, str(ROOT / "tool/release/apple_publish.py"), *args[1:]], check=False)
         if result.returncode:
             raise Blocked("Apple publishing incomplete; upload may already be accepted. Inspect Build Uploads/TestFlight/App Store version; no automatic retry")
         print("APPLE_SUBMISSION_STEP_COMPLETED: check TestFlight group or App Review state; this does not prove App Store publication")
