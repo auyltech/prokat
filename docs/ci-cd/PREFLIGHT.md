@@ -1,10 +1,32 @@
-# Preflight PROKAT — 2026-10-16
+# Preflight PROKAT — updated 2026-10-19
 
 Android: **NOT READY for U4**. iOS: **NOT READY for U4**.
 Autonomous code preparation is complete for the inspected branch; account,
 native-Mac and owner-approval checks below remain. A local test is not a store
 release. No cloud build, store request, tag, push, merge, billing change or new
-secret/signing identity was created during this preflight.
+secret/signing identity was created during the original 2026-10-16 preflight.
+The separately authorized 2026-10-19 Play probe below made only the listed
+OAuth/edit requests; this documentation follow-up makes no new API requests.
+
+## U2 update — 2026-10-19
+
+**Play API access: PASS / VERIFIED.** Expected project/service-account identity
+and package `com.auyltech.prokat` matched. OAuth **200**, temporary edit create
+**200**, edit GET **200**, edit delete **204**. No upload, commit, track/metadata
+update, working release change or retry. See [evidence](VERIFICATION.md#u2-play-api-access-probe--2026-10-19).
+
+Owner confirms all **7 Android GitHub Secrets and 2 Variables** are created and
+Internal Testing is configured (`PROKAT developers`, 2 testers). The historical
+maximum versionCode **18** was reconfirmed by the owner on 2026-10-19; it remains
+a floor, not a replacement for fresh store-state checks before an upload.
+Actual AAB build, signing, upload and GitHub Secret contents remain **NOT VERIFIED
+until U4**. Production gates remain closed; no RC permission is implied.
+
+Current inspected HEAD is `0ec2e3c706469dee70dce693227b8ac35bcc8fac` on the same
+feature branch. It descends from `7cdd45e` through `2a33dc65` (Mac dependency docs),
+`5ec9cc99` (Apple compliance docs), then the owner's `0ec2e3c7` (`prokat.iml`,
+18 IDE exclusions). No runtime/workflow code changes occur in that range.
+Git history and the owner's IDE file were not changed by this follow-up.
 
 ## Baseline and Git scope
 
@@ -16,7 +38,8 @@ secret/signing identity was created during this preflight.
   `b481e0c4f0f13dc711b722d8e760b9048966983e`. Dev advanced by one application
   commit after feature-base `7346fea`. Those changes were not merged/rebased;
   tests here cover the feature source only, not an uncreated integration commit.
-- Existing owner modification `prokat.iml` remains untouched and uncommitted.
+- At the original preflight, owner modification `prokat.iml` was uncommitted;
+  it is now committed by the owner in `0ec2e3c7` and remains untouched here.
   No Dart runtime/application code, production config, secrets or native locks
   changed. Only Android release-signing behavior, release tools/tests and docs.
 - Code commits: `1aa9417` Android history/signing, `b85eb60` Apple group/profile
@@ -79,7 +102,9 @@ Added one reuse of existing Apple preflight, `ios_store.py access`: GET-only
 app/builds/uploads/internal-group check, no tag/IPA/CI/signature/submission. It
 does not prove write permissions. Play access probe creates/deletes a temporary
 edit (not strictly read-only HTTP), never uploads/commits. Neither probe was run
-against actual accounts.
+against actual accounts during the original preflight. The restricted Play
+probe was subsequently executed successfully on 2026-10-19 as recorded above;
+Apple account verification remains pending.
 
 ## Actually executed checks
 
@@ -108,9 +133,11 @@ and readable crash reports remain NOT VERIFIED; dSYM checkout layout needs Mac.
 
 ## Remaining blockers, highest priority first
 
-1. **U2/U3 external access:** dedicated Play service account, Team API key,
-   existing Apple identities/profiles, credentials installation and probes are
-   pending. No live historical-state or publishing permission verification.
+1. **Remaining U2/U3 checks:** Play API access is now VERIFIED; Android GitHub
+   inputs and Internal Testing are owner-confirmed. Actual AAB/signing/upload
+   remain NOT VERIFIED until U4; the probe did not inspect live build history,
+   locales, onboarding or managed publishing. Apple Team API key, existing
+   identities/profiles, credentials installation and Apple probe remain pending.
 2. **U1 financial/security facts:** private visibility, blocking GitHub budgets,
    Codemagic Personal commercial eligibility still owner/support pending.
    Do not activate billing, change visibility or start runs to test eligibility.
@@ -134,8 +161,9 @@ and readable crash reports remain NOT VERIFIED; dSYM checkout layout needs Mac.
 
 ## Owner action and acceptance
 
-While rights are pending, no new action or credentials are required now.
-After access arrives, follow [two short U2/U3 guides](OWNER_CHECKLIST.md), using
+Do not recreate the configured Play account/key, 7 Secrets or 2 Variables, or
+repeat the successful probe. For remaining owner prerequisites follow
+[two short U2/U3 guides](OWNER_CHECKLIST.md), using
 [ANDROID_SETUP](ANDROID_SETUP.md) / [MANUAL_SETUP](MANUAL_SETUP.md) for exact
 sources/secret storage and [IOS_DEPENDENCIES](IOS_DEPENDENCIES.md) for Mac steps.
 All account/API/tester configuration is possible from Windows. Mac is necessary
