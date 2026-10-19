@@ -4104,4 +4104,48 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get catalogNoResultsHint =>
       'Попробуйте другой запрос, категорию или город.';
+
+  @override
+  String get requestClientBudget => 'Ваш бюджет';
+
+  @override
+  String get requestsSubmitToOwners => 'Отправить владельцам';
+
+  @override
+  String get requestsSentToOwners => 'Заявка отправлена владельцам';
+
+  @override
+  String get requestOwnerOffers => 'Предложения владельцев';
+
+  @override
+  String get offerPriceSortDefault => 'По порядку';
+
+  @override
+  String get offerPriceSortLow => 'Дешевле сначала';
+
+  @override
+  String get offerPriceSortHigh => 'Дороже сначала';
+
+  @override
+  String get offerBestPrice => 'Лучшая цена';
+
+  @override
+  String get offerCompareUnit => 'Единица расчёта';
+
+  @override
+  String get offerCompareAllUnits => 'Все единицы';
+
+  @override
+  String get offerCompareUnitHint =>
+      'Для сравнения цен выберите одну единицу расчёта.';
+
+  @override
+  String get offerPricesPartialHint =>
+      'Для сравнения цен загрузите все предложения.';
+
+  @override
+  String get offerLoadAll => 'Загрузить все предложения';
+
+  @override
+  String get flowSchedulePick => 'Выбрать время';
 }

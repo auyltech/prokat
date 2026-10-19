@@ -34,6 +34,7 @@ class AppTextField extends StatefulWidget {
   final VoidCallback? onTap;
   final Widget? prefix;
   final Widget? suffix;
+  final TextStyle? textStyle;
   final String? Function(String?)? validator;
   final int? minLines;
   final int maxLines;
@@ -62,6 +63,7 @@ class AppTextField extends StatefulWidget {
     this.onTap,
     this.prefix,
     this.suffix,
+    this.textStyle,
     this.validator,
     this.minLines,
     this.maxLines = 1,
@@ -153,7 +155,7 @@ class _AppTextFieldState extends State<AppTextField> {
     final textColor = (!widget.enabled || chromeReadOnly)
         ? flow?.secondary ?? fieldTheme.textDisabled
         : flow?.title ?? fieldTheme.text;
-    final textStyle = AppFonts.body16(context).copyWith(
+    final textStyle = (widget.textStyle ?? AppFonts.body16(context)).copyWith(
       color: textColor,
       height: 1.3,
       leadingDistribution: TextLeadingDistribution.even,
@@ -245,8 +247,14 @@ class _AppTextFieldState extends State<AppTextField> {
           isFocused: showFocusChrome,
           hasError: hasError,
           backgroundColor: background,
-          height: widget.maxLines == 1 ? AppDimens.inputHeight : null,
-          minHeight: widget.maxLines == 1 ? null : AppDimens.inputHeight,
+          height: flow == null && widget.maxLines == 1
+              ? AppDimens.inputHeight
+              : null,
+          minHeight: flow != null
+              ? 56
+              : widget.maxLines == 1
+              ? null
+              : AppDimens.inputHeight,
           child: field,
         ),
         if (hasError)
@@ -260,6 +268,7 @@ class _AppTextFieldState extends State<AppTextField> {
 
   InputDecoration _decoration(BuildContext context, {required bool hasError}) {
     final fieldTheme = context.colors.textField;
+    final flow = ProkatFlowScope.maybeOf(context);
     Widget? suffix = widget.suffix;
     if (widget.obscure) {
       suffix = Row(
@@ -291,7 +300,9 @@ class _AppTextFieldState extends State<AppTextField> {
       focusedErrorBorder: AppInputFieldStyle.noBorder,
       errorStyle: AppFonts.collapsed,
       counterText: widget.maxLength == null ? null : '',
-      contentPadding: AppInputFieldStyle.contentPadding,
+      contentPadding: flow == null
+          ? AppInputFieldStyle.contentPadding
+          : const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       prefixIcon: widget.prefix == null
           ? null
           : Padding(

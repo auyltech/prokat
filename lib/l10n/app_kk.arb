@@ -1456,5 +1456,19 @@
   "inquiryReadOnlyHint": "Хат алмасу сақталды. Тек қарауға болады.",
   "clearSearch": "Іздеуді тазарту",
   "catalogNoResults": "Хабарландырулар табылмады",
-  "catalogNoResultsHint": "Іздеу сұрауын, санатты немесе қаланы өзгертіп көріңіз."
+  "catalogNoResultsHint": "Іздеу сұрауын, санатты немесе қаланы өзгертіп көріңіз.",
+  "requestClientBudget": "Сіздің бюджетіңіз",
+  "requestsSubmitToOwners": "Иелеріне жіберу",
+  "requestsSentToOwners": "Өтінім иелеріне жіберілді",
+  "requestOwnerOffers": "Иелердің ұсыныстары",
+  "offerPriceSortDefault": "Бастапқы рет",
+  "offerPriceSortLow": "Алдымен арзаны",
+  "offerPriceSortHigh": "Алдымен қымбаты",
+  "offerBestPrice": "Ең тиімді баға",
+  "offerCompareUnit": "Есептеу бірлігі",
+  "offerCompareAllUnits": "Барлық бірліктер",
+  "offerCompareUnitHint": "Бағаларды салыстыру үшін бір есептеу бірлігін таңдаңыз.",
+  "offerPricesPartialHint": "Бағаларды салыстыру үшін барлық ұсыныстарды жүктеңіз.",
+  "offerLoadAll": "Барлық ұсыныстарды жүктеу",
+  "flowSchedulePick": "Уақытты таңдау"
 }

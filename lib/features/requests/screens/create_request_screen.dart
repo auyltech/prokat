@@ -3,8 +3,10 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/router/app_routes.dart';
+import 'package:prokat/core/theme/prokat_flow_scope.dart';
 import 'package:prokat/core/widgets/empty_state_tile.dart';
 import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
+import 'package:prokat/core/widgets/ui_kit/flow/prokat_flow_actions.dart';
 import 'package:prokat/features/locations/state/location_provider.dart';
 import 'package:prokat/features/requests/models/request_status.dart';
 import 'package:prokat/features/requests/providers/client_active_requests_provider.dart';
@@ -51,9 +53,11 @@ class _CreateRequestScreenState extends ConsumerState<CreateRequestScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final flow = ProkatFlowScope.maybeOf(context);
     final requestsAsync = ref.watch(clientActiveRequestsProvider);
 
     return Scaffold(
+      backgroundColor: flow?.surface,
       body: RefreshIndicator(
         onRefresh: () async {
           return ref.read(clientActiveRequestsProvider.notifier).refresh();
@@ -82,7 +86,9 @@ class _CreateRequestScreenState extends ConsumerState<CreateRequestScreen> {
             if (canCreateRequest) {
               return ListView(
                 physics: const AlwaysScrollableScrollPhysics(),
-                padding: const EdgeInsets.all(16),
+                padding: flow == null
+                    ? const EdgeInsets.all(16)
+                    : const EdgeInsets.fromLTRB(16, 16, 16, 32),
                 children: const [CreateRequestForm()],
               );
             } else {
@@ -103,6 +109,55 @@ class _ActiveRequestLimitView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final flow = ProkatFlowScope.maybeOf(context);
+
+    if (flow != null) {
+      return ListView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.all(16),
+        children: [
+          Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: flow.surface,
+              border: Border.all(color: flow.border),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Icon(
+                  Icons.pending_actions_outlined,
+                  size: 40,
+                  color: flow.primary,
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  l10n.activeRequestAlreadyExists,
+                  textAlign: TextAlign.center,
+                  style: AppFonts.body16SemiBold(context)
+                      .copyWith(color: flow.title),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  l10n.activeRequestCount(activeCount),
+                  textAlign: TextAlign.center,
+                  style: AppFonts.body14(context)
+                      .copyWith(color: flow.secondary),
+                ),
+                const SizedBox(height: 20),
+                ProkatFlowPrimaryButton(
+                  title: l10n.myRequests,
+                  onPressed: () {
+                    unawaited(context.push(AppRoutes.clientRequests));
+                  },
+                ),
+              ],
+            ),
+          ),
+        ],
+      );
+    }
 
     return AppCard(
       child: Padding(

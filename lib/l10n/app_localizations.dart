@@ -7605,6 +7605,90 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Try another search, category or city.'**
   String get catalogNoResultsHint;
+
+  /// No description provided for @requestClientBudget.
+  ///
+  /// In en, this message translates to:
+  /// **'Your budget'**
+  String get requestClientBudget;
+
+  /// No description provided for @requestsSubmitToOwners.
+  ///
+  /// In en, this message translates to:
+  /// **'Send to owners'**
+  String get requestsSubmitToOwners;
+
+  /// No description provided for @requestsSentToOwners.
+  ///
+  /// In en, this message translates to:
+  /// **'Request sent to owners'**
+  String get requestsSentToOwners;
+
+  /// No description provided for @requestOwnerOffers.
+  ///
+  /// In en, this message translates to:
+  /// **'Owner offers'**
+  String get requestOwnerOffers;
+
+  /// No description provided for @offerPriceSortDefault.
+  ///
+  /// In en, this message translates to:
+  /// **'Original order'**
+  String get offerPriceSortDefault;
+
+  /// No description provided for @offerPriceSortLow.
+  ///
+  /// In en, this message translates to:
+  /// **'Lowest price first'**
+  String get offerPriceSortLow;
+
+  /// No description provided for @offerPriceSortHigh.
+  ///
+  /// In en, this message translates to:
+  /// **'Highest price first'**
+  String get offerPriceSortHigh;
+
+  /// No description provided for @offerBestPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Best price'**
+  String get offerBestPrice;
+
+  /// No description provided for @offerCompareUnit.
+  ///
+  /// In en, this message translates to:
+  /// **'Price unit'**
+  String get offerCompareUnit;
+
+  /// No description provided for @offerCompareAllUnits.
+  ///
+  /// In en, this message translates to:
+  /// **'All units'**
+  String get offerCompareAllUnits;
+
+  /// No description provided for @offerCompareUnitHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a single price unit to compare offers.'**
+  String get offerCompareUnitHint;
+
+  /// No description provided for @offerPricesPartialHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Load all offers to compare prices.'**
+  String get offerPricesPartialHint;
+
+  /// No description provided for @offerLoadAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Load all offers'**
+  String get offerLoadAll;
+
+  /// No description provided for @flowSchedulePick.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose time'**
+  String get flowSchedulePick;
 }
 
 class _AppLocalizationsDelegate

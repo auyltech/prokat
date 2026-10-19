@@ -9,9 +9,7 @@ import 'package:prokat/features/layout/main_navigation_bar.dart';
 class MainScaffold extends StatelessWidget {
   final StatefulNavigationShell navigationShell;
 
-  MainScaffold({super.key, required this.navigationShell});
-
-  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  const MainScaffold({super.key, required this.navigationShell});
 
   @override
   Widget build(BuildContext context) {
@@ -43,7 +41,10 @@ class MainScaffold extends StatelessWidget {
         currentPath == '/search/companies';
 
     final flow = ProkatFlowPalette.of(context);
-    final useCatalogFlow = currentPath == AppRoutes.searchList;
+    final useCatalogFlow =
+        currentPath == AppRoutes.searchList ||
+        currentPath == AppRoutes.clientRequests ||
+        currentPath == AppRoutes.clientRequestsCreate;
     return ProkatFlowScope(
       palette: flow,
       enabled: useCatalogFlow,
@@ -61,7 +62,6 @@ class MainScaffold extends StatelessWidget {
               )
             : theme,
         child: Scaffold(
-          key: _scaffoldKey,
           backgroundColor: useCatalogFlow
               ? flow.background
               : theme.scaffoldBackgroundColor,

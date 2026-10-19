@@ -4067,4 +4067,48 @@ class AppLocalizationsKk extends AppLocalizations {
   @override
   String get catalogNoResultsHint =>
       'Іздеу сұрауын, санатты немесе қаланы өзгертіп көріңіз.';
+
+  @override
+  String get requestClientBudget => 'Сіздің бюджетіңіз';
+
+  @override
+  String get requestsSubmitToOwners => 'Иелеріне жіберу';
+
+  @override
+  String get requestsSentToOwners => 'Өтінім иелеріне жіберілді';
+
+  @override
+  String get requestOwnerOffers => 'Иелердің ұсыныстары';
+
+  @override
+  String get offerPriceSortDefault => 'Бастапқы рет';
+
+  @override
+  String get offerPriceSortLow => 'Алдымен арзаны';
+
+  @override
+  String get offerPriceSortHigh => 'Алдымен қымбаты';
+
+  @override
+  String get offerBestPrice => 'Ең тиімді баға';
+
+  @override
+  String get offerCompareUnit => 'Есептеу бірлігі';
+
+  @override
+  String get offerCompareAllUnits => 'Барлық бірліктер';
+
+  @override
+  String get offerCompareUnitHint =>
+      'Бағаларды салыстыру үшін бір есептеу бірлігін таңдаңыз.';
+
+  @override
+  String get offerPricesPartialHint =>
+      'Бағаларды салыстыру үшін барлық ұсыныстарды жүктеңіз.';
+
+  @override
+  String get offerLoadAll => 'Барлық ұсыныстарды жүктеу';
+
+  @override
+  String get flowSchedulePick => 'Уақытты таңдау';
 }

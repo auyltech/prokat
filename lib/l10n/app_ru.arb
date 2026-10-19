@@ -1455,5 +1455,19 @@
   "inquiryReadOnlyHint": "Переписка сохранена. Доступен только просмотр.",
   "clearSearch": "Очистить поиск",
   "catalogNoResults": "Объявления не найдены",
-  "catalogNoResultsHint": "Попробуйте другой запрос, категорию или город."
+  "catalogNoResultsHint": "Попробуйте другой запрос, категорию или город.",
+  "requestClientBudget": "Ваш бюджет",
+  "requestsSubmitToOwners": "Отправить владельцам",
+  "requestsSentToOwners": "Заявка отправлена владельцам",
+  "requestOwnerOffers": "Предложения владельцев",
+  "offerPriceSortDefault": "По порядку",
+  "offerPriceSortLow": "Дешевле сначала",
+  "offerPriceSortHigh": "Дороже сначала",
+  "offerBestPrice": "Лучшая цена",
+  "offerCompareUnit": "Единица расчёта",
+  "offerCompareAllUnits": "Все единицы",
+  "offerCompareUnitHint": "Для сравнения цен выберите одну единицу расчёта.",
+  "offerPricesPartialHint": "Для сравнения цен загрузите все предложения.",
+  "offerLoadAll": "Загрузить все предложения",
+  "flowSchedulePick": "Выбрать время"
 }

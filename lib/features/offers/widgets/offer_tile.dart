@@ -16,11 +16,15 @@ import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/theme/legacy/app_theme.dart';
 import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/features/layout/reveal_client_orders_after_tender_accept.dart';
+import 'package:prokat/core/media/media_image_provider.dart';
+import 'package:prokat/core/theme/prokat_flow_scope.dart';
+import 'package:prokat/features/offers/widgets/offer_flow_card.dart';
 
 class OfferTile extends ConsumerWidget {
   final OfferModel offer;
+  final bool isBestPrice;
 
-  const OfferTile({super.key, required this.offer});
+  const OfferTile({super.key, required this.offer, this.isBestPrice = false});
 
   Future<void> _handleAccept(
     BuildContext context,
@@ -33,6 +37,7 @@ class OfferTile extends ConsumerWidget {
 
     final notifier = ref.read(offerMutationProvider.notifier);
     final navigation = TenderAcceptNavigation.capture(context);
+    final refreshedFlow = ProkatFlowScope.maybeOf(context) != null;
 
     final result = await notifier.acceptOffer(
       offer.id,
@@ -46,7 +51,9 @@ class OfferTile extends ConsumerWidget {
     );
 
     if (result.success) {
-      navigation.revealClientOrders();
+      navigation.revealClientOrders(
+        chatId: refreshedFlow ? offer.chatId : null,
+      );
     }
   }
 
@@ -79,6 +86,54 @@ class OfferTile extends ConsumerWidget {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final l10n = AppLocalizations.of(context)!;
+    final flow = ProkatFlowScope.maybeOf(context);
+    if (flow != null) {
+      final owner = offer.owner;
+      final image = mediaImageProvider(ref, owner?.imageUrl);
+      final name = owner?.displayName ?? '';
+      final initials = name
+          .split(RegExp(r'\s+'))
+          .where((part) => part.isNotEmpty)
+          .take(2)
+          .map((part) => part.characters.first)
+          .join()
+          .toUpperCase();
+      return OfferFlowCard(
+        offer: offer,
+        isBestPrice: isBestPrice,
+        submitting: ref.watch(offerMutationProvider).isSubmitting,
+        unreadCount: offer.chatId.isEmpty
+            ? 0
+            : _unreadCountForChat(ref, offer.chatId),
+        avatar: CircleAvatar(
+          radius: 24,
+          backgroundColor: flow.primarySoft,
+          backgroundImage: image,
+          onBackgroundImageError: image == null
+              ? null
+              : ignoreMediaImageLoadError,
+          child: image != null
+              ? null
+              : initials.isEmpty
+              ? Icon(Icons.person_outline_rounded, color: flow.primary)
+              : Text(
+                  initials,
+                  style: TextStyle(
+                    color: flow.primary,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+        ),
+        onChat: offer.chatId.isEmpty
+            ? null
+            : () => context.push(
+                '${AppRoutes.clientChatList}/direct/${offer.chatId}',
+              ),
+        onAccept: () => _handleAccept(context, ref, l10n),
+        onReject: () => _handleReject(context, ref, l10n),
+      );
+    }
     final mutedText = colorScheme.onSurfaceVariant;
     final priceColor = AppTheme.brandTintFg(theme.brightness);
 

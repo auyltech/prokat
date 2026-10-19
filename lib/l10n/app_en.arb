@@ -1458,5 +1458,19 @@
   "inquiryReadOnlyHint": "The conversation is saved. You can view it here.",
   "clearSearch": "Clear search",
   "catalogNoResults": "No listings found",
-  "catalogNoResultsHint": "Try another search, category or city."
+  "catalogNoResultsHint": "Try another search, category or city.",
+  "requestClientBudget": "Your budget",
+  "requestsSubmitToOwners": "Send to owners",
+  "requestsSentToOwners": "Request sent to owners",
+  "requestOwnerOffers": "Owner offers",
+  "offerPriceSortDefault": "Original order",
+  "offerPriceSortLow": "Lowest price first",
+  "offerPriceSortHigh": "Highest price first",
+  "offerBestPrice": "Best price",
+  "offerCompareUnit": "Price unit",
+  "offerCompareAllUnits": "All units",
+  "offerCompareUnitHint": "Choose a single price unit to compare offers.",
+  "offerPricesPartialHint": "Load all offers to compare prices.",
+  "offerLoadAll": "Load all offers",
+  "flowSchedulePick": "Choose time"
 }

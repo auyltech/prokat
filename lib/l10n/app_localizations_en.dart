@@ -4066,4 +4066,47 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get catalogNoResultsHint => 'Try another search, category or city.';
+
+  @override
+  String get requestClientBudget => 'Your budget';
+
+  @override
+  String get requestsSubmitToOwners => 'Send to owners';
+
+  @override
+  String get requestsSentToOwners => 'Request sent to owners';
+
+  @override
+  String get requestOwnerOffers => 'Owner offers';
+
+  @override
+  String get offerPriceSortDefault => 'Original order';
+
+  @override
+  String get offerPriceSortLow => 'Lowest price first';
+
+  @override
+  String get offerPriceSortHigh => 'Highest price first';
+
+  @override
+  String get offerBestPrice => 'Best price';
+
+  @override
+  String get offerCompareUnit => 'Price unit';
+
+  @override
+  String get offerCompareAllUnits => 'All units';
+
+  @override
+  String get offerCompareUnitHint =>
+      'Choose a single price unit to compare offers.';
+
+  @override
+  String get offerPricesPartialHint => 'Load all offers to compare prices.';
+
+  @override
+  String get offerLoadAll => 'Load all offers';
+
+  @override
+  String get flowSchedulePick => 'Choose time';
 }

@@ -6,10 +6,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/core/mutation/mutation_model.dart';
 import 'package:prokat/core/router/app_routes.dart';
+import 'package:prokat/core/theme/prokat_flow_scope.dart';
 import 'package:prokat/core/utils/max_int_input_formatter.dart';
 import 'package:prokat/core/utils/parse.dart';
 import 'package:prokat/core/widgets/form_choice.dart';
 import 'package:prokat/core/widgets/job_schedule_section.dart';
+import 'package:prokat/core/widgets/ui_kit/flow/prokat_flow_actions.dart';
 import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:prokat/features/catalog/catalog_provider.dart';
 import 'package:prokat/features/catalog/models/catalog_group.dart';
@@ -184,6 +186,7 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
 
   Future<void> onSubmit() async {
     final l10n = AppLocalizations.of(context)!;
+    final isFlow = ProkatFlowScope.maybeOf(context) != null;
     final requestState = ref.read(requestMutationProvider);
     final selectedCategory = requestState.selectedCategory;
     final selectedCategoryId = selectedCategory?.id;
@@ -260,7 +263,9 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
 
     AppToast.show(
       message: result.success
-          ? l10n.requestCreated
+          ? isFlow
+                ? l10n.requestsSentToOwners
+                : l10n.requestCreated
           : requestCreateErrorMessage(
               l10n: l10n,
               errorCode: result.errorCode,
@@ -278,6 +283,7 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final locale = l10n.localeName;
+    final flow = ProkatFlowScope.maybeOf(context);
     final locationState = ref.watch(locationProvider);
     final catalog = ref.watch(catalogProvider).valueOrNull;
     final groupTabs = userVisibleCatalogGroups(catalog);
@@ -353,6 +359,15 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
           sheetTitle: l10n.selectCategory,
           value: selectedCategory,
           selectedLabel: selectedCategory?.localizedName(locale),
+          prefix: flow == null
+              ? null
+              : Icon(
+                  mutationGroup == CatalogGroup.equipment
+                      ? Icons.inventory_2_outlined
+                      : Icons.local_shipping_outlined,
+                  color: flow.primary,
+                  size: 20,
+                ),
           openCustomSheet: _openCategorySheet,
           onChanged: (category) {
             ref.read(requestMutationProvider.notifier).selectCategory(category);
@@ -366,6 +381,9 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
           sheetTitle: l10n.selectAddress,
           value: selectedAddress,
           selectedLabel: addressLabel,
+          prefix: flow == null
+              ? null
+              : Icon(Icons.location_on_outlined, color: flow.primary, size: 20),
           openCustomSheet: _openAddressSheet,
           onChanged: (address) {
             ref.read(requestMutationProvider.notifier).selectLocation(address);
@@ -397,9 +415,16 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
               child: AppTextField(
                 controller: rateController,
                 focusNode: _rateFocus,
-                title: l10n.requestMyBudget,
+                title: flow == null ? l10n.requestMyBudget : null,
                 isRequired: true,
                 hint: l10n.offeredRateHint,
+                textStyle: flow == null
+                    ? null
+                    : AppFonts.headingM(context).copyWith(
+                        color: flow.title,
+                        fontSize: 24,
+                        fontWeight: FontWeight.w800,
+                      ),
                 keyboardType: TextInputType.number,
                 inputFormatters: [
                   FilteringTextInputFormatter.digitsOnly,
@@ -407,8 +432,9 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
                 ],
                 prefix: Text(
                   '₸',
-                  style: AppFonts.body16SemiBold(context)
-                      .copyWith(color: context.colors.text.secondary),
+                  style: AppFonts.body16SemiBold(context).copyWith(
+                    color: flow?.primary ?? context.colors.text.secondary,
+                  ),
                 ),
               ),
             ),
@@ -436,11 +462,18 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
           maxLines: 4,
         ),
         const SizedBox(height: AppDimens.s32$xxl),
-        AppElevatedButton(
-          title: l10n.create,
-          onTap: (!canSubmit || isSubmitting) ? null : onSubmit,
-          isLoading: isSubmitting,
-        ),
+        if (flow != null)
+          ProkatFlowPrimaryButton(
+            title: l10n.requestsSubmitToOwners,
+            onPressed: (!canSubmit || isSubmitting) ? null : onSubmit,
+            loading: isSubmitting,
+          )
+        else
+          AppElevatedButton(
+            title: l10n.create,
+            onTap: (!canSubmit || isSubmitting) ? null : onSubmit,
+            isLoading: isSubmitting,
+          ),
       ],
     );
   }

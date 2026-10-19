@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:prokat/core/widgets/form_choice.dart';
 import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
+import 'package:prokat/core/theme/prokat_flow_scope.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
 const jobScheduleDefaultHour = 16;
@@ -567,8 +568,12 @@ class JobScheduleSection extends StatelessWidget {
         ),
         const SizedBox(height: AppDimens.inputLabelGap),
         ChoicePair(
-          leftLabel: l10n.jobScheduleSet,
-          rightLabel: l10n.jobScheduleNearest,
+          leftLabel: ProkatFlowScope.maybeOf(context) == null
+              ? l10n.jobScheduleSet
+              : l10n.flowSchedulePick,
+          rightLabel: ProkatFlowScope.maybeOf(context) == null
+              ? l10n.jobScheduleNearest
+              : l10n.asSoonAsPossible,
           leftSelected: mode == JobScheduleMode.scheduled,
           rightSelected: mode == JobScheduleMode.asap,
           onLeft: onScheduled,
