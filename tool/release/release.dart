@@ -79,7 +79,12 @@ String requiredOption(Map<String, String> args, String key) =>
     args[key] ?? blocked('Missing --$key');
 
 String git(List<String> args, {String? directory}) {
-  final result = Process.runSync('git', args, workingDirectory: directory);
+  final result = Process.runSync(
+    'git',
+    args,
+    workingDirectory: directory,
+    environment: {'GIT_OPTIONAL_LOCKS': '0', 'GIT_NO_LAZY_FETCH': '1'},
+  );
   if (result.exitCode != 0) {
     // Never echo credential-bearing remote URLs or arbitrary git stderr.
     blocked(
@@ -95,7 +100,12 @@ void validateProduction(ReleaseTag release, Map<String, String> env) {
   }
 }
 
-void validateBuildHistory(ReleaseTag release, Iterable<String> tags) {
+void validateBuildHistory(
+  ReleaseTag release,
+  Iterable<String> tags, {
+  String? revision,
+  Map<String, String> commits = const {},
+}) {
   for (final name in tags) {
     if (name == release.tag) continue;
     ReleaseTag previous;
@@ -104,10 +114,18 @@ void validateBuildHistory(ReleaseTag release, Iterable<String> tags) {
     } on ReleaseFailure {
       continue; // Legacy/archive/unrelated tags do not claim a build number.
     }
-    if (previous.platform == release.platform &&
-        previous.build >= release.build) {
+    if (previous.build == release.build &&
+        previous.platform != release.platform &&
+        previous.version == release.version &&
+        revision != null &&
+        commits[name] == revision) {
+      continue; // The other platform of the same approved common release.
+    }
+    if (previous.build >= release.build) {
       blocked(
-        'Build number must exceed other ${release.platform} release tags, including failed attempts: $name',
+        previous.build == release.build && previous.platform == release.platform
+            ? 'Build already reserved by $name. RC-to-production promotion is not implemented; do not re-upload an accepted binary.'
+            : 'Common build must exceed release tags on BOTH platforms (or pair the same version/build/SHA): $name',
       );
     }
   }
@@ -185,7 +203,16 @@ void validateRevision(
   }
   if (ci) {
     runGit(['fetch', '--tags', 'origin']);
-    validateBuildHistory(release, runGit(['tag', '--list']).split('\n'));
+    final tags = runGit(['tag', '--list']).split('\n');
+    validateBuildHistory(
+      release,
+      tags,
+      revision: revision,
+      commits: {
+        for (final name in tags.where((name) => name.isNotEmpty))
+          name: runGit(['rev-parse', 'refs/tags/$name^{commit}']),
+      },
+    );
     final ref = 'refs/tags/${release.tag}';
     if (runGit(['rev-parse', '$ref^{commit}']) != revision) {
       blocked('Local tag differs from checkout');
@@ -201,12 +228,30 @@ void validateRevision(
 }
 
 Map<String, String> readNotes(Directory root, ReleaseTag release) {
-  final base = '${root.path}/releases/${release.version}';
-  final manifestFile = File('$base/release.json');
-  if (!manifestFile.existsSync()) {
-    blocked('Missing releases/${release.version}/release.json');
+  return readNotesFrom(release, (path) {
+    final file = File('${root.path}/$path');
+    if (!file.existsSync()) blocked('Missing $path');
+    return releaseText(file.readAsBytesSync());
+  });
+}
+
+String releaseText(List<int> bytes) {
+  if (bytes.length >= 3 &&
+      bytes[0] == 239 &&
+      bytes[1] == 187 &&
+      bytes[2] == 191) {
+    blocked('Release text must be UTF-8 without BOM');
   }
-  final metadata = jsonDecode(manifestFile.readAsStringSync()) as Map;
+  return utf8.decode(bytes);
+}
+
+/// Shared parser for disk-based CI and immutable Git blobs in the owner CLI.
+Map<String, String> readNotesFrom(
+  ReleaseTag release,
+  String Function(String path) read,
+) {
+  final base = 'releases/${release.version}';
+  final metadata = jsonDecode(read('$base/release.json')) as Map;
   if (metadata['schema'] != 1 ||
       metadata['version'] != release.version ||
       metadata['ready'] != true) {
@@ -216,18 +261,11 @@ Map<String, String> readNotes(Directory root, ReleaseTag release) {
   }
   final notes = <String, String>{};
   for (final language in ['ru', 'en', 'kk']) {
-    final file = File('$base/$language.txt');
-    if (!file.existsSync()) {
-      blocked('Missing required release notes: $language.txt');
-    }
-    final bytes = file.readAsBytesSync();
-    if (bytes.length >= 3 &&
-        bytes[0] == 239 &&
-        bytes[1] == 187 &&
-        bytes[2] == 191) {
+    final raw = read('$base/$language.txt');
+    if (raw.startsWith('\uFEFF')) {
       blocked('Save $language.txt as UTF-8 without BOM');
     }
-    final text = utf8.decode(bytes).replaceAll('\r\n', '\n').trim();
+    final text = raw.replaceAll('\r\n', '\n').trim();
     if (text.isEmpty ||
         text.startsWith('\uFEFF') ||
         RegExp(r'[\x00-\x08\x0B-\x1F\x7F<>]').hasMatch(text) ||
@@ -247,6 +285,26 @@ Map<String, String> readNotes(Directory root, ReleaseTag release) {
     notes[language] = text;
   }
   return notes;
+}
+
+String pubspecVersion(String text) {
+  final lines = RegExp(
+    r'^version:\s*([^\r\n#]+)',
+    multiLine: true,
+  ).allMatches(text).toList();
+  if (lines.length != 1) {
+    blocked('Expected one version: X.Y.Z+N in pubspec.yaml');
+  }
+  final version = lines.single[1]!.trim();
+  // A common counter must also fit Apple's limit, even for Android-only retry.
+  ReleaseTag.parse('rc/ios/v$version');
+  return version;
+}
+
+void validatePubspecVersion(ReleaseTag release, String text) {
+  if (pubspecVersion(text) != '${release.version}+${release.build}') {
+    blocked('Tag version/build differs from tagged pubspec.yaml');
+  }
 }
 
 List<Map<String, String>> appleNotes(Map<String, String> notes) => [
@@ -315,6 +373,9 @@ void main(List<String> args) {
     }
     final revision = requiredOption(opts, 'revision');
     validateRevision(release, revision, ci: command == 'ci');
+    if (command == 'ci') {
+      validatePubspecVersion(release, File('pubspec.yaml').readAsStringSync());
+    }
     prepare(release, revision, Directory.current);
     stdout.writeln(jsonEncode({...release.toJson(), 'commit': revision}));
   } on Object catch (error) {

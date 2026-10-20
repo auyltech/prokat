@@ -1,5 +1,9 @@
 # Verification record — updated 2026-10-20
 
+Historical execution records below are preserved. Current commands and retry
+rules: [CICD-README](../../CICD-README.md). Lean CLI verification is recorded
+separately in [LEAN_RELEASE_CLI](LEAN_RELEASE_CLI.md).
+
 **VERIFIED** means executed local evidence only unless explicitly stated.
 PASS appears only for an executed check; provider/account checks are BLOCKED or
 PENDING USER ACTION. No RC/production tag or store upload was performed.
