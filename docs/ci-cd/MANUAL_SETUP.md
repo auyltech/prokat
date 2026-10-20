@@ -1,5 +1,9 @@
 # Однократная настройка владельцем PROKAT
 
+Текущие команды публикации, общий build counter и Git integration:
+[CICD-README](../../CICD-README.md). Настройка аккаунтов ниже остаётся отдельной;
+CLI не требует копировать CI credentials локально и не включает production gate.
+
 Статус: **PENDING USER ACTION, начиная с U1**. Инструкции следующих gates
 подготовлены заранее; это не разрешение переходить к публикации. Не отправляйте
 в чат пароли, keystore, `.p8`, `.p12`, JSON credentials или их base64.
@@ -58,9 +62,9 @@ GitHub Billing и применимость Personal Free ещё PENDING. Под�
    Не выдавайте отдельный PAT с широким `repo`/`workflow` scope.
 8. Выберите приложение **prokat**, тип Flutter; включите конфигурацию
    **codemagic.yaml / Switch to YAML configuration**. Для просмотра YAML можно
-   выбрать рабочую ветку `feat/tag-only-mobile-release`; не нажимайте Start new
-   build. Если ветка ещё не опубликована, сообщите агенту: merge не нужен для
-   простого подключения и просмотра YAML в feature branch.
+   выбрать main после reviewed PR; не нажимайте Start new build.
+   Предварительный просмотр feature YAML не разрешает публикацию. При реальном
+   tag webhook YAML/исходники должны соответствовать точному tagged main SHA.
 9. **App settings → Build triggers / Webhooks**: отключите старые Flutter
    Workflow Editor branch/PR builds, auto-build после подключения, schedules.
    Убедитесь, что нет второго workflow или приложения с broad triggers.
@@ -308,16 +312,16 @@ GitHub Billing и применимость Personal Free ещё PENDING. Под�
 
 До этого gate не создаём теги и не делаем реальные store writes.
 
-1. Агент предоставляет exact approved commit SHA, версии/новые platform build
-   numbers, notes, readiness internal/TestFlight и результаты локальных проверок.
+1. Предоставляются preview свежего origin/main, версия из его pubspec, общий
+   build number, notes, readiness internal/TestFlight и результаты проверок.
 2. Владелец явно разрешает конкретные `rc/android/...` и `rc/ios/...`, их SHA и
    push. Разрешение на один тест не разрешает неограниченную серию новых тегов.
 3. Если нужна интеграция в dev/main — владелец отдельно разрешает merge;
-   предварительно готовим diff/PR. Скрытого merge нет. RC можно собрать из
-   утверждённого feature commit с workflow-файлами; main ancestry нужна только
-   production. GitHub tag workflow берётся из tagged commit, Codemagic — тоже.
-4. После разрешения агент проверяет SHA и exact remote refs, создаёт annotated
-   tags, отправляет только разрешённые refs, наблюдает оба provider runs.
+   предварительно готовим diff/PR. RC и production требуют main ancestry.
+   Источник CLI — только актуальный HEAD origin/main; workflow берётся из тега.
+4. После разрешения владелец запускает prokat-rc-android / prokat-rc-ios,
+   проверяет preview и подтверждает отправку. CLI создаёт annotated tag и
+   отправляет только его exact ref. Затем наблюдают оба provider runs.
 5. При неопределённом upload не нажимайте rerun/rebuild. Сначала магазин и
    [recovery runbook](RELEASE_RUNBOOK.md). Новые теги — по новому разрешению.
 6. Для A5 сохраняем run IDs/URLs, version/build/commit, фактические состояния
@@ -328,7 +332,7 @@ GitHub Billing и применимость Personal Free ещё PENDING. Под�
 
 Вход: успешный A5 обеих платформ, подтверждённые API/signing/notes/symbols и
 отсутствие нерешённых блокеров. Агент предъявляет доказательства, риски, расходы
-и exact команды production-тегов. Владелец явно разрешает активацию production.
+и preview prokat-prod-android / prokat-prod-ios. Владелец явно разрешает U5.
 
 1. Только после разрешения: Play service account получает app-specific
    **Release to production**. Согласованно отключите Managed publishing, если
@@ -337,9 +341,11 @@ GitHub Billing и применимость Personal Free ещё PENDING. Под�
 2. GitHub Repository Secret `PRODUCTION_PUBLISHING_ENABLED=true`.
 3. Codemagic `prokat-ios-release`: Secret `PRODUCTION_PUBLISHING_ENABLED=true`.
    Ни один другой workflow/channel не должен переопределять gate.
-4. После этого production-теги автоматические, без обязательного approval на
-   каждый запуск. Android: completed production release с отправкой на Google
-   review. iOS: App Review submission и release_type AFTER_APPROVAL.
+4. После этого владелец отдельно разрешает локальный production gate при запуске
+   CLI (PRODUCTION_PUBLISHING_ENABLED=true), проверяет preview и дополнительное
+   PUBLISH PRODUCTION. Это не изменяет CI secrets. Android: production/review;
+   iOS: App Review и AFTER_APPROVAL. Accepted RC того же номера не re-upload:
+   promotion в publishers не реализован; нужен отдельный разрешённый recovery.
 5. **Первый production-тег создаёт сам владелец.** Агент не создаёт его в рамках
    активации U5. Коммит должен быть явно утверждён и достижим из origin/main.
 6. Аварийное отключение следующих production attempts: установить gate=false

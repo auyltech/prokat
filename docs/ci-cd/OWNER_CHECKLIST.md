@@ -1,5 +1,9 @@
 # Короткие инструкции U2 / U3
 
+Штатные команды, общий build counter и dev → main squash:
+[CICD-README](../../CICD-README.md). Датированные результаты ниже сохранены;
+они не заменяют live preflight и не разрешают создание тегов.
+
 Состояние на 19.10.2026: доступ Google Play API подтверждён; оставшиеся Apple
 доступы и другие prerequisites ещё ожидают проверки. **Ничего не пересоздавайте**:
 выполненные Android-действия ниже повторять не нужно. Агент не создаёт
@@ -135,8 +139,8 @@ versionCode **18** на эту дату. Новый аккаунт/ключ и �
 
 Нужны закрытые U1 (private/billing/Personal eligibility), U2/U3 и их probes,
 согласованные native locks/export compliance, готовые Git notes (`ready: true`),
-явно выбранный SHA и новые platform build numbers. Обновления пока локальные:
-их доставка в origin требует отдельного разрешения на branch-only push.
+утверждённый HEAD свежего main, версия из его pubspec и общий build counter.
+После разрешения запускают четыре CLI-команды из памятки, не ручные теги.
 Не нужны merge или release tags для account probes. После этого можно запросить
 отдельное U4; production gate и права production остаются закрытыми до U5.
 

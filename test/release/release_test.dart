@@ -8,26 +8,27 @@ import '../../tool/release/check_toolchain.dart' as toolchain;
 import '../../tool/release/inputs.dart' as inputs;
 
 void main() {
-  test(
-    'new platform attempts use new numbers, independently of other platform',
-    () {
-      final tag = release.ReleaseTag.parse('ios/v1.8.0+108');
-      release.validateBuildHistory(tag, [
-        'rc/ios/v1.8.0+107',
-        'android/v1.8.0+999',
-        tag.tag,
-        'archive/old',
-      ]);
-      expect(
-        () => release.validateBuildHistory(tag, ['rc/ios/v1.8.0+108']),
-        throwsA(isA<release.ReleaseFailure>()),
-      );
-      expect(
-        () => release.validateBuildHistory(tag, ['rc/ios/v1.8.0+109']),
-        throwsA(isA<release.ReleaseFailure>()),
-      );
-    },
-  );
+  test('new platform attempts use common numbers across both platforms', () {
+    final tag = release.ReleaseTag.parse('ios/v1.8.0+108');
+    release.validateBuildHistory(tag, [
+      'rc/ios/v1.8.0+107',
+      'android/v1.8.0+106',
+      tag.tag,
+      'archive/old',
+    ]);
+    expect(
+      () => release.validateBuildHistory(tag, ['android/v1.8.0+999']),
+      throwsA(isA<release.ReleaseFailure>()),
+    );
+    expect(
+      () => release.validateBuildHistory(tag, ['rc/ios/v1.8.0+108']),
+      throwsA(isA<release.ReleaseFailure>()),
+    );
+    expect(
+      () => release.validateBuildHistory(tag, ['rc/ios/v1.8.0+109']),
+      throwsA(isA<release.ReleaseFailure>()),
+    );
+  });
   test('Java properties preserve password punctuation and whitespace', () {
     expect(inputs.propertiesValue(' a\\b\n:=\t'), r'\ a\\b\n\:\=\t');
   });

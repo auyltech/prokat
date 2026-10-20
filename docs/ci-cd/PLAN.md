@@ -1,5 +1,15 @@
 # PROKAT: tag-only mobile delivery
 
+## Current owner workflow (Lean CLI follow-up)
+
+[CICD-README](../../CICD-README.md) supersedes historical design statements
+below about independent platform numbers, manual SHA selection and pubspec as a
+development-only default. Now: bump pubspec/common counter and metadata in dev,
+review/squash to main, four commands read fresh main, CI verifies tag/pubspec.
+Paired platform tags share version/build/SHA; retries consume the common counter.
+No automatic accepted-build promotion is implemented. Events below are retained
+as dated records, not rerun or current store readiness claims.
+
 Audit date: 2026-10-15. This is an implementation record, not permission to release.
 
 Follow-up 2026-10-16: technical U1 is owner-confirmed (GitHub App approval,

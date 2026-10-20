@@ -1,5 +1,9 @@
 # Preflight PROKAT — updated 2026-10-20
 
+Current owner workflow: [CICD-README](../../CICD-README.md). Dated account/native
+results below remain evidence, not a live readiness verdict. CLI adoption still
+requires review/integration into main and explicit release authorization.
+
 Android: **NOT READY for U4**. iOS: **NOT READY for U4**.
 U4-B local preparation (main guard, 1.2.3 notes, tests and integration preview)
 is recorded in [RC_1.2.3_PREPARATION.md](RC_1.2.3_PREPARATION.md).
@@ -64,11 +68,13 @@ requires current main ancestry and literal protected gate value `true`.
 The existing unrelated PR quality workflow has a manual trigger but does not
 build/publish releases; it was not changed.
 
-Version and build come from tags, independently per platform; pubspec version
-does not need manual synchronization. Android range 1..2100000000; iOS uses the
-documented conservative globally increasing single-component 1..9999 policy.
-Git tag history plus store state/history floor prevent blind reuse. A new
-production build number after RC is the consistent default on both platforms.
+Owner CLI reads version/build from pubspec at fresh remote main; CI derives them
+from the immutable tag and rejects disagreement. Common counter: 1..9999,
+increasing across both platforms except same-version/build/SHA pairs.
+Git/cached snapshots are only bounds: live preflight before build and before
+upload remains mandatory. Accepted binaries are never re-uploaded. Current
+publishers do not implement promotion; accepted-RC production needs separate
+owner-authorized recovery, not another same-build tag.
 
 RU/EN/KK notes stay in Git, all mandatory and approved, plain UTF-8 <=500 UTF-16
 units. Play mapping ru-RU/en-US/kk; Apple ru/en-US/en-GB, KK retained in Git with
