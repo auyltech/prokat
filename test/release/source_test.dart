@@ -11,7 +11,7 @@ void main() {
     final tags = [
       for (final platform in ['android', 'ios'])
         for (final prefix in ['rc/', ''])
-            release.ReleaseTag.parse('$prefix$platform/v1.8.0+108'),
+          release.ReleaseTag.parse('$prefix$platform/v1.8.0+108'),
     ];
     setUp(() {
       repo = Directory.systemTemp.createTempSync('prokat-source-test-');

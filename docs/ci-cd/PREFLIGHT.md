@@ -1,6 +1,9 @@
 # Preflight PROKAT — updated 2026-10-20
 
 Android: **NOT READY for U4**. iOS: **NOT READY for U4**.
+U4-B local preparation (main guard, 1.2.3 notes, tests and integration preview)
+is recorded in [RC_1.2.3_PREPARATION.md](RC_1.2.3_PREPARATION.md).
+It does not authorize PR merge, release tags, cloud builds or uploads.
 Autonomous code preparation is complete for the inspected branch; account,
 native-Mac and owner-approval checks below remain. A local test is not a store
 release. No cloud build, store request, tag, push, merge, billing change or new
