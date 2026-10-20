@@ -1,4 +1,4 @@
-# Verification record — updated 2026-10-19
+# Verification record — updated 2026-10-20
 
 **VERIFIED** means executed local evidence only unless explicitly stated.
 PASS appears only for an executed check; provider/account checks are BLOCKED or
@@ -49,7 +49,7 @@ certificate or profile was created during the check.
 | SwiftPM | Both Package.resolved unchanged after two strict resolves | Local Xcode 26.3, not Codemagic 26.6 |
 | Unsigned iOS release | `flutter build ios --release --no-codesign` exit 0, unsigned `Runner.app` | Not an IPA, not store signing |
 | Distribution identity | Absent for `VT7KXG8NBR` | Do not mint a certificate on this Mac |
-| Export compliance key | Still absent from Info.plist | Owner decision unchanged |
+| Export compliance key at Mac preflight | Absent at that check; subsequently set to Boolean false on 2026-10-20 | See current decision below; no new signed IPA |
 
 Owner-confirmed Codemagic group `prokat-ios-release` values, stored in
 Codemagic and not as new Git secrets: `APP_STORE_APP_ID` 6817078475,
@@ -64,6 +64,27 @@ validation documentation), `5ec9cc99` (Apple export-compliance documentation),
 and `0ec2e3c7` (owner's `prokat.iml`: 18 IDE exclusion entries). The range changes
 only four CI/CD documents and `prokat.iml`, not runtime/workflow code. History
 was not rewritten; the owner's IDE file remains untouched by this follow-up.
+
+## Export compliance closure — 2026-10-20
+
+Clean Git preflight on `feat/tag-only-mobile-release`, HEAD
+`0c0108b54d957bb3c3d5ad0bce43f74a7d232ed8`; no worktree created.
+The owner-confirmed ASC questionnaire/territories and current Apple guidance
+justify Boolean false for this scenario; see [decision](APPLE_EXPORT_COMPLIANCE.md).
+
+Executed locally on Windows:
+
+- Python `plistlib` + XML parse: valid plist, unique top-level keys, exact Boolean
+  false, no compliance code; all other parsed values equal HEAD's original plist.
+- `build/release/python-env/Scripts/python.exe -B -m unittest discover -s tool/release -p '*ios*test.py' -v`:
+  **22 tests PASS**, including all 5 `verify_ios_test.py` tests. These are local
+  unit tests with mocked Apple/publisher calls, not an API probe or publication.
+- `git diff --check`: PASS. Release verifier/publishing scripts unchanged.
+
+The first test invocation with system Python lacked `jwt`; rerunning in the
+existing release environment passed without installing/changing dependencies.
+No cloud build, release tag, signed IPA check, upload or store mutation occurred.
+Other U1/U3 prerequisites and explicit U4 permission remain pending.
 
 ## Git delivery
 
@@ -136,7 +157,7 @@ No merge, tag creation, certificate/key changes or billing activation occurred.
 | Native dependencies focused follow-up | Windows inspection of the Flutter-only pod graph and 19 Swift pins, then the 2026-10-20 Mac install/strict resolution above | PASS / VERIFIED | Xcode image parity with Codemagic 26.6 remains open |
 | Mac procedure syntax | 11 Bash blocks checked by bash -n; two Ruby snippets by ruby -c in offline local container | PASS / VERIFIED (syntax only) | No Mac command, pod install or xcodebuild executed |
 | SwiftPM Crashlytics tool location | YAML path matches the resolved checkout. On the 2026-10-20 Mac resolve, `firebase-ios-sdk/Crashlytics/upload-symbols` was present | PASS / VERIFIED (path on Xcode 26.3) | Upload acceptance and readable crashes remain U4/A5 |
-| iOS export compliance | Key still absent. Focused source/cache audit finds Dart TLS/BoringSSL (not OS-only), Keychain/CryptoKit, standard hashes/randomness, Firebase/Mapbox; no app-owned encryption algorithm found. See APPLE_EXPORT_COMPLIANCE.md | BLOCKED / PENDING OWNER DECISION | Candidate false requires confirmed exemption, territories (France separately), prior declaration/SDK facts and owner approval; no legal determination/Info.plist edit made |
+| iOS export compliance | Source Info.plist declares Boolean false. Audit finds standard Dart TLS/BoringSSL outside Apple OS; no app-owned non-standard algorithm found. Owner confirms Kazakhstan only, France unavailable, standard-outside-OS questionnaire saved without document request. See APPLE_EXPORT_COMPLIANCE.md | CLOSED / OWNER-CONFIRMED ASC RESULT | Closed SDK internals remain an audit limitation; recheck SDK/crypto/territory changes. Actual exported IPA verification remains U4; no build/upload authorization |
 | Apple API/signing/profile | Mac login keychain has no Apple Distribution identity and no App Store profile for team `VT7KXG8NBR` / `com.auyltech.prokat`. Local profiles found belong to another team/app. Codemagic also has no suitable PROKAT identity yet. API key is not activated | BLOCKED / NOT VERIFIED | Account Holder activates the App Store Connect API; signing is then Codemagic API-managed. Do not create certificates on the Mac |
 | Real signed IPA / production APNs | Unsigned local release on Xcode 26.3 built `Runner.app` and codesign reported it unsigned. No IPA. Source entitlements still say development APNs | BLOCKED / NOT VERIFIED | U4 signed IPA, production APNs and push smoke test A5 |
 | Actual TestFlight availability / App Review / public release | No binary upload/submission | BLOCKED / NOT VERIFIED | U4/A5; production still requires U5 |

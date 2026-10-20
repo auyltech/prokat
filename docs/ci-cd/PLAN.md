@@ -182,8 +182,10 @@ of persistent IPA artifacts/server-side postprocessing; bounded Apple processing
 wait consumes minutes but avoids 30-day IPA storage. No iOS Fastlane dependency.
 Only a failed dSYM upload leaves a recovery ZIP artifact (30-day Personal limit).
 Successful symbol upload removes ZIP before collection. No repository `.p8`/key.
-U3 must also resolve the absent export-compliance declaration in Info.plist; the
-agent has not guessed a legal declaration. No full CI readiness claim is made.
+The U3 export-compliance blocker is closed as of 2026-10-20: owner-confirmed
+Kazakhstan-only availability and the standard-outside-OS questionnaire required
+no documents; Info.plist now declares Boolean false. See APPLE_EXPORT_COMPLIANCE.md
+for SDK/crypto/territory limits. No full CI readiness claim is made.
 
 A1 implementation: dependency-free Dart release parser/preparer with explicit
 SHA, fresh main ancestry, remote tag identity and provider event checks;
@@ -218,9 +220,11 @@ attempt, explicit pod1.16.2 with isolated optional gems, a metadata-only diff ga
 deployment recheck and exact file/PASS/FAIL boundaries. No native run performed.
 iOS Ruby is inherited from the provider image, not the Android Ruby pin.
 [APPLE_EXPORT_COMPLIANCE](APPLE_EXPORT_COMPLIANCE.md) records the technical crypto
-inventory and conditional false recommendation. Dart TLS is NOT OS-only;
-territories/France, existing declarations and SDK/exemption facts need owner
-confirmation. Info.plist remains untouched and U4 stays blocked. No unrelated
+inventory and the 2026-10-20 decision to set Boolean false. Dart TLS is NOT
+OS-only; the owner confirmed Kazakhstan only, France unavailable and no document
+request after the standard-outside-OS questionnaire. Closed SDK internals remain
+an audit limitation; SDK/crypto/territory changes require reassessment. Only this
+compliance blocker is closed; other U4 prerequisites remain pending. No unrelated
 code/config/signing/secret/prokat.iml changes were made.
 
 Preflight follow-up 2026-10-16 (code commits `1aa9417`, `b85eb60`, `f41e3b0`):

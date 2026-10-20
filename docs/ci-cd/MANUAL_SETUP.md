@@ -284,10 +284,11 @@ GitHub Billing и применимость Personal Free ещё PENDING. Под�
     не менялся.
 11. App Store initial setup: category, screenshots, privacy URL/Data Privacy,
     age rating, content rights, reviewer account/contact, availability/pricing и
-    export compliance должны быть заполнены. В текущем Info.plist нет
-    `ITSAppUsesNonExemptEncryption`. Владелец подтверждает применимую декларацию;
-    агент добавит корректное значение/документ после этого. Нельзя автоматически
-    заявлять отсутствие non-exempt encryption от имени владельца. Новые legal
+    export compliance должны быть заполнены. Export compliance закрыт 2026-10-20:
+    владелец подтвердил только Казахстан, France: Not Available, стандартное
+    шифрование вне Apple OS и Save без запроса документов. В Info.plist установлен
+    Boolean `ITSAppUsesNonExemptEncryption=false`. См. [решение и ограничения](APPLE_EXPORT_COMPLIANCE.md):
+    при изменении SDK, криптографии или географии повторить проверку. Новые legal
     agreements или требования review могут потребовать отдельных действий позднее.
 12. После отдельного разрешения можно выполнить с Windows
     `python tool/release/ios_store.py access`: GET-only, без CI/tag/IPA/publishing.

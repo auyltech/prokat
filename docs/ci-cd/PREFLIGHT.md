@@ -1,4 +1,4 @@
-# Preflight PROKAT — updated 2026-10-19
+# Preflight PROKAT — updated 2026-10-20
 
 Android: **NOT READY for U4**. iOS: **NOT READY for U4**.
 Autonomous code preparation is complete for the inspected branch; account,
@@ -146,8 +146,11 @@ found Crashlytics `upload-symbols` in the pinned checkout; the upload was not ru
    is 1.16.2, `--deployment` is stable, and both SwiftPM graphs resolved strictly
    without drift. An unsigned iOS release build passed on local Xcode 26.3.
    Codemagic remains Xcode 26.6; that image was not executed. No signed IPA.
-4. **Apple export compliance:** owner must confirm the declaration missing from
-   Info.plist; agent cannot make a legal assertion. No current-value guess.
+4. **Apple export compliance — CLOSED (2026-10-20):** owner confirmed Kazakhstan
+   only, France unavailable, standard encryption outside Apple OS and no document
+   request after saving the questionnaire. Info.plist now declares Boolean false.
+   Recheck SDK/crypto/territory changes; see [decision](APPLE_EXPORT_COMPLIANCE.md).
+   Actual exported IPA verification remains U4; other prerequisites stay open.
 5. **Release source/content/delivery:** approve exact SHA/version/new platform
    numbers and Git release notes. The Mac lock and preflight docs may be pushed
    to the feature branch only. That push is not a release and does not authorize

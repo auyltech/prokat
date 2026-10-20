@@ -98,8 +98,8 @@ versionCode **18** на эту дату. Новый аккаунт/ключ и �
    production gate отсутствует/false.
 5. Указанная группа — `AuylTech Test Team`. Для RC она должна быть единственной
    внутренней группой с этим именем. Внешняя группа не подходит. API ещё не
-   активирован, поэтому probe это не подтвердил. Export compliance по-прежнему
-   ждёт решения владельца.
+   активирован, поэтому probe это не подтвердил. Export compliance закрыт отдельно
+   подтверждением владельца от 2026-10-20; это не подтверждает API/group probe.
 6. **Codemagic signing:** подходящей Apple Distribution identity для PROKAT в
    Codemagic пока нет. На домашнем Mac её тоже нет: в login keychain только
    сертификаты другой команды. Не создавайте и не отзывайте сертификаты на Mac.
@@ -107,9 +107,11 @@ versionCode **18** на эту дату. Новый аккаунт/ключ и �
    Codemagic API-managed для `com.auyltech.prokat`, team `VT7KXG8NBR`, App Store.
    Portal Identifier должен иметь Push Notifications и Associated Domains.
    Пока identity нет, U3 signing не закрыт.
-7. Владелец должен подтвердить применимую export-compliance декларацию для
-   `ITSAppUsesNonExemptEncryption`: сейчас её нет в Info.plist. Агент внесёт
-   согласованное значение в Git; без решения автоматическая отправка блокируется.
+7. **Export compliance закрыт 2026-10-20:** владелец подтвердил только Казахстан,
+   France: Not Available, стандартное шифрование вне Apple OS и отсутствие запроса
+   документов после Save. В Info.plist установлен Boolean
+   `ITSAppUsesNonExemptEncryption=false`; [основание и ограничения](APPLE_EXPORT_COMPLIANCE.md).
+   Повторная проверка нужна при изменении SDK, криптографии или географии.
    Production listing/screenshots/App Review readiness готовятся перед U5,
    если они не нужны для текущей первичной регистрации приложения.
 8. **Mac dependency check выполнен 2026-10-20:** CocoaPods 1.16.2, оба SwiftPM
