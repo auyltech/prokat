@@ -70,7 +70,10 @@ Store releases use platform Git tags and CI, with version/build arguments
 derived from the tag. See [release runbook](docs/ci-cd/RELEASE_RUNBOOK.md) and
 [one-time account setup](docs/ci-cd/MANUAL_SETUP.md). Production stays disabled
 until owner gate U5. Do not upload local builds as a routine release procedure.
-`pubspec.yaml` is a development default and does not need a release bump.
+The owner CLI reads version/build from pubspec.yaml at fresh origin/main, then
+creates the immutable tag; CI verifies that tag and pubspec agree. Bump the common
+build counter in dev before the release PR. Use the four commands in
+[CICD-README](CICD-README.md), not manual tag creation.
 
 The commands below are local diagnostic builds. They read the ignored `.env`
 and use the development pubspec version unless explicitly overridden.

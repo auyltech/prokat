@@ -1,5 +1,9 @@
 # U2 — Android readiness and exact account inputs
 
+Current release commands and common-counter/retry rules:
+[CICD-README](../../CICD-README.md). This account setup guide does not authorize
+publication or require local copies of CI credentials.
+
 Updated 2026-10-16. Existing upload certificate comparison is VERIFIED: MATCH,
 alias `upload`, using the owner's Play Console SHA256 and the existing local
 keystore. Actual Play API authentication and signed AAB remain NOT VERIFIED.

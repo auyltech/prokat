@@ -1,5 +1,9 @@
 # PROKAT 1.2.3+19 — U4-B preparation
 
+Historical snapshot, not a current invocation guide. Use [the four Lean CLI
+commands](../../CICD-README.md) and a common build counter. Do not replay old
+SHA/tag examples; results and commit evidence below remain unchanged.
+
 Date: 2026-10-20. Branch: `feat/tag-only-mobile-release`. This records local
 preparation, not U4 GO. No PR merge, release tag, cloud release build, store upload,
 certificate/profile creation or production configuration change is authorized.
