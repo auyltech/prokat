@@ -90,37 +90,33 @@ versionCode **18** на эту дату. Новый аккаунт/ключ и �
    Это один ключ, не три новых credentials. Из Windows копируйте содержимое
    через `Set-Clipboard -Value ([IO.File]::ReadAllText('C:\secure\AuthKey.p8'))`,
    вставьте прямо в Secret и очистите clipboard: `Set-Clipboard -Value ''`.
-4. В той же группе добавьте `GOOGLE_SERVICE_INFO_PLIST_BASE64` (Firebase
-   prokat-bfbec, iOS app), `MAPBOX_PUBLIC_TOKEN` (существующий public `pk.*`),
-   `APP_STORE_APP_ID` (числовой Apple ID), `IOS_HISTORICAL_MAX_BUILD` и
-   `TESTFLIGHT_GROUP` (точное имя из следующего шага). Confidential values —
-   Secret; production gate отсутствует/false. Пакеты/версии инструментов уже в Git.
-5. **TestFlight → Internal Testing → +**: используйте/создайте одну внутреннюю
-   группу `PROKAT Internal` из существующих App Store Connect users. Запишите
-   точное имя в `TESTFLIGHT_GROUP`; внешняя группа не подходит. Подтвердите
-   доступ тестеров и требуемую Apple test information/export compliance.
-   Missing/ambiguous/external group блокирует preflight до upload.
-6. **Codemagic → Code signing identities**: загрузите подходящие существующие
-   Apple Distribution `.p12` с private key/паролем и App Store provisioning
-   profile либо используйте уже сохранённые identities. Portal Identifier должен
-   иметь Push Notifications и Associated Domains. Profile: App Store, нужные
-   bundle/team, production APNs, не expired/Development/Ad Hoc. Список domains и
-   подробные экраны — [MANUAL_SETUP U3](MANUAL_SETUP.md#stop-u3--apple-и-signing-в-codemagic).
-   Автовыбор/установка существующих identities выполняется pipeline; новый
-   сертификат не генерируйте и старый не отзывайте. Если подходящей пары нет,
-   STOP U3 для отдельного решения владельца, а не автоматическая замена ключа.
+4. Владелец уже записал в Codemagic group `prokat-ios-release`, не в Git:
+   `APP_STORE_APP_ID` `6817078475`, `IOS_HISTORICAL_MAX_BUILD` `17`,
+   `TESTFLIGHT_GROUP` `AuylTech Test Team`. Не создавайте вторую группу
+   `PROKAT Internal`. `GOOGLE_SERVICE_INFO_PLIST_BASE64` и `MAPBOX_PUBLIC_TOKEN`
+   этой записью не подтверждены. Confidential values остаются Secret;
+   production gate отсутствует/false.
+5. Указанная группа — `AuylTech Test Team`. Для RC она должна быть единственной
+   внутренней группой с этим именем. Внешняя группа не подходит. API ещё не
+   активирован, поэтому probe это не подтвердил. Export compliance по-прежнему
+   ждёт решения владельца.
+6. **Codemagic signing:** подходящей Apple Distribution identity для PROKAT в
+   Codemagic пока нет. На домашнем Mac её тоже нет: в login keychain только
+   сертификаты другой команды. Не создавайте и не отзывайте сертификаты на Mac.
+   После активации App Store Connect API владельцем подпись планируется как
+   Codemagic API-managed для `com.auyltech.prokat`, team `VT7KXG8NBR`, App Store.
+   Portal Identifier должен иметь Push Notifications и Associated Domains.
+   Пока identity нет, U3 signing не закрыт.
 7. Владелец должен подтвердить применимую export-compliance декларацию для
    `ITSAppUsesNonExemptEncryption`: сейчас её нет в Info.plist. Агент внесёт
    согласованное значение в Git; без решения автоматическая отправка блокируется.
    Production listing/screenshots/App Review readiness готовятся перед U5,
    если они не нужны для текущей первичной регистрации приложения.
-8. **Mac действительно нужен**: один раз выполнить
-   [IOS_DEPENDENCIES](IOS_DEPENDENCIES.md), согласовать CocoaPods metadata
-   1.17.0 с CI 1.16.2 и проверить оба SwiftPM locks. Это только dependency
-   resolution, без build/sign/publishing. Дополнительно Mac нужен, только если
-   существующий distribution private key хранится исключительно в его Keychain:
-   экспортировать существующую пару в `.p12` по MANUAL_SETUP U3. Если `.p12`
-   уже есть, этот шаг не нужен. Все остальные настройки выше доступны с Windows.
+8. **Mac dependency check выполнен 2026-10-20:** CocoaPods 1.16.2, оба SwiftPM
+   lock и неподписанный iOS release на локальном Xcode 26.3. Повторять
+   [IOS_DEPENDENCIES](IOS_DEPENDENCIES.md) не нужно. Distribution private key
+   PROKAT в Keychain этого Mac нет, поэтому `.p12` оттуда экспортировать нельзя.
+   Xcode 26.6 локально не устанавливался; в Codemagic пин 26.6 сохранён.
 9. После настройки можно отдельно разрешить локальный GET-only API probe
    `python tool/release/ios_store.py access`. Он использует те же 3 API env vars,
    `APP_STORE_APP_ID`, `IOS_HISTORICAL_MAX_BUILD`, `TESTFLIGHT_GROUP`; не требует

@@ -129,7 +129,8 @@ Apple account verification remains pending.
 Android mapping must upload to Crashlytics before Play. On iOS all native dSYMs
 upload before Apple; a failed symbol stage retains the recovery ZIP, successful
 upload removes it. No obfuscate/split-debug-info. Actual Firebase symbol acceptance
-and readable crash reports remain NOT VERIFIED; dSYM checkout layout needs Mac.
+and readable crash reports remain NOT VERIFIED. The 2026-10-20 Mac resolve
+found Crashlytics `upload-symbols` in the pinned checkout; the upload was not run.
 
 ## Remaining blockers, highest priority first
 
@@ -141,16 +142,16 @@ and readable crash reports remain NOT VERIFIED; dSYM checkout layout needs Mac.
 2. **U1 financial/security facts:** private visibility, blocking GitHub budgets,
    Codemagic Personal commercial eligibility still owner/support pending.
    Do not activate billing, change visibility or start runs to test eligibility.
-3. **iOS native prerequisite:** CocoaPods metadata 1.17.0 vs CI1.16.2 still blocks;
-   both SwiftPM locks are present (19 pins) and should NOT be replaced by a fake
-   full Podfile.lock. Follow the existing dependency-only Mac procedure and review
-   actual lock diffs. Xcode26.6 exists in official image docs, but no Mac run here.
+3. **iOS native locks:** closed on the home Mac on 2026-10-20. CocoaPods metadata
+   is 1.16.2, `--deployment` is stable, and both SwiftPM graphs resolved strictly
+   without drift. An unsigned iOS release build passed on local Xcode 26.3.
+   Codemagic remains Xcode 26.6; that image was not executed. No signed IPA.
 4. **Apple export compliance:** owner must confirm the declaration missing from
    Info.plist; agent cannot make a legal assertion. No current-value guess.
 5. **Release source/content/delivery:** approve exact SHA/version/new platform
-   numbers and Git release notes; synchronize latest app changes only through an
-   explicitly authorized integration process. Current new commits are local;
-   separate branch-only push authorization is needed before provider use.
+   numbers and Git release notes. The Mac lock and preflight docs may be pushed
+   to the feature branch only. That push is not a release and does not authorize
+   tags, `dev`/`main`, or store delivery.
 6. **U4/A5 real integration:** AAB/IPA, actual signing, Play/TestFlight availability,
    Crashlytics, webhook isolation and quota usage remain NOT VERIFIED. Store
    acceptance, processing, review and public release are distinct states.
@@ -166,9 +167,11 @@ repeat the successful probe. For remaining owner prerequisites follow
 [two short U2/U3 guides](OWNER_CHECKLIST.md), using
 [ANDROID_SETUP](ANDROID_SETUP.md) / [MANUAL_SETUP](MANUAL_SETUP.md) for exact
 sources/secret storage and [IOS_DEPENDENCIES](IOS_DEPENDENCIES.md) for Mac steps.
-All account/API/tester configuration is possible from Windows. Mac is necessary
-only for native lock validation and, if applicable, exporting the existing
-private signing identity currently stored only in its Keychain.
+Native lock validation is done. The home Mac keychain has no PROKAT Apple
+Distribution identity, so there is no private key there to export. Do not return
+to that Mac to create certificates. Remaining account, API and signing setup is
+not a local Xcode project change. Codemagic API-managed signing still waits on
+Account Holder API activation.
 
 **READY FOR U4 has NOT been reached.** It can be requested only after U1/U2/U3,
 native locks/export compliance, non-publishing access checks, approved source/

@@ -1,7 +1,28 @@
 # One-time native dependency check on Mac mini — no app build/signing/publishing
 
-Status 2026-10-16: **Windows source/lock audit VERIFIED; Mac execution NOT
-VERIFIED / PENDING OWNER ACTION**. No lockfile was edited on Windows.
+Status 2026-10-20: **Mac dependency execution PASS** on macOS 15.7.3 arm64.
+FVM Flutter 3.47.2, CocoaPods 1.16.2, local Xcode 26.3 (17C529). Codemagic
+still pins Xcode 26.6; that image was not installed here and is not required
+to keep the lock check closed.
+
+Tracked result: `ios/Podfile.lock` generator metadata is `COCOAPODS: 1.16.2`.
+The pod graph, Flutter checksum and PODFILE CHECKSUM
+`4b015915ec662986b54bf30ab778da63f7dda016` match the previous 1.17.0 lock.
+`pod _1.16.2_ install --deployment` left the lock SHA unchanged. Both schema 2
+Swift graphs stayed equal (19 pins, Firebase 12.19.0, Mapbox 11.29.1). Two
+strict `xcodebuild -resolvePackageDependencies -onlyUsePackageVersionsFromResolvedFile`
+runs exited 0 and did not rewrite either Package.resolved.
+`check_toolchain.dart ios-lock` passed. `pubspec.lock`, Podfile, the Xcode
+project, Info.plist and entitlements were unchanged.
+
+An unsigned `flutter build ios --release --no-codesign` produced a local
+`Runner.app` on Xcode 26.3. It was not signed and no IPA was created. That is
+not a Codemagic 26.6, signing, dSYM-upload or store PASS. Crashlytics
+`upload-symbols` was present in the resolved `firebase-ios-sdk` checkout.
+No Apple Distribution identity or App Store profile for team `VT7KXG8NBR` and
+`com.auyltech.prokat` was on this Mac. Certificates and profiles were not created.
+The procedure below records how the check was run; do not rerun it to recreate
+the same metadata fix.
 
 Correction to the first audit (2026-10-16): PROKAT **already uses SwiftPM**.
 Runner references FlutterGeneratedPluginSwiftPackage and has its prepare
@@ -19,17 +40,20 @@ It must not be misdiagnosed as a missing native CocoaPods fallback.
 CocoaPods legitimately has only Flutter when there are no fallback plugins.
 Do not force a CocoaPods migration just to make Podfile.lock longer.
 
-Remaining issue: Podfile.lock names CocoaPods 1.17.0, whereas CI pins 1.16.2.
-This is generator metadata, not a native library version and not proof that
-CocoaPods1.17.0 is installed on the Mac. Tracked Podfile SHA1 is
-`4b015915ec662986b54bf30ab778da63f7dda016`, matching PODFILE CHECKSUM. Both Swift
-graphs are schema2, equal on all 19 identities/locations/versions/revisions.
-Reconcile it using the actual pinned tool on Mac and verify the native graph.
-This is a new verified dependency resolution, not proof of recovering every
-native version from a historical published release. No Mac is a permanent CI
-dependency. These steps require no Apple login, distribution key or profile.
+Resolved 2026-10-20: the lock previously named CocoaPods 1.17.0. That field is
+generator metadata from commit `0457b9f`, not a native library pin and not proof
+that CocoaPods 1.17.0 is the CI tool. This Mac already had the pinned 1.16.2
+executable; the Homebrew 1.17.0 formula was available and was not installed.
+PODFILE CHECKSUM remains `4b015915ec662986b54bf30ab778da63f7dda016`. Both Swift
+graphs are schema 2 and equal on all 19 identities, locations, versions and
+revisions. The metadata rewrite does not recover every native version from a
+historical published release. No Mac is a permanent CI dependency. The check
+did not need an Apple login, distribution key or profile.
 
 ## Procedure for the owner
+
+Historical record of the 2026-10-20 check. The lock already says `COCOAPODS: 1.16.2`;
+do not repeat `pod install` to change it again.
 
 Run blocks in order in a dedicated Terminal session; stop on any failed command
 or unexpected tracked diff. No Apple login, signing identity, Firebase config,
@@ -227,8 +251,9 @@ resolves Swift packages with `-onlyUsePackageVersionsFromResolvedFile` before
 building. Lock drift after IPA creation blocks store upload. Crashlytics uses
 `SourcePackages/checkouts/firebase-ios-sdk/Crashlytics/upload-symbols` from the
 explicitly resolved checkout, instead of assuming Firebase is installed in Pods.
-Actual Mac resolution and dSYM upload remain NOT VERIFIED until owner action
-and authorized integration testing.
+Mac resolution of the pinned graph is VERIFIED on Xcode 26.3. dSYM upload and
+execution on the Codemagic Xcode 26.6 image remain NOT VERIFIED until authorized
+integration testing.
 
 ## PASS / FAIL / BLOCKED and file boundaries
 
@@ -238,6 +263,10 @@ and authorized integration testing.
 | FAIL | Different dependency pins/checksums; missing/divergent locks; signing/team/capability/Info.plist/project changes; lock drift after deployment; failing validation command |
 | BLOCKED | Required tool unavailable, SDK server/auth/network failure, or Xcode/macOS/Ruby setup needs intervention; do not loosen validation |
 | NOT VERIFIED | Windows, or only reading files/tool versions without completing Mac commands |
+
+2026-10-20 execution passed the lock and tool checks on Flutter 3.47.2 and
+CocoaPods 1.16.2 with local Xcode 26.3. That does not satisfy the Xcode 26.6
+image row above. Do not move the CI pin to 1.17.0.
 
 Expected tracked diff: `ios/Podfile.lock` COCOAPODS line only. Both Package.resolved
 files should stay unchanged. Do not change pubspec.yaml/lock, Podfile, Xcode project/

@@ -46,9 +46,10 @@ authorized delivery/RC source selection remain pending.
   Flutter plugins; all 19 native iOS plugins inspected have SwiftPM support.
   Podfile.lock containing only Flutter is valid for a SwiftPM graph without
   fallback pods. The first audit wrongly treated absence of Firebase Pods as
-  lost dependencies. Remaining native verification: reconcile CocoaPods 1.17.0
-  lock metadata with CI 1.16.2 and resolve/check both graphs on Mac. Preserve
-  the existing SwiftPM architecture; never migrate merely to lengthen Podfile.lock.
+  lost dependencies. 2026-10-20 Mac check reconciled CocoaPods metadata to
+  1.16.2 and strictly resolved both Swift graphs on Xcode 26.3. Codemagic stays
+  on Xcode 26.6. Preserve the SwiftPM architecture; never migrate merely to
+  lengthen Podfile.lock.
 - Firebase project `prokat-bfbec`; `firebase_options.dart` tracked. Native Android
   JSON and iOS plist ignored; Android JSON exists locally, iOS plist absent.
   CI needs native configurations from Firebase, not personal Mac paths.
@@ -142,7 +143,7 @@ delete necessary symbols to satisfy binary retention preferences.
 | A2 | Independent implementation prepared; NOT VERIFIED in provider | Android workflow + account validation after U1 |
 | U2 | Upload certificate MATCH verified; remaining PENDING USER ACTION | Play API, GitHub inputs, historical build floor |
 | A3 | Independent implementation prepared; BLOCKED native lock/accounts | Codemagic workflow + lock/signing validation |
-| U3 | PENDING USER ACTION | Apple integration, profiles, Firebase, native lock |
+| U3 | Native locks PASS on Mac; API, signing and probe still PENDING | Apple API activation, Codemagic signing, Firebase/Mapbox inputs |
 | A4 | VERIFIED local/static subset only | Provider integration remains pending |
 | U4 | PENDING USER ACTION | Explicit permission for exact RC tags/SHAs |
 | A5 | NOT VERIFIED | Actual test distribution, symbols, retries, cost |

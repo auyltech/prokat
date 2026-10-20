@@ -37,6 +37,26 @@ Google Play API access is confirmed. Actual AAB build, private-key signing,
 upload and the correctness of GitHub Secret contents remain **NOT VERIFIED**
 until separately authorized U4. This result does not authorize RC or production.
 
+## Mac iOS preflight — 2026-10-20
+
+Executed on the home Mac. No tag, push to `dev`/`main`, cloud build, signed IPA,
+certificate or profile was created during the check.
+
+| Check | Result | Limit |
+| --- | --- | --- |
+| FVM Flutter | 3.47.2, Dart 3.13.2 | Global PATH Flutter stayed 3.44.2 and was not switched |
+| CocoaPods | 1.16.2 metadata-only lock fix; `--deployment` stable | Homebrew 1.17.0 was not installed; CI pin unchanged |
+| SwiftPM | Both Package.resolved unchanged after two strict resolves | Local Xcode 26.3, not Codemagic 26.6 |
+| Unsigned iOS release | `flutter build ios --release --no-codesign` exit 0, unsigned `Runner.app` | Not an IPA, not store signing |
+| Distribution identity | Absent for `VT7KXG8NBR` | Do not mint a certificate on this Mac |
+| Export compliance key | Still absent from Info.plist | Owner decision unchanged |
+
+Owner-confirmed Codemagic group `prokat-ios-release` values, stored in
+Codemagic and not as new Git secrets: `APP_STORE_APP_ID` 6817078475,
+`IOS_HISTORICAL_MAX_BUILD` 17, `TESTFLIGHT_GROUP` `AuylTech Test Team`.
+Recording them does not prove the Apple API key, Firebase plist, Mapbox token
+or a distribution identity are present. U3 and U4 are not complete.
+
 Git at probe and documentation follow-up: clean baseline on
 `feat/tag-only-mobile-release`, HEAD `0ec2e3c706469dee70dce693227b8ac35bcc8fac`.
 `7cdd45e` is an ancestor, followed by three commits: `2a33dc65` (Mac dependency
@@ -111,14 +131,14 @@ No merge, tag creation, certificate/key changes or billing activation occurred.
 | Android existing upload certificate | Existing `android/app/upload-keystore.jks`, alias `upload`, PrivateKeyEntry: MATCH against owner-supplied Play SHA256 using existing comparator/keytool; local password consumed without logging; before/after keystore hash and properties bytes unchanged | PASS / VERIFIED | Play Console SHA source confirmed by owner, not independent account access; no key generation/export of private material/signing/store call |
 | Android private key password and real signing | Certificate check does not decrypt/use the private key to sign an AAB; no release build performed | BLOCKED / NOT VERIFIED | Actual signed artifact in authorized U4/A5; never infer keyPassword validity from certificate match |
 | Real signed AAB/build/API upload | No release build, artifact upload or edit commit performed; temporary probe edit deleted | BLOCKED / NOT VERIFIED | U4/A5 |
-| Native iOS lock reproducibility | Flutter-only Podfile.lock is valid SwiftPM fallback, NOT proof of missing native dependencies. Firebase/Mapbox are pinned in Package.resolved. Remaining CocoaPods 1.17.0 metadata conflicts with pinned 1.16.2 | BLOCKED / actual Mac NOT VERIFIED | Follow IOS_DEPENDENCIES.md: normal pinned pod install, resolve existing SwiftPM pins, review public lock diffs; do not fabricate a full native Podfile.lock |
+| Native iOS lock reproducibility | 2026-10-20 home Mac: CocoaPods metadata reconciled to 1.16.2; graph/checksums unchanged; `pod install --deployment` SHA-stable; both schema2 Swift graphs, 19 pins, strict resolve twice, locks unchanged; `ios-lock` check passed. Firebase 12.19.0, Mapbox 11.29.1 | PASS / VERIFIED on Xcode 26.3 | Not an Xcode 26.6 image run, signed IPA, or store upload. See the Mac preflight section |
 | Current native-lock fail-closed guard | `dart tool/release/check_toolchain.dart ios-lock` executed on current baseline; exits 1 with pinned CocoaPods 1.16.2 requirement | PASS / VERIFIED (expected rejection) | No lock file edited; still BLOCKED for actual iOS release |
-| Native dependencies focused follow-up | Tracked Podfile SHA1 matches lock checksum; both schema2 Swift graphs have identical 19 pins; 19 native-build plugins have manifests, one additional non-native-build path_provider entry is not a missing pod | PASS / VERIFIED (Windows inspection) | Mac install/strict resolution remain NOT VERIFIED; exact procedure and file boundaries in IOS_DEPENDENCIES.md |
+| Native dependencies focused follow-up | Windows inspection of the Flutter-only pod graph and 19 Swift pins, then the 2026-10-20 Mac install/strict resolution above | PASS / VERIFIED | Xcode image parity with Codemagic 26.6 remains open |
 | Mac procedure syntax | 11 Bash blocks checked by bash -n; two Ruby snippets by ruby -c in offline local container | PASS / VERIFIED (syntax only) | No Mac command, pod install or xcodebuild executed |
-| SwiftPM Crashlytics tool location | YAML uses resolved firebase-ios-sdk/Crashlytics/upload-symbols, not nonexistent Pods FirebaseCrashlytics; strict resolved-file and post-build drift checks added | PASS / VERIFIED (config) | Xcode checkout layout and successful symbols acceptance require U4/A5 |
+| SwiftPM Crashlytics tool location | YAML path matches the resolved checkout. On the 2026-10-20 Mac resolve, `firebase-ios-sdk/Crashlytics/upload-symbols` was present | PASS / VERIFIED (path on Xcode 26.3) | Upload acceptance and readable crashes remain U4/A5 |
 | iOS export compliance | Key still absent. Focused source/cache audit finds Dart TLS/BoringSSL (not OS-only), Keychain/CryptoKit, standard hashes/randomness, Firebase/Mapbox; no app-owned encryption algorithm found. See APPLE_EXPORT_COMPLIANCE.md | BLOCKED / PENDING OWNER DECISION | Candidate false requires confirmed exemption, territories (France separately), prior declaration/SDK facts and owner approval; no legal determination/Info.plist edit made |
-| Apple API/signing/profile | Bundle/team/capabilities read from repo only; portal state unknown | BLOCKED / NOT VERIFIED | U3 existing distribution identity + profiles + API app record |
-| Real signed IPA / production APNs | Only pure entitlement policy tested | BLOCKED / NOT VERIFIED | U4 export codesign/profile checks, push smoke test A5 |
+| Apple API/signing/profile | Mac login keychain has no Apple Distribution identity and no App Store profile for team `VT7KXG8NBR` / `com.auyltech.prokat`. Local profiles found belong to another team/app. Codemagic also has no suitable PROKAT identity yet. API key is not activated | BLOCKED / NOT VERIFIED | Account Holder activates the App Store Connect API; signing is then Codemagic API-managed. Do not create certificates on the Mac |
+| Real signed IPA / production APNs | Unsigned local release on Xcode 26.3 built `Runner.app` and codesign reported it unsigned. No IPA. Source entitlements still say development APNs | BLOCKED / NOT VERIFIED | U4 signed IPA, production APNs and push smoke test A5 |
 | Actual TestFlight availability / App Review / public release | No binary upload/submission | BLOCKED / NOT VERIFIED | U4/A5; production still requires U5 |
 | Crashlytics R8 mapping + all dSYMs acceptance/readable crashes | Existing integration audited; upload commands added, not executed against Firebase | BLOCKED / NOT VERIFIED | U4/A5 verify real native + Dart stack traces, absent missing-symbol warnings |
 | Accepted-build recovery API operations | Pure duplicate/UNKNOWN policy tested; no real promotion/resubmission | BLOCKED / NOT VERIFIED | A5 inspect accepted build without reupload; recovery only with exact-state authorization |

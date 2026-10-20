@@ -264,9 +264,9 @@ GitHub Billing и применимость Personal Free ещё PENDING. Под�
 | --- | --- |
 | `GOOGLE_SERVICE_INFO_PLIST_BASE64` | Firebase → Project settings → iOS com.auyltech.prokat → GoogleService-Info.plist, base64 через PowerShell как на U2 |
 | `MAPBOX_PUBLIC_TOKEN` | Тот же public pk token |
-| `APP_STORE_APP_ID` | Числовой Apple ID из App Information; не bundle ID |
-| `IOS_HISTORICAL_MAX_BUILD` | Подтверждённый максимальный build всех предыдущих попыток; 0 только если история действительно пуста |
-| `TESTFLIGHT_GROUP` | Точное имя внутренней группы, например `PROKAT Internal` |
+| `APP_STORE_APP_ID` | Владелец записал в Codemagic `6817078475`; это не bundle ID |
+| `IOS_HISTORICAL_MAX_BUILD` | Владелец записал `17`; это пол, не замена свежей проверки истории перед upload |
+| `TESTFLIGHT_GROUP` | Владелец записал `AuylTech Test Team`; не создавайте параллельную `PROKAT Internal` |
 
    Три API environment aliases из шага 5 тоже Secret; это тот же ключ, который
    подключён integration. `PRODUCTION_PUBLISHING_ENABLED` пока отсутствует/false.
@@ -275,15 +275,13 @@ GitHub Billing и применимость Personal Free ещё PENDING. Под�
 9. **TestFlight → Internal Testing → +** создайте внутреннюю группу из
    существующих App Store Connect users. Запишите точное имя в TESTFLIGHT_GROUP.
    RC публикуется в эту группу; внешние тестеры/beta review не требуются.
-10. **Уточнение iOS dependencies:** проект уже использует SwiftPM, а два
-    `Package.resolved` сохранены в Git. Минимальный Podfile.lock не является
-    доказательством потери Firebase/Mapbox: все 19 native plugins имеют SwiftPM
-    manifests. Нужно согласовать CocoaPods metadata 1.17.0 с pin 1.16.2 и
-    проверить весь native graph на Mac. Выполните отдельную инструкцию
-    [IOS_DEPENDENCIES.md](IOS_DEPENDENCIES.md): precache/pub get, pod install,
-    xcodebuild **только resolvePackageDependencies**; без compile/archive/sign,
-    provisioning updates или публикации. Нужны три публичных lockfile и diff
-    Xcode integration, а не только Podfile.lock. Production signing не меняется.
+10. **iOS dependencies закрыты 2026-10-20 на домашнем Mac.** CocoaPods metadata
+    приведена к 1.16.2 без смены графа; оба `Package.resolved` строго разрешены
+    и не изменились. Неподписанный `flutter build ios --release --no-codesign`
+    прошёл на Xcode 26.3. Подписанного IPA нет. Образ Codemagic остаётся
+    Xcode 26.6 и отдельно не запускался. Повторять
+    [IOS_DEPENDENCIES.md](IOS_DEPENDENCIES.md) не нужно. Production signing
+    не менялся.
 11. App Store initial setup: category, screenshots, privacy URL/Data Privacy,
     age rating, content rights, reviewer account/contact, availability/pricing и
     export compliance должны быть заполнены. В текущем Info.plist нет
