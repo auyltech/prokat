@@ -11,6 +11,7 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <application
         android:allowBackup="false"
+        android:usesCleartextTraffic="${LOCAL_CLEARTEXT}"
         android:label="PROKAT"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
@@ -52,6 +53,12 @@
                     android:host="prokat-bfbec.firebaseapp.com"
                     android:pathPrefix="/e"/>
             </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="${LOCAL_APP_OPEN_SCHEME}" android:host="app" android:pathPrefix="/e/"/>
+            </intent-filter>
             <intent-filter android:autoVerify="true">
                 <action android:name="android.intent.action.VIEW"/>
                 <category android:name="android.intent.category.DEFAULT"/>
@@ -86,6 +93,9 @@
         <meta-data
             android:name="google_analytics_automatic_screen_reporting_enabled"
             android:value="false" />
+        <meta-data android:name="firebase_analytics_collection_deactivated" android:value="${LOCAL_REPLICA}" />
+        <meta-data android:name="firebase_analytics_collection_enabled" android:value="false" />
+        <meta-data android:name="firebase_crashlytics_collection_enabled" android:value="false" />
     </application>
     <!-- Required to query activities that can process text, see:
          https://developer.android.com/training/package-visibility and

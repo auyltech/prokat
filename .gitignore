@@ -81,3 +81,8 @@ android/app/*.jks
 .problems/
 # Widget Preview related
 .widget_preview/
+
+# FVM caches; keep .fvmrc in Git.
+.fvm/
+__pycache__/
+.bundle/

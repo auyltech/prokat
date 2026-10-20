@@ -1,4 +1,8 @@
 {
+  "machineryQuotaReached": "Machinery limit reached: {maximum} units. To add more, free up space or contact the administration.",
+  "@machineryQuotaReached": {"placeholders": {"maximum": {"type": "int"}}},
+  "equipmentQuotaReached": "Equipment limit reached: {maximum} units. To add more, free up space or contact the administration.",
+  "@equipmentQuotaReached": {"placeholders": {"maximum": {"type": "int"}}},
   "@@locale": "en",
 
   "appLanguage": "App Language",

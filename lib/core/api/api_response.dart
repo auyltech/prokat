@@ -13,6 +13,7 @@ class ApiResponse<T> {
 
   /// Stable backend error/success code for client-side behavior.
   final String? errorCode;
+  final Map<String, dynamic>? errorDetails;
 
   /// Absolute local time when the request may be attempted again.
   final DateTime? retryAt;
@@ -27,6 +28,7 @@ class ApiResponse<T> {
     this.error,
     this.statusCode,
     this.errorCode,
+    this.errorDetails,
     this.retryAt,
     this.count,
   });
@@ -56,6 +58,7 @@ class ApiResponse<T> {
     String? error,
     int? statusCode,
     String? errorCode,
+    Map<String, dynamic>? errorDetails,
     DateTime? retryAt,
   }) {
     return ApiResponse<T>(
@@ -65,6 +68,7 @@ class ApiResponse<T> {
       error: error,
       statusCode: statusCode,
       errorCode: errorCode,
+      errorDetails: errorDetails,
       retryAt: retryAt,
     );
   }

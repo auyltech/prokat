@@ -1,0 +1,4 @@
+codemagic-cli-tools==0.70.0
+PyJWT==2.15.1
+cryptography==50.0.2
+PyYAML==6.0.2

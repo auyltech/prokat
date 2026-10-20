@@ -332,6 +332,7 @@ class EquipmentService {
   }
 
   Future<ApiResponse<void>> createEquipment(Map<String, dynamic> data) async {
+    lastCreatedEquipmentId = null;
     try {
       final response = await _dio.post(
         _path(ApiRoutes.equipment),
@@ -351,13 +352,24 @@ class EquipmentService {
       );
     } on DioException catch (error) {
       final exception = ApiException.fromDio(error);
-
+      final payload = exception.data;
+      final nested = payload is Map ? payload['error'] : null;
+      final code = payload is Map
+          ? payload['code'] ?? (nested is Map ? nested['code'] : nested)
+          : null;
+      final details = payload is Map
+          ? payload['details'] ?? (nested is Map ? nested['details'] : null)
+          : null;
       return ApiResponse.failure(
         message: exception.message.isNotEmpty
             ? exception.message
             : "Request failed",
         error: (exception.data ?? error).toString(),
         statusCode: exception.statusCode,
+        errorCode: code is String ? code : null,
+        errorDetails: details is Map
+            ? Map<String, dynamic>.from(details)
+            : null,
       );
     } catch (e) {
       return ApiResponse.failure(

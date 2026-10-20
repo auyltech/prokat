@@ -1,10 +1,25 @@
 import java.io.FileInputStream
 import java.util.Properties
+import java.util.Base64
 
 val keystoreProperties = Properties()
 val keystorePropertiesFile = rootProject.file("key.properties")
 if (keystorePropertiesFile.exists()) {
     keystoreProperties.load(FileInputStream(keystorePropertiesFile))
+}
+
+if (System.getenv("PROKAT_RELEASE_CI") == "true") {
+    require(keystorePropertiesFile.isFile && !keystoreProperties.isEmpty) {
+        "BLOCKED: CI release requires the existing upload key; debug signing is forbidden."
+    }
+    for (key in listOf("storeFile", "storePassword", "keyAlias", "keyPassword")) {
+        require(!keystoreProperties.getProperty(key).isNullOrBlank()) {
+            "BLOCKED: Missing Android signing property: $key"
+        }
+    }
+    require(file("google-services.json").isFile) {
+        "BLOCKED: Firebase configuration is required for release mapping upload."
+    }
 }
 
 plugins {
@@ -13,6 +28,13 @@ plugins {
 }
 
 val googleServicesFile = file("google-services.json")
+val dartDefines = (project.findProperty("dart-defines") as? String).orEmpty()
+    .split(',').filter { it.isNotBlank() }.associate {
+        val decoded = String(Base64.getDecoder().decode(it), Charsets.UTF_8)
+        val parts = decoded.split('=', limit = 2)
+        parts[0] to parts.getOrElse(1) { "" }
+    }
+val isLocalReplica = dartDefines["APP_ENV"] == "local"
 if (googleServicesFile.exists()) {
     apply(plugin = "com.google.gms.google-services")
     apply(plugin = "com.google.firebase.crashlytics")
@@ -39,13 +61,9 @@ android {
 
     signingConfigs {
         create("release") {
-            if (keystoreProperties.isEmpty) {
-                // Fallback to debug configs so building in debug mode doesn't break if properties missing
-                storeFile = file("../debug.keystore")
-                storePassword = "android"
-                keyAlias = "androiddebugkey"
-                keyPassword = "android"
-            } else {
+            // An unconfigured release identity fails at validateSigningRelease.
+            // Debug builds use AGP's separate debug config, never a release fallback.
+            if (!keystoreProperties.isEmpty) {
                 storeFile = file(keystoreProperties["storeFile"] as String)
                 storePassword = keystoreProperties["storePassword"] as String
                 keyAlias = keystoreProperties["keyAlias"] as String
@@ -112,6 +130,9 @@ android {
         }
 
         manifestPlaceholders["MAPBOX_TOKEN"] = mapboxToken
+        manifestPlaceholders["LOCAL_APP_OPEN_SCHEME"] = if (isLocalReplica) "prokat-local" else "prokat-local-disabled"
+        manifestPlaceholders["LOCAL_REPLICA"] = isLocalReplica.toString()
+        manifestPlaceholders["LOCAL_CLEARTEXT"] = isLocalReplica.toString()
         resValue("string", "mapbox_access_token", mapboxToken)
     }
 
