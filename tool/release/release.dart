@@ -159,6 +159,30 @@ void validateRevision(
       'Tracked worktree changes must be committed before preparing a release',
     );
   }
+  // Every channel must use a real commit reachable from freshly fetched main.
+  // A cached ref or incomplete history cannot authorize an RC or production.
+  if (runGit(['rev-parse', '--is-shallow-repository']) == 'true') {
+    runGit(['fetch', '--unshallow', 'origin']);
+    if (runGit(['rev-parse', '--is-shallow-repository']) != 'false') {
+      blocked('Cannot obtain complete Git history for release ancestry');
+    }
+  }
+  runGit([
+    'fetch',
+    '--no-tags',
+    'origin',
+    'refs/heads/main:refs/remotes/origin/main',
+  ]);
+  runGit(['rev-parse', '--verify', 'refs/remotes/origin/main^{commit}']);
+  final ancestry = Process.runSync('git', [
+    'merge-base',
+    '--is-ancestor',
+    revision,
+    'refs/remotes/origin/main',
+  ], workingDirectory: directory);
+  if (ancestry.exitCode != 0) {
+    blocked('Release commit is not reachable from current origin/main');
+  }
   if (ci) {
     runGit(['fetch', '--tags', 'origin']);
     validateBuildHistory(release, runGit(['tag', '--list']).split('\n'));
@@ -172,19 +196,6 @@ void validateRevision(
     final matching = peeled.isNotEmpty ? peeled.single : lines.single;
     if (matching.split(RegExp(r'\s+')).first != revision) {
       blocked('Remote tag changed or does not match the webhook commit');
-    }
-  }
-  if (release.production) {
-    // Fetch is explicit, even if checkout previously populated origin/main.
-    runGit(['fetch', 'origin', 'main:refs/remotes/origin/main']);
-    final result = Process.runSync('git', [
-      'merge-base',
-      '--is-ancestor',
-      revision,
-      'origin/main',
-    ], workingDirectory: directory);
-    if (result.exitCode != 0) {
-      blocked('Production commit is not reachable from current origin/main');
     }
   }
 }

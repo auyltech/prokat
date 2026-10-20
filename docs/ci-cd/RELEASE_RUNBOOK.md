@@ -21,7 +21,8 @@ Mac нужен только для первоначальной проверки
 
 1. Выполните `git fetch origin --prune --tags`, проверьте `git status --short`.
    Подготовьте исправления обычным процессом PR. Не выбирайте автоматически HEAD
-   как release source. Владелец должен утвердить **полный 40-character SHA**.
+   как release source. Для RC и production commit должен быть достижим из
+   актуального `origin/main`. Владелец утверждает **полный 40-character SHA**.
 2. Создайте notes до утверждения финального release commit:
 
    ```powershell
@@ -47,8 +48,9 @@ Mac нужен только для первоначальной проверки
    ```
 
    `check` только проверяет Git/notes и генерирует ignored build/release; он не
-   создаёт тег и не обращается к store. Для production он ещё fetch-ит main и
-   проверяет ancestry. Папка worktree должна отсутствовать; если занята, выберите
+   создаёт тег и не обращается к store. Для RC и production он получает полный
+   Git history и свежий main, затем проверяет ancestry. Недоступный/отсутствующий
+   main блокирует подготовку даже при наличии cached ref. Папка worktree должна отсутствовать; если занята, выберите
    другое имя. Flutter можно установить через `fvm install` / `fvm use` по .fvmrc,
    либо использовать установленный Flutter 3.47.2. Проверка
    `dart tool/release/check_toolchain.dart android` подтверждает SDK.

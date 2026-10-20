@@ -65,6 +65,18 @@ class WorkflowContractTests(unittest.TestCase):
                 actual = [provider for provider, globs in patterns.items() if any(fnmatch.fnmatchcase(tag, glob) for glob in globs)]
                 self.assertEqual(actual, expected)
 
+    def test_both_providers_supply_history_and_invoke_shared_source_guard(self):
+        steps = self.github['jobs']['release']['steps']
+        self.assertEqual(steps[0]['with']['fetch-depth'], '0')
+        android = '\n'.join(step.get('run', '') for step in steps)
+        self.assertLess(android.index('release.dart ci'), android.index('inputs.dart android'))
+        for workflow in self.codemagic['workflows'].values():
+            source = workflow['scripts'][0]['script']
+            self.assertIn('--is-shallow-repository', source)
+            self.assertIn('fetch --unshallow origin', source)
+            self.assertIn('main:refs/remotes/origin/main', source)
+            self.assertIn('release.dart ci', source)
+
     def test_cost_artifact_and_production_contract(self):
         self.assertEqual(self.github["permissions"], {"contents": "read"})
         self.assertEqual(self.github["jobs"]["release"]["runs-on"], "ubuntu-24.04")
