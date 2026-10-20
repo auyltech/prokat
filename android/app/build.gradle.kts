@@ -8,6 +8,20 @@ if (keystorePropertiesFile.exists()) {
     keystoreProperties.load(FileInputStream(keystorePropertiesFile))
 }
 
+if (System.getenv("PROKAT_RELEASE_CI") == "true") {
+    require(keystorePropertiesFile.isFile && !keystoreProperties.isEmpty) {
+        "BLOCKED: CI release requires the existing upload key; debug signing is forbidden."
+    }
+    for (key in listOf("storeFile", "storePassword", "keyAlias", "keyPassword")) {
+        require(!keystoreProperties.getProperty(key).isNullOrBlank()) {
+            "BLOCKED: Missing Android signing property: $key"
+        }
+    }
+    require(file("google-services.json").isFile) {
+        "BLOCKED: Firebase configuration is required for release mapping upload."
+    }
+}
+
 plugins {
     id("com.android.application")
     id("dev.flutter.flutter-gradle-plugin")
@@ -47,13 +61,9 @@ android {
 
     signingConfigs {
         create("release") {
-            if (keystoreProperties.isEmpty) {
-                // Fallback to debug configs so building in debug mode doesn't break if properties missing
-                storeFile = file("../debug.keystore")
-                storePassword = "android"
-                keyAlias = "androiddebugkey"
-                keyPassword = "android"
-            } else {
+            // An unconfigured release identity fails at validateSigningRelease.
+            // Debug builds use AGP's separate debug config, never a release fallback.
+            if (!keystoreProperties.isEmpty) {
                 storeFile = file(keystoreProperties["storeFile"] as String)
                 storePassword = keystoreProperties["storePassword"] as String
                 keyAlias = keystoreProperties["keyAlias"] as String

@@ -1,0 +1,161 @@
+name: Android tag release
+run-name: Android ${{ github.ref_name }}
+
+on:
+  push:
+    tags:
+      - 'android/v*'
+      - 'rc/android/v*'
+
+permissions:
+  contents: read
+
+# Serialize every Android release, including RC and production; never cancel an
+# upload in progress. GitHub may replace a pending run: inspect cancelled tags.
+concurrency:
+  group: prokat-android-store
+  cancel-in-progress: false
+
+defaults:
+  run:
+    shell: bash
+
+env:
+  CI: 'true'
+  DART_SUPPRESS_ANALYTICS: 'true'
+  FLUTTER_SUPPRESS_ANALYTICS: 'true'
+  FASTLANE_SKIP_UPDATE_CHECK: 'true'
+  FASTLANE_OPT_OUT_USAGE: 'true'
+  BUNDLE_GEMFILE: ${{ github.workspace }}/tool/release/Gemfile
+
+jobs:
+  release:
+    if: github.event.created == true && github.event.deleted == false && github.ref_type == 'tag'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - name: Check out tagged source and history
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          fetch-depth: 0
+
+      - name: Reject production until U5
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+          PRODUCTION_PUBLISHING_ENABLED: ${{ secrets.PRODUCTION_PUBLISHING_ENABLED }}
+        run: |
+          set -euo pipefail
+          if [[ "$RELEASE_TAG" == android/* && "$PRODUCTION_PUBLISHING_ENABLED" != true ]]; then
+            echo 'BLOCKED: Production requires owner authorization at U5.'
+            exit 1
+          fi
+
+      - name: Install pinned Flutter
+        uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2
+        with:
+          flutter-version-file: pubspec.yaml
+          channel: stable
+          cache: true
+
+      - name: Validate webhook, tag, source and Git metadata
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+          PRODUCTION_PUBLISHING_ENABLED: ${{ secrets.PRODUCTION_PUBLISHING_ENABLED }}
+        run: |
+          set -euo pipefail
+          channel=production
+          if [[ "$RELEASE_TAG" == rc/android/* ]]; then channel=rc; fi
+          dart tool/release/release.dart ci --tag "$RELEASE_TAG" --platform android --channel "$channel" --revision "$GITHUB_SHA"
+          dart tool/release/check_toolchain.dart android
+
+      - name: Install Java
+        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
+        with:
+          distribution: temurin
+          java-version: '21.0.12'
+
+      - name: Install Ruby and locked Supply
+        uses: ruby/setup-ruby@651ff0d62c5c79bed6d53ec518387aae20e72c1a # v1
+        with:
+          ruby-version: '3.3.10'
+          bundler-cache: false
+      - name: Resolve locked tooling and Flutter packages
+        run: |
+          set -euo pipefail
+          bundle config set --local path "$RUNNER_TEMP/release-gems"
+          bundle config set --local frozen true
+          bundle install --jobs 4 --retry 0
+          flutter pub get --enforce-lockfile
+          git diff --exit-code -- pubspec.lock
+          java -version
+          ruby --version
+          bundle exec fastlane --version
+
+      - name: Analyze and run tests
+        run: |
+          set -euo pipefail
+          flutter analyze --no-pub --fatal-infos --fatal-warnings
+          flutter test --no-pub --dart-define=ENABLE_FIREBASE_SERVICES=false --dart-define=ENABLE_PUSH_NOTIFICATIONS=false
+          ruby tool/release/play_policy_test.rb
+          git diff --exit-code
+
+      - name: Materialize ephemeral signing and Firebase inputs
+        env:
+          MAPBOX_PUBLIC_TOKEN: ${{ secrets.MAPBOX_PUBLIC_TOKEN }}
+          GOOGLE_SERVICES_JSON_BASE64: ${{ secrets.GOOGLE_SERVICES_JSON_BASE64 }}
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          PLAY_SERVICE_ACCOUNT_JSON_BASE64: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON_BASE64 }}
+          ANDROID_UPLOAD_CERT_SHA256: ${{ vars.ANDROID_UPLOAD_CERT_SHA256 }}
+          PLAY_HISTORICAL_MAX_BUILD: ${{ vars.PLAY_HISTORICAL_MAX_BUILD }}
+        run: |
+          set -euo pipefail
+          dart tool/release/inputs.dart android
+          python3 tool/release/verify_upload_key.py --keystore android/app/ci-upload.jks --alias "$ANDROID_KEY_ALIAS" --expected-sha256 "$ANDROID_UPLOAD_CERT_SHA256" --password-env ANDROID_KEYSTORE_PASSWORD
+
+      - name: Read Play state before spending build time
+        env:
+          PLAY_HISTORICAL_MAX_BUILD: ${{ vars.PLAY_HISTORICAL_MAX_BUILD }}
+          PRODUCTION_PUBLISHING_ENABLED: ${{ secrets.PRODUCTION_PUBLISHING_ENABLED }}
+        run: bundle exec ruby tool/release/play.rb preflight
+
+      - name: Build signed bundle and upload R8 mapping to Crashlytics
+        env:
+          PROKAT_RELEASE_CI: 'true'
+          GRADLE_OPTS: '-Dorg.gradle.jvmargs=-Xmx4g -Dorg.gradle.workers.max=2'
+        run: |
+          set -euo pipefail
+          source build/release/release.env
+          flutter build appbundle --release --no-pub --build-name "$RELEASE_VERSION" --build-number "$RELEASE_BUILD" --dart-define-from-file=.env
+          test -s build/app/outputs/mapping/release/mapping.txt
+          cd android
+          ./gradlew :app:uploadCrashlyticsMappingFileRelease --no-daemon
+
+      - name: Validate bundle, embedded version and upload certificate
+        env:
+          ANDROID_UPLOAD_CERT_SHA256: ${{ vars.ANDROID_UPLOAD_CERT_SHA256 }}
+        run: |
+          set -euo pipefail
+          curl --fail --silent --show-error --location 'https://github.com/google/bundletool/releases/download/1.18.3/bundletool-all-1.18.3.jar' --output "$RUNNER_TEMP/bundletool.jar"
+          echo "a099cfa1543f55593bc2ed16a70a7c67fe54b1747bb7301f37fdfd6d91028e29  $RUNNER_TEMP/bundletool.jar" | sha256sum --check
+          dart tool/release/verify_android.dart "$RUNNER_TEMP/bundletool.jar"
+
+      - name: Recheck state and publish once to the tag-selected track
+        env:
+          PLAY_HISTORICAL_MAX_BUILD: ${{ vars.PLAY_HISTORICAL_MAX_BUILD }}
+          PRODUCTION_PUBLISHING_ENABLED: ${{ secrets.PRODUCTION_PUBLISHING_ENABLED }}
+        run: bundle exec ruby tool/release/play.rb publish
+
+      - name: Record safe provenance and clean ephemeral credentials
+        if: always()
+        run: |
+          set -euo pipefail
+          if [[ -f build/release/context.json ]]; then
+            cat build/release/context.json >> "$GITHUB_STEP_SUMMARY"
+          fi
+          echo "Run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID; attempt $GITHUB_RUN_ATTEMPT" >> "$GITHUB_STEP_SUMMARY"
+          rm -f -- .env android/key.properties android/app/ci-upload.jks android/app/google-services.json build/release/play-service-account.json
+          # No AAB/mapping artifact upload: the runner is ephemeral. Mapping is
+          # uploaded before Play; if upload failed, this build never reaches Play.

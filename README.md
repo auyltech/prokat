@@ -66,11 +66,14 @@ flutter run --dart-define-from-file=.env
 
 ## Production builds
 
-All production artifacts must be built with `.env` only. Flutter reads
-`version` from `pubspec.yaml` (`1.0.13+5` → name `1.0.13`, number `5`).
-Bump that field before every store upload; the build number must always
-increase. Do not pass `--build-name` / `--build-number` unless you intend
-to override `pubspec.yaml`.
+Store releases use platform Git tags and CI, with version/build arguments
+derived from the tag. See [release runbook](docs/ci-cd/RELEASE_RUNBOOK.md) and
+[one-time account setup](docs/ci-cd/MANUAL_SETUP.md). Production stays disabled
+until owner gate U5. Do not upload local builds as a routine release procedure.
+`pubspec.yaml` is a development default and does not need a release bump.
+
+The commands below are local diagnostic builds. They read the ignored `.env`
+and use the development pubspec version unless explicitly overridden.
 
 Build a universal Android APK for direct installation outside a store:
 
