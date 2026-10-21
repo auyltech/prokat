@@ -133,6 +133,73 @@ class AppleStorePolicyTests(unittest.TestCase):
                     get.assert_not_called()
                 self.assertFalse((root / "build/release/apple-state.json").exists())
 
+    def test_release_preflight_normalizes_upload_state_without_detail_leaks(self):
+        from cryptography.hazmat.primitives.asymmetric import ec
+        from cryptography.hazmat.primitives.serialization import Encoding, PrivateFormat, NoEncryption
+        pem = ec.generate_private_key(ec.SECP256R1()).private_bytes(Encoding.PEM, PrivateFormat.PKCS8, NoEncryption()).decode()
+        env = {"APP_STORE_CONNECT_ISSUER_ID": "00000000-0000-4000-8000-000000000000",
+               "APP_STORE_CONNECT_KEY_IDENTIFIER": "ABCDEFGHIJ", "PROKAT_ASC_PRIVATE_KEY_PEM": pem,
+               "APP_STORE_APP_ID": "123", "IOS_HISTORICAL_MAX_BUILD": "17", "TESTFLIGHT_GROUP": "PROKAT Internal"}
+        app = {"data": {"id": "123", "attributes": {"bundleId": "com.auyltech.prokat", "primaryLocale": "ru"}}}
+        upload = {"id": "old-upload", "attributes": {"cfBundleVersion": "18", "state": {
+            "state": "FAILED", "errors": [{"code": "PRIVATE_UPLOAD_DETAIL", "description": "PRIVATE_UPLOAD_DETAIL"}]}}}
+        groups = [{"id": "group", "attributes": {"name": "PROKAT Internal", "isInternalGroup": True}}]
+        for channel in ("rc", "production"):
+            context = {**self.rc, "build": 20, "channel": channel,
+                       "destination": "testflight" if channel == "rc" else "app_store_review"}
+            responses = [app, {"data": [], "links": {}}, {"data": [upload], "links": {}}]
+            if channel == "rc":
+                responses.append({"data": groups, "links": {}})
+            with self.subTest(channel=channel), tempfile.TemporaryDirectory() as directory, \
+                    patch.object(store, "ROOT", Path(directory)), patch.dict(store.os.environ, env, clear=True), \
+                    patch.object(store, "get_json", side_effect=responses) as get, \
+                    patch.object(store.subprocess, "run") as publisher, \
+                    contextlib.redirect_stdout(io.StringIO()) as output:
+                state = store.preflight(context)
+                snapshot = (Path(directory) / "build/release/apple-state.json").read_text(encoding="utf-8")
+            self.assertEqual(get.call_count, 4 if channel == "rc" else 3)
+            self.assertEqual(state["uploads"], [{"id": "old-upload", "attributes": {"cfBundleVersion": "18", "state": "FAILED"}}])
+            self.assertEqual(json.loads(snapshot), state)
+            self.assertNotIn("PRIVATE_UPLOAD_DETAIL", snapshot + output.getvalue())
+            self.assertNotIn("errors", snapshot)
+            self.assertIsInstance(upload["attributes"]["state"], dict)  # Do not mutate the API response.
+            publisher.assert_not_called()
+
+    def test_invalid_or_occupied_upload_blocks_release_before_publisher(self):
+        from cryptography.hazmat.primitives.asymmetric import ec
+        from cryptography.hazmat.primitives.serialization import Encoding, PrivateFormat, NoEncryption
+        pem = ec.generate_private_key(ec.SECP256R1()).private_bytes(Encoding.PEM, PrivateFormat.PKCS8, NoEncryption()).decode()
+        context = {**self.rc, "build": 20, "tag": "rc/ios/v1.2.3+20"}
+        env = {"CM_BUILD_ID": "fixture", "CM_TAG": context["tag"],
+               "APP_STORE_CONNECT_ISSUER_ID": "00000000-0000-4000-8000-000000000000",
+               "APP_STORE_CONNECT_KEY_IDENTIFIER": "ABCDEFGHIJ", "PROKAT_ASC_PRIVATE_KEY_PEM": pem,
+               "APP_STORE_APP_ID": "123", "IOS_HISTORICAL_MAX_BUILD": "17", "TESTFLIGHT_GROUP": "PROKAT Internal"}
+        app = {"data": {"id": "123", "attributes": {"bundleId": "com.auyltech.prokat", "primaryLocale": "ru"}}}
+        groups = [{"id": "group", "attributes": {"name": "PROKAT Internal", "isInternalGroup": True}}]
+        cases = (({"cfBundleVersion": "18", "state": "COMPLETE"}, "APPLE_RESPONSE_INVALID"),
+                 ({"state": {"state": "COMPLETE"}}, "APPLE_RESPONSE_INVALID"),
+                 ({"cfBundleVersion": "18", "state": {"state": "UNKNOWN_PRIVATE_DETAIL"}}, "APPLE_RESPONSE_INVALID"),
+                 ({"cfBundleVersion": "20", "state": {"state": "FAILED"}}, "APPLE_BUILD_ALREADY_USED"),
+                 ({"cfBundleVersion": "21", "state": {"state": "FAILED"}}, "APPLE_BUILD_NOT_INCREASING"))
+        for attributes, code in cases:
+            with self.subTest(code=code), tempfile.TemporaryDirectory() as directory:
+                root = Path(directory)
+                (root / "build/release").mkdir(parents=True)
+                (root / "build/release/context.json").write_text(json.dumps(context))
+                responses = [app, {"data": [], "links": {}},
+                             {"data": [{"id": "upload", "attributes": attributes}], "links": {}},
+                             {"data": groups, "links": {}}]
+                with patch.object(store, "ROOT", root), patch.dict(store.os.environ, env, clear=True), \
+                        patch.object(store.sys, "argv", ["ios_store.py", "publish"]), \
+                        patch.object(store, "get_json", side_effect=responses), \
+                        patch.object(store.subprocess, "run") as publisher, \
+                        contextlib.redirect_stdout(io.StringIO()) as output, \
+                        self.assertRaises(store.AppleCheckFailure) as caught:
+                    store.main()
+                self.assertEqual(caught.exception.code, code)
+                self.assertNotIn("UNKNOWN_PRIVATE_DETAIL", str(caught.exception) + output.getvalue())
+                publisher.assert_not_called()
+
     def test_existing_build_in_any_state_blocks(self):
         for state in ("VALID", "PROCESSING", "FAILED", "INVALID"):
             with self.subTest(state=state), self.assertRaises(store.Blocked):

@@ -312,6 +312,32 @@ def validate_resources(items, fields, stage):
             raise AppleCheckFailure("APPLE_RESPONSE_INVALID", stage, "schema")
 
 
+def validate_build_uploads(uploads):
+    """Apple BuildUpload.Attributes.State is an object, unlike Build.processingState."""
+    validate_resources(uploads, ("cfBundleVersion",), "uploads")
+    for upload in uploads:
+        attributes = upload["attributes"]
+        try:
+            build_tuple(attributes["cfBundleVersion"])
+        except AppleCheckFailure:
+            raise AppleCheckFailure("APPLE_RESPONSE_INVALID", "uploads", "schema") from None
+        state = attributes.get("state")
+        if (not isinstance(state, dict) or set(state) - {"state", "errors", "warnings", "infos"} or
+                not isinstance(state.get("state"), str) or
+                state["state"] not in {"AWAITING_UPLOAD", "PROCESSING", "FAILED", "COMPLETE"}):
+            raise AppleCheckFailure("APPLE_RESPONSE_INVALID", "uploads", "schema")
+        for field in ("errors", "warnings", "infos"):
+            if field not in state:
+                continue
+            details = state[field]
+            if not isinstance(details, list):
+                raise AppleCheckFailure("APPLE_RESPONSE_INVALID", "uploads", "schema")
+            for detail in details:
+                if (not isinstance(detail, dict) or set(detail) - {"code", "description"} or
+                        any(not isinstance(value, str) for value in detail.values())):
+                    raise AppleCheckFailure("APPLE_RESPONSE_INVALID", "uploads", "schema")
+
+
 def read_apple_state(config, token, *, require_internal_group, emit=None):
     """GET-only, in-memory state. No snapshot, publisher, or response logging."""
     deadline = time.monotonic() + 90
@@ -334,7 +360,7 @@ def read_apple_state(config, token, *, require_internal_group, emit=None):
     # Covers uploads not yet visible in /builds (new Apple API since WWDC25).
     # Unsupported/forbidden endpoint is UNKNOWN, never an empty list.
     uploads = all_pages(f"/v1/apps/{app_id}/buildUploads", token, stage="uploads", deadline=deadline)
-    validate_resources(uploads, ("cfBundleVersion", "state"), "uploads")
+    validate_build_uploads(uploads)
     report(emit, "APPLE_UPLOADS_READ", "uploads")
     if require_internal_group:
         # The pinned publisher only warns about a missing group and can exit 0.
@@ -344,7 +370,10 @@ def read_apple_state(config, token, *, require_internal_group, emit=None):
         report(emit, "APPLE_GROUP_VERIFIED", "groups")
     remaining_timeout(deadline, "build")
     return {"app_id": app_id, "builds": [{"id": b["id"], "attributes": {k: b["attributes"][k] for k in ("version", "processingState")}} for b in builds],
-            "uploads": [{"id": u["id"], "attributes": {k: u["attributes"][k] for k in ("cfBundleVersion", "state")}} for u in uploads], "historical_floor": config["historical_floor"]}
+            # Keep the existing snapshot contract and never persist StateDetail text.
+            "uploads": [{"id": u["id"], "attributes": {"cfBundleVersion": u["attributes"]["cfBundleVersion"],
+                                                        "state": u["attributes"]["state"]["state"]}} for u in uploads],
+            "historical_floor": config["historical_floor"]}
 
 
 def preflight(context=None):
