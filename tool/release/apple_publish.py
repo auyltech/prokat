@@ -45,6 +45,10 @@ def validate_publish_arguments(args):
                 raise ValueError
         if parsed.action != "publish" or parsed.show_version:
             raise ValueError
+        if not parsed.submit_to_app_store and (parsed.beta_group_names or parsed.submit_to_testflight):
+            # Internal Automatic Distribution must not become manual assignment
+            # or external Beta App Review. Production argument behavior is unchanged.
+            raise ValueError
         # All three CLI options are attempt counts in 0.70.0, not extra retries.
         # Missing flags must not silently enable defaults (10 / 3 / 3).
         for flag, attribute, kind in (

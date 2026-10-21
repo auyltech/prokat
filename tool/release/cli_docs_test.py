@@ -44,8 +44,10 @@ class CliDocumentationTests(unittest.TestCase):
         guide = (ROOT / 'docs/ci-cd/IOS_PUBLISHING.md').read_text(encoding='utf-8')
         for expected in ('validate-publish', 'APPLE_PUBLISH_ARGUMENTS_VALID',
                          'APPLE_PUBLISH_ARGUMENTS_INVALID', 'APPLE_PUBLISH_CLI_VERSION_UNSUPPORTED',
-                         'build/ios/ipa/*.ipa', '1.2.3+23', 'standard Codemagic retention',
-                         'success, failure or unknown', 'CLI exit 0 is not sufficient'):
+                         'build/ios/ipa/*.ipa', '1.2.3+24', 'standard Codemagic retention',
+                         'success, failure or unknown', 'CLI exit 0 alone is not sufficient',
+                         'hasAccessToAllBuilds=true', 'TESTFLIGHT_INTERNAL_DISTRIBUTION_CONFIRMED',
+                         'TESTFLIGHT_DISTRIBUTION_UNCONFIRMED', '/relationships/builds'):
             self.assertIn(expected, guide)
 
     def test_current_guides_have_no_manual_tag_creation(self):

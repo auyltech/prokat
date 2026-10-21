@@ -175,6 +175,33 @@ class ApplePublishCliTests(unittest.TestCase):
             adapter.main()
         invoke.assert_called_once_with()  # The real invoke/upload is never run.
 
+    def test_automatic_rc_has_notes_but_no_manual_group_or_external_review_options(self):
+        from codemagic.tools.app_store_connect import AppStoreConnect
+        from codemagic.apple.resources import Platform
+        args = self.arguments()
+        parsed = adapter.validate_publish_arguments(args)
+        self.assertFalse(parsed.submit_to_testflight)
+        self.assertFalse(parsed.submit_to_app_store)
+        self.assertIsNone(parsed.beta_group_names)
+        self.assertTrue(parsed.beta_build_localizations.value)
+        options = AppStoreConnect._get_app_store_connect_submit_options(
+            None, parsed.submit_to_testflight, parsed.submit_to_app_store,
+            platform=Platform.IOS, beta_group_names=parsed.beta_group_names,
+            beta_build_localizations=parsed.beta_build_localizations)
+        self.assertIsNone(options[0])  # No create_beta_app_review_submission.
+        self.assertIsNone(options[1])  # No App Store submission.
+        self.assertIsNotNone(options[2])  # Keep Git What to Test localizations.
+        self.assertIsNone(options[3])  # No add_build_to_beta_groups.
+        for forbidden in (['--testflight'], ['--beta-group', 'Synthetic Internal']):
+            with self.subTest(flag=forbidden), self.assertRaises(adapter.PublishCliError):
+                adapter.validate_publish_arguments(args + forbidden)
+        original = store.publish_arguments
+        def wrong_channel(*values):
+            return original(*values) + ['--app-store']
+        with patch.object(store, 'publish_arguments', side_effect=wrong_channel), self.assertRaisesRegex(
+                store.Blocked, '^APPLE_PUBLISH_ARGUMENTS_INVALID$'):
+            store.checked_publish_arguments(self.rc, self.root / 'not-built.ipa', 'Synthetic Internal')
+
 
 class SingleAttemptSdkTests(unittest.TestCase):
     def test_altool_one_means_one_attempt_even_for_a_retryable_timeout(self):
