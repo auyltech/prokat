@@ -1,5 +1,10 @@
 # Preflight PROKAT — updated 2026-10-20
 
+Current publishing correction: [offline parser and IPA retention](IOS_PUBLISHING.md).
+The historical help-only CLI check and no-IPA storage policy below are superseded:
+0.70.0 requires positive attempt counts; 1/1/1 means no retry. Full parser tests
+now cover generated argv. IPA uses standard Codemagic retention on all outcomes.
+
 Current owner workflow: [CICD-README](../../CICD-README.md). Dated account/native
 results below remain evidence, not a live readiness verdict. CLI adoption still
 requires review/integration into main and explicit release authorization.

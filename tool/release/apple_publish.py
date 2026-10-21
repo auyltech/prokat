@@ -4,8 +4,59 @@ CLI 0.70.0 catches localization API errors and may continue to App Review.
 Replace only that method: update existing locales, never create listing locales,
 and stop before submission on missing translations or any metadata API failure.
 """
+import contextlib
 import copy
 from importlib.metadata import version
+import io
+import sys
+
+CLI_VERSION = "0.70.0"
+
+
+class PublishCliError(RuntimeError):
+    """Fixed, safe diagnostics only; never include argparse output or values."""
+
+
+def require_supported_cli():
+    try:
+        if version("codemagic-cli-tools") == CLI_VERSION:
+            return
+    except Exception:
+        pass
+    raise PublishCliError("APPLE_PUBLISH_CLI_VERSION_UNSUPPORTED")
+
+
+def validate_publish_arguments(args):
+    """Parse the entire generated argv with the pinned SDK, without invoking it.
+
+    Do not instantiate AppStoreConnect, resolve credential environment defaults,
+    create an API client, configure logging, invoke actions or launch altool.
+    Explicit @file: Git localizations are parsed exactly as in real publishing.
+    """
+    require_supported_cli()
+    try:
+        from codemagic.tools.app_store_connect import AppStoreConnect
+        from codemagic.tools.app_store_connect.arguments import Types
+
+        # argparse errors can contain metadata, paths and argument values.
+        with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(io.StringIO()):
+            parsed = AppStoreConnect._setup_cli_options().parse_args(args)
+            if not AppStoreConnect._validate_args(parsed):
+                raise ValueError
+        if parsed.action != "publish" or parsed.show_version:
+            raise ValueError
+        # All three CLI options are attempt counts in 0.70.0, not extra retries.
+        # Missing flags must not silently enable defaults (10 / 3 / 3).
+        for flag, attribute, kind in (
+            ("--altool-retries", "altool_retries_count", Types.AltoolRetriesCount),
+            ("--api-server-error-retries", "server_error_retries", Types.ApiServerErrorRetries),
+            ("--api-unauthorized-retries", "unauthorized_request_retries", Types.ApiUnauthorizedRetries),
+        ):
+            if args.count(flag) != 1 or kind.resolve_value(getattr(parsed, attribute)) != 1:
+                raise ValueError
+        return parsed
+    except (Exception, SystemExit):
+        raise PublishCliError("APPLE_PUBLISH_ARGUMENTS_INVALID") from None
 
 
 def strict_localizations(client, app, app_store_version, localizations):
@@ -26,8 +77,10 @@ def strict_localizations(client, app, app_store_version, localizations):
 
 
 def main():
-    if version("codemagic-cli-tools") != "0.70.0":
-        raise SystemExit("BLOCKED: revalidate the localization adapter before upgrading Codemagic CLI")
+    try:
+        validate_publish_arguments(sys.argv[1:])
+    except PublishCliError as error:
+        raise SystemExit(f"BLOCKED: {error}") from None
     from codemagic.tools.app_store_connect import AppStoreConnect
     from codemagic.tools.app_store_connect.actions.submit_to_app_store_action import SubmitToAppStoreAction
     SubmitToAppStoreAction._create_or_update_app_store_version_localizations = strict_localizations

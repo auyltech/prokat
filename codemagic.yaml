@@ -24,6 +24,7 @@ definitions:
       script: |
         set -euo pipefail
         python3 -m pip install --disable-pip-version-check -r tool/release/requirements.txt
+        python3 -B tool/release/ios_store.py validate-publish
         flutter pub get --enforce-lockfile
         (cd ios && pod install --deployment)
         python3 -B tool/release/swiftpm_resolve.py resolve
@@ -113,6 +114,7 @@ workflows:
       - *publish
     artifacts:
       - build/release/ios-symbols.zip
+      - build/ios/ipa/*.ipa
 
   ios-production:
     name: iOS production review and release after approval (U5 protected)
@@ -149,6 +151,7 @@ workflows:
       - *publish
     artifacts:
       - build/release/ios-symbols.zip
+      - build/ios/ipa/*.ipa
 
   ios-apple-diagnostic:
     name: iOS Apple GET-only diagnostic

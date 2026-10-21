@@ -315,8 +315,11 @@ GitHub Billing и применимость Personal Free ещё PENDING. Под�
     Наличие ключа или успешный probe не доказывают signing/upload permission.
     IPA validation отдельно проверит реальные signing entitlements.
 13. В **Billing** повторно проверьте Free M2 и **concurrency = 1**: она также
-    сериализует RC/production. Не подключайте второй платный worker. Никаких IPA
-    artifacts в YAML нет; только ZIP dSYM при неуспешной отправке символов.
+    сериализует RC/production. Не подключайте второй платный worker. IPA теперь
+    сохраняется в стандартных Codemagic Artifacts при любом исходе, без cleanup
+    по exit 0; ZIP dSYM — только при неуспешной отправке символов.
+    [Publishing/retention contract](IOS_PUBLISHING.md): проверьте срок своего плана,
+    не меняйте billing/Secrets ради проверки. Android policy не меняется.
 14. Сообщите «U3 выполнен», Apple ID/team/bundle/primary locale, текущие версии
     и максимум, integration name, наличие existing signing identities, группу
     тестеров, результат подготовки native lock и решение export compliance.
