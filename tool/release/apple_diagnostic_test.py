@@ -116,6 +116,98 @@ class AppleDiagnosticTests(unittest.TestCase):
         self.assertEqual(claims["iss"], self.env["APP_STORE_CONNECT_ISSUER_ID"])
         self.assertEqual(claims["exp"] - claims["iat"], 1200)
 
+    def test_documented_nested_upload_state_passes_diagnostic(self):
+        responses = copy.deepcopy(self.responses)
+        upload = resource("upload-old", cfBundleVersion="18", state={
+            "state": "COMPLETE", "errors": [], "warnings": [],
+            "infos": [{"code": SENTINEL, "description": SENTINEL}],
+        })
+        upload["type"] = "buildUploads"
+        responses[2] = page([upload], total=1)
+        status, text, requests = self.invoke(responses=responses)
+        self.assertEqual(status, 0, text)
+        self.assertIn("APPLE_UPLOADS_READ", text)
+        self.assertIn("APPLE_STATE_VALID", text)
+        self.assertEqual(len(requests), 4)
+
+    def test_upload_states_and_multiple_uploads_preserve_number_history(self):
+        states = ("AWAITING_UPLOAD", "PROCESSING", "FAILED", "COMPLETE")
+        for state in states:
+            responses = copy.deepcopy(self.responses)
+            responses[2] = page([resource("upload-old", cfBundleVersion="18", state={"state": state})])
+            status, text, requests = self.invoke(responses=responses)
+            self.assertEqual(status, 0, text)
+            self.assertEqual(len(requests), 4)
+        responses[2] = page([resource("upload-" + str(i), cfBundleVersion=str(16 + i),
+                                      state={"state": state}) for i, state in enumerate(states)], total=4)
+        status, text, _ = self.invoke(responses=responses)
+        self.assertEqual(status, 0, text)
+        # FAILED uploads still reserve their number; this is not a policy change.
+        for version, code in (("20", "APPLE_BUILD_ALREADY_USED"), ("21", "APPLE_BUILD_NOT_INCREASING")):
+            responses[2] = page([resource("failed", cfBundleVersion=version, state={"state": "FAILED"})])
+            self.assert_failure(code, responses=responses)
+
+    def test_invalid_nested_upload_states_and_numbers_fail_closed(self):
+        states = (None, "PROCESSING", [], {}, {"state": None}, {"state": []}, {"state": ""},
+                  {"state": SENTINEL}, {"state": "COMPLETE", "unexpected": SENTINEL})
+        for state in states:
+            responses = copy.deepcopy(self.responses)
+            responses[2] = page([resource("upload", cfBundleVersion="18", state=state)])
+            text, requests = self.assert_failure("APPLE_RESPONSE_INVALID", responses=responses)
+            self.assertIn("stage=uploads reason=schema", text)
+            self.assertNotIn("APPLE_UPLOADS_READ", text)
+            self.assertEqual(len(requests), 3)
+        for value in (None, "", 18, True, SENTINEL, "9" * 5000):
+            responses[2] = page([resource("upload", cfBundleVersion=value, state={"state": "COMPLETE"})])
+            text, _ = self.assert_failure("APPLE_RESPONSE_INVALID", responses=responses)
+            self.assertIn("stage=uploads reason=schema", text)
+        for attributes in ({"state": {"state": "COMPLETE"}}, {"cfBundleVersion": "18"}):
+            responses[2] = page([resource("upload", **attributes)])
+            self.assert_failure("APPLE_RESPONSE_INVALID", responses=responses)
+
+    def test_optional_upload_details_are_validated_but_never_logged(self):
+        responses = copy.deepcopy(self.responses)
+        for field in ("errors", "warnings", "infos"):
+            responses[2] = page([resource("upload", cfBundleVersion="18", state={
+                "state": "FAILED", field: [{}, {"code": SENTINEL}, {"description": SENTINEL}],
+            })])
+            status, text, _ = self.invoke(responses=responses)
+            self.assertEqual(status, 0, text)
+            for details in (None, {}, [SENTINEL], [{"code": None}], [{"description": []}],
+                            [{"unexpected": SENTINEL}]):
+                responses[2] = page([resource("upload", cfBundleVersion="18", state={
+                    "state": "FAILED", field: details,
+                })])
+                text, _ = self.assert_failure("APPLE_RESPONSE_INVALID", responses=responses)
+                self.assertIn("stage=uploads reason=schema", text)
+
+    def test_upload_envelope_can_fail_before_upload_attribute_validation(self):
+        for envelope in ({"data": [], "links": None}, page([{"attributes": {"state": {"state": "COMPLETE"}}}]),
+                         {"data": [], "links": {}, "meta": {"paging": None}}):
+            with patch.object(apple, "validate_build_uploads") as validate:
+                text, requests = self.assert_failure("APPLE_RESPONSE_INVALID", responses=self.responses[:2] + [envelope])
+            validate.assert_not_called()
+            self.assertIn("stage=uploads reason=schema", text)
+            self.assertEqual(len(requests), 3)
+
+    def test_upload_pagination_reads_every_record_and_blocks_on_late_failure(self):
+        responses = copy.deepcopy(self.responses)
+        next_url = apple.API + "/v1/apps/" + APP_ID + "/buildUploads?cursor=second"
+        responses[2:3] = [page([resource("older", cfBundleVersion="18", state={"state": "COMPLETE"})], next_url, 2),
+                          page([resource("occupied", cfBundleVersion="20", state={"state": "FAILED"})], total=2)]
+        _, requests = self.assert_failure("APPLE_BUILD_ALREADY_USED", responses=responses)
+        self.assertEqual(len(requests), 5)  # App, builds, both uploads pages, groups.
+        responses[3] = {"data": [], "links": None}
+        text, requests = self.assert_failure("APPLE_RESPONSE_INVALID", responses=responses)
+        self.assertIn("stage=uploads reason=schema", text)
+        self.assertEqual(len(requests), 4)
+
+    def test_other_resource_string_validation_remains_strict(self):
+        responses = copy.deepcopy(self.responses)
+        responses[1] = page([resource("build", version="18", processingState={"state": "VALID"})])
+        text, _ = self.assert_failure("APPLE_RESPONSE_INVALID", responses=responses)
+        self.assertIn("stage=builds reason=schema", text)
+
     def test_auth_rc_and_production_are_network_free(self):
         for channel in ("rc", "production"):
             env = dict(self.env)
@@ -288,7 +380,7 @@ class AppleDiagnosticTests(unittest.TestCase):
 
     def test_used_builds_uploads_and_non_increasing_numbers(self):
         for bucket, attributes in ((1, {"version": "20", "processingState": "FAILED"}),
-                                   (2, {"cfBundleVersion": "20", "state": "PROCESSING"})):
+                                   (2, {"cfBundleVersion": "20", "state": {"state": "PROCESSING"}})):
             responses = copy.deepcopy(self.responses)
             responses[bucket] = page([resource(SENTINEL, **attributes)])
             self.assert_failure("APPLE_BUILD_ALREADY_USED", responses=responses)
@@ -309,6 +401,13 @@ class AppleDiagnosticTests(unittest.TestCase):
 
 class ApplePaginationTests(unittest.TestCase):
     path = "/v1/builds?filter[app]=6817078475&filter[preReleaseVersion.platform]=IOS&limit=200"
+
+    def test_upload_envelope_accepts_documented_nested_state(self):
+        upload = resource("upload", cfBundleVersion="18", state={"state": "COMPLETE"})
+        with patch.object(apple, "get_json", return_value=page([upload], total=1)) as get:
+            result = apple.all_pages("/v1/apps/6817078475/buildUploads", "synthetic", stage="uploads")
+        self.assertEqual(result, [upload])
+        get.assert_called_once()
 
     def test_pagination_preserves_app_platform_and_reads_every_page(self):
         next_url = apple.API + self.path + "&cursor=second"
