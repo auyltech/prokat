@@ -31,7 +31,8 @@ FAILURE_CODES = frozenset({
 })
 STAGES = frozenset({"environment", "pem", "key", "jwt", "api", "app", "builds", "uploads",
                     "groups", "build", "usage", "runtime", "snapshot"})
-REASONS = frozenset({"format", "escaped_newline", "newline_missing", "wrapper", "load_failed",
+REASONS = frozenset({"format", "escaped_newline", "newline_missing", "leading_quote", "leading_backtick",
+                     "bom", "file_reference", "env_reference", "load_failed",
                      "key_type", "curve", "unexpected", "http_4xx", "rate_limit", "server_error",
                      "timeout", "transport", "json", "schema", "unsafe_url", "redirect", "cycle",
                      "page_limit", "incomplete", "duplicate_resource"})
@@ -102,8 +103,10 @@ def load_apple_private_key(pem, emit=None):
 
     if "\\n" in pem or "\\r" in pem:
         raise AppleCheckFailure("APPLE_PEM_INVALID", "pem", "escaped_newline")
-    if pem.startswith(("\ufeff", "'", '"', "`", "@file:", "@env:")):
-        raise AppleCheckFailure("APPLE_PEM_INVALID", "pem", "wrapper")
+    for prefix, reason in (("\ufeff", "bom"), ("'", "leading_quote"), ('"', "leading_quote"),
+                           ("`", "leading_backtick"), ("@file:", "file_reference"), ("@env:", "env_reference")):
+        if pem.startswith(prefix):
+            raise AppleCheckFailure("APPLE_PEM_INVALID", "pem", reason)
     if "\n" not in pem:
         raise AppleCheckFailure("APPLE_PEM_INVALID", "pem", "newline_missing")
     lines = pem.splitlines()

@@ -100,7 +100,7 @@ Failure exits 1; success exits 0. After failure no final success is printed.
 | `APPLE_DIAGNOSTIC_USAGE` | Unsupported CLI. Use only documented commands |
 | `APPLE_ENV_MISSING` | Named required variable absent. Owner reviews names/scopes; no inferred permission to save a Secret |
 | `APPLE_ENV_INVALID` | Structural contract or fixed diagnostic app/group mismatch. Owner reviews configuration; never print the value |
-| `APPLE_PEM_INVALID` | PEM format/load failure. Fixed reason can identify escaped newlines/wrapper/format; any correction requires owner approval |
+| `APPLE_PEM_INVALID` | PEM format/load failure. Fixed reason distinguishes escaped newlines, individual wrapper categories and format/load failures; any correction requires owner approval |
 | `APPLE_KEY_UNSUPPORTED` | Not private EC P-256. Owner verifies existing key identity; do not create a replacement |
 | `APPLE_JWT_FAILED` | JWT failed after key checks. Inspect pinned library/runtime behavior using synthetic inputs |
 | `APPLE_AUTH_REJECTED` | HTTP 401. Owner reviews matching issuer/key, activation and runner time; no automatic key rotation |
@@ -118,8 +118,9 @@ Failure exits 1; success exits 0. After failure no final success is printed.
 
 Stages are fixed: `environment`, `pem`, `key`, `jwt`, `api`, `app`, `builds`,
 `uploads`, `groups`, `build`, `usage`, `runtime`, `snapshot`.
-Reasons are fixed: `format`, `escaped_newline`, `newline_missing`, `wrapper`,
-`load_failed`, `key_type`, `curve`, `unexpected`, `http_4xx`, `rate_limit`,
+Reasons are fixed: `format`, `escaped_newline`, `newline_missing`, `leading_quote`,
+`leading_backtick`, `bom`, `file_reference`, `env_reference`, `load_failed`,
+`key_type`, `curve`, `unexpected`, `http_4xx`, `rate_limit`,
 `server_error`, `timeout`, `transport`, `json`, `schema`, `unsafe_url`, `redirect`,
 `cycle`, `page_limit`, `incomplete`, `duplicate_resource`.
 
@@ -130,6 +131,77 @@ Successful milestones: `APPLE_ENV_VALID`, `APPLE_PEM_VALID` (structural check),
 `check` ends with `APPLE_STATE_VALID`: all GETs and target-number policy passed
 at that instant. Neither proves signing, upload permissions, tester availability
 or authorization to publish.
+
+## Identifying a PEM wrapper and possible environment collisions
+
+The owner reports two real diagnostic runs ending with
+`APPLE_PEM_INVALID stage=pem reason=wrapper`, while the local .p8 has correct
+boundaries and real newlines. With the implementation that emitted that reason,
+this proves the effective CI string started with one of the checked wrapper
+prefixes. It does not identify which one, prove key corruption, or identify the
+environment source. The raw string was rejected before key loading/JWT/HTTP.
+
+The generic reason is now split into a closed set:
+
+| Reason | Meaning / next inspection |
+| --- | --- |
+| `leading_quote` | Leading single or double quote. Owner checks whether shell/.env/JSON quoting was saved literally; no quote character is logged |
+| `leading_backtick` | Leading backtick. Owner checks Markdown/code-block copying; no original characters are logged |
+| `bom` | Leading Unicode BOM. Owner checks the source encoding/copying path; the local file and CI value need not match |
+| `file_reference` | File-reference syntax. Could be an integration/CLI-oriented representation or a manually saved reference; its path is never logged or opened |
+| `env_reference` | Environment-reference syntax. Could be an indirection saved by a configuration source; its target variable is never logged or resolved |
+
+The existing escaped-newline check runs first; combined defects still report
+`escaped_newline`. Otherwise classification uses the original leading prefix,
+without trimming, unquoting, decoding, dereferencing or automatic fallback.
+Each wrapper still exits 1 before PEM/JWT/HTTP and reveals no value, length,
+fingerprint or traceback. Multiple wrappers reveal only the first classification.
+
+Repository-confirmed configuration: all three iOS workflows reference the same
+`prokat-app-store` integration and import only `prokat-ios-release`. They do not
+assign `APP_STORE_CONNECT_PRIVATE_KEY` in YAML vars, export it in scripts, or
+write it through `CM_ENV`. `inputs.dart` does not produce Apple credentials.
+Setup instructions also ask for the three same-named Apple variables in the
+group, creating a potential overlap with integration-provided authentication.
+The pinned Codemagic CLI supports file/environment reference syntax in its
+argument parser; our raw-PEM reader deliberately does not. This capability does
+not prove the integration injects such a reference into this particular variable.
+
+Not inspected: actual Codemagic application/team variable inventories, launch
+overrides and the integration's effective representation/precedence. A source
+collision is therefore a hypothesis, not a proven cause. Published precedence
+for user variables is API > application > global/team; among imported groups at
+the same level the last group wins. That rule alone does not establish where
+integration injection falls. A second differently named imported group is not
+present in this YAML; application/global definitions under the same group name,
+API overrides or provider integration injection remain possible.
+
+Owner may inspect **names, scopes and launch settings only** for the three Apple
+authentication variables in application variables, team/global variables,
+`prokat-ios-release`, the selected integration and any build overrides. Do not
+reveal, copy, re-save, rename or delete values during this inspection. Repeated
+failure after re-saving a group Secret does not prove the group value was used.
+
+Next short diagnostic, after separate owner approval:
+
+1. Review/integrate this small change through the existing feature → dev → main
+   process; record the resulting approved main SHA. No version bump or tag.
+2. Keep Secrets, integration, group and manual workflow unchanged so the next
+   observation concerns the same effective configuration. Inspect only the
+   source names/scopes and public launch metadata described above.
+3. Authorize one manual `ios-apple-diagnostic` run from that main SHA. The current
+   command remains `check --build 20`: if a wrapper persists it stops before
+   HTTP; if auth succeeds it continues with the documented GET-only checks.
+   This run therefore needs GET approval too. For an auth-only run without any
+   Apple network access, separately review changing only its final command to
+   `auth --channel rc` and the corresponding workflow test; that change is not
+   part of this wrapper-classification patch. Never use a release workflow.
+4. Record only the fixed `APPLE_PEM_INVALID stage=pem reason=<category>` line,
+   build URL and public SHA. Do not print the prefix, reference target or value.
+5. STOP. Use the category plus scope inventory to agree the next corrective
+   action; do not automatically repair wrappers, read references, replace keys,
+   remove integration or retry the release. Success still does not establish
+   the cause of the original +20 ValueError.
 
 ## GET safety and release compatibility
 
