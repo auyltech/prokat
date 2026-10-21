@@ -246,6 +246,77 @@ Next short diagnostic, after separate owner approval:
 
 ## GET safety and release compatibility
 
+### BuildUpload response contract
+
+The owner reports diagnostic #4 at commit `bca435c` passed environment, PEM,
+EC/JWT, app and builds, then failed with
+`APPLE_RESPONSE_INVALID stage=uploads reason=schema`. A reproduced client defect:
+the old `validate_resources(uploads, ("cfBundleVersion", "state"), "uploads")`
+required a string `attributes.state`, while Apple's BuildUpload uses an object:
+
+```json
+{
+  "type": "buildUploads",
+  "id": "synthetic-upload",
+  "attributes": {
+    "cfBundleVersion": "18",
+    "state": {"state": "COMPLETE", "errors": [], "warnings": [], "infos": []}
+  }
+}
+```
+
+Official sources: [BuildUpload.Attributes](https://developer.apple.com/documentation/appstoreconnectapi/buildupload/attributes-data.dictionary),
+[BuildUpload.Attributes.State](https://developer.apple.com/documentation/appstoreconnectapi/buildupload/attributes-data.dictionary/state-data.dictionary),
+[BuildUploadState](https://developer.apple.com/documentation/appstoreconnectapi/builduploadstate),
+[StateDetail](https://developer.apple.com/documentation/appstoreconnectapi/statedetail).
+Public Apple documentation JSON was inspected without credentials; no App Store
+Connect account API was called.
+
+`validate_build_uploads()` is separate from the unchanged string validator for
+other resources. It requires a string `cfBundleVersion` accepted by the existing
+build-number parser, an object `state`, and a nested string `state.state` in
+`AWAITING_UPLOAD`, `PROCESSING`, `FAILED`, `COMPLETE`. Missing fields, flat string
+states, unknown statuses/structures and invalid build numbers fail closed with
+`APPLE_RESPONSE_INVALID stage=uploads reason=schema`. Apple's optional fields
+are not treated as evidence of complete store state when absent: the client
+still requires build number and status for release decisions.
+
+Optional `errors`, `warnings`, `infos` must be arrays of StateDetail objects with
+only optional string `code`/`description` fields. They may be absent or empty;
+unknown members or malformed values block. Their text is never logged or saved.
+After validation, in-memory release state and `apple-state.json` keep the prior
+compact shape: `attributes.cfBundleVersion` plus a flat string `attributes.state`.
+The API response is not mutated. Diagnostics still write no snapshot.
+
+FAILED uploads are not ignored: every upload continues to reserve its number
+and contribute to the historical maximum. An upload of 20 in any documented
+state blocks 20; a higher upload blocks a non-increasing candidate. No retry,
+pagination, historical floor or release/publishing guard was relaxed.
+
+Red/green evidence: the synthetic nested-state diagnostic test failed on the
+original client with exactly the reported uploads/schema error, while a separate
+`all_pages()` control accepted that envelope. Both pass after the fix. Tests also
+prove earlier envelope failures (invalid `links`, absent resource ID or malformed
+`meta.paging`) produce the same uploads/schema code before attribute validation.
+Thus the defect is proven, but the actual #4 response was not captured/queried;
+the log line alone cannot rule out an independent envelope problem in that run.
+
+Local schema-fix verification: 88 Python release tests PASS, including empty,
+multiple and paginated uploads, all documented statuses, malformed state/details,
+missing/invalid build numbers, occupied 20 and FAILED-number policy. Both RC and
+production preflight preserve the compact snapshot without StateDetail leaks;
+invalid/occupied uploads block the real release orchestration before publisher.
+Flutter release regression: 118 PASS. Cached YAML/schema and all workflow Bash
+syntax checks: PASS. Staged credential scan is part of the final local handoff;
+none of these local checks execute Codemagic or account API requests.
+
+After approved feature → dev → main integration, record the resulting main SHA
+and request separate GO for one manual `ios-apple-diagnostic` / `check --build 20`
+run. No Secret, signing, version, tag or publisher change is needed for this
+schema fix. Keep the existing isolated PEM Secret. A new failure remains STOP;
+green diagnostics do not authorize a release or establish build availability
+outside the instant of those reads.
+
 Read app → every builds page → every buildUploads page → every betaGroups page.
 Only explicit GET requests, no body, retries or redirects. URLs must use HTTPS
 and exactly `api.appstoreconnect.apple.com`; pagination keeps the original
