@@ -46,6 +46,13 @@ SwiftPM locks сохраняйте вместе с Podfile.lock; [native guide](
 
 ## Retry и accepted binary
 
+Перед повтором iOS +20 используйте [Apple diagnostic runbook](IOS_CI_DIAGNOSTICS.md).
+Ручной `ios-apple-diagnostic` не собирает/не публикует IPA и запускается только
+после отдельного GO с main. Он не заменяет release guards и live preflight.
+Retry старого +20 требует доказанного сохранения webhook CM_TAG/SHA и текущего
+окружения; обычный выбор тега в UI/API недостаточен. Иначе отдельный reviewed
+iOS-only +21 через feature → dev → main; Android +19 не повторять. Теги неизменяемы.
+
 CI/store API checks обязательны до build и до upload. Timeout/403/5xx,
 неполная pagination или неизвестный commit edit — STOP, state UNKNOWN.
 Не нажимайте rerun/rebuild и не создавайте альтернативный тег вслепую.

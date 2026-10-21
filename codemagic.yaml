@@ -1,4 +1,4 @@
-# Final iOS architecture. No GitHub macOS/iOS job and no branch build events.
+# Tag-only iOS releases plus a separate manual GET-only Apple diagnostic.
 definitions:
   scripts:
     - &validate-source
@@ -11,6 +11,13 @@ definitions:
         git fetch origin "refs/tags/$CM_TAG:refs/tags/$CM_TAG"
         dart tool/release/release.dart ci --tag "$CM_TAG" --platform ios --channel "$RELEASE_EXPECTED_CHANNEL" --revision "$CM_COMMIT"
         dart tool/release/check_toolchain.dart ios
+    - &apple-auth
+      name: Validate Apple authentication locally before expensive release steps
+      script: |
+        set +x
+        set -euo pipefail
+        python3 -m pip --isolated install --disable-pip-version-check --no-cache-dir --only-binary=:all: --index-url https://pypi.org/simple -r tool/release/requirements-apple.txt >/dev/null 2>&1 || { echo 'BLOCKED: APPLE_DEPENDENCY_SETUP_FAILED'; exit 1; }
+        python3 -B tool/release/apple_diagnostic.py auth --channel "$RELEASE_EXPECTED_CHANNEL"
     - &dependencies
       name: Resolve locked dependencies and record tools
       script: |
@@ -96,6 +103,7 @@ workflows:
       cancel_previous_builds: false
     scripts:
       - *validate-source
+      - *apple-auth
       - *dependencies
       - *quality
       - *inputs
@@ -131,6 +139,7 @@ workflows:
       cancel_previous_builds: false
     scripts:
       - *validate-source
+      - *apple-auth
       - *dependencies
       - *quality
       - *inputs
@@ -139,3 +148,36 @@ workflows:
       - *publish
     artifacts:
       - build/release/ios-symbols.zip
+
+  ios-apple-diagnostic:
+    name: iOS Apple GET-only diagnostic
+    instance_type: mac_mini_m2
+    max_build_duration: 5
+    integrations:
+      app_store_connect: prokat-app-store
+    environment:
+      groups:
+        - prokat-ios-release
+    # No triggering, signing, artifacts or publishing: manual main checks only.
+    scripts:
+      - name: Validate manual main checkout
+        script: |
+          set +x
+          set -euo pipefail
+          if [ "${CM_BRANCH:-}" != main ] || [ "${CM_REPO_SLUG:-}" != auyltech/prokat ] || [ "${CM_PULL_REQUEST:-}" != false ] || [ "${CM_TRIGGER_SOURCE:-}" != api ] || [ -n "${CM_TAG:-}" ]; then
+            echo 'BLOCKED: APPLE_SOURCE_CONTEXT_INVALID'; exit 1
+          fi
+          actual_commit=$(git rev-parse HEAD 2>/dev/null) || { echo 'BLOCKED: APPLE_SOURCE_CONTEXT_INVALID'; exit 1; }
+          test "$actual_commit" = "${CM_COMMIT:-}" || { echo 'BLOCKED: APPLE_SOURCE_CONTEXT_INVALID'; exit 1; }
+      - name: Install isolated minimal Apple dependencies
+        script: |
+          set +x
+          set -euo pipefail
+          python3 -m venv "$CM_BUILD_DIR/.apple-diagnostic-venv" >/dev/null 2>&1 || { echo 'BLOCKED: APPLE_DEPENDENCY_SETUP_FAILED'; exit 1; }
+          "$CM_BUILD_DIR/.apple-diagnostic-venv/bin/python3" -m pip --isolated install --disable-pip-version-check --no-cache-dir --only-binary=:all: --index-url https://pypi.org/simple -r tool/release/requirements-apple.txt >/dev/null 2>&1 || { echo 'BLOCKED: APPLE_DEPENDENCY_SETUP_FAILED'; exit 1; }
+      - name: Check current Apple access and build 20 without upload
+        script: |
+          set +x
+          set -euo pipefail
+          source "$CM_BUILD_DIR/.apple-diagnostic-venv/bin/activate"
+          python3 -B tool/release/apple_diagnostic.py check --build 20

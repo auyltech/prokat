@@ -1,6 +1,17 @@
 # Lean release owner CLI
 
 Owner instructions and PowerShell installation: [CICD-README](../../CICD-README.md).
+
+Apple diagnostics: [manual workflow, codes and recovery](../../docs/ci-cd/IOS_CI_DIAGNOSTICS.md).
+`apple_diagnostic.py auth --channel rc|production` is network-free;
+`apple_diagnostic.py check --build 20` reads Apple through GET only. Both use
+in-memory credentials, fixed sanitized codes and no snapshots/publisher. Real
+credentials/API calls require separate owner approval. The manual Codemagic
+workflow targets main and uses only `requirements-apple.txt` (PyJWT 2.15.1,
+cryptography 50.0.2). The ordinary release requirements include that same file;
+the CLI and YAML pins remain unchanged. Legacy `ios_store.py access` still writes
+a snapshot and must not be substituted for the no-write diagnostic.
+
 Cross-platform entry point from repository root:
 
 ```text

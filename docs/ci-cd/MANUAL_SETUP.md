@@ -11,6 +11,14 @@ CLI не требует копировать CI credentials локально и 
 Для первого прохода используйте [короткие инструкции U2/U3](OWNER_CHECKLIST.md).
 До получения административных прав создавать credentials не требуется.
 
+Текущая диагностика CI: [IOS_CI_DIAGNOSTICS](IOS_CI_DIAGNOSTICS.md).
+`ios-apple-diagnostic` использует существующую integration/group, выполняет только
+in-memory auth и GET, не пишет snapshot и не публикует. Старый `ios_store.py access`
+по-прежнему пишет локальный snapshot. Переменная ключа — raw PEM с реальными
+переносами, не base64/quoted JSON/`@file:`. Диагностика не исправляет Secret и
+не разрешает замену credentials; это отдельное решение владельца. PASS локального
+U3 не гарантирует эквивалентность effective environment Codemagic.
+
 Обновление 2026-10-16: владелец подтвердил техническое U1: GitHub App одобрен,
 Personal без billing, 500 M2 минут / 0 использовано, UI triggers/schedules
 выключены; YAML и оба workflows видны, после push сборок нет. Видимость private,
