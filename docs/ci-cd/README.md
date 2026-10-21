@@ -4,6 +4,7 @@ Start with the [owner cheat sheet](../../CICD-README.md): preparation,
 dev → main squash, four commands, retries, common build counter and CLI setup.
 
 - [Release runbook](RELEASE_RUNBOOK.md): verification and recovery, no manual tags.
+- [iOS publishing and IPA recovery](IOS_PUBLISHING.md): real offline CLI parse, single attempts and +23.
 - [Apple CI diagnostics](IOS_CI_DIAGNOSTICS.md): manual GET-only workflow, codes and +20/+21 recovery.
 - [SwiftPM network retries](IOS_SWIFTPM_RETRIES.md): locked resolver only, budgets and +22 recovery.
 - [CLI contract and tests](../../tool/release/README.md).

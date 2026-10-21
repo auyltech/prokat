@@ -1,5 +1,18 @@
 # Verification record — updated 2026-10-20
 
+## Publishing CLI correction — 2026-10-21
+
+Current [publishing/IPA recovery contract](IOS_PUBLISHING.md) and
+[owner workflow](../../CICD-README.md) supersede earlier help-only retry and
+no-IPA-artifact claims below. Historical tables remain unchanged: `--help`
+does not prove that `--altool-retries 0` is accepted. Local installed CLI 0.70.0
+rejects zero for all three attempt-count options; explicit 1/1/1 is accepted.
+Real SDK loops with mocked commands/HTTP prove one attempt, including retryable
+altool timeout and API 401/500/503. Full generated argv/notes are now parsed
+offline before expensive steps and again before upload; version drift blocks.
+The permitted minimal retention fallback selects IPA on all outcomes; no
+exit-code-only deletion. No cloud run, actual Apple request or upload occurred.
+
 ## Apple diagnostic implementation — 2026-10-21
 
 Current [diagnostic/recovery guide](IOS_CI_DIAGNOSTICS.md); owner commands remain

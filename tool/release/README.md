@@ -2,6 +2,14 @@
 
 Owner instructions and PowerShell installation: [CICD-README](../../CICD-README.md).
 
+Apple publishing: [offline CLI contract and IPA retention](../../docs/ci-cd/IOS_PUBLISHING.md).
+`ios_store.py validate-publish` parses the same generated publish argv with the
+pinned CLI 0.70.0, before dependency resolution/build, without API/actions/upload.
+It requires explicit attempt counts 1/1/1, not invalid zeros or defaults 10/3/3.
+The final argv is revalidated before publishing. Version/parse failures block.
+Both iOS workflows retain `build/ios/ipa/*.ipa` on every outcome using standard
+Codemagic retention; no exit-code-only cleanup or additional storage is introduced.
+
 SwiftPM CI: [retry policy and troubleshooting](../../docs/ci-cd/IOS_SWIFTPM_RETRIES.md).
 `swiftpm_resolve.py start|resolve` is CI-only and invokes only the hardcoded locked
 resolver. Three attempts at most, backoffs 15/45 seconds, recognized network logs

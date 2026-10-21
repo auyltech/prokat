@@ -27,7 +27,8 @@ class WorkflowContractTests(unittest.TestCase):
         self.assertIn('rm -f -- .env android/key.properties', steps[-1]['run'])
         for workflow in self.releases.values():
             scripts = [step['script'] for step in workflow['scripts']]
-            ordered = ['release.dart ci', 'apple_diagnostic.py auth', 'flutter pub get', 'swiftpm_resolve.py resolve',
+            ordered = ['release.dart ci', 'apple_diagnostic.py auth', 'ios_store.py validate-publish',
+                       'flutter pub get', 'swiftpm_resolve.py resolve',
                        'flutter analyze', 'ios_store.py preflight', 'flutter build ipa',
                        'verify_ios.py', 'upload-symbols -gsp', 'ios_store.py publish']
             joined = '\n'.join(scripts)
@@ -93,7 +94,7 @@ class WorkflowContractTests(unittest.TestCase):
         for name, workflow in self.releases.items():
             self.assertEqual(workflow["instance_type"], "mac_mini_m2")
             self.assertEqual(workflow["max_build_duration"], '90')
-            self.assertEqual(workflow["artifacts"], ["build/release/ios-symbols.zip"])
+            self.assertEqual(workflow["artifacts"], ["build/release/ios-symbols.zip", "build/ios/ipa/*.ipa"])
             self.assertEqual(workflow["environment"]["vars"]["RELEASE_EXPECTED_CHANNEL"], "rc" if name == "ios-rc" else "production")
             self.assertIn("release.dart ci", workflow["scripts"][0]["script"])
             self.assertIn("check_toolchain.dart ios", workflow["scripts"][0]["script"])
@@ -103,6 +104,8 @@ class WorkflowContractTests(unittest.TestCase):
             self.assertNotIn(' check ', auth)
             self.assertIn('set +x', auth)
             dependencies = workflow['scripts'][2]['script']
+            self.assertLess(dependencies.index('requirements.txt'), dependencies.index('ios_store.py validate-publish'))
+            self.assertLess(dependencies.index('ios_store.py validate-publish'), dependencies.index('flutter pub get'))
             self.assertIn('python3 -B tool/release/swiftpm_resolve.py start', workflow['scripts'][0]['script'])
             self.assertEqual(dependencies.count('swiftpm_resolve.py resolve'), 1)
             self.assertNotIn('xcodebuild -resolvePackageDependencies', dependencies)
@@ -152,6 +155,19 @@ class WorkflowContractTests(unittest.TestCase):
                 self.assertNotIn(forbidden, '\n'.join(scripts))
         diagnostic = self.codemagic['workflows']['ios-apple-diagnostic']
         self.assertNotIn('swiftpm_resolve.py', '\n'.join(step['script'] for step in diagnostic['scripts']))
+
+    def test_ipa_recovery_artifact_has_no_cleanup_or_additional_storage(self):
+        from apple_publish import CLI_VERSION
+        self.assertIn('codemagic-cli-tools==' + CLI_VERSION, (ROOT / 'tool/release/requirements.txt').read_text())
+        for workflow in self.releases.values():
+            scripts = '\n'.join(step['script'] for step in workflow['scripts'])
+            self.assertIn('build/ios/ipa/*.ipa', workflow['artifacts'])
+            self.assertEqual(scripts.count('ios_store.py validate-publish'), 1)
+            self.assertEqual(scripts.count('ios_store.py publish'), 1)
+            for forbidden in ('rm -f -- build/ios/ipa', 'rm -rf build/ios', 'aws s3', 'gsutil', 'post_publish'):
+                self.assertNotIn(forbidden, scripts)
+            self.assertNotIn('publishing', workflow)
+        self.assertNotIn('upload-artifact', (ROOT / '.github/workflows/android-release.yml').read_text())
 
     def test_manual_source_guard_executes_before_dependencies(self):
         git_bash = Path('C:/Program Files/Git/bin/bash.exe')
