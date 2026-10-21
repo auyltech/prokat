@@ -1,5 +1,43 @@
 # Verification record — updated 2026-10-20
 
+## Apple diagnostic implementation — 2026-10-21
+
+Current [diagnostic/recovery guide](IOS_CI_DIAGNOSTICS.md); owner commands remain
+[CICD-README](../../CICD-README.md). Historical entries below retain their original
+dates, results and limits and are not the current provider-readiness assessment.
+
+Owner-provided incident context: Android 1.2.3+19 accepted into Internal Testing;
+iOS 1.2.3+20 / `rc/ios/v1.2.3+20` / `5a34a3b95d554bc1660c23d58b902b77c5dd2447`
+failed before IPA/upload with `Apple state UNKNOWN (ValueError)`. U3 local auth
+succeeded; a CI variable was re-saved; Redeliver created no new build. No new
+provider inspection or real Apple request is claimed by this implementation.
+Malformed CI PEM remains a hypothesis. Current PASS after a Secret change cannot
+prove the original bytes or failure stage.
+
+Implementation: shared in-memory auth/GET state, allowlisted stage-specific
+errors, isolated manual main diagnostic and early release auth. Original release
+tag/SHA/production guards, snapshot and pre-upload state recheck remain.
+Executed local verification on `feat/ios-apple-diagnostic`, based on current dev
+`c281bf8b6d5b14eb58c8526ad598473ba82a4b62`:
+
+| Check | Result / boundary |
+| --- | --- |
+| Python release suite (`python -B -m unittest discover -s tool/release -p '*_test.py'`) | 71 PASS in existing pinned release venv; synthetic keys and mocked in-memory HTTP only |
+| Flutter release regression (`flutter test --no-pub test/release --reporter expanded`) | 118 PASS, including strict CM_TAG/SHA/main/tag-history fixtures |
+| Codemagic YAML | PASS against existing cached JSON Schema; not a cloud validation/run |
+| Bash scripts | All workflow scripts pass Git Bash `-n`; actual manual source guard accepts the valid fixture and rejects branch/repo/PR/trigger/tag/SHA mismatches |
+| Dependencies / syntax | Installed PyJWT 2.15.1, cryptography 50.0.2, Codemagic CLI 0.70.0; changed Python AST parses |
+| Safety regression | Diagnostic tests prohibit file writes, subprocess/publisher/snapshot calls; verify fixed output and absent credential/response sentinels |
+| Diff / scope | Whitespace PASS; pubspec, release notes, Android workflow, release.dart, owner CLI, inputs and publisher unchanged |
+
+No cloud run, real credentials, real Apple GETs, release tags, uploads,
+credential/profile changes or production gate changes occurred. No push or
+dev/main merge was performed. Provider support for safe +20 replay, current
+credential correctness, live build availability and actual signing remain
+UNVERIFIED. This record does not authorize their execution.
+
+## Historical verification record — through 2026-10-20
+
 Historical execution records below are preserved. Current commands and retry
 rules: [CICD-README](../../CICD-README.md). Lean CLI verification is recorded
 separately in [LEAN_RELEASE_CLI](LEAN_RELEASE_CLI.md).

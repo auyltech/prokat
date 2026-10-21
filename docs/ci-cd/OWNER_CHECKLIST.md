@@ -10,6 +10,14 @@
 секреты, сертификаты, теги, CI runs и не включает billing/production.
 Не присылайте JSON, `.p8`, `.p12`, пароли или base64 в чат.
 
+Для текущего iOS CI-сбоя следуйте [GET-only диагностике](IOS_CI_DIAGNOSTICS.md),
+не историческим статусам ниже. После review/main и отдельного GO вручную выбрать
+`ios-apple-diagnostic` с main. Он не требует CM_TAG, не подписывает/не публикует,
+не пишет Apple state. Raw PEM используется без ремонта/декодирования; names/scopes
+integration и `prokat-ios-release` проверяются без раскрытия значений. Ошибка не
+разрешает агенту пересоздавать или пересохранять credentials. Успех подтверждает
+текущее состояние, не причину первого сбоя. +20/+21 — отдельный U4 recovery.
+
 ## Android U2 — полностью с Windows
 
 **Выполнено 19.10.2026:** Play API Access Probe — **PASS**: OAuth 200,

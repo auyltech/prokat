@@ -78,13 +78,16 @@ class AppleStorePolicyTests(unittest.TestCase):
                 self.assertNotIn("--app-store", args)
 
     def test_real_preflight_flow_uses_fresh_complete_reads_and_internal_group(self):
-        env = {"APP_STORE_CONNECT_ISSUER_ID": "fixture", "APP_STORE_CONNECT_PRIVATE_KEY": "not-a-key",
-               "APP_STORE_CONNECT_KEY_IDENTIFIER": "fixture", "APP_STORE_APP_ID": "123",
+        from cryptography.hazmat.primitives.asymmetric import ec
+        from cryptography.hazmat.primitives.serialization import Encoding, PrivateFormat, NoEncryption
+        pem = ec.generate_private_key(ec.SECP256R1()).private_bytes(Encoding.PEM, PrivateFormat.PKCS8, NoEncryption()).decode()
+        env = {"APP_STORE_CONNECT_ISSUER_ID": "00000000-0000-4000-8000-000000000000", "APP_STORE_CONNECT_PRIVATE_KEY": pem,
+               "APP_STORE_CONNECT_KEY_IDENTIFIER": "ABCDEFGHIJ", "APP_STORE_APP_ID": "123",
                "IOS_HISTORICAL_MAX_BUILD": "100", "TESTFLIGHT_GROUP": "PROKAT Internal"}
-        app = {"data": {"attributes": {"bundleId": "com.auyltech.prokat", "primaryLocale": "ru"}}}
+        app = {"data": {"id": "123", "attributes": {"bundleId": "com.auyltech.prokat", "primaryLocale": "ru"}}}
         groups = [{"id": "fixture", "attributes": {"name": "PROKAT Internal", "isInternalGroup": True}}]
         with tempfile.TemporaryDirectory() as directory, patch.object(store, "ROOT", Path(directory)), \
-                patch.dict(store.os.environ, env, clear=True), patch("jwt.encode", return_value="fake-not-a-jwt"), \
+                patch.dict(store.os.environ, env, clear=True), \
                 patch.object(store, "get_json", return_value=app), \
                 patch.object(store, "all_pages", side_effect=[[], [], groups, [], [], groups]) as pages, \
                 contextlib.redirect_stdout(io.StringIO()):
