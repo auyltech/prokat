@@ -469,7 +469,8 @@ void main() {
     }
     expect(script, contains("\$cliArgs += '--dry-run'"));
     expect(readme, isNot(contains('git tag -a')));
-    expect(readme, contains('1.2.4+21'));
+    expect(readme, contains('1.2.3+22'));
+    expect(readme, contains('1.2.4+23'));
   });
   test('PowerShell rejects alias/function collisions and mistyped dry-run', () {
     if (!Platform.isWindows) return;

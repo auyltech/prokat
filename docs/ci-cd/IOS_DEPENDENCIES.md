@@ -1,5 +1,10 @@
 # One-time native dependency check on Mac mini — no app build/signing/publishing
 
+Current CI network handling: [SwiftPM retry contract](IOS_SWIFTPM_RETRIES.md).
+The historical commands below remain direct evidence, not a new execution.
+RC/production CI retry only recognized transient resolver downloads, never
+update packages or rewrite locks. Permanent/unknown errors and lock drift block.
+
 Status 2026-10-20: **Mac dependency execution PASS** on macOS 15.7.3 arm64.
 FVM Flutter 3.47.2, CocoaPods 1.16.2, local Xcode 26.3 (17C529). Codemagic
 still pins Xcode 26.6; that image was not installed here and is not required

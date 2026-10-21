@@ -5,6 +5,7 @@ dev → main squash, four commands, retries, common build counter and CLI setup.
 
 - [Release runbook](RELEASE_RUNBOOK.md): verification and recovery, no manual tags.
 - [Apple CI diagnostics](IOS_CI_DIAGNOSTICS.md): manual GET-only workflow, codes and +20/+21 recovery.
+- [SwiftPM network retries](IOS_SWIFTPM_RETRIES.md): locked resolver only, budgets and +22 recovery.
 - [CLI contract and tests](../../tool/release/README.md).
 - [One-time account setup](MANUAL_SETUP.md), [owner checklist](OWNER_CHECKLIST.md),
   [Android details](ANDROID_SETUP.md), [iOS native locks](IOS_DEPENDENCIES.md).

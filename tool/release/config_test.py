@@ -27,7 +27,7 @@ class WorkflowContractTests(unittest.TestCase):
         self.assertIn('rm -f -- .env android/key.properties', steps[-1]['run'])
         for workflow in self.releases.values():
             scripts = [step['script'] for step in workflow['scripts']]
-            ordered = ['release.dart ci', 'apple_diagnostic.py auth', 'flutter pub get',
+            ordered = ['release.dart ci', 'apple_diagnostic.py auth', 'flutter pub get', 'swiftpm_resolve.py resolve',
                        'flutter analyze', 'ios_store.py preflight', 'flutter build ipa',
                        'verify_ios.py', 'upload-symbols -gsp', 'ios_store.py publish']
             joined = '\n'.join(scripts)
@@ -92,6 +92,7 @@ class WorkflowContractTests(unittest.TestCase):
         self.assertIn("secrets.PRODUCTION_PUBLISHING_ENABLED", text)
         for name, workflow in self.releases.items():
             self.assertEqual(workflow["instance_type"], "mac_mini_m2")
+            self.assertEqual(workflow["max_build_duration"], '90')
             self.assertEqual(workflow["artifacts"], ["build/release/ios-symbols.zip"])
             self.assertEqual(workflow["environment"]["vars"]["RELEASE_EXPECTED_CHANNEL"], "rc" if name == "ios-rc" else "production")
             self.assertIn("release.dart ci", workflow["scripts"][0]["script"])
@@ -102,11 +103,14 @@ class WorkflowContractTests(unittest.TestCase):
             self.assertNotIn(' check ', auth)
             self.assertIn('set +x', auth)
             dependencies = workflow['scripts'][2]['script']
-            self.assertIn('-onlyUsePackageVersionsFromResolvedFile', dependencies)
+            self.assertIn('python3 -B tool/release/swiftpm_resolve.py start', workflow['scripts'][0]['script'])
+            self.assertEqual(dependencies.count('swiftpm_resolve.py resolve'), 1)
+            self.assertNotIn('xcodebuild -resolvePackageDependencies', dependencies)
             self.assertIn('pod install --deployment', dependencies)
             self.assertIn('SourcePackages/checkouts/firebase-ios-sdk/Crashlytics/upload-symbols', workflow['scripts'][6]['script'])
             self.assertIn('test -n "${CM_TAG:-}"', workflow['scripts'][0]['script'])
             self.assertIn('--revision "$CM_COMMIT"', workflow['scripts'][0]['script'])
+        self.assertEqual(self.releases['ios-rc']['scripts'][2], self.releases['ios-production']['scripts'][2])
 
     def test_diagnostic_is_manual_main_only_without_release_capabilities(self):
         workflow = self.codemagic['workflows']['ios-apple-diagnostic']
@@ -132,6 +136,22 @@ class WorkflowContractTests(unittest.TestCase):
             self.assertNotIn(forbidden, scripts)
         for script in (source, dependencies, check):
             self.assertTrue(script.startswith('set +x\nset -euo pipefail\n'))
+
+    def test_swiftpm_retry_is_shared_and_never_wraps_publishing_or_diagnostic(self):
+        for workflow in self.releases.values():
+            scripts = [step['script'] for step in workflow['scripts']]
+            self.assertEqual(sum(script.count('swiftpm_resolve.py resolve') for script in scripts), 1)
+            self.assertEqual(sum(script.count('swiftpm_resolve.py start') for script in scripts), 1)
+            self.assertEqual(sum(script.count('ios_store.py publish') for script in scripts), 1)
+            self.assertIn('git diff --exit-code -- pubspec.lock ios/Podfile.lock', scripts[2])
+            self.assertIn('pod install --deployment', scripts[2])
+            self.assertNotIn('cache', workflow)
+            for script in scripts[3:]:
+                self.assertNotIn('swiftpm_resolve.py', script)
+            for forbidden in ('swift package update', 'rm -rf', '-skipPackage', '-disablePackage'):
+                self.assertNotIn(forbidden, '\n'.join(scripts))
+        diagnostic = self.codemagic['workflows']['ios-apple-diagnostic']
+        self.assertNotIn('swiftpm_resolve.py', '\n'.join(step['script'] for step in diagnostic['scripts']))
 
     def test_manual_source_guard_executes_before_dependencies(self):
         git_bash = Path('C:/Program Files/Git/bin/bash.exe')
