@@ -37,7 +37,7 @@ REASONS = frozenset({"format", "escaped_newline", "newline_missing", "leading_qu
                      "timeout", "transport", "json", "schema", "unsafe_url", "redirect", "cycle",
                      "page_limit", "incomplete", "duplicate_resource"})
 ENV_NAMES = ("APP_STORE_CONNECT_ISSUER_ID", "APP_STORE_CONNECT_KEY_IDENTIFIER",
-             "APP_STORE_CONNECT_PRIVATE_KEY", "APP_STORE_APP_ID", "IOS_HISTORICAL_MAX_BUILD",
+             "PROKAT_ASC_PRIVATE_KEY_PEM", "APP_STORE_APP_ID", "IOS_HISTORICAL_MAX_BUILD",
              "TESTFLIGHT_GROUP")
 SUCCESS_EVENTS = frozenset({
     ("APPLE_ENV_VALID", "environment"), ("APPLE_PEM_VALID", "pem"), ("APPLE_KEY_VALID", "key"),
@@ -145,8 +145,11 @@ def create_apple_token(config, pem):
 def prepare_apple_auth(env, *, require_internal_group, emit=None):
     config = validate_apple_environment(env, require_internal_group=require_internal_group)
     report(emit, "APPLE_ENV_VALID", "environment")
-    load_apple_private_key(env["APP_STORE_CONNECT_PRIVATE_KEY"], emit)
-    token = create_apple_token(config, env["APP_STORE_CONNECT_PRIVATE_KEY"])
+    # This raw-PEM input is independent of Codemagic CLI/integration references.
+    # Never fall back to APP_STORE_CONNECT_PRIVATE_KEY or resolve its files.
+    pem = env["PROKAT_ASC_PRIVATE_KEY_PEM"]
+    load_apple_private_key(pem, emit)
+    token = create_apple_token(config, pem)
     report(emit, "APPLE_JWT_CREATED", "jwt")
     return config, token
 

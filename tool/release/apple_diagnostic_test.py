@@ -46,7 +46,8 @@ class AppleDiagnosticTests(unittest.TestCase):
     def setUp(self):
         self.env = {
             "APP_STORE_CONNECT_ISSUER_ID": "00000000-0000-4000-8000-000000000000",
-            "APP_STORE_CONNECT_KEY_IDENTIFIER": "ABCDEFGHIJ", "APP_STORE_CONNECT_PRIVATE_KEY": self.pem,
+            "APP_STORE_CONNECT_KEY_IDENTIFIER": "ABCDEFGHIJ", "PROKAT_ASC_PRIVATE_KEY_PEM": self.pem,
+            "APP_STORE_CONNECT_PRIVATE_KEY": "@file:/" + SENTINEL,
             "APP_STORE_APP_ID": APP_ID, "IOS_HISTORICAL_MAX_BUILD": "17", "TESTFLIGHT_GROUP": GROUP,
         }
         self.responses = [
@@ -128,7 +129,7 @@ class AppleDiagnosticTests(unittest.TestCase):
 
     def test_crlf_key_is_accepted_without_repair(self):
         status, _, requests = self.invoke(args=["auth", "--channel", "rc"],
-                                         env={**self.env, "APP_STORE_CONNECT_PRIVATE_KEY": self.pem.replace("\n", "\r\n")})
+                                         env={**self.env, "PROKAT_ASC_PRIVATE_KEY_PEM": self.pem.replace("\n", "\r\n")})
         self.assertEqual((status, requests), (0, []))
 
     def test_malformed_pem_never_reaches_network(self):
@@ -139,13 +140,13 @@ class AppleDiagnosticTests(unittest.TestCase):
                  pem_for(self.key, BestAvailableEncryption(b"synthetic-password"))]
         for pem in cases:
             with self.subTest(case=cases.index(pem)):
-                _, requests = self.assert_failure("APPLE_PEM_INVALID", env={**self.env, "APP_STORE_CONNECT_PRIVATE_KEY": pem})
+                _, requests = self.assert_failure("APPLE_PEM_INVALID", env={**self.env, "PROKAT_ASC_PRIVATE_KEY_PEM": pem})
                 self.assertEqual(requests, [])
 
     def test_unsupported_rsa_and_p384(self):
         for key in (rsa.generate_private_key(public_exponent=65537, key_size=2048),
                     ec.generate_private_key(ec.SECP384R1())):
-            _, requests = self.assert_failure("APPLE_KEY_UNSUPPORTED", env={**self.env, "APP_STORE_CONNECT_PRIVATE_KEY": pem_for(key)})
+            _, requests = self.assert_failure("APPLE_KEY_UNSUPPORTED", env={**self.env, "PROKAT_ASC_PRIVATE_KEY_PEM": pem_for(key)})
             self.assertEqual(requests, [])
 
     def test_wrapper_categories_are_exact_sanitized_and_never_loaded(self):
@@ -159,7 +160,7 @@ class AppleDiagnosticTests(unittest.TestCase):
                         patch("jwt.encode") as encode:
                     # Keep private material and a sentinel behind every wrapper;
                     # the output must reveal only the closed classification.
-                    env = {**self.env, "APP_STORE_CONNECT_PRIVATE_KEY": prefix + SENTINEL + self.pem}
+                    env = {**self.env, "PROKAT_ASC_PRIVATE_KEY_PEM": prefix + SENTINEL + self.pem}
                     status, text, requests = self.invoke(args=args, env=env)
                     self.assertEqual(status, 1)
                     self.assertEqual(text, "APPLE_DIAG: APPLE_ENV_VALID stage=environment\n"
@@ -171,7 +172,7 @@ class AppleDiagnosticTests(unittest.TestCase):
 
     def test_escaped_newlines_keep_precedence_over_wrapper_classification(self):
         text, requests = self.assert_failure("APPLE_PEM_INVALID", env={
-            **self.env, "APP_STORE_CONNECT_PRIVATE_KEY": '"' + self.pem.replace("\n", r"\n")})
+            **self.env, "PROKAT_ASC_PRIVATE_KEY_PEM": '"' + self.pem.replace("\n", r"\n")})
         self.assertEqual(text, "APPLE_DIAG: APPLE_ENV_VALID stage=environment\n"
                          "BLOCKED: APPLE_PEM_INVALID stage=pem reason=escaped_newline\n")
         self.assertEqual(requests, [])
@@ -179,7 +180,48 @@ class AppleDiagnosticTests(unittest.TestCase):
     def test_public_key_is_rejected(self):
         from cryptography.hazmat.primitives.serialization import PublicFormat
         public = self.key.public_key().public_bytes(Encoding.PEM, PublicFormat.SubjectPublicKeyInfo).decode()
-        self.assert_failure("APPLE_PEM_INVALID", env={**self.env, "APP_STORE_CONNECT_PRIVATE_KEY": public})
+        self.assert_failure("APPLE_PEM_INVALID", env={**self.env, "PROKAT_ASC_PRIVATE_KEY_PEM": public})
+
+    def test_isolated_pem_is_required_even_if_cli_variable_contains_valid_pem(self):
+        for args in (["auth", "--channel", "rc"], ["auth", "--channel", "production"],
+                     ["check", "--build", "20"]):
+            for missing in (True, False):
+                with self.subTest(mode=args[0], missing=missing):
+                    env = {**self.env, "APP_STORE_CONNECT_PRIVATE_KEY": self.pem}
+                    if missing:
+                        del env["PROKAT_ASC_PRIVATE_KEY_PEM"]
+                    else:
+                        env["PROKAT_ASC_PRIVATE_KEY_PEM"] = ""
+                    text, requests = self.assert_failure("APPLE_ENV_MISSING", args=args, env=env)
+                    self.assertEqual(text, "BLOCKED: APPLE_ENV_MISSING stage=environment "
+                                     "variable=PROKAT_ASC_PRIVATE_KEY_PEM\n")
+                    self.assertEqual(requests, [])
+
+    def test_invalid_isolated_pem_never_falls_back_to_valid_cli_pem(self):
+        for prefix, reason in (("@file:", "file_reference"), ("@env:", "env_reference")):
+            text, requests = self.assert_failure("APPLE_PEM_INVALID", env={
+                **self.env, "APP_STORE_CONNECT_PRIVATE_KEY": self.pem,
+                "PROKAT_ASC_PRIVATE_KEY_PEM": prefix + SENTINEL})
+            self.assertEqual(text, "APPLE_DIAG: APPLE_ENV_VALID stage=environment\n"
+                             f"BLOCKED: APPLE_PEM_INVALID stage=pem reason={reason}\n")
+            self.assertEqual(requests, [])
+
+    def test_python_auth_never_reads_the_cli_private_key_variable(self):
+        class IsolatedEnvironment(dict):
+            def __getitem__(self, name):
+                if name == "APP_STORE_CONNECT_PRIVATE_KEY":
+                    raise AssertionError(SENTINEL)
+                return super().__getitem__(name)
+
+            def get(self, name, default=None):
+                if name == "APP_STORE_CONNECT_PRIVATE_KEY":
+                    raise AssertionError(SENTINEL)
+                return super().get(name, default)
+
+        status, text, requests = self.invoke(env=IsolatedEnvironment(self.env))
+        self.assertEqual(status, 0)
+        self.assertIn("APPLE_STATE_VALID", text)
+        self.assertEqual(len(requests), 4)
 
     def test_jwt_failure_after_valid_key_is_sanitized(self):
         with patch("jwt.encode", side_effect=ValueError(SENTINEL)):

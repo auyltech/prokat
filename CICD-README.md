@@ -68,6 +68,16 @@ Production-строки показывают формат, **не разреша
 
 ## D. Ошибка CI или отказ магазина
 
+Python Apple auth/preflight/диагностика требуют отдельный Secret
+`PROKAT_ASC_PRIVATE_KEY_PEM`: владелец вручную добавляет его в существующую группу
+`prokat-ios-release` с исходным PEM-текстом того же API key (реальные переносы,
+без кавычек, base64, `@file:` или `@env:`). К старому имени fallback отсутствует.
+`APP_STORE_CONNECT_PRIVATE_KEY` и остальные `APP_STORE_CONNECT_*`, integration,
+signing и CLI publisher не менять. Новый API key не нужен. Перед добавлением
+проверить имена/scopes новой переменной на app/team/API уровнях без раскрытия
+значений; фактическая причина появления старой file reference не установлена.
+До настройки нового Secret ранний auth ожидаемо остановится с `APPLE_ENV_MISSING`.
+
 Для iOS доступна отдельная ручная [GET-only диагностика](docs/ci-cd/IOS_CI_DIAGNOSTICS.md):
 `ios-apple-diagnostic`, ветка main, без signing/IPA/publishing. Сначала review и
 интеграция кода, затем отдельный GO на облачный запуск. Она использует существующие
