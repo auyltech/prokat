@@ -81,7 +81,8 @@ class AppleStorePolicyTests(unittest.TestCase):
         from cryptography.hazmat.primitives.asymmetric import ec
         from cryptography.hazmat.primitives.serialization import Encoding, PrivateFormat, NoEncryption
         pem = ec.generate_private_key(ec.SECP256R1()).private_bytes(Encoding.PEM, PrivateFormat.PKCS8, NoEncryption()).decode()
-        env = {"APP_STORE_CONNECT_ISSUER_ID": "00000000-0000-4000-8000-000000000000", "APP_STORE_CONNECT_PRIVATE_KEY": pem,
+        env = {"APP_STORE_CONNECT_ISSUER_ID": "00000000-0000-4000-8000-000000000000", "PROKAT_ASC_PRIVATE_KEY_PEM": pem,
+               "APP_STORE_CONNECT_PRIVATE_KEY": "@file:/synthetic-cli-only-reference",
                "APP_STORE_CONNECT_KEY_IDENTIFIER": "ABCDEFGHIJ", "APP_STORE_APP_ID": "123",
                "IOS_HISTORICAL_MAX_BUILD": "100", "TESTFLIGHT_GROUP": "PROKAT Internal"}
         app = {"data": {"id": "123", "attributes": {"bundleId": "com.auyltech.prokat", "primaryLocale": "ru"}}}
@@ -96,6 +97,41 @@ class AppleStorePolicyTests(unittest.TestCase):
             self.assertEqual(pages.call_count, 6)  # No cache between pre-build and pre-upload.
             self.assertEqual(pages.call_args_list[2].args[0], "/v1/apps/123/betaGroups?limit=200")
             self.assertTrue((Path(directory) / "build/release/apple-state.json").is_file())
+
+    def test_publish_stops_on_isolated_auth_or_unknown_store_without_publisher(self):
+        from cryptography.hazmat.primitives.asymmetric import ec
+        from cryptography.hazmat.primitives.serialization import Encoding, PrivateFormat, NoEncryption
+        pem = ec.generate_private_key(ec.SECP256R1()).private_bytes(Encoding.PEM, PrivateFormat.PKCS8, NoEncryption()).decode()
+        context = {**self.rc, "tag": "rc/ios/v1.8.0+108"}
+        base = {"CM_BUILD_ID": "fixture", "CM_TAG": context["tag"],
+                "APP_STORE_CONNECT_ISSUER_ID": "00000000-0000-4000-8000-000000000000",
+                "APP_STORE_CONNECT_KEY_IDENTIFIER": "ABCDEFGHIJ", "APP_STORE_CONNECT_PRIVATE_KEY": pem,
+                "APP_STORE_APP_ID": "123", "IOS_HISTORICAL_MAX_BUILD": "100", "TESTFLIGHT_GROUP": "PROKAT Internal"}
+        cases = ((None, "APPLE_ENV_MISSING"), ("@file:/synthetic-unread-key", "APPLE_PEM_INVALID"),
+                 ("@env:SYNTHETIC_UNREAD_KEY", "APPLE_PEM_INVALID"), (pem, "APPLE_API_UNAVAILABLE"))
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / "build/release").mkdir(parents=True)
+            (root / "build/release/context.json").write_text(json.dumps(context))
+            for isolated, expected in cases:
+                env = dict(base)
+                if isolated is not None:
+                    env["PROKAT_ASC_PRIVATE_KEY_PEM"] = isolated
+                with self.subTest(code=expected), patch.object(store, "ROOT", root), \
+                        patch.dict(store.os.environ, env, clear=True), \
+                        patch.object(store.sys, "argv", ["ios_store.py", "publish"]), \
+                        patch.object(store, "get_json", side_effect=store.AppleCheckFailure(
+                            "APPLE_API_UNAVAILABLE", "app", "timeout")) as get, \
+                        patch.object(store.subprocess, "run") as publisher, \
+                        self.assertRaises(store.AppleCheckFailure) as caught:
+                    store.main()
+                self.assertEqual(caught.exception.code, expected)
+                publisher.assert_not_called()
+                if expected == "APPLE_API_UNAVAILABLE":
+                    get.assert_called_once()
+                else:
+                    get.assert_not_called()
+                self.assertFalse((root / "build/release/apple-state.json").exists())
 
     def test_existing_build_in_any_state_blocks(self):
         for state in ("VALID", "PROCESSING", "FAILED", "INVALID"):

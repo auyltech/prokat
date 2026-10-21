@@ -96,10 +96,14 @@ versionCode **18** на эту дату. Новый аккаунт/ключ и �
    keys / Add key** добавьте тот же `.p8`, Key ID и Issuer ID с именем интеграции
    **`prokat-app-store`**. Не создавайте платную Team ради названия UI-раздела.
    В PROKAT → **Environment variables**, группа **`prokat-ios-release`**, задайте
-   для custom CLI три Secret-переменные того же ключа:
-   `APP_STORE_CONNECT_PRIVATE_KEY` (содержимое `.p8`, не base64),
+   для собственного Python-клиента Secret-переменные того же ключа:
+   `PROKAT_ASC_PRIVATE_KEY_PEM` (исходный текст `.p8`, не base64 и не ссылка),
    `APP_STORE_CONNECT_KEY_IDENTIFIER`, `APP_STORE_CONNECT_ISSUER_ID`.
-   Это один ключ, не три новых credentials. Из Windows копируйте содержимое
+   Новый PEM Secret владелец добавляет вручную. Fallback к старому имени нет;
+   существующие `APP_STORE_CONNECT_*`, integration, signing и CLI publisher
+   оставьте без изменений. Проверьте отсутствие одноимённых app/team/API overrides
+   новой переменной по names/scopes, без раскрытия значений. Это один API key.
+   Из Windows копируйте содержимое
    через `Set-Clipboard -Value ([IO.File]::ReadAllText('C:\secure\AuthKey.p8'))`,
    вставьте прямо в Secret и очистите clipboard: `Set-Clipboard -Value ''`.
 4. Владелец уже записал в Codemagic group `prokat-ios-release`, не в Git:

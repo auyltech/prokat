@@ -20,6 +20,14 @@ class CliDocumentationTests(unittest.TestCase):
                      'docs/ci-cd/MANUAL_SETUP.md', 'docs/ci-cd/OWNER_CHECKLIST.md', 'docs/ci-cd/VERIFICATION.md'):
             self.assertIn('IOS_CI_DIAGNOSTICS', (ROOT / path).read_text(encoding='utf-8'))
 
+    def test_isolated_python_pem_contract_is_documented(self):
+        for path in ('CICD-README.md', 'tool/release/README.md', 'docs/ci-cd/IOS_CI_DIAGNOSTICS.md',
+                     'docs/ci-cd/MANUAL_SETUP.md', 'docs/ci-cd/OWNER_CHECKLIST.md'):
+            text = (ROOT / path).read_text(encoding='utf-8')
+            self.assertIn('PROKAT_ASC_PRIVATE_KEY_PEM', text)
+        guide = (ROOT / 'docs/ci-cd/IOS_CI_DIAGNOSTICS.md').read_text(encoding='utf-8')
+        self.assertIn('no fallback', guide)
+
     def test_owner_commands_and_flags_exist(self):
         readme = (ROOT / 'CICD-README.md').read_text(encoding='utf-8')
         script = (ROOT / 'tool/release/prokat-release.ps1').read_text(encoding='utf-8')

@@ -14,8 +14,11 @@ CLI не требует копировать CI credentials локально и 
 Текущая диагностика CI: [IOS_CI_DIAGNOSTICS](IOS_CI_DIAGNOSTICS.md).
 `ios-apple-diagnostic` использует существующую integration/group, выполняет только
 in-memory auth и GET, не пишет snapshot и не публикует. Старый `ios_store.py access`
-по-прежнему пишет локальный snapshot. Переменная ключа — raw PEM с реальными
-переносами, не base64/quoted JSON/`@file:`. Диагностика не исправляет Secret и
+по-прежнему пишет локальный snapshot. Python читает ключ только из нового
+`PROKAT_ASC_PRIVATE_KEY_PEM`: raw PEM с реальными переносами, не base64/quoted
+JSON/`@file:`/`@env:`, без fallback к старому имени. Владелец вручную добавляет
+этот Secret в `prokat-ios-release` с PEM того же API key. Старые
+`APP_STORE_CONNECT_*`, integration и CLI publishing не менять. Диагностика не исправляет Secret и
 не разрешает замену credentials; это отдельное решение владельца. PASS локального
 U3 не гарантирует эквивалентность effective environment Codemagic.
 
@@ -241,10 +244,13 @@ GitHub Billing и применимость Personal Free ещё PENDING. Под�
 5. Codemagic Personal **Settings → Integrations → Developer Portal → Connect**:
    Integration/API key name ровно **`prokat-app-store`**, Issuer ID, Key ID, `.p8`.
    Подключение используется native CLI для publishing и работы с existing signing.
-   Наш custom CLI использует `APP_STORE_CONNECT_PRIVATE_KEY`,
-   `APP_STORE_CONNECT_KEY_IDENTIFIER`, `APP_STORE_CONNECT_ISSUER_ID`. Сохраните
-   те же значения как Secret variables группы ниже, чтобы не зависеть от способа
-   экспорта integration. Это один ключ; не создавайте второй и не печатайте `printenv`.
+   Собственный Python-клиент использует только `PROKAT_ASC_PRIVATE_KEY_PEM`
+   для raw PEM и существующие `APP_STORE_CONNECT_KEY_IDENTIFIER`,
+   `APP_STORE_CONNECT_ISSUER_ID` для идентичности того же ключа. Владелец вручную
+   добавляет новый PEM Secret в существующую группу `prokat-ios-release`;
+   fallback к `APP_STORE_CONNECT_PRIVATE_KEY` и чтение ссылок запрещены.
+   Старые `APP_STORE_CONNECT_*` и integration остаются для native CLI publishing
+   и signing без изменений. Это тот же API key, не новый ключ. Не печатайте `printenv`.
 6. [Apple Certificates, Identifiers & Profiles](https://developer.apple.com/account/resources/):
    Identifier `com.auyltech.prokat` должен иметь **Push Notifications** и
    **Associated Domains**. Нужен действующий **App Store distribution profile**,

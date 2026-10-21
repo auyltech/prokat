@@ -3,6 +3,15 @@
 Owner instructions and PowerShell installation: [CICD-README](../../CICD-README.md).
 
 Apple diagnostics: [manual workflow, codes and recovery](../../docs/ci-cd/IOS_CI_DIAGNOSTICS.md).
+The custom Python client (early auth, diagnostic and release preflight) reads
+private PEM **only** from `PROKAT_ASC_PRIVATE_KEY_PEM`, with no fallback to
+`APP_STORE_CONNECT_PRIVATE_KEY`. Owner must manually add this Secret to existing
+`prokat-ios-release`: the original raw PEM of the same API key, real newlines,
+without quoting/base64/references. Python does not read files or resolve env
+references. Leave existing `APP_STORE_CONNECT_*` values, integration/signing and
+Codemagic CLI publishing unchanged; issuer and key identifier still come from
+their existing variables and must match the isolated PEM. No new Apple API key.
+
 `apple_diagnostic.py auth --channel rc|production` is network-free;
 `apple_diagnostic.py check --build 20` reads Apple through GET only. Both use
 in-memory credentials, fixed sanitized codes and no snapshots/publisher. Real
