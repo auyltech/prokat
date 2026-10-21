@@ -148,6 +148,34 @@ class AppleDiagnosticTests(unittest.TestCase):
             _, requests = self.assert_failure("APPLE_KEY_UNSUPPORTED", env={**self.env, "APP_STORE_CONNECT_PRIVATE_KEY": pem_for(key)})
             self.assertEqual(requests, [])
 
+    def test_wrapper_categories_are_exact_sanitized_and_never_loaded(self):
+        cases = (("'", "leading_quote"), ('"', "leading_quote"), ("`", "leading_backtick"),
+                 ("\ufeff", "bom"), ("@file:", "file_reference"), ("@env:", "env_reference"))
+        for prefix, reason in cases:
+            for args in (["auth", "--channel", "rc"], ["auth", "--channel", "production"],
+                         ["check", "--build", "20"]):
+                with self.subTest(reason=reason, mode=args[0]), \
+                        patch("cryptography.hazmat.primitives.serialization.load_pem_private_key") as load, \
+                        patch("jwt.encode") as encode:
+                    # Keep private material and a sentinel behind every wrapper;
+                    # the output must reveal only the closed classification.
+                    env = {**self.env, "APP_STORE_CONNECT_PRIVATE_KEY": prefix + SENTINEL + self.pem}
+                    status, text, requests = self.invoke(args=args, env=env)
+                    self.assertEqual(status, 1)
+                    self.assertEqual(text, "APPLE_DIAG: APPLE_ENV_VALID stage=environment\n"
+                                     f"BLOCKED: APPLE_PEM_INVALID stage=pem reason={reason}\n")
+                    self.assertEqual(requests, [])
+                    load.assert_not_called()
+                    encode.assert_not_called()
+        self.assertNotIn("wrapper", apple.REASONS)
+
+    def test_escaped_newlines_keep_precedence_over_wrapper_classification(self):
+        text, requests = self.assert_failure("APPLE_PEM_INVALID", env={
+            **self.env, "APP_STORE_CONNECT_PRIVATE_KEY": '"' + self.pem.replace("\n", r"\n")})
+        self.assertEqual(text, "APPLE_DIAG: APPLE_ENV_VALID stage=environment\n"
+                         "BLOCKED: APPLE_PEM_INVALID stage=pem reason=escaped_newline\n")
+        self.assertEqual(requests, [])
+
     def test_public_key_is_rejected(self):
         from cryptography.hazmat.primitives.serialization import PublicFormat
         public = self.key.public_key().public_bytes(Encoding.PEM, PublicFormat.SubjectPublicKeyInfo).decode()
