@@ -5,7 +5,8 @@
 `ios-apple-diagnostic` / **iOS Apple GET-only diagnostic** checks current Apple
 authentication and API reads without signing, building, uploading or submission.
 It uses the existing `prokat-app-store` integration and `prokat-ios-release`
-group. No certificate/key/profile is created, replaced or revoked. Production
+group, with isolated raw PEM in owner-managed `PROKAT_ASC_PRIVATE_KEY_PEM`.
+No certificate/key/profile is created, replaced or revoked. Production
 publishing remains disabled. This document does not authorize a cloud run.
 
 Owner-confirmed incident: Android `1.2.3+19` was accepted into Play Internal;
@@ -29,9 +30,13 @@ failure stage of the original run. Do not restore old credentials to reproduce i
 1. Review and integrate this feature through feature → dev → main using the
    existing Squash and merge process. Record the resulting approved main SHA.
    The diagnostic-only change does not bump `pubspec.yaml` or reserve a build.
-2. Before running, inspect variable **names and scopes**, not secret contents.
-   No custom API/UI overrides: existing integration and group only. Confirm that
-   production gates are not enabled. Do not change Secrets during diagnosis.
+2. Before running, the owner must manually add Secret `PROKAT_ASC_PRIVATE_KEY_PEM`
+   to existing `prokat-ios-release`, using the original raw PEM text of the same
+   API key as the existing issuer/key identifier. No base64, quotes or references.
+   Inspect variable **names and scopes**, not secret contents, for duplicates at
+   app/team/API levels. Leave existing `APP_STORE_CONNECT_*`, integration and
+   signing unchanged. No API/UI launch overrides. Confirm production is disabled;
+   do not modify Secrets during the diagnostic itself.
 3. In the existing PROKAT Codemagic application choose **Start new build**,
    select branch **main**, and workflow **iOS Apple GET-only diagnostic**
    (`ios-apple-diagnostic`). Do not select a release workflow or a tag. Confirm
@@ -74,7 +79,7 @@ workflow command change to `--build 21` and its matching assertion in
 
 Required variables: `APP_STORE_CONNECT_ISSUER_ID` (UUID structure),
 `APP_STORE_CONNECT_KEY_IDENTIFIER` (10 ASCII letters/digits),
-`APP_STORE_CONNECT_PRIVATE_KEY` (raw unencrypted PKCS#8 PEM), `APP_STORE_APP_ID`
+`PROKAT_ASC_PRIVATE_KEY_PEM` (raw unencrypted PKCS#8 PEM), `APP_STORE_APP_ID`
 (positive ASCII decimal, up to 20 digits), `IOS_HISTORICAL_MAX_BUILD` (0..9999,
 no leading zeros). RC also requires `TESTFLIGHT_GROUP`, without surrounding
 whitespace; production auth does not require a TestFlight group.
@@ -85,6 +90,24 @@ The PEM must have real LF or CRLF and exact PRIVATE KEY boundaries, with no BOM,
 quotes, Markdown fences or `@file:`/`@env:` wrappers. Literal escaped newlines and
 base64-of-PEM are rejected, not repaired. A loadable private EC P-256 key and an
 ES256 JWT are required. Key/JWT data and fingerprints are never logged.
+
+Python's early auth, diagnostic, legacy access and release preflight read the
+private key only from `PROKAT_ASC_PRIVATE_KEY_PEM`: **no fallback** to
+`APP_STORE_CONNECT_PRIVATE_KEY`, including when the new variable is missing,
+empty or invalid. The existing issuer and key identifier remain shared and must
+correspond to that PEM. A missing/empty new variable fails before key/JWT/HTTP:
+
+```text
+BLOCKED: APPLE_ENV_MISSING stage=environment variable=PROKAT_ASC_PRIVATE_KEY_PEM
+```
+
+Codemagic CLI can interpret `@file:` in its own authentication variable; PyJWT
+expects PEM material. These are separate input contracts. No generic file reader
+is implemented: a trusted Codemagic path boundary was not established. Python
+never opens a reference, expands `@env:`, strips wrappers, copies credentials to
+another environment variable, or writes PEM/JWT to disk. Do not replace/rename
+`APP_STORE_CONNECT_PRIVATE_KEY` or make the CLI use the new variable. Existing
+integration/CLI publishing/signing remain on their previous credentials.
 
 ## Diagnostic output and allowed action
 
@@ -132,7 +155,7 @@ Successful milestones: `APPLE_ENV_VALID`, `APPLE_PEM_VALID` (structural check),
 at that instant. Neither proves signing, upload permissions, tester availability
 or authorization to publish.
 
-## Identifying a PEM wrapper and possible environment collisions
+## Historical wrapper evidence and current environment isolation
 
 The owner reports two real diagnostic runs ending with
 `APPLE_PEM_INVALID stage=pem reason=wrapper`, while the local .p8 has correct
@@ -141,15 +164,24 @@ this proves the effective CI string started with one of the checked wrapper
 prefixes. It does not identify which one, prove key corruption, or identify the
 environment source. The raw string was rejected before key loading/JWT/HTTP.
 
-The generic reason is now split into a closed set:
+Latest owner-provided observation: main
+`24c7010c71bd1e29b0ea7b5cecaf5b256c77cfc0`, diagnostic build
+`6ad85f8b454d2506f7abb5a1`, `APPLE_ENV_VALID`, then
+`APPLE_PEM_INVALID stage=pem reason=file_reference`. This establishes a
+representation mismatch in the old Python contract, not a corrupt .p8 or the
+source that supplied the reference. The owner chose namespace isolation instead
+of a universal file reader because no trusted path boundary was confirmed.
+
+The closed wrapper categories below now describe input errors in
+`PROKAT_ASC_PRIVATE_KEY_PEM`, not an inspection of the CLI's private-key variable:
 
 | Reason | Meaning / next inspection |
 | --- | --- |
 | `leading_quote` | Leading single or double quote. Owner checks whether shell/.env/JSON quoting was saved literally; no quote character is logged |
 | `leading_backtick` | Leading backtick. Owner checks Markdown/code-block copying; no original characters are logged |
 | `bom` | Leading Unicode BOM. Owner checks the source encoding/copying path; the local file and CI value need not match |
-| `file_reference` | File-reference syntax. Could be an integration/CLI-oriented representation or a manually saved reference; its path is never logged or opened |
-| `env_reference` | Environment-reference syntax. Could be an indirection saved by a configuration source; its target variable is never logged or resolved |
+| `file_reference` | A file reference was put in the raw-PEM-only Python variable; owner reviews its setup. Path is never logged or opened; a reference in the old CLI variable is ignored by Python |
+| `env_reference` | An env reference was put in the raw-PEM-only Python variable; owner reviews its setup. Target variable is never logged or resolved |
 
 The existing escaped-newline check runs first; combined defects still report
 `escaped_newline`. Otherwise classification uses the original leading prefix,
@@ -159,10 +191,13 @@ fingerprint or traceback. Multiple wrappers reveal only the first classification
 
 Repository-confirmed configuration: all three iOS workflows reference the same
 `prokat-app-store` integration and import only `prokat-ios-release`. They do not
-assign `APP_STORE_CONNECT_PRIVATE_KEY` in YAML vars, export it in scripts, or
-write it through `CM_ENV`. `inputs.dart` does not produce Apple credentials.
-Setup instructions also ask for the three same-named Apple variables in the
+assign either private-key variable in YAML vars, export them in scripts, or
+write them through `CM_ENV`. `inputs.dart` does not produce Apple credentials.
+Earlier setup instructions requested three same-named Apple variables in the
 group, creating a potential overlap with integration-provided authentication.
+Current Python setup requires the separate `PROKAT_ASC_PRIVATE_KEY_PEM` name;
+issuer and key identifier keep their existing names. No new variable mapping,
+CLI override or workflow architecture change is needed in YAML.
 The pinned Codemagic CLI supports file/environment reference syntax in its
 argument parser; our raw-PEM reader deliberately does not. This capability does
 not prove the integration injects such a reference into this particular variable.
@@ -176,31 +211,37 @@ integration injection falls. A second differently named imported group is not
 present in this YAML; application/global definitions under the same group name,
 API overrides or provider integration injection remain possible.
 
-Owner may inspect **names, scopes and launch settings only** for the three Apple
-authentication variables in application variables, team/global variables,
-`prokat-ios-release`, the selected integration and any build overrides. Do not
-reveal, copy, re-save, rename or delete values during this inspection. Repeated
-failure after re-saving a group Secret does not prove the group value was used.
+Owner may inspect **names, scopes and launch settings only** for the isolated PEM
+and existing Apple variables in application variables, team/global variables,
+`prokat-ios-release`, the selected integration and any build overrides. The new
+name avoids the known CLI variable, but is not immune to app/team/API duplicates
+of its own name. Inventory only: do not reveal, re-save, rename or delete values.
+Repeated failure after re-saving a group Secret does not prove it was selected.
+Actual inventories and integration precedence remain unverified; isolation does
+not retroactively establish a provider override or the initial ValueError cause.
 
 Next short diagnostic, after separate owner approval:
 
 1. Review/integrate this small change through the existing feature → dev → main
    process; record the resulting approved main SHA. No version bump or tag.
-2. Keep Secrets, integration, group and manual workflow unchanged so the next
-   observation concerns the same effective configuration. Inspect only the
-   source names/scopes and public launch metadata described above.
+2. Owner manually adds only `PROKAT_ASC_PRIVATE_KEY_PEM` as a Secret in the existing
+   `prokat-ios-release`, with original raw PEM from the same existing .p8 (real
+   line breaks, no wrapper). Keep old Secrets, integration, group and workflow
+   unchanged. Verify matching issuer/key identifier and absence of duplicates
+   by names/scopes; do not regenerate keys or print/copy values into logs/chat.
 3. Authorize one manual `ios-apple-diagnostic` run from that main SHA. The current
-   command remains `check --build 20`: if a wrapper persists it stops before
+   command remains `check --build 20`: if the new Secret is missing/invalid it stops before
    HTTP; if auth succeeds it continues with the documented GET-only checks.
    This run therefore needs GET approval too. For an auth-only run without any
    Apple network access, separately review changing only its final command to
    `auth --channel rc` and the corresponding workflow test; that change is not
-   part of this wrapper-classification patch. Never use a release workflow.
-4. Record only the fixed `APPLE_PEM_INVALID stage=pem reason=<category>` line,
+   part of this environment-isolation patch. Never use a release workflow.
+4. Record only fixed diagnostic status lines (including any failure category),
    build URL and public SHA. Do not print the prefix, reference target or value.
 5. STOP. Use the category plus scope inventory to agree the next corrective
    action; do not automatically repair wrappers, read references, replace keys,
-   remove integration or retry the release. Success still does not establish
+   remove integration or retry the release. Do not interpret auth success as
+   permission for upload. Success still does not establish
    the cause of the original +20 ValueError.
 
 ## GET safety and release compatibility
@@ -271,6 +312,15 @@ Also validate Codemagic YAML against the existing schema and release workflow
 contracts. Tests cover malformed PEM, JWT/HTTP/pagination/state errors, fixed
 output and sentinels, no file writes, no publisher/subprocess calls, manual-only
 diagnostics and unchanged release guards. No local test grants real API access.
+
+Environment-isolation verification (local, 2026-10-21): 78 Python release tests
+and 118 Flutter release tests passed; cached Codemagic YAML schema and all Bash
+scripts passed validation. Synthetic tests reject missing/empty isolated PEM
+even with a valid old CLI PEM, reject references without fallback or file reads,
+and prove publisher is not invoked on auth failure or unknown Apple state.
+The original YAML, publisher, signing/source guards, version and release metadata
+are unchanged. No real credentials, cloud build or Apple request was used; actual
+Secret setup and end-to-end GET verification remain owner actions.
 
 Ready for an RC attempt requires diagnostic success, an approved recovery branch,
 valid existing signing prerequisites and explicit U4 GO for tag/SHA/build.
