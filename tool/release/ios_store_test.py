@@ -65,6 +65,8 @@ class AppleStorePolicyTests(unittest.TestCase):
             (root / "build/release/context.json").write_text(json.dumps(context))
             (root / "build/ios/ipa").mkdir(parents=True)
             (root / "build/ios/ipa/fixture.ipa").touch()  # Empty fixture, never a signed binary.
+            (root / "build/release/apple-localizations.json").write_text(
+                json.dumps([{"locale": "ru", "whats_new": "Synthetic Git notes"}]))
             env = {"CM_BUILD_ID": "fixture", "CM_TAG": context["tag"], "TESTFLIGHT_GROUP": "PROKAT Internal"}
             with patch.object(store, "ROOT", root), patch.dict(store.os.environ, env, clear=True), \
                     patch.object(store.sys, "argv", ["ios_store.py", "publish"]), patch.object(store, "preflight") as read, \
@@ -223,7 +225,8 @@ class AppleStorePolicyTests(unittest.TestCase):
         self.assertNotIn("--release-type", args)
         self.assertNotIn("--testflight", args)
         self.assertIn("--beta-group", args)
-        self.assertEqual(args[args.index("--altool-retries") + 1], "0")
+        for flag in ("--altool-retries", "--api-server-error-retries", "--api-unauthorized-retries"):
+            self.assertEqual(args[args.index(flag) + 1], "1")
 
     def test_production_requests_after_approval(self):
         args = store.publish_arguments({**self.rc, "channel": "production", "destination": "app_store_review"}, "build.ipa")
@@ -255,6 +258,91 @@ class AppleStorePolicyTests(unittest.TestCase):
     def test_pagination_does_not_leak_jwt_to_other_hosts(self):
         with self.assertRaises(store.Blocked):
             store.get_json("https://example.invalid/v1/builds", "fake")
+
+
+class ApplePublishBoundaryTests(unittest.TestCase):
+    def setUp(self):
+        self.directory = tempfile.TemporaryDirectory()
+        self.addCleanup(self.directory.cleanup)
+        self.addCleanup(patch.stopall)
+        self.root = Path(self.directory.name)
+        self.context = {"platform": "ios", "channel": "rc", "destination": "testflight",
+                        "version": "1.2.3", "build": 23, "tag": "rc/ios/v1.2.3+23"}
+        release = self.root / 'build/release'
+        release.mkdir(parents=True)
+        (release / 'context.json').write_text(json.dumps(self.context))
+        (release / 'apple-localizations.json').write_text(json.dumps([{'locale': 'ru', 'whats_new': 'Synthetic notes'}]))
+        self.ipa = self.root / 'build/ios/ipa/fixture.ipa'
+        patch.object(store, 'ROOT', self.root).start()
+        patch.dict(store.os.environ, {'CM_BUILD_ID': 'fixture', 'CM_TAG': self.context['tag'],
+                                     'TESTFLIGHT_GROUP': 'Synthetic Internal'}, clear=True).start()
+        self.read = patch.object(store, 'preflight').start()
+        self.publish = patch.object(store.subprocess, 'run', return_value=SimpleNamespace(returncode=0)).start()
+        patch.object(store, 'get_json', side_effect=AssertionError('No real Apple requests')).start()
+
+    def run_main(self, command):
+        with patch.object(store.sys, 'argv', ['ios_store.py', command]), contextlib.redirect_stdout(io.StringIO()) as output:
+            store.main()
+        return output.getvalue()
+
+    def create_ipa(self):
+        self.ipa.parent.mkdir(parents=True)
+        self.ipa.write_bytes(b'SYNTHETIC_NOT_A_SIGNED_BINARY')
+
+    def test_early_validation_reads_same_git_notes_without_ipa_api_or_publisher(self):
+        files = sorted(self.root.rglob('*'))
+        self.assertIn('APPLE_PUBLISH_ARGUMENTS_VALID', self.run_main('validate-publish'))
+        self.read.assert_not_called()
+        self.publish.assert_not_called()
+        self.assertFalse(self.ipa.exists())
+        self.assertEqual(sorted(self.root.rglob('*')), files)
+
+    def test_bad_builder_arguments_stop_both_early_check_and_real_publisher(self):
+        self.create_ipa()
+        original = store.publish_arguments
+        def old_arguments(*args):
+            generated = original(*args)
+            generated[generated.index('--altool-retries') + 1] = '0'
+            return generated
+        with patch.object(store, 'publish_arguments', side_effect=old_arguments):
+            for command in ('validate-publish', 'publish'):
+                with self.subTest(command=command), self.assertRaisesRegex(store.Blocked, '^APPLE_PUBLISH_ARGUMENTS_INVALID$'):
+                    self.run_main(command)
+                self.publish.assert_not_called()
+                self.assertTrue(self.ipa.exists())
+
+    def test_unknown_preupload_state_stops_without_upload_and_retains_ipa(self):
+        self.create_ipa()
+        self.read.side_effect = store.AppleCheckFailure('APPLE_API_UNAVAILABLE', 'uploads', 'timeout')
+        with self.assertRaises(store.Blocked):
+            self.run_main('publish')
+        self.publish.assert_not_called()
+        self.assertTrue(self.ipa.exists())
+
+    def test_success_and_failed_or_unknown_cli_exit_always_retain_exact_ipa(self):
+        self.create_ipa()
+        expected = self.ipa.read_bytes()
+        for status in (0, 1, 130):
+            self.publish.reset_mock()
+            self.read.reset_mock()
+            self.publish.return_value = SimpleNamespace(returncode=status)
+            if status:
+                with self.assertRaisesRegex(store.Blocked, 'upload may already be accepted.*no automatic retry'):
+                    self.run_main('publish')
+            else:
+                self.run_main('publish')
+            self.read.assert_called_once_with(self.context)
+            self.publish.assert_called_once()  # Mock subprocess: never a real upload.
+            self.assertEqual(self.ipa.read_bytes(), expected)
+
+    def test_production_early_check_is_default_deny_before_api_or_publisher(self):
+        context = {**self.context, 'channel': 'production', 'destination': 'app_store_review'}
+        (self.root / 'build/release/context.json').write_text(json.dumps(context))
+        for command in ('validate-publish', 'publish'):
+            with self.subTest(command=command), self.assertRaisesRegex(store.Blocked, 'Production disabled until U5'):
+                self.run_main(command)
+        self.read.assert_not_called()
+        self.publish.assert_not_called()
 
 
 if __name__ == "__main__":

@@ -46,6 +46,12 @@ SwiftPM locks сохраняйте вместе с Podfile.lock; [native guide](
 
 ## Retry и accepted binary
 
+iOS +22 CLI parse failure: [publishing preflight / IPA recovery](IOS_PUBLISHING.md).
+До expensive steps выполняется offline `ios_store.py validate-publish` с полным
+argv из того же builder. CLI 0.70.0 требует attempt counts 1/1/1; нули запрещены,
+default retries не допускаются. Version/parse failure — STOP до IPA. Следующий
+iOS-only candidate +23 — отдельный PR/history/live check/U4 GO, не перенос +22.
+
 SwiftPM download timeout на +21: [network retry guide](IOS_SWIFTPM_RETRIES.md).
 Только locked resolver имеет до 3 попыток с паузами 15/45 секунд. Exit 74 без
 распознанной transient network ошибки не повторяется; locks проверяются против
@@ -99,7 +105,10 @@ push --tags, перенос или удаление опубликованног
 Android mapping загружается в Crashlytics до Play; при ошибке store upload не идёт.
 iOS все native dSYM загружаются до ASC; только неудача оставляет recovery ZIP
 build/release/ios-symbols.zip (Personal retention 30 дней). Сохраните его до истечения.
-AAB/IPA архивного хранилища/GitHub Releases нет; bit-for-bit rebuild не обещается.
+IPA `build/ios/ipa/*.ipa` сохраняется при любом исходе со стандартным retention
+Codemagic ([компромисс и сроки](IOS_PUBLISHING.md)); не удаляется по одному exit 0.
+Отдельного AAB/IPA архива/GitHub Releases нет; Android policy не меняется.
+UNKNOWN publishing не разрешает повторный upload. Bit-for-bit rebuild не обещается.
 SDK/Flutter/Gem/native locks и production defines хранятся в Git; credentials — вне Git.
 Dart obfuscate/split-debug-info не включены; их добавление потребует отдельной
 стратегии символов. Подробности существующей проверки:

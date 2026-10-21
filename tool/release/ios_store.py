@@ -391,7 +391,7 @@ def preflight(context=None):
 
 def publish_arguments(context, ipa, group=None):
     args = ["app-store-connect", "publish", "--path", str(ipa), "--enable-package-validation",
-            "--altool-retries", "0", "--api-server-error-retries", "0", "--api-unauthorized-retries", "0",
+            "--altool-retries", "1", "--api-server-error-retries", "1", "--api-unauthorized-retries", "1",
             "--max-find-build-wait", "10", "--max-build-processing-wait", "20"]
     notes = "@file:" + str(ROOT / "build/release/apple-localizations.json")
     if context["channel"] == "rc" and context["destination"] == "testflight":
@@ -406,9 +406,20 @@ def publish_arguments(context, ipa, group=None):
     return args
 
 
+def checked_publish_arguments(context, ipa, group=None):
+    from apple_publish import PublishCliError, validate_publish_arguments
+
+    args = publish_arguments(context, ipa, group)
+    try:
+        validate_publish_arguments(args[1:])
+    except PublishCliError as error:
+        raise Blocked(str(error)) from None
+    return args
+
+
 def main():
-    if len(sys.argv) != 2 or sys.argv[1] not in ("access", "preflight", "publish"):
-        raise Blocked("Expected access, preflight or publish")
+    if len(sys.argv) != 2 or sys.argv[1] not in ("access", "validate-publish", "preflight", "publish"):
+        raise Blocked("Expected access, validate-publish, preflight or publish")
     if sys.argv[1] == "access":
         preflight()
         print("APPLE_ACCESS_VERIFIED: app/builds/uploads/internal group read through GET only; no signing, upload or submission. Publishing permissions NOT proven")
@@ -418,12 +429,19 @@ def main():
         raise Blocked("Codemagic iOS tag webhook required")
     if context["channel"] == "production" and os.environ.get("PRODUCTION_PUBLISHING_ENABLED") != "true":
         raise Blocked("Production disabled until U5")
+    if sys.argv[1] == "validate-publish":
+        # No IPA exists yet. Only the path literal differs from the final argv;
+        # context, group, localizations and every option use the same builder.
+        checked_publish_arguments(context, ROOT / "build/ios/ipa/offline-preflight.ipa",
+                                  os.environ.get("TESTFLIGHT_GROUP"))
+        print("APPLE_PUBLISH_ARGUMENTS_VALID: CLI 0.70.0; offline parse only; no upload")
+        return
     preflight(context)
     if sys.argv[1] == "publish":
         packages = list((ROOT / "build/ios/ipa").glob("*.ipa"))
         if len(packages) != 1:
             raise Blocked("Expected exactly one signed IPA")
-        args = publish_arguments(context, packages[0], os.environ.get("TESTFLIGHT_GROUP"))
+        args = checked_publish_arguments(context, packages[0], os.environ.get("TESTFLIGHT_GROUP"))
         result = subprocess.run([sys.executable, str(ROOT / "tool/release/apple_publish.py"), *args[1:]], check=False)
         if result.returncode:
             raise Blocked("Apple publishing incomplete; upload may already be accepted. Inspect Build Uploads/TestFlight/App Store version; no automatic retry")
