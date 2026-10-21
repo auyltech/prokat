@@ -37,7 +37,8 @@ class CliDocumentationTests(unittest.TestCase):
                 self.assertIn(name, readme)
                 self.assertIn(f'function {name} {{ [CmdletBinding()] param([switch]$DryRun)', script)
         self.assertIn("$cliArgs += '--dry-run'", script)
-        self.assertIn('1.2.4+21', readme)
+        self.assertIn('1.2.3+22', readme)
+        self.assertIn('1.2.4+23', readme)
 
     def test_current_guides_have_no_manual_tag_creation(self):
         for path in ('CICD-README.md', 'docs/ci-cd/RELEASE_RUNBOOK.md',

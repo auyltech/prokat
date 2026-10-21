@@ -2,6 +2,14 @@
 
 Owner instructions and PowerShell installation: [CICD-README](../../CICD-README.md).
 
+SwiftPM CI: [retry policy and troubleshooting](../../docs/ci-cd/IOS_SWIFTPM_RETRIES.md).
+`swiftpm_resolve.py start|resolve` is CI-only and invokes only the hardcoded locked
+resolver. Three attempts at most, backoffs 15/45 seconds, recognized network logs
+plus exit 74 only. Exact HEAD locks are checked before/after; raw resolver output
+is never logged. Limits: 600 seconds per command, 32 minutes total and a 60-minute
+phase deadline from the first script; existing 90-minute workflow stays unchanged.
+Tests use fake runners/clocks, never actual SDK downloads or publishing.
+
 Apple diagnostics: [manual workflow, codes and recovery](../../docs/ci-cd/IOS_CI_DIAGNOSTICS.md).
 The custom Python client (early auth, diagnostic and release preflight) reads
 private PEM **only** from `PROKAT_ASC_PRIVATE_KEY_PEM`, with no fallback to

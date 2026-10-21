@@ -46,6 +46,15 @@ SwiftPM locks сохраняйте вместе с Podfile.lock; [native guide](
 
 ## Retry и accepted binary
 
+SwiftPM download timeout на +21: [network retry guide](IOS_SWIFTPM_RETRIES.md).
+Только locked resolver имеет до 3 попыток с паузами 15/45 секунд. Exit 74 без
+распознанной transient network ошибки не повторяется; locks проверяются против
+HEAD до и после. Manifest/version/checksum/signature/drift/unknown — STOP.
+Ограничения: 10 минут на попытку, 32 на helper, dependency-phase deadline от
+первого script; общий workflow 90 минут не меняется. Никакого retry IPA/publishing.
+После финального FAIL сохранить URL/SHA/exit code; не двигать +21. Новый iOS-only
++22 готовится только через review, свежую history/store проверку и отдельный U4 GO.
+
 Перед повтором iOS +20 используйте [Apple diagnostic runbook](IOS_CI_DIAGNOSTICS.md).
 Ручной `ios-apple-diagnostic` не собирает/не публикует IPA и запускается только
 после отдельного GO с main. Он не заменяет release guards и live preflight.
