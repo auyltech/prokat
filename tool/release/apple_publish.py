@@ -7,10 +7,20 @@ and stop before submission on missing translations or any metadata API failure.
 import contextlib
 import copy
 from importlib.metadata import version
+import inspect
 import io
 import sys
+from types import SimpleNamespace
+
+import apple_review_policy
 
 CLI_VERSION = "0.70.0"
+_GUARD_INSTALLED = False
+_ORIGINAL_CONFIRM = None
+_ORIGINAL_ITEM = None
+_ORIGINAL_ENSURE = None
+_ORIGINAL_CREATE_SUBMISSION = None
+_GUARD = SimpleNamespace(version_id=None, submission_id=None, item_id=None)
 
 
 class PublishCliError(RuntimeError):
@@ -80,9 +90,242 @@ def strict_localizations(client, app, app_store_version, localizations):
         raise SystemExit(f"BLOCKED: Apple localization update failed ({type(error).__name__}); no submission. Build may already be accepted; no reupload") from None
 
 
+def _block(code):
+    raise SystemExit(f"BLOCKED: {code}; no further App Store mutation. Inspect build uploads; no reupload") from None
+
+
+def _mutation(operation):
+    """Run one store mutation. A raised error means the outcome is unknown.
+
+    The request may already have reached Apple. The original exception can
+    contain the response body, so it is not printed and the call is not retried.
+    """
+    try:
+        return operation()
+    except Exception:
+        _block("APPLE_SUBMISSION_OUTCOME_UNKNOWN")
+
+
+def _bound_id(value):
+    return isinstance(value, str) and bool(value)
+
+
+def _reset_guard():
+    _GUARD.version_id = None
+    _GUARD.submission_id = None
+    _GUARD.item_id = None
+
+
+def _resource_id(resource):
+    identifier = getattr(resource, "id", None)
+    return identifier if isinstance(identifier, str) and identifier else None
+
+
+def _resource_version(resource):
+    attributes = getattr(resource, "attributes", None)
+    value = getattr(attributes, "versionString", None)
+    if value is None and isinstance(attributes, dict):
+        value = attributes.get("versionString")
+    return value if isinstance(value, str) else None
+
+
+def _parameter_names(method):
+    return [parameter.name for parameter in inspect.signature(method).parameters.values()]
+
+
+def install_submission_guards():
+    """Replace the four production mutation methods. The API confirm is not atomic."""
+    global _GUARD_INSTALLED, _ORIGINAL_CONFIRM, _ORIGINAL_ITEM, _ORIGINAL_ENSURE, _ORIGINAL_CREATE_SUBMISSION
+    from codemagic.tools.app_store_connect import AppStoreConnect
+    from codemagic.tools.app_store_connect.action_groups.review_submission_items_actions_group import ReviewSubmissionItemsActionGroup
+    from codemagic.tools.app_store_connect.action_groups.review_submissions_actions_group import ReviewSubmissionsActionGroup
+    from codemagic.tools.app_store_connect.actions.submit_to_app_store_action import SubmitToAppStoreAction
+
+    methods = {
+        "ensure": (SubmitToAppStoreAction, "_ensure_app_store_version",
+                   ["self", "app", "build", "app_store_version_info"]),
+        "submission": (SubmitToAppStoreAction, "_create_review_submission", ["self", "app", "platform"]),
+        "item": (ReviewSubmissionItemsActionGroup, "create_review_submission_item", [
+            "self", "review_submission_id", "app_custom_product_page_version_id", "app_event_id",
+            "app_store_version_id", "app_store_version_experiment_id", "should_print"]),
+        "confirm": (ReviewSubmissionsActionGroup, "confirm_review_submission",
+                    ["self", "review_submission_id", "should_print"]),
+    }
+    resolved = {}
+    for key, (owner, name, expected_names) in methods.items():
+        try:
+            method = getattr(owner, name)
+            resolved_on_client = getattr(AppStoreConnect, name)
+        except AttributeError:
+            raise PublishCliError("APPLE_PUBLISH_CLI_VERSION_UNSUPPORTED") from None
+        if not callable(method) or _parameter_names(method) != expected_names or resolved_on_client is not method:
+            raise PublishCliError("APPLE_PUBLISH_CLI_VERSION_UNSUPPORTED")
+        resolved[key] = method
+    if _GUARD_INSTALLED:
+        return
+    _ORIGINAL_ENSURE = resolved["ensure"]
+    _ORIGINAL_CREATE_SUBMISSION = resolved["submission"]
+    _ORIGINAL_ITEM = resolved["item"]
+    _ORIGINAL_CONFIRM = resolved["confirm"]
+    SubmitToAppStoreAction._ensure_app_store_version = guarded_ensure_version
+    SubmitToAppStoreAction._create_review_submission = guarded_create_submission
+    ReviewSubmissionItemsActionGroup.create_review_submission_item = guarded_create_item
+    ReviewSubmissionsActionGroup.confirm_review_submission = guarded_confirm
+    _GUARD_INSTALLED = True
+
+
+def restore_submission_guards():
+    global _GUARD_INSTALLED, _ORIGINAL_CONFIRM, _ORIGINAL_ITEM, _ORIGINAL_ENSURE, _ORIGINAL_CREATE_SUBMISSION
+    if not _GUARD_INSTALLED:
+        _reset_guard()
+        return
+    from codemagic.tools.app_store_connect.action_groups.review_submission_items_actions_group import ReviewSubmissionItemsActionGroup
+    from codemagic.tools.app_store_connect.action_groups.review_submissions_actions_group import ReviewSubmissionsActionGroup
+    from codemagic.tools.app_store_connect.actions.submit_to_app_store_action import SubmitToAppStoreAction
+    SubmitToAppStoreAction._ensure_app_store_version = _ORIGINAL_ENSURE
+    SubmitToAppStoreAction._create_review_submission = _ORIGINAL_CREATE_SUBMISSION
+    ReviewSubmissionItemsActionGroup.create_review_submission_item = _ORIGINAL_ITEM
+    ReviewSubmissionsActionGroup.confirm_review_submission = _ORIGINAL_CONFIRM
+    _ORIGINAL_ENSURE = None
+    _ORIGINAL_CREATE_SUBMISSION = None
+    _ORIGINAL_CONFIRM = None
+    _ORIGINAL_ITEM = None
+    _GUARD_INSTALLED = False
+    _reset_guard()
+
+
+def _submission_views(items):
+    views = []
+    for item in items:
+        state = apple_review_policy._text(apple_review_policy._attribute(item, "state"))
+        platform = apple_review_policy._text(apple_review_policy._attribute(item, "platform"))
+        identifier = apple_review_policy._text(apple_review_policy._read(item, "id"))
+        views.append({"id": identifier, "attributes": {"platform": platform, "state": state}})
+    return views
+
+
+def _version_views(items):
+    views = []
+    for item in items:
+        views.append({
+            "id": apple_review_policy._text(apple_review_policy._read(item, "id")),
+            "attributes": {
+                "versionString": apple_review_policy._text(apple_review_policy._attribute(item, "versionString")),
+                "platform": apple_review_policy._text(apple_review_policy._attribute(item, "platform")),
+                "appStoreState": apple_review_policy._text(apple_review_policy._attribute(item, "appStoreState")),
+                "appVersionState": apple_review_policy._text(apple_review_policy._attribute(item, "appVersionState")),
+            },
+        })
+    return views
+
+
+def guarded_ensure_version(self, app, build, app_store_version_info):
+    if _GUARD.version_id is not None or _GUARD.submission_id is not None or _GUARD.item_id is not None:
+        _block("APPLE_SUBMISSION_GUARD_FAILED")
+    _reset_guard()
+    from codemagic.apple.app_store_connect.versioning.app_store_versions import AppStoreVersions
+    from codemagic.apple.app_store_connect.versioning.review_submissions import ReviewSubmissions
+    from codemagic.apple.resources import Platform
+    try:
+        versions = self.api_client.apps.list_app_store_versions_data(
+            app, resource_filter=AppStoreVersions.Filter(platform=Platform.IOS))
+        submissions = self.api_client.review_submissions.list(
+            ReviewSubmissions.Filter(app=app.id, platform=Platform.IOS))
+    except Exception:
+        _block("APPLE_SUBMISSION_GUARD_FAILED")
+    decision = apple_review_policy.classify(
+        getattr(app_store_version_info, "version_string", None), _version_views(versions), _submission_views(submissions))
+    if not decision.ok:
+        _block(decision.code)
+    if decision.version_id is None:
+        result = _mutation(lambda: self.create_app_store_version(
+            build.id,
+            platform=app_store_version_info.platform,
+            copyright=getattr(app_store_version_info, "copyright", None),
+            earliest_release_date=getattr(app_store_version_info, "earliest_release_date", None),
+            release_type=getattr(app_store_version_info, "release_type", None),
+            version_string=app_store_version_info.version_string,
+        ))
+        if not getattr(result, "created", False):
+            _block("APPLE_SUBMISSION_OUTCOME_UNKNOWN")
+    else:
+        approved = SimpleNamespace(id=decision.version_id, attributes=SimpleNamespace(appStoreState="PREPARE_FOR_SUBMISSION"))
+        result = _mutation(lambda: self._update_existing_app_store_version(approved, build, app_store_version_info))
+        if getattr(result, "created", False) or _resource_id(result) != decision.version_id:
+            _block("APPLE_SUBMISSION_OUTCOME_UNKNOWN")
+    if _resource_version(result) != app_store_version_info.version_string:
+        _block("APPLE_SUBMISSION_OUTCOME_UNKNOWN")
+    _GUARD.version_id = _resource_id(result)
+    if _GUARD.version_id is None:
+        _block("APPLE_SUBMISSION_OUTCOME_UNKNOWN")
+    return result
+
+
+def guarded_create_submission(self, app, platform):
+    if _GUARD.version_id is None or _GUARD.submission_id is not None or _GUARD.item_id is not None:
+        _block("APPLE_SUBMISSION_GUARD_FAILED")
+    from codemagic.apple.app_store_connect.versioning.review_submissions import ReviewSubmissions
+    try:
+        existing = self.api_client.review_submissions.list(ReviewSubmissions.Filter(app=app.id, platform=platform))
+    except Exception:
+        _block("APPLE_SUBMISSION_GUARD_FAILED")
+    decision = apple_review_policy.classify("1.0.0", [], _submission_views(existing))
+    if decision.code == "APPLE_RESPONSE_INVALID":
+        _block("APPLE_SUBMISSION_GUARD_FAILED")
+    if not decision.ok:
+        _block(decision.code)
+    created = _mutation(lambda: self.api_client.review_submissions.create(platform, app))
+    if not getattr(created, "created", False) or not _resource_id(created):
+        _block("APPLE_SUBMISSION_OUTCOME_UNKNOWN")
+    _GUARD.submission_id = _resource_id(created)
+    return created
+
+
+def guarded_create_item(self, review_submission_id, app_custom_product_page_version_id=None, app_event_id=None,
+                        app_store_version_id=None, app_store_version_experiment_id=None, should_print=True):
+    if (not _bound_id(_GUARD.version_id) or not _bound_id(_GUARD.submission_id) or
+            _GUARD.item_id is not None or review_submission_id != _GUARD.submission_id or
+            app_store_version_id != _GUARD.version_id or app_custom_product_page_version_id or
+            app_event_id or app_store_version_experiment_id):
+        _block("APPLE_SUBMISSION_GUARD_FAILED")
+    created = _mutation(lambda: _ORIGINAL_ITEM(
+        self, review_submission_id, app_custom_product_page_version_id, app_event_id,
+        app_store_version_id, app_store_version_experiment_id, should_print))
+    identifier = _resource_id(created)
+    if not getattr(created, "created", False) or not identifier:
+        _block("APPLE_SUBMISSION_OUTCOME_UNKNOWN")
+    _GUARD.item_id = identifier
+    return created
+
+
+def guarded_confirm(self, review_submission_id, should_print=True):
+    # list_items and the following PATCH are separate requests. This is not an atomic confirm.
+    if not _bound_id(_GUARD.submission_id) or review_submission_id != _GUARD.submission_id or not _bound_id(_GUARD.item_id):
+        _block("APPLE_SUBMISSION_GUARD_FAILED")
+    try:
+        before = self.api_client.review_submissions.list_items(_GUARD.submission_id)
+    except Exception:
+        _block("APPLE_SUBMISSION_GUARD_FAILED")
+    if [_resource_id(item) for item in before] != [_GUARD.item_id]:
+        _block("APPLE_SUBMISSION_ITEMS_CHANGED")
+    result = _mutation(lambda: _ORIGINAL_CONFIRM(self, review_submission_id, should_print=should_print))
+    try:
+        after = self.api_client.review_submissions.list_items(_GUARD.submission_id)
+        confirmed = [_resource_id(item) for item in after] == [_GUARD.item_id]
+    except Exception:
+        confirmed = False
+    if not confirmed:
+        print("APPLE_SUBMISSION_ITEMS_CHANGED_AFTER_CONFIRM", flush=True)
+        raise SystemExit(1)
+    print("APPLE_REVIEW_SUBMISSION_CONFIRMED", flush=True)
+    return result
+
+
 def main():
     try:
-        validate_publish_arguments(sys.argv[1:])
+        parsed = validate_publish_arguments(sys.argv[1:])
+        if parsed.submit_to_app_store:
+            install_submission_guards()
     except PublishCliError as error:
         raise SystemExit(f"BLOCKED: {error}") from None
     from codemagic.tools.app_store_connect import AppStoreConnect
