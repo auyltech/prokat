@@ -65,6 +65,18 @@ recheck again, create annotated tag at approved SHA, push exactly that ref.
 No branch switching/pushing, credentials or store requests. Existing tags are
 immutable. An ambiguous push retains the local tag and prints recovery guidance.
 The final check/push race cannot be atomic with a read-only protected main.
+If that push fails, is interrupted, or times out, the exit code is not proof
+the tag is absent: do not push it again by hand. Re-classify with
+`dart tool/release/cli.dart <platform> <channel> --resume-push <tag> --expect-sha <40-hex>`
+(`--dry-run` classifies only). The command reads the local annotated tag and
+`git ls-remote` for that tag object and its peeled commit. `REMOTE_SAME` means
+the push already landed: watch the provider and do not push again. A missing
+workflow run is not proof that no run was created. `REMOTE_DIFFERS` and
+`REMOTE_UNKNOWN` stop with no changes. `REMOTE_ABSENT` pushes the exact ref
+only when this is not a dry-run, remote main still equals the expected SHA,
+build history allows the number, and the owner types the full tag name; it
+then reads the remote tag again. Any other result stops until a new
+confirmation. The command never deletes, moves, or force-updates a tag.
 
 Shared release.dart owns strict tag parsing, pubspec parsing, metadata/notes,
 production gate and common-counter rules. CI still checks current main ancestry,

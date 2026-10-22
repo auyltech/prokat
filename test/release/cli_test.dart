@@ -14,11 +14,16 @@ class Fixture {
   String mainSha = sha;
   bool dirty = false, failRemote = false, failPush = false;
   bool metadataReady = true, omitNotes = false, exportFalse = true;
-  bool missingTracking = false, missingObject = false;
-  String? trackingSha;
+  bool missingTracking = false, missingObject = false, mirrorPush = false;
+  String? trackingSha, rawLsRemote;
+  int lsRemoteCount = 0;
+  int? failLsRemoteAfter;
   final calls = <List<String>>[];
   final remote = <String, String>{};
   final local = <String, String>{};
+  final tagObjects = <String, String>{};
+  final tagPeeled = <String, String>{};
+  final tagTypes = <String, String>{};
   final writes = <List<String>>[];
   final output = <String>[];
   final reads = <String>[];
@@ -31,30 +36,71 @@ class Fixture {
       case 'status':
         return dirty ? ' M pubspec.yaml' : '';
       case 'ls-remote':
-        if (failRemote) blocked('Remote unavailable');
-        return {
-          'refs/heads/main': mainSha,
-          ...remote,
-        }.entries.map((e) => '${e.value}\t${e.key}').join('\n');
+        lsRemoteCount++;
+        if (failRemote ||
+            (failLsRemoteAfter != null && lsRemoteCount > failLsRemoteAfter!)) {
+          blocked('Remote unavailable');
+        }
+        if (rawLsRemote != null) return rawLsRemote!;
+        final all = {'refs/heads/main': mainSha, ...remote};
+        final requested = [
+          for (final arg in args)
+            if (arg.startsWith('refs/')) arg,
+        ];
+        final entries = requested.isEmpty
+            ? all.entries
+            : requested
+                  .where(all.containsKey)
+                  .map((ref) => MapEntry(ref, all[ref]!));
+        return entries.map((e) => '${e.value}\t${e.key}').join('\n');
       case 'tag':
         if (args[1] == '--list') return local.keys.join('\n');
         writes.add(args);
         local[args[2]] = args[3];
         return '';
       case 'rev-parse':
-        if (args.last.startsWith('refs/remotes/')) {
+        final spec = args.last;
+        if (spec.startsWith('refs/remotes/')) {
           if (missingTracking) blocked('missing tracking ref');
           return trackingSha ?? mainSha;
         }
-        return local[args.last.substring(10).replaceAll('^{commit}', '')]!;
+        if (spec.startsWith('refs/tags/')) {
+          final peeled = spec.contains('^{');
+          final name = spec
+              .substring('refs/tags/'.length)
+              .replaceAll('^{commit}', '')
+              .replaceAll('^{}', '');
+          final value = peeled
+              ? (tagPeeled[name] ?? local[name])
+              : (tagObjects[name] ?? local[name]);
+          if (value == null) blocked('missing tag');
+          return value;
+        }
+        return local[spec.substring(10).replaceAll('^{commit}', '')]!;
       case 'cat-file':
         if (missingObject) blocked('missing object');
+        if (args.length >= 2 && args[1] == '-t') {
+          final spec = args.last;
+          final name = spec.startsWith('refs/tags/')
+              ? spec.substring('refs/tags/'.length)
+              : spec;
+          if (!local.containsKey(name) && !tagObjects.containsKey(name)) {
+            blocked('missing tag');
+          }
+          return tagTypes[name] ?? 'tag';
+        }
         return '';
       case 'fetch':
         writes.add(args);
         return '';
       case 'push':
         writes.add(args);
+        if (mirrorPush && args.length >= 3 && args[2].contains(':')) {
+          final ref = args[2].split(':').first;
+          final name = ref.substring('refs/tags/'.length);
+          remote[ref] = tagObjects[name] ?? local[name]!;
+          remote['$ref^{}'] = tagPeeled[name] ?? local[name]!;
+        }
         if (failPush) blocked('Push failed');
         return '';
       default:
@@ -264,8 +310,18 @@ void main() {
       confirm: (_) => 'y',
       printLine: (_) {},
     );
-    expect(() => cli.plan('android', 'rc', dryRun: false), failure);
+    expect(
+      () => cli.plan('android', 'rc', dryRun: true),
+      throwsA(
+        isA<ReleaseFailure>().having(
+          (error) => error.message,
+          'message',
+          contains('Remote main changed during preparation'),
+        ),
+      ),
+    );
     expect(f.writes, isEmpty);
+    expect(f.reads, isNotEmpty);
   });
   test('remote disappears after confirmation: fail closed without tag', () {
     final f = Fixture();
@@ -366,9 +422,15 @@ void main() {
           f.cli.execute(f.cli.plan('ios', 'rc', dryRun: false), dryRun: false),
       throwsA(
         isA<ReleaseFailure>().having(
-          (e) => e.message,
+          (error) => error.message,
           'recovery',
-          contains('Tag retained locally'),
+          allOf(
+            contains('Tag retained locally'),
+            contains('--resume-push rc/ios/v1.2.3+19'),
+            contains('--expect-sha $sha'),
+            isNot(contains('delete')),
+            isNot(contains('retry ONLY')),
+          ),
         ),
       ),
     );
@@ -500,6 +562,100 @@ void main() {
     expect(f.writes, isEmpty);
     expect(f.answers, ['y', 'PUBLISH PRODUCTION']);
   });
+  test('real plan cannot be previewed as dry-run', () {
+    final f = Fixture()..env['PRODUCTION_PUBLISHING_ENABLED'] = 'true';
+    final plan = f.cli.plan('ios', 'production', dryRun: false);
+    f.calls.clear();
+    expect(() => f.cli.execute(plan, dryRun: true), failure);
+    expect(f.answers, ['y', 'PUBLISH PRODUCTION']);
+    expect(f.writes, isEmpty);
+    expect(
+      f.calls.where(
+        (args) =>
+            args.first == 'push' ||
+            args.first == 'fetch' ||
+            args.first == 'tag',
+      ),
+      isEmpty,
+    );
+  });
+  test('production gate cleared after planning blocks before confirmation', () {
+    final f = Fixture()..env['PRODUCTION_PUBLISHING_ENABLED'] = 'true';
+    final plan = f.cli.plan('android', 'production', dryRun: false);
+    f.env.remove('PRODUCTION_PUBLISHING_ENABLED');
+    expect(
+      () => f.cli.execute(plan, dryRun: false),
+      throwsA(
+        isA<ReleaseFailure>().having(
+          (error) => error.message,
+          'gate',
+          contains('Production publishing is disabled'),
+        ),
+      ),
+    );
+    expect(f.answers, ['y', 'PUBLISH PRODUCTION']);
+    expect(f.writes, isEmpty);
+  });
+  test('production gate invalidated during confirmation blocks before tag', () {
+    final f = Fixture()..env['PRODUCTION_PUBLISHING_ENABLED'] = 'true';
+    final cli = ReleaseCli(
+      runGit: f.git,
+      readBlob: f.blob,
+      environment: f.env,
+      confirm: (_) {
+        final answer = f.answers.removeAt(0);
+        f.env['PRODUCTION_PUBLISHING_ENABLED'] = 'false';
+        return answer;
+      },
+      printLine: f.output.add,
+    );
+    final plan = cli.plan('android', 'production', dryRun: false);
+    expect(
+      () => cli.execute(plan, dryRun: false),
+      throwsA(
+        isA<ReleaseFailure>().having(
+          (error) => error.message,
+          'gate',
+          contains('Production publishing is disabled'),
+        ),
+      ),
+    );
+    expect(f.answers, isEmpty);
+    expect(f.writes, isEmpty);
+    expect(f.local, isEmpty);
+  });
+  test(
+    'production gate invalidated before tagging blocks the pre-tag check',
+    () {
+      final f = Fixture()..env['PRODUCTION_PUBLISHING_ENABLED'] = 'true';
+      final cli = ReleaseCli(
+        runGit: (args) {
+          if (args.first == 'fetch') {
+            f.env['PRODUCTION_PUBLISHING_ENABLED'] = 'false';
+          }
+          return f.git(args);
+        },
+        readBlob: f.blob,
+        environment: f.env,
+        confirm: (_) => f.answers.removeAt(0),
+        printLine: f.output.add,
+      );
+      final plan = cli.plan('android', 'production', dryRun: false);
+      expect(
+        () => cli.execute(plan, dryRun: false),
+        throwsA(
+          isA<ReleaseFailure>().having(
+            (error) => error.message,
+            'gate',
+            contains('Production publishing is disabled'),
+          ),
+        ),
+      );
+      expect(f.writes.map((args) => args.first), ['fetch']);
+      expect(f.local, isEmpty);
+      expect(f.writes.any((args) => args.first == 'push'), isFalse);
+    },
+  );
   test('missing origin/main blocks dry-run before blobs', () {
     final f = Fixture()..missingTracking = true;
     expect(() => f.cli.plan('ios', 'rc', dryRun: true), failure);
@@ -719,6 +875,380 @@ void main() {
       expect(output, isNot(contains('git.exe')));
       expect(output, isNot(contains('is not recognized')));
     }
+  });
+  const objectId = 'cccccccccccccccccccccccccccccccccccccccc';
+  const androidTag = 'android/v1.2.3+19';
+  Fixture annotated(String name, {String peeled = sha, String? type}) {
+    final f = Fixture();
+    f.local[name] = peeled;
+    f.tagObjects[name] = objectId;
+    f.tagPeeled[name] = peeled;
+    if (type != null) f.tagTypes[name] = type;
+    return f;
+  }
+
+  ReleaseCli resumeOf(Fixture f, {String? Function(String prompt)? confirm}) =>
+      ReleaseCli(
+        runGit: f.git,
+        readBlob: f.blob,
+        environment: f.env,
+        confirm: confirm ?? (prompt) => throw StateError('prompted: $prompt'),
+        printLine: f.output.add,
+      );
+  void resume(
+    Fixture f,
+    String name, {
+    required bool dryRun,
+    String expectSha = sha,
+  }) {
+    final release = ReleaseTag.parse(name);
+    resumeOf(f).resumePush(
+      platform: release.platform,
+      channel: release.channel,
+      tag: name,
+      expectSha: expectSha,
+      dryRun: dryRun,
+    );
+  }
+
+  void expectNoResumeMutation(Fixture f, {int pushes = 0}) {
+    final pushed = f.writes.where((args) => args.first == 'push').toList();
+    expect(pushed, hasLength(pushes));
+    for (final args in [...f.calls, ...f.writes]) {
+      expect(args.first, isNot('fetch'));
+      expect(args, isNot(contains('--force')));
+      expect(args, isNot(contains('--delete')));
+      if (args.first == 'push') expect(args, isNot(contains('--tags')));
+      if (args.first == 'tag') expect(args, isNot(contains('-d')));
+    }
+    expect(f.calls.where((args) => args.first == 'tag'), isEmpty);
+  }
+
+  test('resume dry-run REMOTE_ABSENT does not prompt or push', () {
+    final f = annotated('rc/android/v1.2.3+19');
+    resume(f, 'rc/android/v1.2.3+19', dryRun: true);
+    expect(f.output.join('\n'), contains('REMOTE_ABSENT'));
+    expect(
+      f.output.join('\n'),
+      contains('A missing workflow run is not proof'),
+    );
+    expectNoResumeMutation(f);
+  });
+  test('resume REMOTE_SAME watches the provider and does not push', () {
+    final f = annotated('rc/ios/v1.2.3+19');
+    f.remote['refs/tags/rc/ios/v1.2.3+19'] = objectId;
+    f.remote['refs/tags/rc/ios/v1.2.3+19^{}'] = sha;
+    resume(f, 'rc/ios/v1.2.3+19', dryRun: false);
+    final text = f.output.join('\n');
+    expect(text, contains('REMOTE_SAME'));
+    expect(text, contains('Watch the provider run'));
+    expect(text, contains('A missing workflow run is not proof'));
+    expectNoResumeMutation(f);
+  });
+  test('resume extra ls-remote line is REMOTE_DIFFERS', () {
+    final f = annotated('rc/android/v1.2.3+19')
+      ..rawLsRemote =
+          '$objectId\trefs/tags/rc/android/v1.2.3+19\n'
+          '$sha\trefs/tags/rc/android/v1.2.3+19^{}\n'
+          '$other\trefs/tags/extra';
+    expect(
+      () => resume(f, 'rc/android/v1.2.3+19', dryRun: false),
+      throwsA(
+        isA<ReleaseFailure>().having(
+          (error) => error.message,
+          'class',
+          contains('REMOTE_DIFFERS'),
+        ),
+      ),
+    );
+    expectNoResumeMutation(f);
+  });
+  test('resume one ls-remote line is REMOTE_DIFFERS', () {
+    final f = annotated('rc/android/v1.2.3+19')
+      ..rawLsRemote = '$objectId\trefs/tags/rc/android/v1.2.3+19';
+    expect(
+      () => resume(f, 'rc/android/v1.2.3+19', dryRun: true),
+      throwsA(
+        isA<ReleaseFailure>().having(
+          (error) => error.message,
+          'class',
+          contains('REMOTE_DIFFERS'),
+        ),
+      ),
+    );
+    expectNoResumeMutation(f);
+  });
+  test('resume different tag object is REMOTE_DIFFERS', () {
+    final f = annotated('rc/android/v1.2.3+19');
+    f.remote['refs/tags/rc/android/v1.2.3+19'] = other;
+    f.remote['refs/tags/rc/android/v1.2.3+19^{}'] = sha;
+    expect(
+      () => resume(f, 'rc/android/v1.2.3+19', dryRun: false),
+      throwsA(
+        isA<ReleaseFailure>().having(
+          (error) => error.message,
+          'class',
+          contains('REMOTE_DIFFERS'),
+        ),
+      ),
+    );
+    expectNoResumeMutation(f);
+  });
+  test('resume different peeled commit is REMOTE_DIFFERS', () {
+    final f = annotated('rc/android/v1.2.3+19');
+    f.remote['refs/tags/rc/android/v1.2.3+19'] = objectId;
+    f.remote['refs/tags/rc/android/v1.2.3+19^{}'] = other;
+    expect(
+      () => resume(f, 'rc/android/v1.2.3+19', dryRun: false),
+      throwsA(
+        isA<ReleaseFailure>().having(
+          (error) => error.message,
+          'class',
+          contains('REMOTE_DIFFERS'),
+        ),
+      ),
+    );
+    expectNoResumeMutation(f);
+  });
+  test('resume ls-remote failure is REMOTE_UNKNOWN', () {
+    final f = annotated('rc/android/v1.2.3+19')..failRemote = true;
+    expect(
+      () => resume(f, 'rc/android/v1.2.3+19', dryRun: false),
+      throwsA(
+        isA<ReleaseFailure>().having(
+          (error) => error.message,
+          'class',
+          contains('REMOTE_UNKNOWN'),
+        ),
+      ),
+    );
+    expectNoResumeMutation(f);
+  });
+  test('resume unreadable ls-remote is REMOTE_UNKNOWN', () {
+    final f = annotated('rc/android/v1.2.3+19')..rawLsRemote = 'not a ref';
+    expect(
+      () => resume(f, 'rc/android/v1.2.3+19', dryRun: true),
+      throwsA(
+        isA<ReleaseFailure>().having(
+          (error) => error.message,
+          'class',
+          contains('REMOTE_UNKNOWN'),
+        ),
+      ),
+    );
+    expectNoResumeMutation(f);
+  });
+  test('resume REMOTE_ABSENT blocks when main moved', () {
+    final f = annotated('rc/android/v1.2.3+19')..mainSha = other;
+    expect(
+      () => resume(f, 'rc/android/v1.2.3+19', dryRun: false),
+      throwsA(
+        isA<ReleaseFailure>().having(
+          (error) => error.message,
+          'class',
+          contains('MAIN_MOVED_NEW_NUMBER_REQUIRED'),
+        ),
+      ),
+    );
+    expect(f.local['rc/android/v1.2.3+19'], sha);
+    expectNoResumeMutation(f);
+  });
+  test('resume wrong tag confirmation does not push', () {
+    final f = annotated('rc/android/v1.2.3+19');
+    f.answers
+      ..clear()
+      ..add('rc/android/v1.2.3+20');
+    final cli = resumeOf(f, confirm: (_) => f.answers.removeAt(0));
+    expect(
+      () => cli.resumePush(
+        platform: 'android',
+        channel: 'rc',
+        tag: 'rc/android/v1.2.3+19',
+        expectSha: sha,
+        dryRun: false,
+      ),
+      throwsA(
+        isA<ReleaseFailure>().having(
+          (error) => error.message,
+          'class',
+          contains('Confirmation did not match'),
+        ),
+      ),
+    );
+    expectNoResumeMutation(f);
+  });
+  test('resume exact confirmation pushes one ref and rechecks', () {
+    final f = annotated(androidTag);
+    f.env['PRODUCTION_PUBLISHING_ENABLED'] = 'true';
+    f.mirrorPush = true;
+    f.answers
+      ..clear()
+      ..add(androidTag);
+    final prompts = <String>[];
+    final cli = resumeOf(
+      f,
+      confirm: (prompt) {
+        prompts.add(prompt);
+        return f.answers.removeAt(0);
+      },
+    );
+    cli.resumePush(
+      platform: 'android',
+      channel: 'production',
+      tag: androidTag,
+      expectSha: sha,
+      dryRun: false,
+    );
+    expect(prompts, [resumeTagPrompt]);
+    final text = f.output.join('\n');
+    expect(text, contains('$androidTag@$sha#1'));
+    expect(text, contains('REMOTE_SAME'));
+    expect(f.writes, [
+      ['push', 'origin', 'refs/tags/$androidTag:refs/tags/$androidTag'],
+    ]);
+    expectNoResumeMutation(f, pushes: 1);
+  });
+  test('resume push that does not land stops without a second push', () {
+    final f = annotated('rc/android/v1.2.3+19');
+    f.answers
+      ..clear()
+      ..add('rc/android/v1.2.3+19');
+    final cli = resumeOf(f, confirm: (_) => f.answers.removeAt(0));
+    expect(
+      () => cli.resumePush(
+        platform: 'android',
+        channel: 'rc',
+        tag: 'rc/android/v1.2.3+19',
+        expectSha: sha,
+        dryRun: false,
+      ),
+      throwsA(
+        isA<ReleaseFailure>().having(
+          (error) => error.message,
+          'class',
+          contains('REMOTE_ABSENT'),
+        ),
+      ),
+    );
+    expectNoResumeMutation(f, pushes: 1);
+  });
+  test('ambiguous failed push that reached origin is not pushed again', () {
+    final f = annotated('rc/android/v1.2.3+19')
+      ..failPush = true
+      ..mirrorPush = true;
+    f.answers
+      ..clear()
+      ..add('rc/android/v1.2.3+19');
+    final cli = resumeOf(f, confirm: (_) => f.answers.removeAt(0));
+    cli.resumePush(
+      platform: 'android',
+      channel: 'rc',
+      tag: 'rc/android/v1.2.3+19',
+      expectSha: sha,
+      dryRun: false,
+    );
+    expect(f.output.join('\n'), contains('REMOTE_SAME'));
+    expectNoResumeMutation(f, pushes: 1);
+  });
+  test('ambiguous failed push with unknown remote does not retry', () {
+    final f = annotated('rc/android/v1.2.3+19')
+      ..failPush = true
+      ..failLsRemoteAfter = 3;
+    f.answers
+      ..clear()
+      ..add('rc/android/v1.2.3+19');
+    final cli = resumeOf(f, confirm: (_) => f.answers.removeAt(0));
+    expect(
+      () => cli.resumePush(
+        platform: 'android',
+        channel: 'rc',
+        tag: 'rc/android/v1.2.3+19',
+        expectSha: sha,
+        dryRun: false,
+      ),
+      throwsA(
+        isA<ReleaseFailure>().having(
+          (error) => error.message,
+          'class',
+          contains('REMOTE_UNKNOWN'),
+        ),
+      ),
+    );
+    expectNoResumeMutation(f, pushes: 1);
+    expect(f.local['rc/android/v1.2.3+19'], sha);
+  });
+  test('resume missing annotated tag is LOCAL_TAG_MISMATCH', () {
+    final f = Fixture();
+    expect(
+      () => resume(f, 'rc/android/v1.2.3+19', dryRun: true),
+      throwsA(
+        isA<ReleaseFailure>().having(
+          (error) => error.message,
+          'class',
+          contains('LOCAL_TAG_MISMATCH'),
+        ),
+      ),
+    );
+    expect(f.calls.where((args) => args.first == 'ls-remote'), isEmpty);
+    expectNoResumeMutation(f);
+  });
+  test('resume lightweight tag is LOCAL_TAG_MISMATCH', () {
+    final f = annotated('rc/android/v1.2.3+19', type: 'commit');
+    expect(
+      () => resume(f, 'rc/android/v1.2.3+19', dryRun: false),
+      throwsA(
+        isA<ReleaseFailure>().having(
+          (error) => error.message,
+          'class',
+          contains('LOCAL_TAG_MISMATCH'),
+        ),
+      ),
+    );
+    expect(f.calls.where((args) => args.first == 'ls-remote'), isEmpty);
+    expectNoResumeMutation(f);
+  });
+  test('resume peeled commit mismatch is LOCAL_TAG_MISMATCH', () {
+    final f = annotated('rc/android/v1.2.3+19', peeled: other);
+    expect(
+      () => resume(f, 'rc/android/v1.2.3+19', dryRun: false),
+      throwsA(
+        isA<ReleaseFailure>().having(
+          (error) => error.message,
+          'class',
+          contains('LOCAL_TAG_MISMATCH'),
+        ),
+      ),
+    );
+    expect(f.calls.where((args) => args.first == 'ls-remote'), isEmpty);
+    expectNoResumeMutation(f);
+  });
+  test('production resume without the gate fails before git', () {
+    final f = annotated(androidTag);
+    expect(
+      () => resume(f, androidTag, dryRun: false),
+      throwsA(
+        isA<ReleaseFailure>().having(
+          (error) => error.message,
+          'gate',
+          contains('Production publishing is disabled'),
+        ),
+      ),
+    );
+    expect(f.calls, isEmpty);
+    expectNoResumeMutation(f);
+  });
+  test('production resume dry-run classifies without the gate or a push', () {
+    final f = annotated(androidTag);
+    resume(f, androidTag, dryRun: true);
+    expect(f.output.join('\n'), contains('REMOTE_ABSENT'));
+    expect(f.calls, isNotEmpty);
+    expectNoResumeMutation(f);
+  });
+  test('resume history conflict does not push', () {
+    final f = annotated('rc/android/v1.2.3+19');
+    f.pair('rc/ios/v1.2.3+20');
+    expect(() => resume(f, 'rc/android/v1.2.3+19', dryRun: false), failure);
+    expectNoResumeMutation(f);
   });
 }
 
