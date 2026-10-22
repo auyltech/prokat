@@ -28,6 +28,62 @@ void main() {
       () => release.validateBuildHistory(tag, ['rc/ios/v1.8.0+109']),
       throwsA(isA<release.ReleaseFailure>()),
     );
+    const same = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
+    const other = 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb';
+    release.validateBuildHistory(
+      release.ReleaseTag.parse('ios/v1.2.3+25'),
+      ['android/v1.2.3+25'],
+      revision: same,
+      commits: {'android/v1.2.3+25': same},
+    );
+    release.validateBuildHistory(
+      release.ReleaseTag.parse('rc/android/v1.2.3+24'),
+      ['rc/ios/v1.2.3+24'],
+      revision: same,
+      commits: {'rc/ios/v1.2.3+24': same},
+    );
+    expect(
+      () => release.validateBuildHistory(
+        release.ReleaseTag.parse('android/v1.2.3+24'),
+        ['rc/ios/v1.2.3+24'],
+        revision: same,
+        commits: {'rc/ios/v1.2.3+24': same},
+      ),
+      throwsA(
+        isA<release.ReleaseFailure>().having(
+          (error) => error.message,
+          'message',
+          contains('another channel'),
+        ),
+      ),
+    );
+    expect(
+      () => release.validateBuildHistory(
+        release.ReleaseTag.parse('ios/v1.2.3+24'),
+        ['rc/ios/v1.2.3+24'],
+        revision: same,
+        commits: {'rc/ios/v1.2.3+24': same},
+      ),
+      throwsA(isA<release.ReleaseFailure>()),
+    );
+    expect(
+      () => release.validateBuildHistory(
+        release.ReleaseTag.parse('ios/v1.2.3+25'),
+        ['android/v1.2.3+25'],
+        revision: same,
+        commits: {'android/v1.2.3+25': other},
+      ),
+      throwsA(isA<release.ReleaseFailure>()),
+    );
+    expect(
+      () => release.validateBuildHistory(
+        release.ReleaseTag.parse('ios/v1.2.4+25'),
+        ['android/v1.2.3+25'],
+        revision: same,
+        commits: {'android/v1.2.3+25': same},
+      ),
+      throwsA(isA<release.ReleaseFailure>()),
+    );
   });
   test('Java properties preserve password punctuation and whitespace', () {
     expect(inputs.propertiesValue(' a\\b\n:=\t'), r'\ a\\b\n\:\=\t');

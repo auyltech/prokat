@@ -46,14 +46,20 @@ dart tool/release/cli.dart android production --dry-run
 dart tool/release/cli.dart ios production --dry-run
 ```
 
-No yes/force/SHA/version override. Production dry-run also requires the explicit
-local production gate; CI independently requires its protected gate. Never enable
-either for testing. RC is Internal only. No automatic production promotion exists.
+No yes/force/SHA/version override. Production dry-run does not require the local
+production gate, but it does require a fresh local `refs/remotes/origin/main`
+that matches `git ls-remote` and already contains that commit's objects. A real
+production command requires `PRODUCTION_PUBLISHING_ENABLED=true` and stops
+before any Git command when the gate is absent or not exactly `true`. CI
+independently requires its protected gate. Never enable either for testing. RC
+is Internal only. No automatic production promotion exists.
 
 Normal planning fetches main into a disposable bare object cache, not the user's
 checkout. Cancel leaves checkout/index/refs/object database unchanged; temp cache
-is deleted. Dry-run only uses ls-remote plus existing local objects, never creates
-the cache or fetches; missing objects fail closed with a manual refresh instruction.
+is deleted. Dry-run compares ls-remote with the existing local origin/main ref
+and reads objects only for that exact SHA; it never creates the cache or
+fetches. A missing or stale tracking ref, or a missing object, fails closed
+with a manual refresh instruction.
 After confirmation: recheck clean tree, remote main and tags, fetch origin/main,
 recheck again, create annotated tag at approved SHA, push exactly that ref.
 No branch switching/pushing, credentials or store requests. Existing tags are
@@ -67,8 +73,9 @@ Source main must contain the new CLI contract before it can be tagged by this CL
 Cached play-state.json/apple-state.json, if available under build/release, are
 conservative history evidence, not live credentials or proof a number is free.
 Malformed snapshots block. No snapshot is required: CI is authoritative live.
-Common counter is 1..9999. A same-version/build paired tag requires identical SHA;
-same-platform different-channel tag blocks (promotion unsupported).
+Common counter is 1..9999. A same-version/build paired tag requires identical SHA
+and the same channel; RC and production never share a build number.
+Same-platform different-channel tag blocks (promotion unsupported).
 
 Local regression (no real remote tags/builds):
 

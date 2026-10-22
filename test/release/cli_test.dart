@@ -14,6 +14,9 @@ class Fixture {
   String mainSha = sha;
   bool dirty = false, failRemote = false, failPush = false;
   bool metadataReady = true, omitNotes = false, exportFalse = true;
+  bool missingTracking = false, missingObject = false;
+  String? trackingSha;
+  final calls = <List<String>>[];
   final remote = <String, String>{};
   final local = <String, String>{};
   final writes = <List<String>>[];
@@ -23,6 +26,7 @@ class Fixture {
   final env = <String, String>{};
   final states = <String, Map<String, dynamic>>{};
   String git(List<String> args) {
+    calls.add(List<String>.from(args));
     switch (args.first) {
       case 'status':
         return dirty ? ' M pubspec.yaml' : '';
@@ -38,8 +42,14 @@ class Fixture {
         local[args[2]] = args[3];
         return '';
       case 'rev-parse':
-        if (args.last.startsWith('refs/remotes/')) return mainSha;
+        if (args.last.startsWith('refs/remotes/')) {
+          if (missingTracking) blocked('missing tracking ref');
+          return trackingSha ?? mainSha;
+        }
         return local[args.last.substring(10).replaceAll('^{commit}', '')]!;
+      case 'cat-file':
+        if (missingObject) blocked('missing object');
+        return '';
       case 'fetch':
         writes.add(args);
         return '';
@@ -142,35 +152,38 @@ void main() {
         () {
           final f = Fixture()..env['PRODUCTION_PUBLISHING_ENABLED'] = 'true';
           final cli = f.cli;
-          final plan = cli.plan(platform, channel);
+          final dry = cli.plan(platform, channel, dryRun: true);
           expect(
-            plan.release.tag,
+            dry.release.tag,
             '${channel == 'rc' ? 'rc/' : ''}$platform/v1.2.3+19',
           );
-          cli.execute(plan, dryRun: true);
+          cli.execute(dry, dryRun: true);
           expect(f.writes, isEmpty);
-          cli.execute(plan, dryRun: false);
+          final real = cli.plan(platform, channel, dryRun: false);
+          cli.execute(real, dryRun: false);
           expect(f.writes.map((a) => a.first), ['fetch', 'tag', 'push']);
-          expect(f.writes[1].take(4), ['tag', '-a', plan.release.tag, sha]);
+          expect(f.writes[1].take(4), ['tag', '-a', real.release.tag, sha]);
           expect(f.writes.last, [
             'push',
             'origin',
-            'refs/tags/${plan.release.tag}:refs/tags/${plan.release.tag}',
+            'refs/tags/${real.release.tag}:refs/tags/${real.release.tag}',
           ]);
         },
       );
     }
-    test('$platform production default deny, including dry-run', () {
+    test('$platform production real plan is default deny before git', () {
       final f = Fixture();
-      expect(() => f.cli.plan(platform, 'production'), failure);
+      expect(() => f.cli.plan(platform, 'production', dryRun: false), failure);
       expect(f.writes, isEmpty);
+      expect(f.calls, isEmpty);
+      expect(f.reads, isEmpty);
     });
   }
   test(
     'version comes only from immutable remote main blob, never local pubspec',
     () {
       final f = Fixture()..version = '1.2.3+20';
-      expect(f.cli.plan('ios', 'rc').release.build, 20);
+      expect(f.cli.plan('ios', 'rc', dryRun: false).release.build, 20);
       expect(f.reads, contains('pubspec.yaml'));
       expect(pubspecVersion('version: 1.2.4+21 # common\n'), '1.2.4+21');
       for (final invalid in [
@@ -197,7 +210,7 @@ void main() {
         case 'export':
           f.exportFalse = false;
       }
-      expect(() => f.cli.plan('ios', 'rc'), failure);
+      expect(() => f.cli.plan('ios', 'rc', dryRun: false), failure);
       expect(f.writes, isEmpty);
     });
   }
@@ -210,13 +223,13 @@ void main() {
       confirm: (_) => 'y',
       printLine: (_) {},
     );
-    expect(() => cli.plan('ios', 'rc'), failure);
+    expect(() => cli.plan('ios', 'rc', dryRun: false), failure);
     expect(() => remoteRefs('bad refs/heads/main'), failure);
   });
   for (final answer in ['', 'N', 'yes']) {
     test('cancel $answer: no fetch, files, refs, tag or push', () {
       final f = Fixture()..answers[0] = answer;
-      f.cli.execute(f.cli.plan('android', 'rc'), dryRun: false);
+      f.cli.execute(f.cli.plan('android', 'rc', dryRun: false), dryRun: false);
       expect(f.writes, isEmpty);
       expect(f.local, isEmpty);
     });
@@ -225,12 +238,15 @@ void main() {
     final f = Fixture()
       ..env['PRODUCTION_PUBLISHING_ENABLED'] = 'true'
       ..answers[1] = 'no';
-    f.cli.execute(f.cli.plan('ios', 'production'), dryRun: false);
+    f.cli.execute(
+      f.cli.plan('ios', 'production', dryRun: false),
+      dryRun: false,
+    );
     expect(f.writes, isEmpty);
   });
   test('main advanced after preview: stop before tag', () {
     final f = Fixture();
-    final plan = f.cli.plan('android', 'rc');
+    final plan = f.cli.plan('android', 'rc', dryRun: false);
     f.mainSha = other;
     expect(() => f.cli.execute(plan, dryRun: false), failure);
     expect(f.writes, isEmpty);
@@ -248,12 +264,12 @@ void main() {
       confirm: (_) => 'y',
       printLine: (_) {},
     );
-    expect(() => cli.plan('android', 'rc'), failure);
+    expect(() => cli.plan('android', 'rc', dryRun: false), failure);
     expect(f.writes, isEmpty);
   });
   test('remote disappears after confirmation: fail closed without tag', () {
     final f = Fixture();
-    final plan = f.cli.plan('ios', 'rc');
+    final plan = f.cli.plan('ios', 'rc', dryRun: false);
     f.failRemote = true;
     expect(() => f.cli.execute(plan, dryRun: false), failure);
     expect(f.writes, isEmpty);
@@ -271,7 +287,7 @@ void main() {
       confirm: (_) => 'y',
       printLine: (_) {},
     );
-    final plan = cli.plan('android', 'rc');
+    final plan = cli.plan('android', 'rc', dryRun: false);
     expect(() => cli.execute(plan, dryRun: false), failure);
     expect(f.writes.map((a) => a.first), ['fetch']);
     expect(f.local, isEmpty);
@@ -284,13 +300,13 @@ void main() {
       } else {
         f.pair('rc/ios/v1.2.3+19');
       }
-      expect(() => f.cli.plan('ios', 'rc'), failure);
+      expect(() => f.cli.plan('ios', 'rc', dryRun: false), failure);
       expect(f.writes, isEmpty);
     });
   }
   test('target appeared during confirmation: stop', () {
     final f = Fixture();
-    final plan = f.cli.plan('ios', 'rc');
+    final plan = f.cli.plan('ios', 'rc', dryRun: false);
     f.pair(plan.release.tag);
     expect(() => f.cli.execute(plan, dryRun: false), failure);
     expect(f.writes, isEmpty);
@@ -299,9 +315,9 @@ void main() {
     'annotated paired platform same SHA allowed, different SHA rejected',
     () {
       final f = Fixture()..pair('rc/android/v1.2.3+19');
-      f.cli.plan('ios', 'rc');
+      f.cli.plan('ios', 'rc', dryRun: false);
       f.pair('rc/android/v1.2.3+19', commit: other);
-      expect(() => f.cli.plan('ios', 'rc'), failure);
+      expect(() => f.cli.plan('ios', 'rc', dryRun: false), failure);
     },
   );
   test(
@@ -310,7 +326,7 @@ void main() {
       final f = Fixture()
         ..pair('rc/android/v1.2.3+19')
         ..env['PRODUCTION_PUBLISHING_ENABLED'] = 'true';
-      expect(() => f.cli.plan('android', 'production'), failure);
+      expect(() => f.cli.plan('android', 'production', dryRun: false), failure);
     },
   );
   test('iOS-only retry then next common release monotonically increase', () {
@@ -318,13 +334,13 @@ void main() {
       ..pair('rc/android/v1.2.3+19')
       ..pair('rc/ios/v1.2.3+19')
       ..version = '1.2.3+20';
-    f.cli.plan('ios', 'rc');
+    f.cli.plan('ios', 'rc', dryRun: false);
     f.pair('rc/ios/v1.2.3+20');
     f.version = '1.2.4+20';
-    expect(() => f.cli.plan('android', 'rc'), failure);
+    expect(() => f.cli.plan('android', 'rc', dryRun: false), failure);
     f.version = '1.2.4+21';
-    f.cli.plan('android', 'rc');
-    f.cli.plan('ios', 'rc');
+    f.cli.plan('android', 'rc', dryRun: false);
+    f.cli.plan('ios', 'rc', dryRun: false);
   });
   test('known accepted binary and other-store higher history block upload', () {
     final f = Fixture()
@@ -333,17 +349,21 @@ void main() {
         'historical_floor': 18,
         'codes': [19],
       };
-    expect(() => f.cli.plan('android', 'rc'), failure);
-    expect(() => f.cli.plan('ios', 'rc'), failure); // No paired provenance.
+    expect(() => f.cli.plan('android', 'rc', dryRun: false), failure);
+    expect(
+      () => f.cli.plan('ios', 'rc', dryRun: false),
+      failure,
+    ); // No paired provenance.
     f.pair('rc/android/v1.2.3+19');
-    f.cli.plan('ios', 'rc');
+    f.cli.plan('ios', 'rc', dryRun: false);
     f.states['android']!['codes'] = [20];
-    expect(() => f.cli.plan('ios', 'rc'), failure);
+    expect(() => f.cli.plan('ios', 'rc', dryRun: false), failure);
   });
   test('failed push retains local tag and gives non-force recovery', () {
     final f = Fixture()..failPush = true;
     expect(
-      () => f.cli.execute(f.cli.plan('ios', 'rc'), dryRun: false),
+      () =>
+          f.cli.execute(f.cli.plan('ios', 'rc', dryRun: false), dryRun: false),
       throwsA(
         isA<ReleaseFailure>().having(
           (e) => e.message,
@@ -357,7 +377,7 @@ void main() {
       f.writes.any((a) => a.contains('--force') || a.contains('-d')),
       isFalse,
     );
-    expect(() => f.cli.plan('ios', 'rc'), failure);
+    expect(() => f.cli.plan('ios', 'rc', dryRun: false), failure);
   });
   test('cached Apple accepted/upload build blocks same build and permits higher retry', () {
     final f = Fixture()
@@ -375,13 +395,13 @@ void main() {
           },
         ],
       };
-    expect(() => f.cli.plan('ios', 'rc'), failure);
+    expect(() => f.cli.plan('ios', 'rc', dryRun: false), failure);
     f.version = '1.2.3+20';
-    expect(() => f.cli.plan('ios', 'rc'), failure);
+    expect(() => f.cli.plan('ios', 'rc', dryRun: false), failure);
     f.version = '1.2.3+21';
-    f.cli.plan('ios', 'rc');
+    f.cli.plan('ios', 'rc', dryRun: false);
     f.states['ios']!['app_id'] = 'other';
-    expect(() => f.cli.plan('ios', 'rc'), failure);
+    expect(() => f.cli.plan('ios', 'rc', dryRun: false), failure);
   });
   test(
     'real immutable Git blobs override a different committed local pubspec',
@@ -413,6 +433,7 @@ void main() {
       File('${repo.path}/pubspec.yaml')
           .writeAsStringSync('version: 9.9.9+99\n');
       run(['commit', '-am', 'Different local fixture version']);
+      run(['update-ref', 'refs/remotes/origin/main', approved]);
       final before = run(['show-ref']);
       final cli = ReleaseCli(
         runGit: (args) => args.first == 'ls-remote'
@@ -423,15 +444,171 @@ void main() {
         confirm: (_) => 'n',
         printLine: (_) {},
       );
-      final plan = cli.plan('android', 'rc');
-      expect(plan.release.build, 19);
-      expect(plan.sha, approved);
-      cli.execute(plan, dryRun: true);
-      cli.execute(plan, dryRun: false);
+      final dry = cli.plan('android', 'rc', dryRun: true);
+      expect(dry.release.build, 19);
+      expect(dry.sha, approved);
+      cli.execute(dry, dryRun: true);
+      final real = cli.plan('android', 'rc', dryRun: false);
+      cli.execute(real, dryRun: false);
       expect(run(['show-ref']), before);
       expect(run(['status', '--porcelain']), isEmpty);
     },
   );
+  test('production dry-run ignores the gate and never confirms or writes', () {
+    for (final enabled in [false, true]) {
+      final f = Fixture();
+      if (enabled) f.env['PRODUCTION_PUBLISHING_ENABLED'] = 'true';
+      final plan = f.cli.plan('android', 'production', dryRun: true);
+      expect(plan.dryRun, isTrue);
+      f.cli.execute(plan, dryRun: true);
+      expect(f.writes, isEmpty);
+      expect(f.answers, ['y', 'PUBLISH PRODUCTION']);
+      final text = f.output.join('\n');
+      expect(text, contains(enabled ? 'ENABLED' : 'DISABLED'));
+      expect(
+        text,
+        contains('DRY RUN: no files, refs, tags or uploads changed.'),
+      );
+      expect(
+        f.calls.where(
+          (args) =>
+              args.first == 'fetch' ||
+              args.first == 'push' ||
+              (args.first == 'tag' && args[1] != '--list'),
+        ),
+        isEmpty,
+      );
+    }
+  });
+  for (final value in <String?>[null, 'false', 'TRUE', ' true', '']) {
+    test(
+      'real production plan blocks on gate ${value ?? 'absent'} before git',
+      () {
+        final f = Fixture();
+        if (value != null) f.env['PRODUCTION_PUBLISHING_ENABLED'] = value;
+        expect(() => f.cli.plan('ios', 'production', dryRun: false), failure);
+        expect(f.calls, isEmpty);
+        expect(f.reads, isEmpty);
+        expect(f.answers, ['y', 'PUBLISH PRODUCTION']);
+      },
+    );
+  }
+  test('dry-run plan cannot be executed', () {
+    final f = Fixture();
+    final plan = f.cli.plan('android', 'rc', dryRun: true);
+    expect(() => f.cli.execute(plan, dryRun: false), failure);
+    expect(f.writes, isEmpty);
+    expect(f.answers, ['y', 'PUBLISH PRODUCTION']);
+  });
+  test('missing origin/main blocks dry-run before blobs', () {
+    final f = Fixture()..missingTracking = true;
+    expect(() => f.cli.plan('ios', 'rc', dryRun: true), failure);
+    expect(f.reads, isEmpty);
+    expect(f.writes, isEmpty);
+  });
+  test('stale origin/main blocks dry-run before blobs', () {
+    final f = Fixture()..trackingSha = other;
+    expect(
+      () => f.cli.plan('android', 'production', dryRun: true),
+      throwsA(
+        isA<ReleaseFailure>().having(
+          (error) => error.message,
+          'message',
+          contains('stale'),
+        ),
+      ),
+    );
+    expect(f.reads, isEmpty);
+    expect(f.calls.any((args) => args.first == 'fetch'), isFalse);
+  });
+  test('missing commit object blocks dry-run without fetch', () {
+    final f = Fixture()..missingObject = true;
+    expect(() => f.cli.plan('ios', 'rc', dryRun: true), failure);
+    expect(f.reads, isEmpty);
+    expect(f.calls.any((args) => args.first == 'fetch'), isFalse);
+  });
+  test('rc and production never share a build number', () {
+    final f = Fixture()
+      ..version = '1.2.3+24'
+      ..pair('rc/ios/v1.2.3+24');
+    expect(
+      () => f.cli.plan('android', 'production', dryRun: true),
+      throwsA(
+        isA<ReleaseFailure>().having(
+          (error) => error.message,
+          'message',
+          contains('another channel'),
+        ),
+      ),
+    );
+    expect(() => f.cli.plan('ios', 'production', dryRun: true), failure);
+    f.cli.plan('android', 'rc', dryRun: true);
+    final paired = Fixture()
+      ..version = '1.2.3+25'
+      ..pair('android/v1.2.3+25')
+      ..pair('ios/v1.2.3+25', commit: other);
+    expect(() => paired.cli.plan('ios', 'production', dryRun: true), failure);
+    final same = Fixture()
+      ..version = '1.2.3+25'
+      ..pair('android/v1.2.3+25');
+    same.cli.plan('ios', 'production', dryRun: true);
+  });
+  test('store floor cannot be paired through the other channel', () {
+    ReleaseCli cliFor(Map<String, String> refs) {
+      final f = Fixture()
+        ..states['android'] = {
+          'package': 'com.auyltech.prokat',
+          'historical_floor': 18,
+          'codes': [25],
+        };
+      return f.cli;
+    }
+
+    final rcRefs = {
+      'refs/tags/rc/android/v1.2.3+25': other,
+      'refs/tags/rc/android/v1.2.3+25^{}': sha,
+    };
+    expect(
+      () =>
+          cliFor(rcRefs)
+              .validateStores(ReleaseTag.parse('ios/v1.2.3+25'), sha, rcRefs),
+      failure,
+    );
+    final prodRefs = {
+      'refs/tags/android/v1.2.3+25': other,
+      'refs/tags/android/v1.2.3+25^{}': sha,
+    };
+    cliFor(prodRefs)
+        .validateStores(ReleaseTag.parse('ios/v1.2.3+25'), sha, prodRefs);
+  });
+  test('stale tracking ref does not read old blobs from a real repository', () {
+    final repo = Directory.systemTemp.createTempSync('prokat-cli-stale-');
+    addTearDown(() => repo.deleteSync(recursive: true));
+    String run(List<String> args) => git(args, directory: repo.path);
+    run(['init', '--initial-branch=main']);
+    run(['config', 'user.name', 'Release Test']);
+    run(['config', 'user.email', 'release@example.invalid']);
+    File('${repo.path}/pubspec.yaml').writeAsStringSync('version: 1.0.0+1\n');
+    run(['add', '.']);
+    run(['commit', '-m', 'old']);
+    final old = run(['rev-parse', 'HEAD']);
+    run(['update-ref', 'refs/remotes/origin/main', old]);
+    final reads = <String>[];
+    final cli = ReleaseCli(
+      runGit: (args) =>
+          args.first == 'ls-remote' ? '$sha\trefs/heads/main' : run(args),
+      readBlob: (commit, path) {
+        reads.add('$commit:$path');
+        return 'version: 9.9.9+99\n';
+      },
+      environment: {},
+      confirm: (_) => 'y',
+      printLine: (_) {},
+    );
+    expect(() => cli.plan('android', 'rc', dryRun: true), failure);
+    expect(reads, isEmpty);
+    expect(run(['rev-parse', 'refs/remotes/origin/main']), old);
+  });
   test('byte reader rejects BOM rather than silently stripping it', () {
     expect(() => releaseText([239, 187, 191, 65]), failure);
     expect(releaseText(utf8.encode('Қазақша')), 'Қазақша');
@@ -498,4 +675,75 @@ void main() {
     expect(result.exitCode, 0);
     expect(result.stdout, contains('TYPO BLOCKED'));
   });
+  test('production CLI blocks on the gate before git exists', () {
+    final dart = _sdkDart();
+    final result = Process.runSync(
+      dart,
+      [File('tool/release/cli.dart').absolute.path, 'android', 'production'],
+      workingDirectory: Directory.systemTemp.path,
+      includeParentEnvironment: false,
+      environment: _gitlessEnvironment(dart),
+    );
+    final output = '${result.stdout}\n${result.stderr}';
+    expect(result.exitCode, 1, reason: output);
+    expect(output, contains('Production publishing is disabled'));
+    expect(output, isNot(contains('Git ')));
+    expect(output, isNot(contains('git.exe')));
+    expect(output, isNot(contains('ProcessException')));
+  });
+  test('PowerShell production commands block on the gate without git', () {
+    if (!Platform.isWindows) return;
+    final dart = _sdkDart();
+    final powershell =
+        '${Platform.environment['SystemRoot']}\\System32\\WindowsPowerShell\\v1.0\\powershell.exe';
+    for (final command in ['prokat-prod-android', 'prokat-prod-ios']) {
+      final result = Process.runSync(
+        powershell,
+        [
+          '-NoProfile',
+          '-Command',
+          ". ./tool/release/prokat-release.ps1; $command",
+        ],
+        workingDirectory: Directory.current.path,
+        includeParentEnvironment: false,
+        environment: _gitlessEnvironment(dart),
+      );
+      final output = '${result.stdout}\n${result.stderr}';
+      expect(output, contains('PROKAT release blocked'), reason: output);
+      expect(
+        output,
+        contains('Production publishing is disabled'),
+        reason: output,
+      );
+      expect(output, isNot(contains('Git ')));
+      expect(output, isNot(contains('git.exe')));
+      expect(output, isNot(contains('is not recognized')));
+    }
+  });
+}
+
+String _sdkDart() {
+  final resolved = Platform.resolvedExecutable;
+  final name = resolved.replaceAll('\\', '/').toLowerCase();
+  if (name.endsWith('/dart.exe') || name.endsWith('/dart')) {
+    return resolved;
+  }
+  final cache = Directory(resolved).parent.parent.parent.parent;
+  final dart = File('${cache.path}/dart-sdk/bin/dart.exe');
+  if (dart.existsSync()) return dart.path;
+  final unix = File('${cache.path}/dart-sdk/bin/dart');
+  if (unix.existsSync()) return unix.path;
+  throw StateError('Cannot locate the Dart SDK next to $resolved');
+}
+
+Map<String, String> _gitlessEnvironment(String dart) {
+  final root = Platform.environment['SystemRoot'] ?? r'C:\Windows';
+  return {
+    'PATH': '${File(dart).parent.path};$root\\System32',
+    'SYSTEMROOT': root,
+    'WINDIR': root,
+    'PATHEXT': '.COM;.EXE;.BAT;.CMD',
+    'TEMP': Platform.environment['TEMP'] ?? Directory.systemTemp.path,
+    'TMP': Platform.environment['TMP'] ?? Directory.systemTemp.path,
+  };
 }

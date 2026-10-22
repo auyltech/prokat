@@ -116,16 +116,20 @@ void validateBuildHistory(
     }
     if (previous.build == release.build &&
         previous.platform != release.platform &&
+        previous.channel == release.channel &&
         previous.version == release.version &&
         revision != null &&
         commits[name] == revision) {
-      continue; // The other platform of the same approved common release.
+      continue; // The other platform of the same channel, version and SHA.
     }
     if (previous.build >= release.build) {
       blocked(
-        previous.build == release.build && previous.platform == release.platform
+        previous.build == release.build && previous.channel != release.channel
+            ? 'Build ${release.build} already used by $name in another channel; RC and production never share a build. Bump pubspec.'
+            : previous.build == release.build &&
+                  previous.platform == release.platform
             ? 'Build already reserved by $name. RC-to-production promotion is not implemented; do not re-upload an accepted binary.'
-            : 'Common build must exceed release tags on BOTH platforms (or pair the same version/build/SHA): $name',
+            : 'Common build must exceed release tags on BOTH platforms (or pair the same version/build/SHA and channel): $name',
       );
     }
   }

@@ -28,10 +28,11 @@ Map<String, String> releaseCommits(Map<String, String> refs) => {
 };
 
 class ReleasePlan {
-  ReleasePlan(this.release, this.sha, this.refs);
+  ReleasePlan(this.release, this.sha, this.refs, {required this.dryRun});
   final ReleaseTag release;
   final String sha;
   final Map<String, String> refs;
+  final bool dryRun;
   String get channel => release.platform == 'android'
       ? (release.production ? 'Google Play Production' : 'Internal Testing')
       : (release.production
@@ -71,7 +72,14 @@ class ReleaseCli {
     }
   }
 
-  ReleasePlan plan(String platform, String channel) {
+  ReleasePlan plan(String platform, String channel, {required bool dryRun}) {
+    if (channel == 'production' && !dryRun) {
+      // Before clean(), ls-remote or any blob. RC and dry-run do not read it.
+      validateProduction(
+        ReleaseTag('production-gate', 'android', 'production', '0.0.0', 1),
+        environment,
+      );
+    }
     if (!{'android', 'ios'}.contains(platform) ||
         !{'rc', 'production'}.contains(channel)) {
       blocked('Unknown command');
@@ -80,11 +88,11 @@ class ReleaseCli {
     final refs = snapshot();
     final sha =
         refs['refs/heads/main'] ?? blocked('Remote main is unavailable');
+    if (dryRun) requireFreshLocalMain(sha);
     final version = pubspecVersion(readBlob(sha, 'pubspec.yaml'));
     final release = ReleaseTag.parse(
       '${channel == 'rc' ? 'rc/' : ''}$platform/v$version',
     );
-    validateProduction(release, environment);
     // The approved source must contain this release contract, not an older
     // pipeline that could omit the common-counter/pubspec checks.
     readBlob(sha, 'tool/release/cli.dart');
@@ -132,7 +140,36 @@ class ReleaseCli {
       blocked('Remote main changed during preparation; retry');
     }
     validateTags(release, sha, fresh);
-    return ReleasePlan(release, sha, fresh);
+    return ReleasePlan(release, sha, fresh, dryRun: dryRun);
+  }
+
+  /// Dry-run reads blobs only for the SHA just returned by ls-remote, and only
+  /// when the local tracking ref already names that same commit.
+  void requireFreshLocalMain(String sha) {
+    String local;
+    try {
+      local = runGit([
+        'rev-parse',
+        '--verify',
+        'refs/remotes/origin/main^{commit}',
+      ]);
+    } on ReleaseFailure {
+      blocked(
+        'Local origin/main is missing; run git fetch origin main outside the CLI and retry',
+      );
+    }
+    if (local != sha) {
+      blocked(
+        'Local origin/main is stale ($local) vs remote ($sha); run git fetch origin main outside the CLI and retry',
+      );
+    }
+    try {
+      runGit(['cat-file', '-e', '$sha^{commit}']);
+    } on ReleaseFailure {
+      blocked(
+        'Dry-run cannot read approved commit $sha. Refresh the local object cache with git fetch origin main outside the CLI; dry-run never fetches',
+      );
+    }
   }
 
   void validateTags(ReleaseTag release, String sha, Map<String, String> refs) {
@@ -227,24 +264,33 @@ class ReleaseCli {
       final other = release.platform == 'android' ? 'ios' : 'android';
       final refs = releaseCommits(snapshot);
       final same = '${release.version}+${release.build}';
-      if (!refs.keys.any(
-        (name) =>
-            (name == 'rc/$other/v$same' || name == '$other/v$same') &&
-            refs[name] == sha,
-      )) {
+      final paired = '${release.production ? '' : 'rc/'}$other/v$same';
+      if (!refs.keys.any((name) => name == paired && refs[name] == sha)) {
         blocked('Equal other-store build has no paired release provenance');
       }
     }
   }
 
   void execute(ReleasePlan plan, {required bool dryRun}) {
+    if (dryRun != plan.dryRun) {
+      blocked(
+        'Dry-run plan cannot be executed and a real plan cannot be previewed as dry-run; rebuild the plan',
+      );
+    }
     printLine(plan.preview);
+    if (plan.release.production) {
+      final enabled = environment['PRODUCTION_PUBLISHING_ENABLED'] == 'true';
+      printLine('Production gate (local): ${enabled ? 'ENABLED' : 'DISABLED'}');
+    }
     printLine(
       'Store availability is UNKNOWN locally; CI rechecks live before build and upload.',
     );
     if (dryRun) {
       printLine('DRY RUN: no files, refs, tags or uploads changed.');
       return;
+    }
+    if (plan.release.production) {
+      validateProduction(plan.release, environment);
     }
     if (confirm('Continue? [y/N]')?.toLowerCase() != 'y') {
       printLine('Cancelled; checkout, refs and tags unchanged.');
@@ -279,6 +325,7 @@ class ReleaseCli {
       blocked('Remote main changed; no tag created');
     }
     validateTags(plan.release, plan.sha, last);
+    validateProduction(plan.release, environment);
     final ref = 'refs/tags/${plan.release.tag}';
     runGit([
       'tag',
@@ -314,6 +361,13 @@ void main(List<String> args) {
         'Usage: dart tool/release/cli.dart android|ios rc|production [--dry-run]',
       );
     }
+    final dryRun = args.contains('--dry-run');
+    if (args[1] == 'production' && !dryRun) {
+      validateProduction(
+        ReleaseTag('production-gate', 'android', 'production', '0.0.0', 1),
+        Platform.environment,
+      );
+    }
     final root = git(['rev-parse', '--show-toplevel']);
     String run(List<String> args) => git(args, directory: root);
     if (run(['status', '--porcelain=v1', '--untracked-files=all']).isNotEmpty) {
@@ -323,7 +377,6 @@ void main(List<String> args) {
     if (!RegExp(r'[:/]auyltech/prokat(?:\.git)?$').hasMatch(url)) {
       blocked('origin must identify auyltech/prokat');
     }
-    final dryRun = args.contains('--dry-run');
     String read(String sha, String path) {
       if (dryRun) {
         try {
@@ -379,7 +432,7 @@ void main(List<String> args) {
       },
       printLine: stdout.writeln,
     );
-    cli.execute(cli.plan(args[0], args[1]), dryRun: dryRun);
+    cli.execute(cli.plan(args[0], args[1], dryRun: dryRun), dryRun: dryRun);
   } on Object catch (error) {
     stderr.writeln(
       error is ReleaseFailure
