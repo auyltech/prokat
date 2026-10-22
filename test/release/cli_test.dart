@@ -15,6 +15,7 @@ class Fixture {
   bool dirty = false, failRemote = false, failPush = false;
   bool metadataReady = true, omitNotes = false, exportFalse = true;
   bool missingTracking = false, missingObject = false, mirrorPush = false;
+  bool cloudGuards = true;
   String? trackingSha, rawLsRemote;
   int lsRemoteCount = 0;
   int? failLsRemoteAfter;
@@ -133,8 +134,13 @@ class Fixture {
     if (path.endsWith('Info.plist')) {
       return '<key>ITSAppUsesNonExemptEncryption</key><${exportFalse ? 'false' : 'true'}/>';
     }
+    final cloud = cloudGuards
+        ? ' PRODUCTION_RELEASE_AUTH_ANDROID GITHUB_RUN_ATTEMPT '
+            'validateCloudAuthorization CM_TRIGGER_SOURCE '
+            'event.repository.full_name'
+        : '';
     return 'release.dart ci PRODUCTION_PUBLISHING_ENABLED verify_android.dart '
-        'verify_ios.py play.rb preflight ios_store.py preflight validateProduction';
+        'verify_ios.py play.rb preflight ios_store.py preflight validateProduction$cloud';
   }
 
   ReleaseCli get cli => ReleaseCli(
@@ -516,6 +522,18 @@ void main() {
       expect(run(['status', '--porcelain']), isEmpty);
     },
   );
+  test('production plan requires cloud guards that RC plans do not', () {
+    final missing = Fixture()
+      ..cloudGuards = false
+      ..env['PRODUCTION_PUBLISHING_ENABLED'] = 'true';
+    expect(
+      () => missing.cli.plan('android', 'production', dryRun: true),
+      failure,
+    );
+    expect(() => missing.cli.plan('ios', 'production', dryRun: true), failure);
+    missing.cli.plan('android', 'rc', dryRun: true);
+    missing.cli.plan('ios', 'rc', dryRun: true);
+  });
   test('production dry-run ignores the gate and never confirms or writes', () {
     for (final enabled in [false, true]) {
       final f = Fixture();
@@ -527,6 +545,18 @@ void main() {
       expect(f.answers, ['y', 'PUBLISH PRODUCTION']);
       final text = f.output.join('\n');
       expect(text, contains(enabled ? 'ENABLED' : 'DISABLED'));
+      expect(
+        text,
+        contains(
+          'Cloud authorization required: GitHub variable PRODUCTION_RELEASE_AUTH_ANDROID = android/v1.2.3+19@$sha#1',
+        ),
+      );
+      expect(
+        text,
+        contains(
+          'Server tag ruleset is a U5 precondition (OC-C0); not verifiable from this CLI',
+        ),
+      );
       expect(
         text,
         contains('DRY RUN: no files, refs, tags or uploads changed.'),

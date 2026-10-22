@@ -555,6 +555,22 @@ def publish_arguments(context, ipa, group=None):
     return args
 
 
+def require_production_cloud(context):
+    """Production-only. RC and diagnostic commands never reach this check."""
+    if context.get("channel") != "production":
+        return
+    if os.environ.get("PRODUCTION_PUBLISHING_ENABLED") != "true":
+        raise Blocked("Production disabled until U5")
+    if os.environ.get("CM_TRIGGER_SOURCE") != "webhook":
+        raise Blocked("IOS_PRODUCTION_REQUIRES_WEBHOOK")
+    commit = os.environ.get("CM_COMMIT") or ""
+    tag = context.get("tag")
+    if not isinstance(tag, str) or not re.fullmatch(r"[0-9a-f]{40}", commit):
+        raise Blocked("IOS_PRODUCTION_AUTHORIZATION_INVALID")
+    if os.environ.get("PRODUCTION_RELEASE_AUTH_IOS") != f"{tag}@{commit}":
+        raise Blocked("IOS_PRODUCTION_AUTHORIZATION_INVALID")
+
+
 def checked_publish_arguments(context, ipa, group=None):
     from apple_publish import PublishCliError, validate_publish_arguments
 
@@ -580,6 +596,7 @@ def main():
         raise Blocked("Codemagic iOS tag webhook required")
     if context["channel"] == "production" and os.environ.get("PRODUCTION_PUBLISHING_ENABLED") != "true":
         raise Blocked("Production disabled until U5")
+    require_production_cloud(context)
     if sys.argv[1] == "validate-publish":
         # No IPA exists yet. Only the path literal differs from the final argv;
         # context, group, localizations and every option use the same builder.
@@ -593,6 +610,7 @@ def main():
         if len(packages) != 1:
             raise Blocked("Expected exactly one signed IPA")
         args = checked_publish_arguments(context, packages[0], os.environ.get("TESTFLIGHT_GROUP"))
+        require_production_cloud(context)
         if context["channel"] == "rc":
             group_id = state.get("automatic_group_id")
             if not isinstance(group_id, str) or not re.fullmatch(r"[A-Za-z0-9_-]{1,128}", group_id):

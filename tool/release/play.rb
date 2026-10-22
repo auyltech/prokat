@@ -21,9 +21,7 @@ begin
   raise PlayPolicy::Blocked, 'Expected preflight or publish' unless ARGV.length == 1 && %w[preflight publish].include?(ARGV.first)
   context = JSON.parse(File.read(CONTEXT))
   channel = context.fetch('channel')
-  if channel == 'production' && ENV['PRODUCTION_PUBLISHING_ENABLED'] != 'true'
-    raise PlayPolicy::Blocked, 'Production publishing disabled until U5'
-  end
+  PlayPolicy.authorize_android!(context, ENV)
   track = snapshot_and_check(context)
   if ARGV.first == 'publish'
     raise PlayPolicy::Blocked, 'Only GitHub tag pushes may publish' unless ENV['GITHUB_EVENT_NAME'] == 'push' && ENV['GITHUB_REF'] == "refs/tags/#{context.fetch('tag')}" && ENV['GITHUB_REF_TYPE'] == 'tag'
@@ -48,6 +46,7 @@ begin
     if channel == 'production'
       ProkatPlayStore.guard_publish!(track: 'production', version_code: Integer(context.fetch('build')))
     end
+    PlayPolicy.handoff_to_publisher(context, ENV)
     Supply::Uploader.new.perform_upload
     puts 'PLAY_EDIT_COMMITTED: store review/managed publishing can still delay availability; verify the track.'
   else

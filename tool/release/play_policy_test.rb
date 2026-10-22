@@ -1,4 +1,5 @@
 require_relative 'play_policy'
+require 'stringio'
 
 def assert_blocked
   begin
@@ -41,4 +42,44 @@ unknown = PlayPolicy.publish_failure_line(leaky.new)
 raise 'Failure line leaked a response body' if unknown.include?(sentinel)
 raise 'Unclassified failure must stay UNKNOWN' unless unknown.include?('UNKNOWN')
 raise 'Unclassified failure must not claim a commit' if unknown.include?('PLAY_EDIT_COMMITTED')
-puts 'VERIFIED: Play history, production track status, and redacted failure lines; no store requests'
+sha = 'a' * 40
+context = {'channel' => 'production', 'tag' => 'android/v1.2.4+25', 'build' => 25}
+good = {
+  'PRODUCTION_PUBLISHING_ENABLED' => 'true',
+  'GITHUB_SHA' => sha,
+  'GITHUB_RUN_ATTEMPT' => '1',
+  'PRODUCTION_RELEASE_AUTH_ANDROID' => "#{context['tag']}@#{sha}#1"
+}
+PlayPolicy.authorize_android!(context, good)
+PlayPolicy.authorize_android!(context, good)
+marker = StringIO.new
+PlayPolicy.handoff_to_publisher(context, good, marker)
+raise 'Marker missing' unless marker.string == "PUBLISHER_INVOKED platform=android tag=#{context['tag']}\n"
+raise 'Marker is not publication success' if marker.string.include?('PLAY_EDIT_COMMITTED')
+[
+  good.merge('PRODUCTION_PUBLISHING_ENABLED' => 'false'),
+  good.merge('PRODUCTION_RELEASE_AUTH_ANDROID' => "#{context['tag']}@#{sha}#2"),
+  good.merge('GITHUB_RUN_ATTEMPT' => 'x'),
+  good.merge('GITHUB_SHA' => 'b' * 40),
+  good.merge('PRODUCTION_RELEASE_AUTH_ANDROID' => " #{good['PRODUCTION_RELEASE_AUTH_ANDROID']}")
+].each do |env|
+  buffer = StringIO.new
+  begin
+    PlayPolicy.handoff_to_publisher(context, env, buffer)
+    raise 'Bad authorization reached the publisher marker'
+  rescue PlayPolicy::Blocked => error
+    raise error.message unless error.message == 'ANDROID_CLOUD_AUTHORIZATION_INVALID'
+    raise 'Marker printed before authorization' unless buffer.string.empty?
+  end
+end
+rc = {'channel' => 'rc', 'tag' => 'rc/android/v1.2.4+25', 'build' => 25}
+PlayPolicy.authorize_android!(rc, {})
+rc_marker = StringIO.new
+PlayPolicy.handoff_to_publisher(rc, {}, rc_marker)
+raise 'RC marker missing' unless rc_marker.string.include?('PUBLISHER_INVOKED platform=android')
+publisher = File.read(File.expand_path('play.rb', __dir__))
+raise 'Upload is not immediately after the publisher handoff' unless publisher.match?(
+  /PlayPolicy\.handoff_to_publisher\(context, ENV\)\n\s*Supply::Uploader\.new\.perform_upload/
+)
+raise 'Preflight prints the publisher marker' if publisher.match?(/PUBLISHER_INVOKED/)
+puts 'VERIFIED: Play history, production track status, redacted failure lines, and cloud handoff; no store requests'

@@ -44,6 +44,81 @@ SwiftPM locks сохраняйте вместе с Podfile.lock; [native guide](
   Холодный старт, auth, API, push, sharing/deep links и update prompt проверяются
   на обеих платформах. Публичный App Store не обновляет TestFlight-сборку.
 
+## Production: ручное восстановление
+
+Один оператор, один production-релиз за раз. Автоматический повтор загрузки,
+submission и Rebuild того же тега не используются. `PUBLISHER_INVOKED` означает
+только то, что управление дошло до издателя. Успех Android — `PLAY_EDIT_COMMITTED`.
+Успех iOS submission — `APPLE_REVIEW_SUBMISSION_CONFIRMED`.
+`APPLE_SUBMISSION_STEP_COMPLETED` успехом submission не является.
+Следующий выпуск — новая подписанная сборка: больший общий build number в
+`pubspec.yaml` на `main` и новый тег `android/v…` или `ios/v…`. Уже созданный
+тег повторно не используют.
+
+### A. Ошибка до возможной мутации магазина
+
+Признак: прогон закончился, в полном логе нет `PUBLISHER_INVOKED`. Типичные коды:
+`Production publishing is disabled until owner gate U5`,
+`ANDROID_CLOUD_AUTHORIZATION_INVALID`, `IOS_CLOUD_AUTHORIZATION_INVALID`,
+`IOS_PRODUCTION_AUTHORIZATION_INVALID`, `IOS_PRODUCTION_REQUIRES_WEBHOOK`,
+`iOS release requires Codemagic tag webhook context`, сообщения истории номеров
+и preflight до издателя.
+
+1. Прочитать код в логе и исправить причину: gate, строка разрешения, тег, SHA,
+   номер, notes или подпись.
+2. Play Console → App bundle explorer и production track: bundle этого номера
+   отсутствует. App Store Connect → Build Uploads и App Store version: upload и
+   submission этого номера отсутствуют.
+3. Поднять build number, пройти review в `main` и запустить обычную команду
+   только для этой платформы. Второй платформе новый бинарник не отправлять,
+   если её релиз уже принят.
+
+Preflight Play делает `edits.insert` и сразу `edits.delete`. Это не upload.
+Если издатель не вызывался, новый тег допустим после проверки консоли.
+
+### B. Upload подтверждён, следующий этап не завершён
+
+Новый бинарник не собирать.
+
+- Android: в логе есть `PLAY_EDIT_COMMITTED`, ревью или выпуск в консоли не
+  закончены. Play Console → Publishing overview и production track. Завершать
+  только уже отправленный release. Managed publishing не переключать в середине
+  релиза.
+- iOS: сборка видна в App Store Connect → Build Uploads / TestFlight, а
+  `APPLE_REVIEW_SUBMISSION_CONFIRMED` нет. Открыть App Store version этой
+  версии и привязать уже загруженный build. Второй IPA не загружать.
+
+### C. UNKNOWN после возможной мутации
+
+Признак: есть `PUBLISHER_INVOKED`, но нет `PLAY_EDIT_COMMITTED` или
+`APPLE_REVIEW_SUBMISSION_CONFIRMED`. Сюда же `APPLE_SUBMISSION_OUTCOME_UNKNOWN`,
+`PLAY_CHANGES_IN_REVIEW`, отмена, таймаут и неполный лог.
+
+Автоматический повтор запрещён. Не нажимать Re-run, Rebuild и не создавать тег,
+пока консоль не проверена.
+
+1. Android: Play Console → App bundle explorer, production track, Publishing
+   overview. Искать versionCode из тега.
+2. iOS: App Store Connect → Build Uploads, TestFlight builds, App Store version,
+   Review Submissions. Искать CFBundleVersion из тега.
+3. Если загрузка или submission уже есть — продолжать с этим артефактом вручную,
+   как в B или D. Новый бинарник не собирать.
+4. Если эффекта нет и это видно надёжно (нет bundle, нет upload, нет submission,
+   лог полный и оборвался до издателя) — готовить следующую сборку, как в A.
+5. Если состояние неясно — остановиться. Новую мутацию не запускать.
+
+### D. Сбой после создания App Store submission
+
+Коды: `APPLE_SUBMISSION_OUTCOME_UNKNOWN`, `APPLE_SUBMISSION_GUARD_FAILED`,
+`APPLE_SUBMISSION_ITEMS_CHANGED`, `APPLE_SUBMISSION_ITEMS_CHANGED_AFTER_CONFIRM`.
+IPA к этому моменту уже мог быть принят.
+
+1. App Store Connect → версия из тега → Review Submissions.
+2. Продолжить существующий submission: items, What's New, confirm — вручную,
+   если состояние версии это позволяет.
+3. Второй submission ради зелёного CI не создавать. Повторный запуск
+   `ios-production` для того же тега не делать.
+
 ## Retry и accepted binary
 
 iOS +22 CLI parse failure: [publishing preflight / IPA recovery](IOS_PUBLISHING.md).

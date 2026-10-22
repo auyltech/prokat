@@ -44,7 +44,10 @@ class WorkflowContractTests(unittest.TestCase):
             'ANDROID_KEY_PASSWORD', 'PLAY_SERVICE_ACCOUNT_JSON_BASE64',
             'GOOGLE_SERVICES_JSON_BASE64', 'MAPBOX_PUBLIC_TOKEN', 'PRODUCTION_PUBLISHING_ENABLED',
         })
-        self.assertEqual(variables, {'PLAY_HISTORICAL_MAX_BUILD', 'ANDROID_UPLOAD_CERT_SHA256'})
+        self.assertEqual(variables, {
+            'PLAY_HISTORICAL_MAX_BUILD', 'ANDROID_UPLOAD_CERT_SHA256',
+            'PRODUCTION_RELEASE_AUTH_ANDROID',
+        })
         self.assertLess(text.index('verify_upload_key.py'), text.index('flutter build appbundle'))
 
     def setUp(self):
@@ -190,6 +193,67 @@ class WorkflowContractTests(unittest.TestCase):
                 self.assertEqual(result.returncode, expected)
                 self.assertEqual(result.stderr, '')
                 self.assertEqual(result.stdout, '' if expected == 0 else 'BLOCKED: APPLE_SOURCE_CONTEXT_INVALID\n')
+
+
+    def test_android_production_gate_precedes_flutter_and_names_authorization(self):
+        text = (ROOT / '.github/workflows/android-release.yml').read_text(encoding='utf-8')
+        gate = text.index('name: Reject production until U5')
+        flutter = text.index('name: Install pinned Flutter')
+        self.assertLess(gate, flutter)
+        step = text[gate:flutter]
+        for token in ('vars.PRODUCTION_RELEASE_AUTH_ANDROID', 'github.ref_name', 'github.sha', 'github.run_attempt'):
+            self.assertIn(token, step)
+
+    def test_ios_production_webhook_guard_stops_before_source_fetch(self):
+        production = self.releases['ios-production']['scripts'][0]['script']
+        rc = self.releases['ios-rc']['scripts'][0]['script']
+        self.assertEqual(production, rc)
+        self.assertLess(production.index('IOS_PRODUCTION_REQUIRES_WEBHOOK'), production.index('git fetch'))
+        self.assertNotIn('IOS_PRODUCTION_REPLAY_GUARD_UNAVAILABLE', production)
+        self.assertNotIn('when', self.releases['ios-rc'])
+        condition = self.releases['ios-production']['when']['condition']
+        for token in ('event.repository.full_name', 'event.created', 'not event.deleted',
+                      'event.after == env.CM_COMMIT', 'env.CM_TRIGGER_SOURCE'):
+            self.assertIn(token, condition)
+        self.assertNotIn('when', self.codemagic['workflows']['ios-apple-diagnostic'])
+        diagnostic = self.codemagic['workflows']['ios-apple-diagnostic']['scripts'][0]['script']
+        self.assertIn('!= api', diagnostic)
+        self.assertNotIn('IOS_PRODUCTION_REQUIRES_WEBHOOK', diagnostic)
+        self.assertNotIn('IOS_PRODUCTION_REPLAY_GUARD_UNAVAILABLE', diagnostic)
+        git_bash = Path('C:/Program Files/Git/bin/bash.exe')
+        bash = str(git_bash) if os.name == 'nt' and git_bash.is_file() else shutil.which('bash')
+        if not bash:
+            self.skipTest('Bash unavailable; static order still checked')
+        prefix = production.split('git fetch', 1)[0]
+        for source in ('api', 'schedule', '', 'Webhook'):
+            result = subprocess.run(
+                [bash, '-c', prefix], cwd=ROOT, capture_output=True, text=True,
+                env={**os.environ, 'RELEASE_EXPECTED_CHANNEL': 'production', 'CM_TRIGGER_SOURCE': source,
+                     'CM_TAG': 'ios/v1.2.3+23'},
+            )
+            self.assertEqual(result.returncode, 1, source)
+            self.assertIn('BLOCKED: IOS_PRODUCTION_REQUIRES_WEBHOOK', result.stdout)
+        missing = {**os.environ, 'RELEASE_EXPECTED_CHANNEL': 'production', 'CM_TAG': 'ios/v1.2.3+23'}
+        missing.pop('CM_TRIGGER_SOURCE', None)
+        absent = subprocess.run([bash, '-c', prefix], cwd=ROOT, capture_output=True, text=True, env=missing)
+        self.assertEqual(absent.returncode, 1)
+        self.assertIn('BLOCKED: IOS_PRODUCTION_REQUIRES_WEBHOOK', absent.stdout)
+        rc_env = {**os.environ, 'RELEASE_EXPECTED_CHANNEL': 'rc', 'CM_TAG': ''}
+        rc_env.pop('CM_TRIGGER_SOURCE', None)
+        rc_result = subprocess.run([bash, '-c', prefix], cwd=ROOT, capture_output=True, text=True, env=rc_env)
+        self.assertEqual(rc_result.returncode, 1)
+        self.assertIn('BLOCKED: iOS tag webhook required', rc_result.stdout)
+        self.assertNotIn('IOS_PRODUCTION_REQUIRES_WEBHOOK', rc_result.stdout)
+        self.assertNotIn('IOS_PRODUCTION_REPLAY_GUARD_UNAVAILABLE', rc_result.stdout)
+        allowed = {**os.environ, 'RELEASE_EXPECTED_CHANNEL': 'production', 'CM_TRIGGER_SOURCE': 'webhook',
+                   'CM_TAG': 'ios/v1.2.3+23'}
+        opened = subprocess.run(
+            [bash, '-c', production.split('python3', 1)[0]], cwd=ROOT,
+            capture_output=True, text=True, env=allowed,
+        )
+        self.assertEqual(opened.returncode, 0)
+        self.assertNotIn('BLOCKED:', opened.stdout)
+        self.assertNotIn('PUBLISHER_INVOKED', opened.stdout)
 
 
 if __name__ == "__main__":

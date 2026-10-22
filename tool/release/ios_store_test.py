@@ -377,10 +377,76 @@ class ApplePublishBoundaryTests(unittest.TestCase):
         self.create_ipa()
         context = {**self.context, 'channel': 'production', 'destination': 'app_store_review', 'tag': 'ios/v1.2.3+23'}
         (self.root / 'build/release/context.json').write_text(json.dumps(context))
-        with patch.dict(store.os.environ, {'CM_TAG': context['tag'], 'PRODUCTION_PUBLISHING_ENABLED': 'true'}):
-            self.assertIn('APPLE_SUBMISSION_STEP_COMPLETED', self.run_main('publish'))
+        commit = 'a' * 40
+        with patch.dict(store.os.environ, {
+                'CM_TAG': context['tag'], 'PRODUCTION_PUBLISHING_ENABLED': 'true',
+                'CM_TRIGGER_SOURCE': 'webhook', 'CM_COMMIT': commit,
+                'PRODUCTION_RELEASE_AUTH_IOS': f"{context['tag']}@{commit}"}):
+            preview = self.run_main('validate-publish')
+            published = self.run_main('publish')
+        self.assertIn('APPLE_PUBLISH_ARGUMENTS_VALID', preview)
+        self.assertIn('does not prove App Store publication', published)
+        self.assertNotIn('PUBLISHER_INVOKED', published)
+        self.read.assert_called_once_with(context)
         self.publish.assert_called_once()
         self.confirm.assert_not_called()
+        self.assertIn('--app-store', self.publish.call_args.args[0])
+
+    def test_ios_production_non_webhook_stops_before_preflight_and_does_not_retag(self):
+        self.create_ipa()
+        context = {**self.context, 'channel': 'production', 'destination': 'app_store_review', 'tag': 'ios/v1.2.3+23'}
+        (self.root / 'build/release/context.json').write_text(json.dumps(context))
+        commit = 'a' * 40
+        base = {
+            'CM_TAG': context['tag'], 'PRODUCTION_PUBLISHING_ENABLED': 'true',
+            'CM_COMMIT': commit, 'PRODUCTION_RELEASE_AUTH_IOS': f"{context['tag']}@{commit}",
+        }
+        for source in ('api', 'schedule', '', 'Webhook'):
+            with self.subTest(source=source), patch.dict(store.os.environ, {**base, 'CM_TRIGGER_SOURCE': source}):
+                with self.assertRaisesRegex(store.Blocked, 'IOS_PRODUCTION_REQUIRES_WEBHOOK'):
+                    self.run_main('publish')
+            self.read.assert_not_called()
+            self.publish.assert_not_called()
+        missing = {**store.os.environ, **base}
+        missing.pop('CM_TRIGGER_SOURCE', None)
+        with patch.dict(store.os.environ, missing, clear=True):
+            with self.assertRaisesRegex(store.Blocked, 'IOS_PRODUCTION_REQUIRES_WEBHOOK'):
+                self.run_main('publish')
+        self.read.assert_not_called()
+        self.publish.assert_not_called()
+        self.assertEqual(json.loads((self.root / 'build/release/context.json').read_text())['tag'], context['tag'])
+
+    def test_wrong_ios_cloud_authorization_stops_before_store_reads(self):
+        context = {**self.context, 'channel': 'production', 'destination': 'app_store_review', 'tag': 'ios/v1.2.3+23'}
+        (self.root / 'build/release/context.json').write_text(json.dumps(context))
+        commit = 'a' * 40
+        with patch.dict(store.os.environ, {
+                'CM_TAG': context['tag'], 'PRODUCTION_PUBLISHING_ENABLED': 'true',
+                'CM_TRIGGER_SOURCE': 'webhook', 'CM_COMMIT': commit,
+                'PRODUCTION_RELEASE_AUTH_IOS': f"{context['tag']}@{'b' * 40}"}):
+            with self.assertRaisesRegex(store.Blocked, 'IOS_PRODUCTION_AUTHORIZATION_INVALID'):
+                self.run_main('validate-publish')
+        self.read.assert_not_called()
+        self.publish.assert_not_called()
+
+    def test_rc_publish_does_not_require_production_webhook(self):
+        self.create_ipa()
+        self.assertNotIn('CM_TRIGGER_SOURCE', store.os.environ)
+        self.assertNotIn('PRODUCTION_RELEASE_AUTH_IOS', store.os.environ)
+        self.run_main('publish')
+        self.publish.assert_called_once()
+        self.read.assert_called_once()
+
+    def test_valid_authorization_is_not_consumed(self):
+        context = {**self.context, 'channel': 'production', 'destination': 'app_store_review', 'tag': 'ios/v1.2.3+23'}
+        commit = 'a' * 40
+        with patch.dict(store.os.environ, {
+                'PRODUCTION_PUBLISHING_ENABLED': 'true', 'CM_TRIGGER_SOURCE': 'webhook',
+                'CM_COMMIT': commit, 'PRODUCTION_RELEASE_AUTH_IOS': f"{context['tag']}@{commit}"}):
+            store.require_production_cloud(context)
+            store.require_production_cloud(context)
+        self.publish.assert_not_called()
+        self.read.assert_not_called()
 
 
 class ProductionReviewPreflightTests(unittest.TestCase):
@@ -414,16 +480,12 @@ class ProductionReviewPreflightTests(unittest.TestCase):
             root = Path(directory)
             (root / "build/release").mkdir(parents=True)
             (root / "build/release/context.json").write_text(json.dumps(context))
-            with patch.object(store, "ROOT", root), patch.dict(store.os.environ, {**self.env(store.APP_ID),
-                    "CM_BUILD_ID": "fixture", "CM_TAG": context["tag"], "PRODUCTION_PUBLISHING_ENABLED": "true"}, clear=True), \
-                    patch.object(store.sys, "argv", ["ios_store.py", "publish"]), \
+            with patch.object(store, "ROOT", root), patch.dict(store.os.environ, self.env(store.APP_ID), clear=True), \
                     patch.object(store, "get_json", side_effect=pages), \
-                    patch.object(store.subprocess, "run") as publisher, \
                     contextlib.redirect_stdout(io.StringIO()) as output, \
                     self.assertRaises(store.AppleCheckFailure) as caught:
-                store.main()
+                store.preflight(context)
         self.assertEqual(caught.exception.code, "APPLE_VERSION_IN_FLIGHT")
-        publisher.assert_not_called()
         self.assertNotIn(secret, str(caught.exception) + output.getvalue())
 
     def test_dropped_filter_on_next_page_is_unknown(self):

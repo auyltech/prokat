@@ -9,6 +9,7 @@ import copy
 from importlib.metadata import version
 import inspect
 import io
+import json
 import sys
 from types import SimpleNamespace
 
@@ -321,6 +322,23 @@ def guarded_confirm(self, review_submission_id, should_print=True):
     return result
 
 
+def _publisher_context(parsed):
+    import ios_store as store
+
+    try:
+        context = json.loads((store.ROOT / "build/release/context.json").read_text(encoding="utf-8"))
+        tag = context["tag"]
+        channel = context["channel"]
+        platform = context["platform"]
+    except Exception:
+        raise SystemExit("BLOCKED: APPLE_PUBLISH_CONTEXT_INVALID") from None
+    if platform != "ios" or channel not in ("rc", "production") or not isinstance(tag, str) or not tag:
+        raise SystemExit("BLOCKED: APPLE_PUBLISH_CONTEXT_INVALID") from None
+    if bool(parsed.submit_to_app_store) != (channel == "production"):
+        raise SystemExit("BLOCKED: APPLE_PUBLISH_CONTEXT_INVALID") from None
+    return tag
+
+
 def main():
     try:
         parsed = validate_publish_arguments(sys.argv[1:])
@@ -328,9 +346,12 @@ def main():
             install_submission_guards()
     except PublishCliError as error:
         raise SystemExit(f"BLOCKED: {error}") from None
+    tag = _publisher_context(parsed)
     from codemagic.tools.app_store_connect import AppStoreConnect
     from codemagic.tools.app_store_connect.actions.submit_to_app_store_action import SubmitToAppStoreAction
     SubmitToAppStoreAction._create_or_update_app_store_version_localizations = strict_localizations
+    # Control has reached the publisher. This does not prove a store mutation.
+    print(f"PUBLISHER_INVOKED platform=ios tag={tag}", flush=True)
     AppStoreConnect.invoke_cli()
 
 

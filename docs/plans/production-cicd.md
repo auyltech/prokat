@@ -90,7 +90,7 @@ pubspec X.Y.Z+N на origin/main
 | Запуск CLI | `main()` в `cli.dart` | нет | неверные аргументы; `git rev-parse --show-toplevel`; грязное дерево; `origin` не `auyltech/prokat` | нет (G0) | `cli_test.dart` |
 | План | `ReleaseCli.plan` | G1 `ls-remote`; blobs коммита `origin/main`: pubspec, `releases/X.Y.Z/*`, workflow, `production.json`, `Info.plist` | грязное дерево; нет main; notes не `ready`; тег существует; история номеров; guard-строки workflow; `production.json`; Export Compliance; main сдвинулся. **Production: gate уже здесь, поэтому DryRun невозможен (P-01)** | Dry-run: G0 по точному SHA из `ls-remote`, без fetch. Обычный режим: fetch во временный bare-репозиторий вне checkout | `cli_test.dart` |
 | Исполнение | `ReleaseCli.execute` | интерактивный ввод | `Continue? [y/N]`; для production `PUBLISH PRODUCTION`; gate; повторная проверка main и тегов | G2 в `refs/remotes/origin/main`, G3, G4 exact tag ref. При ошибке push — локальный тег остаётся, печатается ручная инструкция (P-25) | `cli_test.dart` |
-| CI: источник | `release.dart ci` → `validateEvent`, `validateProduction`, `validateRevision`, `validatePubspecVersion`, `prepare` | env провайдера, `GITHUB_EVENT_PATH`/`CM_TAG`, `--revision` = `GITHUB_SHA`/`CM_COMMIT` | не tag push; удаление тега; SHA не в `main`; peeled-коммит тега ≠ revision; история; pubspec ≠ тег; gate. `CM_TRIGGER_SOURCE` не проверяется (P-29) | `git fetch` в runner | `release_test.dart`, `source_test.dart` |
+| CI: источник | `release.dart ci` → `validateEvent`, `validateProduction`, `validateRevision`, `validatePubspecVersion`, `prepare` | env провайдера, `GITHUB_EVENT_PATH`/`CM_TAG`, `--revision` = `GITHUB_SHA`/`CM_COMMIT` | не tag push; удаление тега; SHA не в `main`; peeled-коммит тега ≠ revision; история; pubspec ≠ тег; gate. iOS production дополнительно фильтрует `CM_TRIGGER_SOURCE` и native `event` (5.10); это не claim и не криптографическое доказательство | `git fetch` в runner | `release_test.dart`, `source_test.dart` |
 | CI: gate Android | шаг `Reject production until U5` в `android-release.yml`; `play.rb` | `secrets.PRODUCTION_PUBLISHING_ENABLED` | значение ≠ `true` | нет | `config_test.py` (структура) |
 | CI: gate iOS | `release.dart ci`, `ios_store.py main` | env-группа Codemagic `prokat-ios-release` | значение ≠ `true` | нет | `ios_store_test.py` |
 | Состояние Play | `play.rb preflight` → `ProkatPlayStore.snapshot` → `PlayPolicy.check!` | `PLAY_SERVICE_ACCOUNT_JSON_BASE64`, `vars.PLAY_HISTORICAL_MAX_BUILD` | номер занят; номер ≤ максимума; locale; track ≠ канал | **да: `edits.insert` + `edits.delete`** (P-06) | `play_policy_test.rb`, `play_store_test.rb` |
@@ -273,12 +273,12 @@ DryRun не является разрешением ни в одном из ре
 
 Уровни защиты Production:
 
-| Уровень | Сейчас | Цель (вариант A решения Q1) |
+| Уровень | Сейчас | Принято владельцем 2026-10-22 (Q1, вариант A) |
 | --- | --- | --- |
 | Локальный CLI | env `PRODUCTION_PUBLISHING_ENABLED=true` + `PUBLISH PRODUCTION` | Без изменения смысла; gate переносится на старт реального запуска (5.3) |
 | Сервер GitHub | неизвестно | **Обязательное условие U5** (OC-A5, OC-C0): два активных tag ruleset на `refs/tags/android/v*`, `refs/tags/ios/v*`, `refs/tags/rc/**`. Ruleset «immutable»: Restrict updates + Restrict deletions, **пустой** bypass list. Ruleset «create»: Restrict creations, bypass — только роль или команда, где состоит один владелец |
 | GitHub Actions (Android) | `secrets.PRODUCTION_PUBLISHING_ENABLED == true` | Плюс repository Variable `PRODUCTION_RELEASE_AUTH_ANDROID` == `"$GITHUB_REF_NAME@$GITHUB_SHA#$GITHUB_RUN_ATTEMPT"`; событие `push` тега (уже `validateEvent`) |
-| Codemagic (iOS) | `PRODUCTION_PUBLISHING_ENABLED == true` в группе `prokat-ios-release` | Плюс переменная группы `PRODUCTION_RELEASE_AUTH_IOS` == `"$CM_TAG@$CM_COMMIT"` **и** `CM_TRIGGER_SOURCE == webhook` |
+| Codemagic (iOS) | `PRODUCTION_PUBLISHING_ENABLED == true` в группе `prokat-ios-release` | Плюс переменная группы `PRODUCTION_RELEASE_AUTH_IOS` == `"$CM_TAG@$CM_COMMIT"`. Штатный запуск — tag webhook. `CM_TRIGGER_SOURCE` и native `event` — фильтры, не доказательство происхождения (5.10) |
 | Магазины | без production-права у Play service account | Право Release to production выдаётся один раз на U5 (OC-C1) |
 
 Форматы разрешения (сравнение строгое: без trim, без регистра, без шаблонов):
@@ -303,7 +303,7 @@ Production DryRun печатает точную строку для копиро
 | Push любого другого production-тега, следующего номера | Разрешение (имя и SHA) | Да, пока владелец не выставил это значение |
 | Тег с тем же именем на другом коммите | SHA в разрешении | Да |
 | Re-run Android того же run | Номер попытки | Да, пока владелец не выставил `#n+1` |
-| Rebuild или ручной запуск iOS в Codemagic | `CM_TRIGGER_SOURCE == webhook` (UI и REST API дают `api`) | Да по документации Codemagic; проверяется в OC-A4 на истории сборок |
+| Rebuild или ручной запуск iOS в Codemagic | Операционная модель 5.10: оператор не запускает workflow вручную и через API. `when.condition` отсекает UI и schedule без `event`. `CM_TRIGGER_SOURCE` можно перекрыть переменной группы или API | Остаточный риск, не запрет pipeline. Язык условий не связывает `event.ref` с тегом. API-обработка `when` документами не подтверждена. Код не обещает exactly-once |
 | **Удаление и повторное создание того же тега, в том числе повторный push идентичного объекта тега** → новый run (`GITHUB_RUN_ATTEMPT=1`) или новый webhook Codemagic | **Только** ruleset «immutable» + «create» | Гарантия есть, **только если** ruleset активен. Без ruleset схема **не** защищает от replay при активном разрешении |
 | Забытый `PRODUCTION_PUBLISHING_ENABLED=true` без разрешения | Разрешение | Да |
 | Прогон после очистки разрешения | Разрешение | Да |
@@ -315,7 +315,7 @@ Production DryRun печатает точную строку для копиро
 запрет удаления и повторного создания тегов GitHub предоставляет через rulesets
 (прежние tag protection rules переведены в rulesets). Если тариф не
 позволяет rulesets для приватного репозитория (нужен GitHub Team или Enterprise Cloud),
-U5 блокируется до решения Q9; план тогда **не утверждает** защиту от replay.
+Q9 принято владельцем 2026-10-22: U5 блокируется, пока ruleset не создан и не проверен. Отсутствие ruleset не принято как риск, и план **не утверждает** защиту от replay.
 
 **Чего разрешение и ruleset не дают:**
 
@@ -353,7 +353,7 @@ versionCode, Apple отвергает повторный `CFBundleVersion` то�
 | Исход | Признак | Действие |
 | --- | --- | --- |
 | SUBMITTED | Android: `PLAY_EDIT_COMMITTED`. iOS: `APPLE_REVIEW_SUBMISSION_CONFIRMED` | Очистить разрешение. Проверить track или App Review в консоли |
-| NOT_INVOKED | Прогон завершился, строки `PUBLISHER_INVOKED` в логе нет, лог полный | Очистить разрешение. **Android:** повтор того же `tag@SHA` допустим только путём 5.6 (фаза R). **iOS:** повтор прежнего тега запрещён; новый build number и новый тег (фаза D заново) |
+| NOT_INVOKED | Прогон завершился, строки `PUBLISHER_INVOKED` в логе нет, лог полный | Очистить разрешение. Тот же production-тег не перезапускать ради зелёного CI (5.6, 5.10). Если консоль подтверждает отсутствие эффекта — исправить причину и выпустить новый тег с новым build number. Иначе сначала магазин; при неясности новую мутацию не запускать |
 | UNKNOWN | `PUBLISHER_INVOKED` есть, маркера SUBMITTED нет (включая `PLAY_CHANGES_IN_REVIEW`). Сюда же: отмена, таймаут, неполный или потерянный лог | Очистить разрешение. **Повтор прежнего тега запрещён на обеих платформах.** Проверить магазин: Play — App bundle explorer, tracks, Publishing overview; Apple — Build Uploads, TestFlight builds, App Store version, review submissions. Восстановление — вручную в консоли или новым номером, новым тегом и новым разрешением (фаза D заново) |
 
 Порядок очистки разрешения:
@@ -372,8 +372,7 @@ versionCode, Apple отвергает повторный `CFBundleVersion` то�
 **Первый релиз тега** (фаза D): тега ещё нет; его создаёт `prokat-prod-<platform>`
 после DryRun, разрешения и обоих подтверждений.
 
-**Повтор облачного прогона существующего тега** (фаза R) — **только Android** и только
-для исхода NOT_INVOKED:
+**Повтор облачного прогона существующего тега** (фаза R) ниже — прежнее описание Android NOT_INVOKED. **E4-LEAN (5.10) заменяет его как операционную процедуру:** тот же production-релиз не перезапускают. Ошибка до мутации закрывается новым тегом и новым build number. Исторические шаги фазы R:
 
 - `prokat-prod-android` для повтора **не используется**: правило 4 раздела 5.2
   блокирует существующий тег.
@@ -390,10 +389,13 @@ versionCode, Apple отвергает повторный `CFBundleVersion` то�
 - Один повтор на одно выставление разрешения; после конечного состояния — очистка и
   новая классификация по 5.5.
 
-**iOS: повтор прежнего тега запрещён** (решение Q8, рекомендуемое). Rebuild, ручной
-запуск и запуск через REST API отсекаются технически требованием
-`CM_TRIGGER_SOURCE == webhook`; повторный webhook для того же тега невозможен при
-активном ruleset. При NOT_INVOKED и UNKNOWN — новый build number, новый тег, фаза D заново.
+**iOS: повтор прежнего тега запрещён** (Q8, принято владельцем 2026-10-22). Код не создаёт заменяющий тег. RC и диагностика сохраняют свои контракты.
+
+E4-R1 в тот же день требовал считать `CM_TRIGGER_SOURCE` недостаточным и держать iOS production закрытым кодом `IOS_PRODUCTION_REPLAY_GUARD_UNAVAILABLE`, пока нет durable atomic claim. **E4-LEAN (5.10) эти два технических требования снимает.** Операционный запрет повтора и tag ruleset как условие U5 остаются. Отдельный replay backend не строится.
+
+Текущий путь: boolean, `PRODUCTION_RELEASE_AUTH_IOS` и штатный tag webhook доходят до сборки и publisher. Фильтры `CM_TRIGGER_SOURCE` и `when.condition` не являются claim и не доказывают происхождение события. U5 по-прежнему не активирован: нужен проверенный tag ruleset (OC-A5, OC-C0) и отдельное разрешение владельца. Q7 не утверждён, этап 5 запрещён.
+
+При NOT_INVOKED и UNKNOWN владелец вручную берёт новый build number и новый тег, фаза D заново. Повтор той же identity не разрешается отсутствием результата. Конкретные шаги — в `docs/ci-cd/RELEASE_RUNBOOK.md`.
 
 **UNKNOWN** — повтор прежнего тега запрещён на обеих платформах.
 
@@ -461,6 +463,40 @@ track этапа 2 для RC не активны.
 прогона — прогон не останавливать вручную; его исход классифицируется по 5.5 (изменение
 в Console инвалидирует edit, commit упадёт без эффекта → UNKNOWN), затем повторная
 проверка консоли. Код не может проверить заморозку; это обязательное условие владельца.
+
+### 5.10 Операционная модель LEAN (решение владельца 2026-10-22)
+
+Последнее требование владельца по сложности и эксплуатации уточняет Q8 и Q9, не отменяя их операционный смысл. История решений 2026-10-22 и предпосылки E4-R1 в разделах 5.6 и 14 сохранены.
+
+**Остаётся обязательным**
+
+- Новая подписанная сборка из проверенного `main`. Promotion RC → Production не реализуется.
+- Guards этапа 3 для App Store submission.
+- Проверки source/ref/SHA, version/build, signing identity и production gates Q1.
+- Tag ruleset — базовая защита create/update/delete production-тегов и условие U5. Это не replay store.
+- Автоматические повторы публикационных мутаций запрещены.
+- `UNKNOWN` означает ручную сверку до следующих действий.
+- `PRODUCTION_PUBLISHING_ENABLED` остаётся выключенным до отдельной активации U5.
+
+**Больше не требуется**
+
+- Durable atomic replay store, отдельная база, backend endpoint или внешний сервис ради одноразового claim.
+- Журнал состояний, распределённая блокировка, lease и гарантия exactly-once.
+- Автоматическое восстановление после неизвестного результата.
+- Криптографическое подтверждение каждого CI trigger, если для него нужна отдельная система доверия.
+- Постоянный отказ `IOS_PRODUCTION_REPLAY_GUARD_UNAVAILABLE`. В репозитории нет интерфейса, который изображает такой claim.
+
+**Как устроен штатный запуск**
+
+Оператор одной командой создаёт уникальный production-тег. Android идёт через GitHub tag push, iOS — через Codemagic tag webhook. За один раз выполняется один production-релиз. Параллельные, конфликтующие и повторные запуски того же релиза оператор не инициирует.
+
+`ios-production` `when.condition` проверяет репозиторий, `created`, отсутствие `deleted`, SHA и значение `CM_TRIGGER_SOURCE`. Условие считается после clone. Язык Codemagic не связывает `event.ref` с `refs/tags/$CM_TAG`. Переменные группы и REST API перекрывают built-in `CM_*` и не создают `event`. Поэтому сравнение `CM_TRIGGER_SOURCE == webhook` — операционный фильтр UI/schedule, а не attestation. Остаточный риск: административный или API-запуск с подменёнными переменными. Для этой модели такой запуск не является штатным путём и не считается разрешением повторить неизвестную операцию.
+
+Разрешение платформы не расходуется кодом. Повторный тег и уже занятый build number останавливают существующие проверки истории и preflight магазина. Это не защита от повторной доставки webhook.
+
+**Почему так**
+
+E4-R1 останавливал весь iOS production из-за гарантий, которые владелец для первого использования не требует. Отсутствие абсолютной отказоустойчивости не держит публикацию выключенной. Ручная сверка консоли не становится отдельным продуктом.
 
 ---
 
@@ -1065,8 +1101,8 @@ credentials или сети, это дефект теста, а не повод 
    вызывался ли издатель. Защита от replay события обеспечивается ruleset (владелец),
    а не кодом.
 2. **Проблемы.** P-09, P-18, P-23 (кодовая часть), P-29.
-3. **Зависимости.** Этапы 1, 1Б, 2 и 3 приняты. **Решения Q1, Q8 и Q9 обязательны.** Ниже —
-   рекомендуемый вариант A. При другом решении план этапа переписывается и снова согласуется.
+3. **Зависимости.** Этапы 1, 1Б, 2 и 3 приняты. **Q1 (вариант A), Q8 и Q9 приняты владельцем 2026-10-22.** Ниже —
+   этот принятый контракт, а не ожидающая выбора рекомендация. Q7 не принят: этап 5 не разрешён.
 4. **Границы.**
    - Можно: `tool/release/release.dart` (`validateCloudAuthorization`, проверка
      `CM_TRIGGER_SOURCE` для iOS production в `validateEvent`, вызов в `ci`),
@@ -1137,7 +1173,7 @@ credentials или сети, это дефект теста, а не повод 
      preview содержит строку облачного разрешения и строку о ruleset.
 10. **Приёмка.**
     - [ ] Четыре слоя Android и четыре слоя iOS проверяют разрешение своей платформы независимо.
-    - [ ] iOS production пропускается только при `CM_TRIGGER_SOURCE == webhook`.
+    - [ ] iOS production в штатном webhook-контексте доходит до сборки. `CM_TRIGGER_SOURCE == webhook` — фильтр, не attestation. Постоянный replay-block снят решением 5.10.
     - [ ] Android-разрешение привязано к номеру попытки; тест явно показывает, что новый run
       с попыткой 1 код не останавливает.
     - [ ] `PUBLISHER_INVOKED` стоит строго перед вызовом издателя и не утверждает мутацию.
@@ -1332,15 +1368,18 @@ CLI 0.70.0 не совпадает с описанием — STOP.
 
 | ID | Вопрос | Рекомендация | Нужно до |
 | --- | --- | --- | --- |
-| Q1 | Модель облачного разрешения | A: boolean + переменная своей платформы (5.4; Android с номером попытки; iOS с проверкой webhook). Альтернативы: только boolean; GitHub Environment с required reviewers (по документации GitHub для private repo требуется Enterprise — подтвердить в OC-A2; у Codemagic аналога нет) | этапа 4 |
+| Q1 | Модель облачного разрешения | **Принято владельцем 2026-10-22, вариант A:** boolean `PRODUCTION_PUBLISHING_ENABLED` плюс отдельная переменная платформы (`PRODUCTION_RELEASE_AUTH_ANDROID`, `PRODUCTION_RELEASE_AUTH_IOS`, форматы 5.4). Общая переменная не заменяет платформенную. Production capability остаётся выключенной до отдельной активации U5 | этапа 4 |
 | Q2 | `ERROR_IF_IN_REVIEW` и классификация для RC | Да: иначе RC-коммит может отменить production review | этапа 2 |
 | Q3 | Production track с `draft`/`inProgress`/`halted` блокирует publish | Да; RC не затрагивается | этапа 2 |
 | Q4 | `AFTER_APPROVAL` или `MANUAL`; phased release | Оставить `AFTER_APPROVAL` и дефолт приложения | OC-C1 |
 | Q5 | Версия и номер первого Production | `X.Y.Z` > последней FINAL-версии App Store; `N` > 24, > max Play, > max Apple (включая Build Uploads) | OC-B3 |
 | Q6 | Локальная очистка пяти promotion-файлов на этапе 1 | Да (владелец разрешил); копия — по желанию владельца | этапа 1 |
-| Q7 | Job release-tooling в каждом PR | Да; оценить минуты Actions приватного репозитория | этапа 5 |
-| Q8 | Повтор iOS | **Запретить повтор прежнего тега.** Rebuild, ручной и REST-запуск отсекаются `CM_TRIGGER_SOURCE == webhook`; при NOT_INVOKED и UNKNOWN — новый build number и новый тег. Альтернатива (не рекомендуется): разрешить Rebuild с отдельным исключением из проверки webhook | этапа 4 и OC-C2 |
-| Q9 | Что делать, если tag ruleset недоступен на тарифе | **U5 заблокирован**, пока не включён ruleset (переход на GitHub Team или другой путь, дающий проверяемый серверный запрет удаления и повторного создания тегов). Альтернатива: владелец письменно принимает, что защиты от replay события нет, а только процедура немедленной очистки разрешения и store-уникальность номера; план тогда не заявляет защиту от replay | этапа 4 и OC-C0 |
+| Q7 | Job release-tooling в каждом PR | Не утверждено. Рекомендация плана не является решением владельца; этап 5 не разрешён | этапа 5 |
+| Q8 | Повтор iOS | **Принято владельцем 2026-10-22:** повтор прежнего тега запрещён. E4-R1 считал `CM_TRIGGER_SOURCE` недостаточным и F1 незакрытым. **Уточнено E4-LEAN (5.10):** запрет остаётся операционным. Фильтр webhook сохраняется и не является attestation. Постоянная блокировка pipeline из-за невыразимого `event.ref` снята | этапа 4 и OC-C2 |
+| Q9 | Что делать, если tag ruleset недоступен на тарифе | **Принято владельцем 2026-10-22: U5 заблокирован**, пока ruleset не создан и не проверен (OC-A5, OC-C0). E4-R1 дополнительно требовал durable atomic claim и код `IOS_PRODUCTION_REPLAY_GUARD_UNAVAILABLE`. **Уточнено E4-LEAN (5.10):** claim store не требуется. Препятствием U5 остаётся непроверенный ruleset, не отсутствие replay backend. Локальные тесты U5 не выполняют | этапа 4 и OC-C0 |
+
+Q1, Q8 и Q9 зафиксированы выше 2026-10-22. В тот же день E4-LEAN (5.10) уточняет Q8 и Q9: exactly-once и отдельный replay store не требуются. Q2–Q6 в этой записи не пересматривались.
+Q7 остаётся открытым: этап 5 не стартует, пока владелец отдельно не утвердит его.
 
 ---
 
@@ -1350,13 +1389,13 @@ CLI 0.70.0 не совпадает с описанием — STOP.
 порядку раздела «Общий порядок работ»; внутри фазы — сверху вниз. FAIL любого пункта
 останавливает следующую фазу. Фаза A идёт параллельно агентским этапам; фазы B–E —
 только после приёмки этапа 6 и отдельного GO. Фаза P — только при сбое push в OC-D4.
-Фаза R — только Android, только после NOT_INVOKED.
+Фаза R сохранена как исторический Android-чеклист NOT_INVOKED. Операционно её заменяет 5.10: тот же production-релиз не перезапускают.
 
 ### Фаза A — решения и настройки (параллельно этапам; ничего не включается)
 
 | ID | Действие | PASS | FAIL / STOP |
 | --- | --- | --- | --- |
-| OC-A1 | Записать решения Q1–Q9 до этапов и checkpoints из колонки «Нужно до» | Решение записано | Зависящий этап или checkpoint не стартует |
+| OC-A1 | Записать решения Q1–Q9 до этапов и checkpoints из колонки «Нужно до». Q1, Q8 и Q9 записаны 2026-10-22; Q7 не записан, поэтому этап 5 не стартует | Решение записано | Зависящий этап или checkpoint не стартует |
 | OC-A2 | GitHub: тариф организации, видимость репозитория, Settings → Rules (rulesets), Environments, список людей с write/admin | Записано; write только у доверенных | Неизвестные writers → сначала ограничить доступ |
 | OC-A3 | GitHub → Settings → Secrets and variables → Actions: имена RC-секретов и переменных (`ANDROID_*`, `PLAY_SERVICE_ACCOUNT_JSON_BASE64`, `GOOGLE_SERVICES_JSON_BASE64`, `MAPBOX_PUBLIC_TOKEN`, `ANDROID_UPLOAD_CERT_SHA256`, `PLAY_HISTORICAL_MAX_BUILD`) | Все есть; `PRODUCTION_PUBLISHING_ENABLED` отсутствует или `false`; `PRODUCTION_RELEASE_AUTH_ANDROID` отсутствует или пуста | Чего-то нет, или gate уже `true` → STOP |
 | OC-A4 | Codemagic: `ios-production` виден; группа `prokat-ios-release` содержит `APP_STORE_APP_ID=6817078475`, `IOS_HISTORICAL_MAX_BUILD`, PEM, plist; integration `prokat-app-store`; signing `app_store`; concurrency 1; кто может менять группу и запускать сборки; по истории RC-сборок тега — что они отмечены как запущенные webhook | Совпадает; gate и `PRODUCTION_RELEASE_AUTH_IOS` отсутствуют | Нет distribution identity → STOP |
@@ -1378,7 +1417,7 @@ CLI 0.70.0 не совпадает с описанием — STOP.
 | --- | --- | --- | --- |
 | OC-C0 | Проверить ruleset только чтением: Settings → Rules или `gh api repos/auyltech/prokat/rulesets` и `…/rulesets/<id>`; записать enforcement, шаблоны, правила, bypass | Оба ruleset из OC-A5 активны и совпадают с 5.4 | Нет или не совпадают → **U5 заблокирован** (Q9) |
 | OC-C1 | Решения Q4 и о Managed publishing приняты; Play service account получает app permission **Release to production** | Права выданы | — |
-| OC-C2 | Q8 и Q9 записаны. GitHub Secret `PRODUCTION_PUBLISHING_ENABLED=true`; Codemagic group secret `PRODUCTION_PUBLISHING_ENABLED=true` | Оба выставлены | Q8/Q9 не записаны → STOP |
+| OC-C2 | Q8 и Q9 записаны 2026-10-22. GitHub Secret `PRODUCTION_PUBLISHING_ENABLED=true` и Codemagic group secret выставляются только на U5, после ruleset (Q9). До этого capability остаётся выключенной | Оба выставлены после ruleset | Ruleset не проверен → STOP; секреты не включать заранее |
 | OC-C3 | Проверить, что `PRODUCTION_RELEASE_AUTH_ANDROID` и `PRODUCTION_RELEASE_AUTH_IOS` пусты | Пусты: после U5 ни один тег всё ещё не публикуется | Не пусты → очистить, STOP |
 
 ### Фаза D — первый релиз тега одной платформы (повторяется отдельно для Android и для iOS)
@@ -1407,7 +1446,9 @@ CLI 0.70.0 не совпадает с описанием — STOP.
 | OC-P5 | Снова выставить разрешение этой платформы `<tag>@<sha>` (Android — `#1`, это будет новый run) | Выставлено | — |
 | OC-P6 | Сессия с `PRODUCTION_PUBLISHING_ENABLED=true`; `… --resume-push <tag> --expect-sha <sha>` без `--dry-run`; ввести полное имя тега; затем снять env | `REMOTE_SAME` после push → OC-D5–OC-D7 | Любой другой итог → очистить разрешение, STOP; новый цикл только с новым решением |
 
-### Фаза R — повтор облачного прогона существующего тега (только Android, только после NOT_INVOKED)
+### Фаза R — исторический чеклист повторного Android-прогона
+
+E4-LEAN (5.10) эту фазу как операционную процедуру не использует. Ошибка до мутации закрывается новым тегом и новым build number. Таблица ниже остаётся описанием прежнего пути и не является разрешением перезапустить релиз.
 
 | ID | Действие | PASS | FAIL / STOP |
 | --- | --- | --- | --- |
@@ -1439,11 +1480,11 @@ CLI 0.70.0 не совпадает с описанием — STOP.
       полного пути); проверка track в публикуемом edit с тестом TOCTOU; targetSdk ≥ 36.
 - [ ] iOS: классификатор пар полей (300 пар) и именованные пары; слой 2 с тестами TOCTOU и
       гонки confirm; атомарность не заявлена.
-- [ ] Облако требует разрешения своей платформы (Android — с номером попытки; iOS — webhook),
-      или иное записанное решение Q1; Q8, Q9 записаны.
-- [ ] **Tag ruleset активен (OC-C0)** — или Q9 письменно фиксирует отсутствие защиты от replay.
-- [ ] `PUBLISHER_INVOKED` есть в обоих адаптерах; runbook классифицирует исходы по 5.5;
-      повтор после UNKNOWN запрещён; повтор iOS запрещён.
+- [ ] Облако требует boolean и разрешения своей платформы (Q1 вариант A, 2026-10-22).
+      E4-LEAN (5.10) снимает постоянный iOS replay-block. Q7 не утверждён.
+- [ ] **Tag ruleset активен (OC-C0).** Q9 не принимает отсутствие ruleset как риск: U5 остаётся заблокированным. Отсутствие replay store таким риском больше не является.
+- [ ] `PUBLISHER_INVOKED` есть в обоих адаптерах; runbook даёт ручной маршрут 5.10;
+      повтор после UNKNOWN запрещён; тот же production-релиз оператор не перезапускает.
 - [ ] Заморозка Play Console описана в runbook и в фазе D.
 - [ ] Документация не утверждает, что разрешение одноразовое; порядок очистки описан.
 - [ ] PR прогоняет Dart, Python, Ruby release-тесты.
@@ -1468,9 +1509,9 @@ CLI 0.70.0 не совпадает с описанием — STOP.
 | Apple перестаёт возвращать `appStoreState` или повторять фильтры в `links.next` | Низкая / среднее | R1 и `all_pages` блокируют (fail closed) |
 | Обновление Codemagic CLI меняет заменённые методы | Низкая / высокое | Version guard этапа 3; версия CLI закреплена |
 | Случайный production-тег при включённом boolean | Средняя / высокое | Этап 4: разрешение своей платформы |
-| **Replay события: тег удалён и создан снова (в том числе тот же объект) при активном разрешении** | Низкая / высокое | **Только tag ruleset (OC-A5, OC-C0) — условие U5**; без него Q9 фиксирует отсутствие защиты; немедленная очистка разрешения |
+| **Replay события: тег удалён и создан снова (в том числе тот же объект) при активном разрешении** | Низкая / высокое | **Только tag ruleset (OC-A5, OC-C0) — условие U5**; без него Q9 блокирует U5. Отсутствие защиты не принято |
 | Re-run Android при активном разрешении | Низкая / среднее | Номер попытки в разрешении; OC-D6 |
-| Rebuild/ручной запуск iOS | Низкая / среднее | `CM_TRIGGER_SOURCE == webhook` (этап 4); Q8 запрещает повтор |
+| Rebuild/ручной запуск iOS | Низкая / среднее | Штатный путь — tag webhook (5.10). Фильтр `event`/`CM_TRIGGER_SOURCE` не является attestation. Оператор не запускает API/UI/Rebuild |
 | Сбой push, неоднозначное состояние тега | Средняя / среднее | Протокол 5.8 и фаза P; STOP при неоднозначности; без удаления и переноса |
 | Владелец забыл очистить разрешение | Средняя / среднее | OC-E1; другие теги, попытки и не-webhook запуски не совпадут; replay — только ruleset |
 | Тег с ожидаемым именем создан кем-то другим | Низкая / среднее | Ruleset «create»; SHA в разрешении |
@@ -1508,10 +1549,10 @@ Ruleset OC-A5 защищает их от удаления и переноса. �
 - [ ] Таблица 5.3 однозначна: где проверяется gate (включая PowerShell), свежесть
       tracking-ref, какие операции до отказа разрешены, что запрещено всегда.
 - [ ] 5.4: таблица «сценарий → мера → гарантия»; replay события закрывает только ruleset;
-      ruleset — условие U5 (OC-C0) или Q9; разрешение нигде не названо одноразовым.
+      ruleset — обязательное условие U5 (OC-C0, Q9); отсутствие ruleset не принято. Разрешение не названо одноразовым.
 - [ ] 5.5: `PUBLISHER_INVOKED` — «издатель вызван»; валидация не считается публикацией;
       SUBMITTED только по двум маркерам; NOT_INVOKED для iOS — новый номер.
-- [ ] 5.6 и фаза R: повтор облачного прогона только Android; iOS запрещён.
+- [ ] 5.6 и 5.10: фаза R сохранена как история; операционно тот же production-релиз не перезапускают.
 - [ ] 5.8 и фаза P: четыре классификации, STOP при неоднозначности, повтор push только
       при `REMOTE_ABSENT` с точным SHA и подтверждением; без удаления и переноса.
 - [ ] 5.9: заморозка Play Console от OC-D1 до конечного состояния; отражена в фазах D, P, R,
@@ -1521,8 +1562,7 @@ Ruleset OC-A5 защищает их от удаления и переноса. �
 - [ ] Этап 3: категории по каждому полю без межполевого соответствия; ACTIVE в любом поле
       блокирует; противоречия → UNKNOWN; тест 300 пар и пара (`IN_REVIEW`,
       `READY_FOR_DISTRIBUTION`); гонка confirm документирована и протестирована.
-- [ ] Этап 4: `CM_TRIGGER_SOURCE == webhook` для iOS production; тест, что новый run
-      Android с попыткой 1 проходит gate.
+- [ ] Этап 4 и 5.10: iOS production не блокируется отсутствием replay store; webhook-фильтр не назван attestation; новый Android run с попыткой 1 проходит gate.
 - [ ] Фазы A–E, P, R раздела 15 идут без противоречий.
 - [ ] Ни один этап не требует store-запросов или изменения секретов, переменных, rulesets агентом.
 - [ ] Для каждого этапа заданы границы, тесты, приёмка, негативы, RC-регрессии, откат, аудит.

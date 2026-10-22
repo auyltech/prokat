@@ -100,6 +100,37 @@ void validateProduction(ReleaseTag release, Map<String, String> env) {
   }
 }
 
+/// Platform authorization is exact and is not consumed by this check.
+/// A later run with the same value still passes. The operator does not rerun
+/// the same production release; a tag ruleset limits tag mutation only.
+void validateCloudAuthorization(
+  ReleaseTag release,
+  Map<String, String> env, {
+  required String commit,
+}) {
+  if (!release.production) {
+    blocked('Cloud authorization applies only to production');
+  }
+  if (env['PRODUCTION_PUBLISHING_ENABLED'] != 'true') {
+    blocked('Production publishing is disabled until owner gate U5');
+  }
+  if (!RegExp(r'^[0-9a-f]{40}$').hasMatch(commit)) {
+    blocked('Cloud authorization requires the verified 40-character commit SHA');
+  }
+  if (release.platform == 'android') {
+    final attempt = env['GITHUB_RUN_ATTEMPT'] ?? '';
+    final authorization = env['PRODUCTION_RELEASE_AUTH_ANDROID'];
+    if (!RegExp(r'^[1-9][0-9]*$').hasMatch(attempt) ||
+        authorization != '${release.tag}@$commit#$attempt') {
+      blocked('ANDROID_CLOUD_AUTHORIZATION_INVALID');
+    }
+    return;
+  }
+  if (env['PRODUCTION_RELEASE_AUTH_IOS'] != '${release.tag}@$commit') {
+    blocked('IOS_CLOUD_AUTHORIZATION_INVALID');
+  }
+}
+
 void validateBuildHistory(
   ReleaseTag release,
   Iterable<String> tags, {
@@ -151,6 +182,10 @@ void validateEvent(ReleaseTag release, Map<String, String> env) {
         payload['ref'] != 'refs/tags/${release.tag}') {
       blocked('Tag deletion or mismatched webhook cannot publish');
     }
+  } else if (release.production && env['CM_TRIGGER_SOURCE'] != 'webhook') {
+    // Operational filter for UI/schedule/API. A group or API variable can
+    // override this built-in; it is not cryptographic proof of the webhook.
+    blocked('IOS_PRODUCTION_REQUIRES_WEBHOOK');
   } else if ((env['CM_BUILD_ID'] ?? '').isEmpty ||
       env['CM_TAG'] != release.tag ||
       env['CM_REPO_SLUG'] != 'auyltech/prokat' ||
@@ -373,9 +408,24 @@ void main(List<String> args) {
     }
     if (command == 'ci') {
       validateEvent(release, Platform.environment);
-      validateProduction(release, Platform.environment);
     }
     final revision = requiredOption(opts, 'revision');
+    if (command == 'ci' && release.production) {
+      final identity = release.platform == 'android'
+          ? Platform.environment['GITHUB_SHA']
+          : Platform.environment['CM_COMMIT'];
+      if (identity != revision) {
+        blocked('Cloud authorization commit does not match the approved revision');
+      }
+      validateCloudAuthorization(
+        release,
+        Platform.environment,
+        commit: revision,
+      );
+      validateProduction(release, Platform.environment);
+    } else if (command == 'ci') {
+      validateProduction(release, Platform.environment);
+    }
     validateRevision(release, revision, ci: command == 'ci');
     if (command == 'ci') {
       validatePubspecVersion(release, File('pubspec.yaml').readAsStringSync());

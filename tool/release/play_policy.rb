@@ -33,6 +33,23 @@ module PlayPolicy
     end
   end
 
+  def self.authorize_android!(context, env)
+    return unless context.fetch('channel') == 'production'
+    attempt = env['GITHUB_RUN_ATTEMPT'].to_s
+    sha = env['GITHUB_SHA'].to_s
+    expected = "#{context.fetch('tag')}@#{sha}##{attempt}"
+    unless env['PRODUCTION_PUBLISHING_ENABLED'] == 'true' &&
+           attempt.match?(/\A[1-9][0-9]*\z/) && sha.match?(/\A[0-9a-f]{40}\z/) &&
+           env['PRODUCTION_RELEASE_AUTH_ANDROID'] == expected
+      raise Blocked, 'ANDROID_CLOUD_AUTHORIZATION_INVALID'
+    end
+  end
+
+  def self.handoff_to_publisher(context, env, output = $stdout)
+    authorize_android!(context, env)
+    output.puts "PUBLISHER_INVOKED platform=android tag=#{context.fetch('tag')}"
+  end
+
   def self.check!(context, codes, historical_floor, tracks)
     history_floor!(historical_floor.to_s)
     platform = context.fetch('platform')

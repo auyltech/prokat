@@ -150,6 +150,32 @@ class ReleaseCli {
         blocked('Selected main workflow is missing required guard: $guard');
       }
     }
+    if (channel == 'production' && platform == 'android') {
+      for (final guard in [
+        'PRODUCTION_RELEASE_AUTH_ANDROID',
+        'GITHUB_RUN_ATTEMPT',
+      ]) {
+        if (!workflow.contains(guard)) {
+          blocked('Selected main workflow is missing required guard: $guard');
+        }
+      }
+    }
+    if (channel == 'production' && platform == 'ios') {
+      final source = readBlob(sha, 'tool/release/release.dart');
+      for (final guard in [
+        'validateCloudAuthorization',
+        'CM_TRIGGER_SOURCE',
+      ]) {
+        if (!source.contains(guard)) {
+          blocked('Selected main workflow is missing required guard: $guard');
+        }
+      }
+      if (!workflow.contains('event.repository.full_name')) {
+        blocked(
+          'Selected main workflow is missing required guard: event.repository.full_name',
+        );
+      }
+    }
     final config =
         jsonDecode(readBlob(sha, 'tool/release/production.json')) as Map;
     if (config['APP_ENV'] != 'production' ||
@@ -308,6 +334,13 @@ class ReleaseCli {
     if (plan.release.production) {
       final enabled = environment['PRODUCTION_PUBLISHING_ENABLED'] == 'true';
       printLine('Production gate (local): ${enabled ? 'ENABLED' : 'DISABLED'}');
+      final authorization = plan.release.platform == 'android'
+          ? 'Cloud authorization required: GitHub variable PRODUCTION_RELEASE_AUTH_ANDROID = ${plan.release.tag}@${plan.sha}#1'
+          : 'Cloud authorization required: Codemagic variable PRODUCTION_RELEASE_AUTH_IOS = ${plan.release.tag}@${plan.sha}';
+      printLine(authorization);
+      printLine(
+        'Server tag ruleset is a U5 precondition (OC-C0); not verifiable from this CLI',
+      );
     }
     printLine(
       'Store availability is UNKNOWN locally; CI rechecks live before build and upload.',

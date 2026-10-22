@@ -77,6 +77,7 @@ class ApplePublishCliTests(unittest.TestCase):
         notes = self.root / 'build/release/apple-localizations.json'
         notes.parent.mkdir(parents=True)
         notes.write_text(json.dumps([{'locale': 'ru', 'whats_new': 'Synthetic Git notes'}]), encoding='utf-8')
+        self.write_context('rc', '1.2.3', 23)
         self.addCleanup(patch.stopall)
         patch.object(store, 'ROOT', self.root).start()
         # Parser-only tests cannot accidentally instantiate clients/actions or launch commands.
@@ -165,6 +166,7 @@ class ApplePublishCliTests(unittest.TestCase):
         invoke.assert_not_called()
         self.assertEqual(str(caught.exception), 'BLOCKED: APPLE_PUBLISH_ARGUMENTS_INVALID')
         self.assertNotIn(sentinel, stdout.getvalue() + stderr.getvalue() + str(caught.exception))
+        self.assertNotIn('PUBLISHER_INVOKED', stdout.getvalue())
 
     def test_adapter_accepts_valid_argv_only_then_delegates_to_cli(self):
         from codemagic.tools.app_store_connect import AppStoreConnect
@@ -185,10 +187,42 @@ class ApplePublishCliTests(unittest.TestCase):
         self.assertIs(SubmitToAppStoreAction._ensure_app_store_version, original)
         self.assertFalse(adapter._GUARD_INSTALLED)
 
+    def write_context(self, channel, version, build):
+        prefix = '' if channel == 'production' else 'rc/'
+        (self.root / 'build/release/context.json').write_text(json.dumps({
+            'platform': 'ios', 'channel': channel, 'version': version, 'build': build,
+            'tag': f'{prefix}ios/v{version}+{build}',
+            'destination': 'app_store_review' if channel == 'production' else 'testflight',
+        }), encoding='utf-8')
+
     def production_arguments(self):
+        self.write_context('production', '1.2.4', 25)
         return store.publish_arguments(
             {'channel': 'production', 'destination': 'app_store_review', 'version': '1.2.4'},
             self.root / 'not-built.ipa')[1:]
+
+    def test_publisher_marker_is_not_success_and_missing_context_skips_cli(self):
+        from codemagic.tools.app_store_connect import AppStoreConnect
+        args = self.production_arguments()
+        try:
+            with patch.object(adapter.sys, 'argv', ['apple_publish.py', *args]), \
+                    patch.object(AppStoreConnect, 'invoke_cli', is_cli_action=False) as invoke, \
+                    contextlib.redirect_stdout(io.StringIO()) as stdout:
+                adapter.main()
+            self.assertIn('PUBLISHER_INVOKED platform=ios tag=ios/v1.2.4+25', stdout.getvalue())
+            self.assertNotIn('APPLE_REVIEW_SUBMISSION_CONFIRMED', stdout.getvalue())
+            invoke.assert_called_once_with()
+            (self.root / 'build/release/context.json').unlink()
+            with patch.object(adapter.sys, 'argv', ['apple_publish.py', *args]), \
+                    patch.object(AppStoreConnect, 'invoke_cli', is_cli_action=False) as skipped, \
+                    contextlib.redirect_stdout(io.StringIO()) as missed, \
+                    self.assertRaises(SystemExit) as caught:
+                adapter.main()
+            skipped.assert_not_called()
+            self.assertNotIn('PUBLISHER_INVOKED', missed.getvalue())
+            self.assertIn('APPLE_PUBLISH_CONTEXT_INVALID', str(caught.exception))
+        finally:
+            adapter.restore_submission_guards()
 
     def test_production_main_installs_all_four_guards_before_cli(self):
         from codemagic.tools.app_store_connect import AppStoreConnect
