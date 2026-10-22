@@ -18,6 +18,11 @@ assert_blocked { PlayPolicy.check!(rc.merge('destination' => 'production'), [], 
 assert_blocked { PlayPolicy.check!(rc.merge('platform' => 'ios'), [], 100, []) }
 prod = rc.merge('channel' => 'production', 'destination' => 'production')
 raise unless PlayPolicy.check!(prod, [], 100, []) == 'production'
+%w[draft inProgress halted statusUnspecified weird].each do |status|
+  assert_blocked { PlayPolicy.check!(prod, [], 100, [{ 'track' => 'production', 'status' => status, 'codes' => [] }]) }
+end
+raise unless PlayPolicy.check!(prod, [], 100, [{ 'track' => 'production', 'status' => 'completed', 'codes' => [] }]) == 'production'
+raise unless PlayPolicy.check!(rc, [], 100, [{ 'track' => 'production', 'status' => 'draft', 'codes' => [] }]) == 'internal'
 raise 'SDK/credential body leaked' if PlayPolicy.safe_error(RuntimeError.new('SIMULATED_PRIVATE_RESPONSE')).include?('SIMULATED_PRIVATE_RESPONSE')
 raise 'Policy diagnostic lost' unless PlayPolicy.safe_error(PlayPolicy::Blocked.new('Known safe policy diagnostic')) == 'Known safe policy diagnostic'
 raise unless PlayPolicy.history_floor!('18') == 18
@@ -28,4 +33,12 @@ assert_blocked { PlayPolicy.check!(rc.merge('build' => 18), [18], 18, []) }
 assert_blocked { PlayPolicy.check!(next_build, [19], 18, []) }
 assert_blocked { PlayPolicy.check!(next_build, [20], 18, []) }
 raise unless PlayPolicy.check!(rc.merge('build' => 21), [20], 18, []) == 'internal'
-puts 'VERIFIED: 22 Play history/state/error-redaction cases; known floor 18 never replaces live state; no store requests'
+sentinel = 'SECRET_SENTINEL'
+leaky = Class.new(RuntimeError) do
+  define_method(:message) { sentinel }
+end
+unknown = PlayPolicy.publish_failure_line(leaky.new)
+raise 'Failure line leaked a response body' if unknown.include?(sentinel)
+raise 'Unclassified failure must stay UNKNOWN' unless unknown.include?('UNKNOWN')
+raise 'Unclassified failure must not claim a commit' if unknown.include?('PLAY_EDIT_COMMITTED')
+puts 'VERIFIED: Play history, production track status, and redacted failure lines; no store requests'

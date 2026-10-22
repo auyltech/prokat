@@ -97,6 +97,8 @@ jobs:
           flutter analyze --no-pub --fatal-infos --fatal-warnings
           flutter test --no-pub --dart-define=ENABLE_FIREBASE_SERVICES=false --dart-define=ENABLE_PUSH_NOTIFICATIONS=false
           ruby tool/release/play_policy_test.rb
+          bundle exec ruby tool/release/sdk_contract_test.rb
+          bundle exec ruby tool/release/play_store_test.rb
           git diff --exit-code
 
       - name: Materialize ephemeral signing and Firebase inputs

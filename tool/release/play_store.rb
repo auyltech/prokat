@@ -20,6 +20,118 @@ Google::Apis.logger.level = Logger::WARN
 
 module ProkatPlayStore
   PACKAGE = 'com.auyltech.prokat'.freeze
+  PublishGuard = Struct.new(:track, :version_code, :began)
+
+  # Fixed text only. This class is not a Google::Apis::Error, so Supply's
+  # call_google_api cannot rewrite it into a FastlaneError that quotes the body.
+  class ChangesInReview < StandardError
+    MESSAGE = 'PLAY_CHANGES_IN_REVIEW: commit refused, edit not committed; inspect Play Console before any retry'.freeze
+    def initialize
+      super(MESSAGE)
+    end
+  end
+
+  class TrackNotClean < StandardError
+    def initialize(status)
+      token = status.to_s[/\A[A-Za-z0-9_.-]{1,64}\z/] || 'unrecognized'
+      super("PLAY_PRODUCTION_TRACK_NOT_CLEAN status=#{token}")
+    end
+  end
+
+  module ErrorIfInReview
+    def commit_edit(*args, changes_in_review_behavior: nil, **kwargs, &block)
+      unless ProkatPlayStore.review_behavior_parameter?(method(__method__).super_method)
+        raise 'commit_edit is missing changes_in_review_behavior; state UNKNOWN'
+      end
+      # The caller's value is ignored. ERROR_IF_IN_REVIEW never cancels a review.
+      super(*args, changes_in_review_behavior: 'ERROR_IF_IN_REVIEW', **kwargs, &block)
+    rescue Google::Apis::ClientError => error
+      raise ChangesInReview if ProkatPlayStore.changes_already_in_review?(error)
+      raise
+    end
+  end
+
+  module GuardedPublishEdit
+    def begin_edit(package_name: nil)
+      guard = ProkatPlayStore.publish_guard
+      raise TrackNotClean, 'reentered' if guard&.began
+      result = super
+      return result unless guard
+
+      guard.began = true
+      ProkatPlayStore.verify_publish_edit!(self, guard)
+      result
+    end
+
+    def update_track(track_name, track_object)
+      guard = ProkatPlayStore.publish_guard
+      if guard
+        ProkatPlayStore.verify_track_releases!(self, track_name)
+        releases = Array(track_object.releases)
+        codes = releases.length == 1 ? Array(releases[0].version_codes).map { |code| Integer(code) } : nil
+        unless releases.length == 1 && releases[0].status.to_s == 'completed' && codes == [guard.version_code]
+          raise TrackNotClean, 'track_object'
+        end
+      end
+      super
+    end
+  end
+
+  def self.publish_guard
+    defined?(@publish_guard) ? @publish_guard : nil
+  end
+
+  def self.guard_publish!(track:, version_code:)
+    raise 'Publish guard is already enabled' if publish_guard
+    raise 'Publish guard only applies to the production track' unless track == 'production'
+    @publish_guard = PublishGuard.new(track, version_code(version_code), false)
+  end
+
+  def self.review_behavior_parameter?(method)
+    method.parameters.any? { |kind, name| %i[key keyreq].include?(kind) && name == :changes_in_review_behavior }
+  end
+
+  def self.changes_already_in_review?(error)
+    return false unless error.status_code.to_i == 400
+    details = parsed_error_details(error.body)
+    details.any? { |item| item.is_a?(Hash) && item['reason'] == 'CHANGES_ALREADY_IN_REVIEW' }
+  end
+
+  def self.parsed_error_details(body)
+    data = case body
+           when String
+             return [] if body.empty?
+             JSON.parse(body)
+           when Hash
+             body
+           else
+             return []
+           end
+    details = data.dig('error', 'details')
+    details.is_a?(Array) ? details : []
+  rescue JSON::ParserError, TypeError
+    []
+  end
+
+  def self.verify_publish_edit!(supply, guard)
+    verify_track_releases!(supply, guard.track)
+    api = supply.client
+    package = supply.current_package_name
+    edit = supply.current_edit.id
+    bundle_codes = Array(api.list_edit_bundles(package, edit).bundles).map(&:version_code)
+    apk_codes = Array(api.list_edit_apks(package, edit).apks).map(&:version_code)
+    present = (bundle_codes + apk_codes).any? { |code| Integer(code) == guard.version_code }
+    raise TrackNotClean, 'version_code_present' if present
+  end
+
+  def self.verify_track_releases!(supply, track_name)
+    supply.tracks(track_name).each do |track|
+      Array(track.releases).each do |release|
+        status = release.status.to_s
+        raise TrackNotClean, status unless status == 'completed'
+      end
+    end
+  end
 
   def self.version_code(value)
     unless value.to_s.match?(/\A[1-9][0-9]*\z/) && Integer(value).between?(1, 2_100_000_000)
@@ -54,3 +166,9 @@ module ProkatPlayStore
     end
   end
 end
+
+unless ProkatPlayStore.review_behavior_parameter?(Google::Apis::AndroidpublisherV3::AndroidPublisherService.instance_method(:commit_edit))
+  raise 'commit_edit is missing changes_in_review_behavior; refusing to load'
+end
+Google::Apis::AndroidpublisherV3::AndroidPublisherService.prepend(ProkatPlayStore::ErrorIfInReview)
+Supply::Client.prepend(ProkatPlayStore::GuardedPublishEdit)

@@ -21,6 +21,18 @@ module PlayPolicy
     "Store/credential operation failed (#{error.class}); state UNKNOWN; response bodies suppressed"
   end
 
+  # The only Play failure text play.rb may print. Google bodies stay inside the exception.
+  def self.publish_failure_line(error)
+    case error.class.name
+    when 'ProkatPlayStore::ChangesInReview'
+      'PLAY_CHANGES_IN_REVIEW: commit refused, edit not committed; inspect Play Console before any retry'
+    when 'ProkatPlayStore::TrackNotClean'
+      error.message
+    else
+      "BLOCKED: #{safe_error(error)}. No automatic retry. Inspect store state before any next attempt."
+    end
+  end
+
   def self.check!(context, codes, historical_floor, tracks)
     history_floor!(historical_floor.to_s)
     platform = context.fetch('platform')
@@ -35,6 +47,13 @@ module PlayPolicy
     end
     ceiling = [historical_floor, *codes].max
     raise Blocked, "Build #{build} must exceed historical/current maximum #{ceiling}; choose a new build number" if build <= ceiling
+    if channel == 'production'
+      tracks.each do |track|
+        next unless track.fetch('track') == 'production'
+        status = track.fetch('status').to_s
+        raise Blocked, "Production track release is not completed (#{status})" unless status == 'completed'
+      end
+    end
     expected_track
   end
 end

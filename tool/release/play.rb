@@ -45,14 +45,19 @@ begin
       skip_upload_changelogs: false,
       timeout: 300
     })
+    if channel == 'production'
+      ProkatPlayStore.guard_publish!(track: 'production', version_code: Integer(context.fetch('build')))
+    end
     Supply::Uploader.new.perform_upload
     puts 'PLAY_EDIT_COMMITTED: store review/managed publishing can still delay availability; verify the track.'
   else
     puts 'PLAY_PREFLIGHT_VERIFIED: current state read; no binary uploaded.'
   end
+rescue ProkatPlayStore::ChangesInReview, ProkatPlayStore::TrackNotClean => error
+  warn PlayPolicy.publish_failure_line(error)
+  exit 1
 rescue StandardError => error
   # Store SDK errors may contain HTTP bodies: keep credentials out of output.
-  safe = PlayPolicy.safe_error(error)
-  warn "BLOCKED: #{safe}. No automatic retry. Inspect store state before any next attempt."
+  warn PlayPolicy.publish_failure_line(error)
   exit 1
 end
