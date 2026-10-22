@@ -20,7 +20,7 @@ Google::Apis.logger.level = Logger::WARN
 
 module ProkatPlayStore
   PACKAGE = 'com.auyltech.prokat'.freeze
-  PublishGuard = Struct.new(:track, :version_code, :began)
+  PublishGuard = Struct.new(:track, :version_code, :began, :edit_id)
 
   # Fixed text only. This class is not a Google::Apis::Error, so Supply's
   # call_google_api cannot rewrite it into a FastlaneError that quotes the body.
@@ -59,6 +59,8 @@ module ProkatPlayStore
       return result unless guard
 
       guard.began = true
+      guard.edit_id = current_edit&.id
+      raise TrackNotClean, 'edit_mismatch' if guard.edit_id.nil?
       ProkatPlayStore.verify_publish_edit!(self, guard)
       result
     end
@@ -66,13 +68,19 @@ module ProkatPlayStore
     def update_track(track_name, track_object)
       guard = ProkatPlayStore.publish_guard
       if guard
+        raise TrackNotClean, 'track_mismatch' unless track_name.to_s == guard.track
         ProkatPlayStore.verify_track_releases!(self, track_name)
-        releases = Array(track_object.releases)
-        codes = releases.length == 1 ? Array(releases[0].version_codes).map { |code| Integer(code) } : nil
-        unless releases.length == 1 && releases[0].status.to_s == 'completed' && codes == [guard.version_code]
-          raise TrackNotClean, 'track_object'
-        end
+        ProkatPlayStore.refuse_unexpected_release!(track_object, guard)
       end
+      super
+    end
+  end
+
+  # Every production track write reaches AndroidPublisherService#update_edit_track,
+  # including Supply::Client#upload_changelogs. Check the object that super sends.
+  module GuardedTrackWrite
+    def update_edit_track(package_name, edit_id, track, track_object = nil, **kwargs, &block)
+      ProkatPlayStore.refuse_unguarded_track_write!(package_name, edit_id, track, track_object)
       super
     end
   end
@@ -84,7 +92,26 @@ module ProkatPlayStore
   def self.guard_publish!(track:, version_code:)
     raise 'Publish guard is already enabled' if publish_guard
     raise 'Publish guard only applies to the production track' unless track == 'production'
-    @publish_guard = PublishGuard.new(track, version_code(version_code), false)
+    @publish_guard = PublishGuard.new(track, version_code(version_code), false, nil)
+  end
+
+  def self.refuse_unguarded_track_write!(package_name, edit_id, track, track_object)
+    guard = publish_guard
+    return unless guard
+    raise TrackNotClean, 'package_mismatch' unless package_name.to_s == PACKAGE
+    raise TrackNotClean, 'edit_mismatch' unless guard.edit_id && edit_id.to_s == guard.edit_id.to_s
+    raise TrackNotClean, 'track_mismatch' unless track.to_s == guard.track
+    refuse_unexpected_release!(track_object, guard)
+  end
+
+  def self.refuse_unexpected_release!(track_object, guard)
+    releases = Array(track_object&.releases)
+    raise TrackNotClean, 'track_object' unless releases.length == 1 && releases[0].status.to_s == 'completed'
+    raise TrackNotClean, 'track_object' unless release_codes(releases[0]) == [guard.version_code]
+  end
+
+  def self.release_codes(release)
+    Array(release.version_codes).map { |code| version_code(code) }
   end
 
   def self.review_behavior_parameter?(method)
@@ -120,7 +147,7 @@ module ProkatPlayStore
     edit = supply.current_edit.id
     bundle_codes = Array(api.list_edit_bundles(package, edit).bundles).map(&:version_code)
     apk_codes = Array(api.list_edit_apks(package, edit).apks).map(&:version_code)
-    present = (bundle_codes + apk_codes).any? { |code| Integer(code) == guard.version_code }
+    present = (bundle_codes + apk_codes).any? { |code| version_code(code) == guard.version_code }
     raise TrackNotClean, 'version_code_present' if present
   end
 
@@ -167,8 +194,14 @@ module ProkatPlayStore
   end
 end
 
-unless ProkatPlayStore.review_behavior_parameter?(Google::Apis::AndroidpublisherV3::AndroidPublisherService.instance_method(:commit_edit))
+service = Google::Apis::AndroidpublisherV3::AndroidPublisherService
+unless ProkatPlayStore.review_behavior_parameter?(service.instance_method(:commit_edit))
   raise 'commit_edit is missing changes_in_review_behavior; refusing to load'
 end
-Google::Apis::AndroidpublisherV3::AndroidPublisherService.prepend(ProkatPlayStore::ErrorIfInReview)
+track_write = service.instance_method(:update_edit_track).parameters
+unless [[:req, :package_name], [:req, :edit_id], [:req, :track], [:opt, :track_object]].all? { |item| track_write.include?(item) }
+  raise "update_edit_track signature changed: #{track_write.inspect}"
+end
+service.prepend(ProkatPlayStore::ErrorIfInReview)
+service.prepend(ProkatPlayStore::GuardedTrackWrite)
 Supply::Client.prepend(ProkatPlayStore::GuardedPublishEdit)

@@ -1,5 +1,8 @@
+require 'fileutils'
 require 'ostruct'
 require 'tempfile'
+require 'tmpdir'
+require 'supply/uploader'
 require_relative 'play_store'
 require_relative 'play_policy'
 
@@ -269,5 +272,238 @@ begin
 rescue RuntimeError => error
   raise 'Second guard leaked data' if error.message.include?(SENTINEL)
 end
+
+class RecordingStdout
+  def initialize(original)
+    @original = original
+    @buffer = +''
+  end
+
+  attr_reader :buffer
+
+  def write(data)
+    @buffer << data.to_s
+    @original.write(data)
+  end
+
+  def method_missing(name, *args, **kwargs, &block)
+    @original.public_send(name, *args, **kwargs, &block)
+  end
+
+  def respond_to_missing?(name, include_private = false)
+    @original.respond_to?(name, include_private)
+  end
+end
+
+def capture_stdout
+  original = $stdout
+  recorder = RecordingStdout.new(original)
+  $stdout = recorder
+  yield
+  recorder.buffer
+ensure
+  $stdout = original
+end
+
+def assert_written_release(write, edit_id)
+  raise 'Track write used another edit' unless write[:edit] == edit_id
+  raise 'Track write used another track' unless write[:track] == 'production'
+  releases = Array(write[:object]&.releases)
+  raise 'Track write was not the expected release' unless releases.length == 1 && releases[0].status.to_s == 'completed'
+  raise 'Track write versionCode drifted' unless Array(releases[0].version_codes) == [25]
+end
+
+def production_release_track(extra: false)
+  releases = [AndroidPublisher::TrackRelease.new(status: 'completed', version_codes: [25], name: '1.2.3')]
+  releases << AndroidPublisher::TrackRelease.new(status: 'completed', version_codes: [24], name: 'previous') if extra
+  AndroidPublisher::Track.new(track: 'production', releases: releases)
+end
+
+# Drives the pinned Supply::Uploader path. execute_or_queue_command is the
+# boundary below update_edit_track; nothing here opens a store connection.
+def drive_release_notes(dirty_notes:)
+  Dir.mktmpdir('prokat-notes-') do |dir|
+    FileUtils.mkdir_p(File.join(dir, 'ru-RU', 'changelogs'))
+    File.write(File.join(dir, 'ru-RU', 'changelogs', '25.txt'), "Ship notes\n")
+    File.write(File.join(dir, 'app.aab'), '')
+    state = { lists: 0, writes: [], commits: [] }
+    auth = Object.new
+    auth.define_singleton_method(:fetch_access_token!) { {} }
+    supply = Supply::Client.new(auth_client: auth, params: { timeout: 60 })
+    supply.client.define_singleton_method(:execute_or_queue_command) do |command, &block|
+      pattern = command.url.respond_to?(:pattern) ? command.url.pattern.to_s : command.url.to_s
+      verb = command.method
+      if pattern.include?(':commit')
+        state[:commits] << command.params['editId']
+        next OpenStruct.new(id: 'edit-guarded')
+      end
+      if verb == :put && pattern.include?('/tracks/')
+        state[:writes] << { edit: command.params['editId'], track: command.params['track'], object: command.request_object }
+        next command.request_object
+      end
+      if verb == :get && pattern.include?('/listings/')
+        raise Google::Apis::ClientError.new('missing listing', status_code: 404, body: '{}')
+      end
+      if verb == :get && pattern.include?('/tracks')
+        state[:lists] += 1
+        track = dirty_notes && state[:lists] >= 4 ? production_release_track(extra: true) : production_release_track
+        next OpenStruct.new(tracks: [track])
+      end
+      if verb == :get && pattern.include?('/bundles')
+        next OpenStruct.new(bundles: [])
+      end
+      if verb == :get && pattern.include?('/apks')
+        next OpenStruct.new(apks: [])
+      end
+      if verb == :post && pattern.include?('/bundles')
+        next OpenStruct.new(version_code: 25)
+      end
+      if verb == :post && pattern.include?('/edits')
+        next OpenStruct.new(id: 'edit-guarded')
+      end
+      raise "Unexpected Play command #{verb} #{pattern}"
+    end
+    Supply.config = FastlaneCore::Configuration.create(Supply::Options.available_options, {
+      package_name: 'com.auyltech.prokat',
+      aab: File.join(dir, 'app.aab'),
+      metadata_path: dir,
+      track: 'production',
+      version_code: 25,
+      version_name: '1.2.3',
+      release_status: 'completed',
+      changes_not_sent_for_review: false,
+      rescue_changes_not_sent_for_review: false,
+      skip_upload_metadata: true,
+      skip_upload_images: true,
+      skip_upload_screenshots: true,
+      skip_upload_apk: true,
+      skip_upload_changelogs: false,
+      timeout: 60
+    })
+    ProkatPlayStore.guard_publish!(track: 'production', version_code: 25)
+    uploader = Supply::Uploader.new
+    uploader.instance_variable_set(:@client, supply)
+    error = nil
+    output = capture_stdout do
+      begin
+        uploader.perform_upload
+      rescue StandardError => failure
+        error = failure
+      end
+    end
+    state.merge(supply: supply, error: error, output: output)
+  end
+end
+
+ENV['FL_NUMBER_OF_THREADS'] = '1'
+clear_guard
+happy = drive_release_notes(dirty_notes: false)
+raise "Release notes path failed: #{happy[:error].class}: #{happy[:error].message}" if happy[:error]
+raise 'Release notes path printed a commit marker' if happy[:output].include?('PLAY_EDIT_COMMITTED')
+raise "Release notes path wrote #{happy[:writes].length} tracks" unless happy[:writes].length == 2
+happy[:writes].each { |write| assert_written_release(write, 'edit-guarded') }
+note_text = Array(happy[:writes][1][:object].releases[0].release_notes).map { |note| note.text.to_s }
+raise 'Written release notes lost the changelog' unless note_text.any? { |text| text.include?('Ship notes') }
+raise 'Commit used another edit' unless happy[:commits] == ['edit-guarded']
+raise 'Guard edit diverged from the committed edit' unless ProkatPlayStore.publish_guard.edit_id == 'edit-guarded'
+written = happy[:writes].length
+[
+  ['other-edit', 'production', production_release_track, 'edit_mismatch'],
+  ['edit-guarded', 'internal', production_release_track, 'track_mismatch'],
+  ['edit-guarded', 'production', production_release_track(extra: true), 'track_object']
+].each do |edit_id, track_name, track_object, token|
+  begin
+    happy[:supply].client.update_edit_track('com.auyltech.prokat', edit_id, track_name, track_object)
+    raise "Direct #{token} write was accepted"
+  rescue ProkatPlayStore::TrackNotClean => error
+    raise "Direct write was not classified #{token}" unless error.message.include?("status=#{token}")
+  end
+end
+raise 'A bypass reached update_edit_track' unless happy[:writes].length == written && happy[:commits] == ['edit-guarded']
+begin
+  happy[:supply].client.update_edit_track(
+    'com.auyltech.prokat',
+    'edit-guarded',
+    'production',
+    OpenStruct.new(releases: [release_row(status: 'completed', codes: ['010'])])
+  )
+  raise 'Service accepted a leading-zero versionCode'
+rescue RuntimeError => error
+  raise 'Service leading-zero versionCode was not rejected' unless error.message.include?('Malformed')
+end
+raise 'Leading-zero versionCode reached the API' unless happy[:writes].length == written && happy[:commits] == ['edit-guarded']
+
+clear_guard
+unsafe = drive_release_notes(dirty_notes: true)
+raise 'Unsafe release notes were written' unless unsafe[:error].is_a?(ProkatPlayStore::TrackNotClean) && unsafe[:error].message.include?('status=track_object')
+raise 'Unsafe release notes reached commit_edit' unless unsafe[:commits].empty?
+raise 'Unsafe release notes printed a commit marker' if unsafe[:output].include?('PLAY_EDIT_COMMITTED')
+raise "Unsafe path wrote #{unsafe[:writes].length} tracks" unless unsafe[:writes].length == 1
+assert_written_release(unsafe[:writes][0], 'edit-guarded')
+
+clear_guard
+calls = []
+supply = scripted_client(calls, tracks: [[track_row(status: 'completed', codes: [])]])
+ProkatPlayStore.guard_publish!(track: 'production', version_code: 25)
+supply.begin_edit(package_name: 'com.auyltech.prokat')
+begin
+  supply.update_track('internal', OpenStruct.new(releases: [release_row(status: 'completed', codes: [25])]))
+  raise 'Mismatched track_name was accepted'
+rescue ProkatPlayStore::TrackNotClean => error
+  raise 'Mismatched track was not classified' unless error.message.include?('status=track_mismatch')
+end
+refute_mutation(calls)
+
+clear_guard
+calls = []
+supply = scripted_client(calls, tracks: [[track_row(status: 'completed', codes: [])], [track_row(status: 'completed', codes: [])]])
+ProkatPlayStore.guard_publish!(track: 'production', version_code: 25)
+supply.begin_edit(package_name: 'com.auyltech.prokat')
+supply.update_track('production', OpenStruct.new(releases: [release_row(status: 'completed', codes: [25])]))
+raise 'Expected versionCode did not reach update_edit_track' unless calls.include?(:update_edit_track)
+raise 'Expected versionCode committed' if calls.include?(:commit_edit)
+
+clear_guard
+raise 'Ruby octal baseline drifted' unless Integer('010') == 8
+begin
+  ProkatPlayStore.version_code('010')
+  raise 'Leading zero was accepted'
+rescue RuntimeError => error
+  raise 'Leading zero bypassed version_code' unless error.message == 'Malformed Play versionCode; state UNKNOWN'
+end
+raise 'Ordinary versionCode drifted' unless ProkatPlayStore.version_code(25) == 25 && ProkatPlayStore.version_code('25') == 25
+calls = []
+supply = scripted_client(calls, tracks: [[track_row(status: 'completed', codes: [])]])
+ProkatPlayStore.guard_publish!(track: 'production', version_code: 8)
+supply.begin_edit(package_name: 'com.auyltech.prokat')
+begin
+  supply.update_track('production', OpenStruct.new(releases: [release_row(status: 'completed', codes: ['010'])]))
+  raise 'Octal versionCode was written'
+rescue RuntimeError => error
+  raise 'Octal versionCode was not rejected' unless error.message.include?('Malformed')
+end
+refute_mutation(calls)
+
+clear_guard
+%w[0 08 25abc].each do |bad|
+  begin
+    ProkatPlayStore.version_code(bad)
+    raise "#{bad.inspect} was accepted"
+  rescue RuntimeError => error
+    raise "#{bad.inspect} was not rejected" unless error.message.include?('Malformed')
+  end
+end
+
+clear_guard
+rc_executed = false
+auth = Object.new
+auth.define_singleton_method(:fetch_access_token!) { {} }
+rc = Supply::Client.new(auth_client: auth, params: { timeout: 60 })
+rc.client.define_singleton_method(:execute_or_queue_command) do |command, &block|
+  rc_executed = command.method == :put && command.params['track'] == 'internal'
+  nil
+end
+rc.client.update_edit_track('com.auyltech.prokat', 'rc-edit', 'internal', OpenStruct.new(releases: [release_row(status: 'draft', codes: ['010'])]))
+raise 'RC track write was blocked' unless rc_executed
 
 puts 'VERIFIED: snapshot, commit classification, publish-edit guard, and zero transport retries; no real store requests'
