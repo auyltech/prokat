@@ -216,8 +216,9 @@ class WorkflowContractTests(unittest.TestCase):
         self.assertNotIn('when', self.releases['ios-rc'])
         condition = self.releases['ios-production']['when']['condition']
         for token in ('event.repository.full_name', 'event.created', 'not event.deleted',
-                      'event.after == env.CM_COMMIT', 'env.CM_TRIGGER_SOURCE'):
+                      'env.CM_TRIGGER_SOURCE'):
             self.assertIn(token, condition)
+        self.assertNotIn('event.after', condition)
         self.assertNotIn('when', self.codemagic['workflows']['ios-apple-diagnostic'])
         diagnostic = self.codemagic['workflows']['ios-apple-diagnostic']['scripts'][0]['script']
         self.assertIn('!= api', diagnostic)

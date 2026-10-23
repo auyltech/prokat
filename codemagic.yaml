@@ -145,11 +145,14 @@ workflows:
           include: true
       cancel_previous_builds: false
     # After clone, before scripts. `event` filters a tag webhook: repository,
-    # create, not a delete, and SHA. It cannot bind event.ref to the tag, and
-    # CM_TRIGGER_SOURCE is not an independent attestation. The operator does not
-    # start this workflow by hand or through the API.
+    # create, not a delete. Do not compare event.after to CM_COMMIT: GitHub
+    # sends the annotated tag object SHA, Codemagic peels it to the commit
+    # (clone: "refs/tags/... is not a commit"). Peeled identity is checked by
+    # release.dart ci --revision "$CM_COMMIT". It cannot bind event.ref to the
+    # tag, and CM_TRIGGER_SOURCE is not an independent attestation. The
+    # operator does not start this workflow by hand or through the API.
     when:
-      condition: (event.repository.full_name == "auyltech/prokat") and (event.created) and (not event.deleted) and (event.after == env.CM_COMMIT) and (env.CM_TRIGGER_SOURCE == "webhook")
+      condition: (event.repository.full_name == "auyltech/prokat") and (event.created) and (not event.deleted) and (env.CM_TRIGGER_SOURCE == "webhook")
     scripts:
       - *validate-source
       - *apple-auth
