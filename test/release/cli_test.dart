@@ -136,8 +136,8 @@ class Fixture {
     }
     final cloud = cloudGuards
         ? ' PRODUCTION_RELEASE_AUTH_ANDROID GITHUB_RUN_ATTEMPT '
-            'validateCloudAuthorization CM_TRIGGER_SOURCE '
-            'event.repository.full_name'
+              'validateCloudAuthorization CM_TRIGGER_SOURCE '
+              'event.repository.full_name'
         : '';
     return 'release.dart ci PRODUCTION_PUBLISHING_ENABLED verify_android.dart '
         'verify_ios.py play.rb preflight ios_store.py preflight validateProduction$cloud';

@@ -287,7 +287,10 @@ void main() {
       'CM_TAG': rc.tag,
       'CM_TRIGGER_SOURCE': 'api',
     });
-    release.validateEvent(rc, {...env, 'CM_TAG': rc.tag}..remove('CM_TRIGGER_SOURCE'));
+    release.validateEvent(
+      rc,
+      {...env, 'CM_TAG': rc.tag}..remove('CM_TRIGGER_SOURCE'),
+    );
   });
 
   test('cloud authorization is exact and stays off without every gate', () {
