@@ -490,7 +490,7 @@ track этапа 2 для RC не активны.
 
 Оператор одной командой создаёт уникальный production-тег. Android идёт через GitHub tag push, iOS — через Codemagic tag webhook. За один раз выполняется один production-релиз. Параллельные, конфликтующие и повторные запуски того же релиза оператор не инициирует.
 
-`ios-production` `when.condition` проверяет репозиторий, `created`, отсутствие `deleted`, SHA и значение `CM_TRIGGER_SOURCE`. Условие считается после clone. Язык Codemagic не связывает `event.ref` с `refs/tags/$CM_TAG`. Переменные группы и REST API перекрывают built-in `CM_*` и не создают `event`. Поэтому сравнение `CM_TRIGGER_SOURCE == webhook` — операционный фильтр UI/schedule, а не attestation. Остаточный риск: административный или API-запуск с подменёнными переменными. Для этой модели такой запуск не является штатным путём и не считается разрешением повторить неизвестную операцию.
+`ios-production` `when.condition` проверяет репозиторий, `created`, отсутствие `deleted` и значение `CM_TRIGGER_SOURCE`. Условие считается после clone. Не сравнивать `event.after` с `CM_COMMIT`: для annotated-тега GitHub отдаёт SHA объекта тега, Codemagic собирает peeled-коммит. Совпадение peeled-SHA проверяет `release.dart ci`. Язык Codemagic не связывает `event.ref` с `refs/tags/$CM_TAG`. Переменные группы и REST API перекрывают built-in `CM_*` и не создают `event`. Поэтому сравнение `CM_TRIGGER_SOURCE == webhook` — операционный фильтр UI/schedule, а не attestation. Остаточный риск: административный или API-запуск с подменёнными переменными. Для этой модели такой запуск не является штатным путём и не считается разрешением повторить неизвестную операцию.
 
 Разрешение платформы не расходуется кодом. Повторный тег и уже занятый build number останавливают существующие проверки истории и preflight магазина. Это не защита от повторной доставки webhook.
 
@@ -522,6 +522,14 @@ ruleset (U5 / OC-C0) остаётся блокирующим условием и
 Секрет `PRODUCTION_PUBLISHING_ENABLED` остаётся выключенным, пока владелец
 явно не включит его. Play «Release to production» и Managed publishing, Apple
 App Review / AFTER_APPROVAL — внешние решения магазина.
+
+### 5.12 Annotated iOS tag webhook (2026-10-23)
+
+Webhook `ios/v1.2.4+25` стартовал и сразу skipped: clone показал
+`refs/tags/ios/v1.2.4+25 … is not a commit`, затем checkout peeled
+`4e6c5d33`. `when.condition` больше не сравнивает `event.after` с
+`CM_COMMIT`. Штатный путь после фикса — новый iOS build на `main`,
+тот же тег не переиспользовать.
 
 ---
 
