@@ -35,12 +35,10 @@ module PlayPolicy
 
   def self.authorize_android!(context, env)
     return unless context.fetch('channel') == 'production'
-    attempt = env['GITHUB_RUN_ATTEMPT'].to_s
     sha = env['GITHUB_SHA'].to_s
-    expected = "#{context.fetch('tag')}@#{sha}##{attempt}"
     unless env['PRODUCTION_PUBLISHING_ENABLED'] == 'true' &&
-           attempt.match?(/\A[1-9][0-9]*\z/) && sha.match?(/\A[0-9a-f]{40}\z/) &&
-           env['PRODUCTION_RELEASE_AUTH_ANDROID'] == expected
+           env['GITHUB_RUN_ATTEMPT'] == '1' &&
+           sha.match?(/\A[0-9a-f]{40}\z/)
       raise Blocked, 'ANDROID_CLOUD_AUTHORIZATION_INVALID'
     end
   end

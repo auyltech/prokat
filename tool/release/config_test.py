@@ -46,8 +46,9 @@ class WorkflowContractTests(unittest.TestCase):
         })
         self.assertEqual(variables, {
             'PLAY_HISTORICAL_MAX_BUILD', 'ANDROID_UPLOAD_CERT_SHA256',
-            'PRODUCTION_RELEASE_AUTH_ANDROID',
         })
+        self.assertNotIn('PRODUCTION_RELEASE_AUTH_ANDROID', text)
+        self.assertNotIn('PRODUCTION_RELEASE_AUTH_IOS', text)
         self.assertLess(text.index('verify_upload_key.py'), text.index('flutter build appbundle'))
 
     def setUp(self):
@@ -201,8 +202,10 @@ class WorkflowContractTests(unittest.TestCase):
         flutter = text.index('name: Install pinned Flutter')
         self.assertLess(gate, flutter)
         step = text[gate:flutter]
-        for token in ('vars.PRODUCTION_RELEASE_AUTH_ANDROID', 'github.ref_name', 'github.sha', 'github.run_attempt'):
-            self.assertIn(token, step)
+        self.assertNotIn('PRODUCTION_RELEASE_AUTH_ANDROID', step)
+        self.assertIn('github.run_attempt', step)
+        self.assertIn('secrets.PRODUCTION_PUBLISHING_ENABLED', step)
+        self.assertIn('GITHUB_RUN_ATTEMPT', step)
 
     def test_ios_production_webhook_guard_stops_before_source_fetch(self):
         production = self.releases['ios-production']['scripts'][0]['script']

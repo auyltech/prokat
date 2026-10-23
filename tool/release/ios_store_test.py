@@ -380,8 +380,7 @@ class ApplePublishBoundaryTests(unittest.TestCase):
         commit = 'a' * 40
         with patch.dict(store.os.environ, {
                 'CM_TAG': context['tag'], 'PRODUCTION_PUBLISHING_ENABLED': 'true',
-                'CM_TRIGGER_SOURCE': 'webhook', 'CM_COMMIT': commit,
-                'PRODUCTION_RELEASE_AUTH_IOS': f"{context['tag']}@{commit}"}):
+                'CM_TRIGGER_SOURCE': 'webhook', 'CM_COMMIT': commit}):
             preview = self.run_main('validate-publish')
             published = self.run_main('publish')
         self.assertIn('APPLE_PUBLISH_ARGUMENTS_VALID', preview)
@@ -399,7 +398,7 @@ class ApplePublishBoundaryTests(unittest.TestCase):
         commit = 'a' * 40
         base = {
             'CM_TAG': context['tag'], 'PRODUCTION_PUBLISHING_ENABLED': 'true',
-            'CM_COMMIT': commit, 'PRODUCTION_RELEASE_AUTH_IOS': f"{context['tag']}@{commit}",
+            'CM_COMMIT': commit,
         }
         for source in ('api', 'schedule', '', 'Webhook'):
             with self.subTest(source=source), patch.dict(store.os.environ, {**base, 'CM_TRIGGER_SOURCE': source}):
@@ -416,16 +415,16 @@ class ApplePublishBoundaryTests(unittest.TestCase):
         self.publish.assert_not_called()
         self.assertEqual(json.loads((self.root / 'build/release/context.json').read_text())['tag'], context['tag'])
 
-    def test_wrong_ios_cloud_authorization_stops_before_store_reads(self):
+    def test_leftover_ios_auth_variable_is_ignored(self):
         context = {**self.context, 'channel': 'production', 'destination': 'app_store_review', 'tag': 'ios/v1.2.3+23'}
         (self.root / 'build/release/context.json').write_text(json.dumps(context))
         commit = 'a' * 40
         with patch.dict(store.os.environ, {
                 'CM_TAG': context['tag'], 'PRODUCTION_PUBLISHING_ENABLED': 'true',
                 'CM_TRIGGER_SOURCE': 'webhook', 'CM_COMMIT': commit,
-                'PRODUCTION_RELEASE_AUTH_IOS': f"{context['tag']}@{'b' * 40}"}):
-            with self.assertRaisesRegex(store.Blocked, 'IOS_PRODUCTION_AUTHORIZATION_INVALID'):
-                self.run_main('validate-publish')
+                'PRODUCTION_RELEASE_AUTH_IOS': 'stale-value'}):
+            preview = self.run_main('validate-publish')
+        self.assertIn('APPLE_PUBLISH_ARGUMENTS_VALID', preview)
         self.read.assert_not_called()
         self.publish.assert_not_called()
 
@@ -442,7 +441,7 @@ class ApplePublishBoundaryTests(unittest.TestCase):
         commit = 'a' * 40
         with patch.dict(store.os.environ, {
                 'PRODUCTION_PUBLISHING_ENABLED': 'true', 'CM_TRIGGER_SOURCE': 'webhook',
-                'CM_COMMIT': commit, 'PRODUCTION_RELEASE_AUTH_IOS': f"{context['tag']}@{commit}"}):
+                'CM_COMMIT': commit}):
             store.require_production_cloud(context)
             store.require_production_cloud(context)
         self.publish.assert_not_called()

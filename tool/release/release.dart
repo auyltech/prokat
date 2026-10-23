@@ -79,12 +79,19 @@ String requiredOption(Map<String, String> args, String key) =>
     args[key] ?? blocked('Missing --$key');
 
 String git(List<String> args, {String? directory}) {
-  final result = Process.runSync(
-    'git',
-    args,
-    workingDirectory: directory,
-    environment: {'GIT_OPTIONAL_LOCKS': '0', 'GIT_NO_LAZY_FETCH': '1'},
-  );
+  final ProcessResult result;
+  try {
+    result = Process.runSync(
+      'git',
+      args,
+      workingDirectory: directory,
+      environment: {'GIT_OPTIONAL_LOCKS': '0', 'GIT_NO_LAZY_FETCH': '1'},
+    );
+  } on ProcessException {
+    blocked(
+      'Git ${args.first} failed (executable missing); check repository access/history',
+    );
+  }
   if (result.exitCode != 0) {
     // Never echo credential-bearing remote URLs or arbitrary git stderr.
     blocked(
@@ -100,9 +107,11 @@ void validateProduction(ReleaseTag release, Map<String, String> env) {
   }
 }
 
-/// Platform authorization is exact and is not consumed by this check.
-/// A later run with the same value still passes. The operator does not rerun
-/// the same production release; a tag ruleset limits tag mutation only.
+/// Cloud production uses the permanent gate plus the pushed tag identity.
+/// Per-release `PRODUCTION_RELEASE_AUTH_*` variables are not part of this
+/// contract. Android rejects GitHub Actions re-runs of the same tag
+/// (`GITHUB_RUN_ATTEMPT` must be `1`). iOS production still requires the
+/// tag webhook via [validateEvent]; this check does not consume a secret.
 void validateCloudAuthorization(
   ReleaseTag release,
   Map<String, String> env, {
@@ -119,17 +128,8 @@ void validateCloudAuthorization(
       'Cloud authorization requires the verified 40-character commit SHA',
     );
   }
-  if (release.platform == 'android') {
-    final attempt = env['GITHUB_RUN_ATTEMPT'] ?? '';
-    final authorization = env['PRODUCTION_RELEASE_AUTH_ANDROID'];
-    if (!RegExp(r'^[1-9][0-9]*$').hasMatch(attempt) ||
-        authorization != '${release.tag}@$commit#$attempt') {
-      blocked('ANDROID_CLOUD_AUTHORIZATION_INVALID');
-    }
-    return;
-  }
-  if (env['PRODUCTION_RELEASE_AUTH_IOS'] != '${release.tag}@$commit') {
-    blocked('IOS_CLOUD_AUTHORIZATION_INVALID');
+  if (release.platform == 'android' && env['GITHUB_RUN_ATTEMPT'] != '1') {
+    blocked('ANDROID_CLOUD_AUTHORIZATION_INVALID');
   }
 }
 
@@ -287,19 +287,13 @@ String releaseText(List<int> bytes) {
 }
 
 /// Shared parser for disk-based CI and immutable Git blobs in the owner CLI.
+/// Operator source is only `ru.txt` / `en.txt` / `kk.txt`. A leftover
+/// `release.json` is ignored and is not an approval signal.
 Map<String, String> readNotesFrom(
   ReleaseTag release,
   String Function(String path) read,
 ) {
   final base = 'releases/${release.version}';
-  final metadata = jsonDecode(read('$base/release.json')) as Map;
-  if (metadata['schema'] != 1 ||
-      metadata['version'] != release.version ||
-      metadata['ready'] != true) {
-    blocked(
-      'Release metadata must have schema=1, matching version and ready=true',
-    );
-  }
   final notes = <String, String>{};
   for (final language in ['ru', 'en', 'kk']) {
     final raw = read('$base/$language.txt');
@@ -389,16 +383,12 @@ void main(List<String> args) {
       ReleaseTag.parse('rc/android/v$version+1');
       final directory = Directory('releases/$version');
       if (directory.existsSync()) blocked('Release directory already exists');
-      writeJson('${directory.path}/release.json', {
-        'schema': 1,
-        'version': version,
-        'ready': false,
-      });
+      directory.createSync(recursive: true);
       for (final language in ['ru', 'en', 'kk']) {
         File('${directory.path}/$language.txt').writeAsStringSync('');
       }
       stdout.writeln(
-        'Draft created; fill all translations and set ready=true after review',
+        'Draft created; fill ru.txt, en.txt and kk.txt, then review to main',
       );
       return;
     }

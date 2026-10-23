@@ -51,17 +51,18 @@ good = {
   'PRODUCTION_RELEASE_AUTH_ANDROID' => "#{context['tag']}@#{sha}#1"
 }
 PlayPolicy.authorize_android!(context, good)
-PlayPolicy.authorize_android!(context, good)
+PlayPolicy.authorize_android!(context, good.merge('PRODUCTION_RELEASE_AUTH_ANDROID' => 'stale'))
+PlayPolicy.authorize_android!(context, good.reject { |key, _| key == 'PRODUCTION_RELEASE_AUTH_ANDROID' })
 marker = StringIO.new
 PlayPolicy.handoff_to_publisher(context, good, marker)
 raise 'Marker missing' unless marker.string == "PUBLISHER_INVOKED platform=android tag=#{context['tag']}\n"
 raise 'Marker is not publication success' if marker.string.include?('PLAY_EDIT_COMMITTED')
 [
   good.merge('PRODUCTION_PUBLISHING_ENABLED' => 'false'),
-  good.merge('PRODUCTION_RELEASE_AUTH_ANDROID' => "#{context['tag']}@#{sha}#2"),
+  good.merge('GITHUB_RUN_ATTEMPT' => '2'),
   good.merge('GITHUB_RUN_ATTEMPT' => 'x'),
-  good.merge('GITHUB_SHA' => 'b' * 40),
-  good.merge('PRODUCTION_RELEASE_AUTH_ANDROID' => " #{good['PRODUCTION_RELEASE_AUTH_ANDROID']}")
+  good.merge('GITHUB_SHA' => 'B' * 40),
+  good.reject { |key, _| key == 'GITHUB_RUN_ATTEMPT' }
 ].each do |env|
   buffer = StringIO.new
   begin

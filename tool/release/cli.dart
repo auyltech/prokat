@@ -77,14 +77,12 @@ class ReleaseCli {
   ReleaseCli({
     required this.runGit,
     required this.readBlob,
-    required this.environment,
     required this.confirm,
     required this.printLine,
     this.storeStates = const {},
   });
   final GitRunner runGit;
   final BlobReader readBlob;
-  final Map<String, String> environment;
   final String? Function(String prompt) confirm;
   final void Function(String line) printLine;
   final Map<String, Map<String, dynamic>> storeStates;
@@ -100,13 +98,6 @@ class ReleaseCli {
   }
 
   ReleasePlan plan(String platform, String channel, {required bool dryRun}) {
-    if (channel == 'production' && !dryRun) {
-      // Before clean(), ls-remote or any blob. RC and dry-run do not read it.
-      validateProduction(
-        ReleaseTag('production-gate', 'android', 'production', '0.0.0', 1),
-        environment,
-      );
-    }
     if (!{'android', 'ios'}.contains(platform) ||
         !{'rc', 'production'}.contains(channel)) {
       blocked('Unknown command');
@@ -151,13 +142,15 @@ class ReleaseCli {
       }
     }
     if (channel == 'production' && platform == 'android') {
-      for (final guard in [
-        'PRODUCTION_RELEASE_AUTH_ANDROID',
-        'GITHUB_RUN_ATTEMPT',
-      ]) {
-        if (!workflow.contains(guard)) {
-          blocked('Selected main workflow is missing required guard: $guard');
-        }
+      if (!workflow.contains('GITHUB_RUN_ATTEMPT')) {
+        blocked(
+          'Selected main workflow is missing required guard: GITHUB_RUN_ATTEMPT',
+        );
+      }
+      if (workflow.contains('PRODUCTION_RELEASE_AUTH_ANDROID')) {
+        blocked(
+          'Selected main still requires per-release PRODUCTION_RELEASE_AUTH_ANDROID; merge the automated production CLI first',
+        );
       }
     }
     if (channel == 'production' && platform == 'ios') {
@@ -166,6 +159,11 @@ class ReleaseCli {
         if (!source.contains(guard)) {
           blocked('Selected main workflow is missing required guard: $guard');
         }
+      }
+      if (source.contains('PRODUCTION_RELEASE_AUTH_IOS')) {
+        blocked(
+          'Selected main still requires per-release PRODUCTION_RELEASE_AUTH_IOS; merge the automated production CLI first',
+        );
       }
       if (!workflow.contains('event.repository.full_name')) {
         blocked(
@@ -329,15 +327,13 @@ class ReleaseCli {
     }
     printLine(plan.preview);
     if (plan.release.production) {
-      final enabled = environment['PRODUCTION_PUBLISHING_ENABLED'] == 'true';
-      printLine('Production gate (local): ${enabled ? 'ENABLED' : 'DISABLED'}');
-      final authorization = plan.release.platform == 'android'
-          ? 'Cloud authorization required: GitHub variable PRODUCTION_RELEASE_AUTH_ANDROID = ${plan.release.tag}@${plan.sha}#1'
-          : 'Cloud authorization required: Codemagic variable PRODUCTION_RELEASE_AUTH_IOS = ${plan.release.tag}@${plan.sha}';
-      printLine(authorization);
+      printLine(
+        'Cloud production uses the permanent PRODUCTION_PUBLISHING_ENABLED gate and this tag push. Per-release authorization variables are not used.',
+      );
       printLine(
         'Server tag ruleset is a U5 precondition (OC-C0); not verifiable from this CLI',
       );
+      printLine('Pipeline: ${pipelineWatchUrl(plan.release)}');
     }
     printLine(
       'Store availability is UNKNOWN locally; CI rechecks live before build and upload.',
@@ -346,27 +342,17 @@ class ReleaseCli {
       printLine('DRY RUN: no files, refs, tags or uploads changed.');
       return;
     }
-    if (plan.release.production) {
-      validateProduction(plan.release, environment);
-    }
     if (confirm('Continue? [y/N]')?.toLowerCase() != 'y') {
       printLine('Cancelled; checkout, refs and tags unchanged.');
       return;
     }
-    if (plan.release.production &&
-        confirm('Type PUBLISH PRODUCTION to authorize:') !=
-            'PUBLISH PRODUCTION') {
-      printLine('Cancelled; checkout, refs and tags unchanged.');
-      return;
-    }
     clean();
-    validateProduction(plan.release, environment);
     final fresh = snapshot();
     if (fresh['refs/heads/main'] != plan.sha) {
       blocked('Remote main changed; rerun and review the new plan');
     }
     validateTags(plan.release, plan.sha, fresh);
-    // No checkout/branch push; update only the remote-tracking ref after consent.
+    // No checkout/branch push; update only the remote-tracking ref.
     runGit([
       'fetch',
       '--no-tags',
@@ -382,7 +368,6 @@ class ReleaseCli {
       blocked('Remote main changed; no tag created');
     }
     validateTags(plan.release, plan.sha, last);
-    validateProduction(plan.release, environment);
     final ref = 'refs/tags/${plan.release.tag}';
     runGit([
       'tag',
@@ -402,9 +387,9 @@ class ReleaseCli {
         '--resume-push ${plan.release.tag} --expect-sha ${plan.sha}',
       );
     }
-    printLine(
-      'Pushed ${plan.release.tag} at ${plan.sha}. Inspect CI and store results; publication is not proven.',
-    );
+    printLine('Pushed ${plan.release.tag} at ${plan.sha}.');
+    printLine('Pipeline: ${pipelineWatchUrl(plan.release)}');
+    printLine('Inspect CI and store results; publication is not proven.');
   }
 
   /// Read-only recovery after an ambiguous tag push. One exact refspec push
@@ -417,12 +402,6 @@ class ReleaseCli {
     required String expectSha,
     required bool dryRun,
   }) {
-    if (channel == 'production' && !dryRun) {
-      validateProduction(
-        ReleaseTag('production-gate', 'android', 'production', '0.0.0', 1),
-        environment,
-      );
-    }
     if (!{'android', 'ios'}.contains(platform) ||
         !{'rc', 'production'}.contains(channel)) {
       blocked('Unknown command');
@@ -482,12 +461,7 @@ class ReleaseCli {
       'If a run exists, or you cannot establish that none was created, do not type the tag name.',
     );
     if (release.production) {
-      final auth = release.platform == 'android'
-          ? '${release.tag}@$expectSha#1'
-          : '${release.tag}@$expectSha';
-      printLine(
-        'Before pushing, set this platform cloud authorization to $auth and re-check the live store.',
-      );
+      printLine('Pipeline: ${pipelineWatchUrl(release)}');
       if (release.platform == 'android') {
         printLine(
           'Freeze Google Play Console until the provider run reaches a terminal state.',
@@ -608,12 +582,6 @@ void main(List<String> args) {
   try {
     final invocation = _parseInvocation(args);
     final dryRun = invocation.dryRun;
-    if (invocation.channel == 'production' && !dryRun) {
-      validateProduction(
-        ReleaseTag('production-gate', 'android', 'production', '0.0.0', 1),
-        Platform.environment,
-      );
-    }
     final root = git(['rev-parse', '--show-toplevel']);
     String run(List<String> args) => git(args, directory: root);
     if (!invocation.resume &&
@@ -671,7 +639,6 @@ void main(List<String> args) {
     final cli = ReleaseCli(
       runGit: run,
       readBlob: read,
-      environment: Platform.environment,
       storeStates: states,
       confirm: (prompt) {
         stdout.write('$prompt ');
@@ -764,4 +731,12 @@ String readGitBlob(String directory, String sha, String path) {
   );
   if (result.exitCode != 0) blocked('Cannot read approved main blob: $path');
   return releaseText(result.stdout as List<int>);
+}
+
+String pipelineWatchUrl(ReleaseTag release) {
+  if (release.platform == 'android') {
+    final query = Uri.encodeQueryComponent('tag:${release.tag}');
+    return 'https://github.com/auyltech/prokat/actions?query=$query';
+  }
+  return 'https://codemagic.io/apps';
 }

@@ -13,7 +13,7 @@ class Fixture {
   String version = '1.2.3+19';
   String mainSha = sha;
   bool dirty = false, failRemote = false, failPush = false;
-  bool metadataReady = true, omitNotes = false, exportFalse = true;
+  bool omitNotes = false, exportFalse = true;
   bool missingTracking = false, missingObject = false, mirrorPush = false;
   bool cloudGuards = true;
   String? trackingSha, rawLsRemote;
@@ -114,11 +114,7 @@ class Fixture {
     reads.add(path);
     if (path == 'pubspec.yaml') return 'name: prokat\nversion: $version\n';
     if (path.endsWith('release.json')) {
-      return jsonEncode({
-        'schema': 1,
-        'version': version.split('+').first,
-        'ready': metadataReady,
-      });
+      blocked('release.json is not an operator source');
     }
     if (path.endsWith('.txt')) {
       if (omitNotes) blocked('Missing required translation');
@@ -135,8 +131,7 @@ class Fixture {
       return '<key>ITSAppUsesNonExemptEncryption</key><${exportFalse ? 'false' : 'true'}/>';
     }
     final cloud = cloudGuards
-        ? ' PRODUCTION_RELEASE_AUTH_ANDROID GITHUB_RUN_ATTEMPT '
-              'validateCloudAuthorization CM_TRIGGER_SOURCE '
+        ? ' GITHUB_RUN_ATTEMPT validateCloudAuthorization CM_TRIGGER_SOURCE '
               'event.repository.full_name'
         : '';
     return 'release.dart ci PRODUCTION_PUBLISHING_ENABLED verify_android.dart '
@@ -146,7 +141,6 @@ class Fixture {
   ReleaseCli get cli => ReleaseCli(
     runGit: git,
     readBlob: blob,
-    environment: env,
     confirm: (_) => answers.removeAt(0),
     printLine: output.add,
     storeStates: states,
@@ -223,12 +217,11 @@ void main() {
         },
       );
     }
-    test('$platform production real plan is default deny before git', () {
+    test('$platform production plan does not require a local gate', () {
       final f = Fixture();
-      expect(() => f.cli.plan(platform, 'production', dryRun: false), failure);
+      final plan = f.cli.plan(platform, 'production', dryRun: false);
+      expect(plan.release.tag, '$platform/v1.2.3+19');
       expect(f.writes, isEmpty);
-      expect(f.calls, isEmpty);
-      expect(f.reads, isEmpty);
     });
   }
   test(
@@ -247,7 +240,7 @@ void main() {
       }
     },
   );
-  for (final reason in ['dirty', 'remote', 'metadata', 'notes', 'export']) {
+  for (final reason in ['dirty', 'remote', 'notes', 'export']) {
     test('$reason blocks before writes', () {
       final f = Fixture();
       switch (reason) {
@@ -255,8 +248,6 @@ void main() {
           f.dirty = true;
         case 'remote':
           f.failRemote = true;
-        case 'metadata':
-          f.metadataReady = false;
         case 'notes':
           f.omitNotes = true;
         case 'export':
@@ -271,7 +262,6 @@ void main() {
     final cli = ReleaseCli(
       runGit: (a) => a.first == 'ls-remote' ? '' : f.git(a),
       readBlob: f.blob,
-      environment: {},
       confirm: (_) => 'y',
       printLine: (_) {},
     );
@@ -286,15 +276,52 @@ void main() {
       expect(f.local, isEmpty);
     });
   }
-  test('production second confirmation required', () {
-    final f = Fixture()
-      ..env['PRODUCTION_PUBLISHING_ENABLED'] = 'true'
-      ..answers[1] = 'no';
+  test('production command prints the dry-run preview then requires y', () {
+    final dry = Fixture();
+    dry.cli.execute(
+      dry.cli.plan('ios', 'production', dryRun: true),
+      dryRun: true,
+    );
+    final f = Fixture();
     f.cli.execute(
       f.cli.plan('ios', 'production', dryRun: false),
       dryRun: false,
     );
+    expect(f.answers, ['PUBLISH PRODUCTION']);
+    expect(f.local.keys, ['ios/v1.2.3+19']);
+    expect(f.writes.where((args) => args.first == 'push').toList(), [
+      ['push', 'origin', 'refs/tags/ios/v1.2.3+19:refs/tags/ios/v1.2.3+19'],
+    ]);
+    expect(
+      f.output.take(dry.output.length - 1).toList(),
+      dry.output.take(dry.output.length - 1).toList(),
+    );
+    final text = f.output.join('\n');
+    expect(text, contains('https://codemagic.io/apps'));
+    expect(text, contains('Pushed ios/v1.2.3+19 at $sha'));
+    expect(text, isNot(contains('PRODUCTION_RELEASE_AUTH')));
+    expect(text, isNot(contains('PUBLISH PRODUCTION')));
+    expect(f.local.containsKey('android/v1.2.3+19'), isFalse);
+  });
+  test('production cancel N: no fetch, files, refs, tag or push', () {
+    final f = Fixture()..answers[0] = 'N';
+    f.cli.execute(
+      f.cli.plan('android', 'production', dryRun: false),
+      dryRun: false,
+    );
     expect(f.writes, isEmpty);
+    expect(f.local, isEmpty);
+    expect(f.output.join('\n'), contains('Cancelled'));
+  });
+  test('android production does not tag or mention the iOS release', () {
+    final f = Fixture();
+    f.cli.execute(
+      f.cli.plan('android', 'production', dryRun: false),
+      dryRun: false,
+    );
+    expect(f.local.keys, ['android/v1.2.3+19']);
+    expect(f.output.join('\n'), contains('github.com/auyltech/prokat/actions'));
+    expect(f.output.join('\n'), isNot(contains('ios/v1.2.3+19')));
   });
   test('main advanced after preview: stop before tag', () {
     final f = Fixture();
@@ -312,7 +339,6 @@ void main() {
         if (path.endsWith('production.json')) f.mainSha = other;
         return value;
       },
-      environment: {},
       confirm: (_) => 'y',
       printLine: (_) {},
     );
@@ -345,7 +371,6 @@ void main() {
         return result;
       },
       readBlob: f.blob,
-      environment: {},
       confirm: (_) => 'y',
       printLine: (_) {},
     );
@@ -385,9 +410,7 @@ void main() {
   test(
     'both channels block same-platform same build (promotion unsupported)',
     () {
-      final f = Fixture()
-        ..pair('rc/android/v1.2.3+19')
-        ..env['PRODUCTION_PUBLISHING_ENABLED'] = 'true';
+      final f = Fixture()..pair('rc/android/v1.2.3+19');
       expect(() => f.cli.plan('android', 'production', dryRun: false), failure);
     },
   );
@@ -486,7 +509,6 @@ void main() {
         'tool/release/cli.dart',
         'tool/release/production.json',
         '.github/workflows/android-release.yml',
-        'releases/1.2.3/release.json',
         for (final language in ['ru', 'en', 'kk'])
           'releases/1.2.3/$language.txt',
       ]) {
@@ -508,7 +530,6 @@ void main() {
             ? '$approved\trefs/heads/main'
             : run(args),
         readBlob: (commit, path) => readGitBlob(repo.path, commit, path),
-        environment: {},
         confirm: (_) => 'n',
         printLine: (_) {},
       );
@@ -523,9 +544,7 @@ void main() {
     },
   );
   test('production plan requires cloud guards that RC plans do not', () {
-    final missing = Fixture()
-      ..cloudGuards = false
-      ..env['PRODUCTION_PUBLISHING_ENABLED'] = 'true';
+    final missing = Fixture()..cloudGuards = false;
     expect(
       () => missing.cli.plan('android', 'production', dryRun: true),
       failure,
@@ -534,7 +553,7 @@ void main() {
     missing.cli.plan('android', 'rc', dryRun: true);
     missing.cli.plan('ios', 'rc', dryRun: true);
   });
-  test('production dry-run ignores the gate and never confirms or writes', () {
+  test('production dry-run never confirms, fetches or writes', () {
     for (final enabled in [false, true]) {
       final f = Fixture();
       if (enabled) f.env['PRODUCTION_PUBLISHING_ENABLED'] = 'true';
@@ -544,13 +563,11 @@ void main() {
       expect(f.writes, isEmpty);
       expect(f.answers, ['y', 'PUBLISH PRODUCTION']);
       final text = f.output.join('\n');
-      expect(text, contains(enabled ? 'ENABLED' : 'DISABLED'));
       expect(
         text,
-        contains(
-          'Cloud authorization required: GitHub variable PRODUCTION_RELEASE_AUTH_ANDROID = android/v1.2.3+19@$sha#1',
-        ),
+        contains('Per-release authorization variables are not used'),
       );
+      expect(text, contains('github.com/auyltech/prokat/actions'));
       expect(
         text,
         contains(
@@ -561,6 +578,7 @@ void main() {
         text,
         contains('DRY RUN: no files, refs, tags or uploads changed.'),
       );
+      expect(text, isNot(contains('PRODUCTION_RELEASE_AUTH')));
       expect(
         f.calls.where(
           (args) =>
@@ -572,19 +590,41 @@ void main() {
       );
     }
   });
-  for (final value in <String?>[null, 'false', 'TRUE', ' true', '']) {
-    test(
-      'real production plan blocks on gate ${value ?? 'absent'} before git',
-      () {
-        final f = Fixture();
-        if (value != null) f.env['PRODUCTION_PUBLISHING_ENABLED'] = value;
-        expect(() => f.cli.plan('ios', 'production', dryRun: false), failure);
-        expect(f.calls, isEmpty);
-        expect(f.reads, isEmpty);
-        expect(f.answers, ['y', 'PUBLISH PRODUCTION']);
+  test(
+    'leftover per-release Android auth in main blocks production planning',
+    () {
+      final f = Fixture();
+      final cli = ReleaseCli(
+        runGit: f.git,
+        readBlob: (commit, path) {
+          if (path.endsWith('android-release.yml')) {
+            return '${f.blob(commit, path)} PRODUCTION_RELEASE_AUTH_ANDROID';
+          }
+          return f.blob(commit, path);
+        },
+        confirm: (_) => f.answers.removeAt(0),
+        printLine: f.output.add,
+      );
+      expect(() => cli.plan('android', 'production', dryRun: true), failure);
+      expect(f.writes, isEmpty);
+    },
+  );
+  test('leftover per-release iOS auth in main blocks production planning', () {
+    final f = Fixture();
+    final cli = ReleaseCli(
+      runGit: f.git,
+      readBlob: (commit, path) {
+        if (path.endsWith('release.dart')) {
+          return '${f.blob(commit, path)} PRODUCTION_RELEASE_AUTH_IOS';
+        }
+        return f.blob(commit, path);
       },
+      confirm: (_) => f.answers.removeAt(0),
+      printLine: f.output.add,
     );
-  }
+    expect(() => cli.plan('ios', 'production', dryRun: true), failure);
+    expect(f.writes, isEmpty);
+  });
   test('dry-run plan cannot be executed', () {
     final f = Fixture();
     final plan = f.cli.plan('android', 'rc', dryRun: true);
@@ -593,7 +633,7 @@ void main() {
     expect(f.answers, ['y', 'PUBLISH PRODUCTION']);
   });
   test('real plan cannot be previewed as dry-run', () {
-    final f = Fixture()..env['PRODUCTION_PUBLISHING_ENABLED'] = 'true';
+    final f = Fixture();
     final plan = f.cli.plan('ios', 'production', dryRun: false);
     f.calls.clear();
     expect(() => f.cli.execute(plan, dryRun: true), failure);
@@ -609,83 +649,20 @@ void main() {
       isEmpty,
     );
   });
-  test('production gate cleared after planning blocks before confirmation', () {
-    final f = Fixture()..env['PRODUCTION_PUBLISHING_ENABLED'] = 'true';
-    final plan = f.cli.plan('android', 'production', dryRun: false);
-    f.env.remove('PRODUCTION_PUBLISHING_ENABLED');
-    expect(
-      () => f.cli.execute(plan, dryRun: false),
-      throwsA(
-        isA<ReleaseFailure>().having(
-          (error) => error.message,
-          'gate',
-          contains('Production publishing is disabled'),
-        ),
-      ),
+  test('local production env is ignored by the owner CLI', () {
+    final f = Fixture()..env['PRODUCTION_PUBLISHING_ENABLED'] = 'false';
+    f.cli.execute(
+      f.cli.plan('android', 'production', dryRun: false),
+      dryRun: false,
     );
-    expect(f.answers, ['y', 'PUBLISH PRODUCTION']);
+    expect(f.local.keys, ['android/v1.2.3+19']);
+    expect(f.answers, ['PUBLISH PRODUCTION']);
+  });
+  test('existing production tag is immutable', () {
+    final f = Fixture()..pair('android/v1.2.3+19');
+    expect(() => f.cli.plan('android', 'production', dryRun: false), failure);
     expect(f.writes, isEmpty);
   });
-  test('production gate invalidated during confirmation blocks before tag', () {
-    final f = Fixture()..env['PRODUCTION_PUBLISHING_ENABLED'] = 'true';
-    final cli = ReleaseCli(
-      runGit: f.git,
-      readBlob: f.blob,
-      environment: f.env,
-      confirm: (_) {
-        final answer = f.answers.removeAt(0);
-        f.env['PRODUCTION_PUBLISHING_ENABLED'] = 'false';
-        return answer;
-      },
-      printLine: f.output.add,
-    );
-    final plan = cli.plan('android', 'production', dryRun: false);
-    expect(
-      () => cli.execute(plan, dryRun: false),
-      throwsA(
-        isA<ReleaseFailure>().having(
-          (error) => error.message,
-          'gate',
-          contains('Production publishing is disabled'),
-        ),
-      ),
-    );
-    expect(f.answers, isEmpty);
-    expect(f.writes, isEmpty);
-    expect(f.local, isEmpty);
-  });
-  test(
-    'production gate invalidated before tagging blocks the pre-tag check',
-    () {
-      final f = Fixture()..env['PRODUCTION_PUBLISHING_ENABLED'] = 'true';
-      final cli = ReleaseCli(
-        runGit: (args) {
-          if (args.first == 'fetch') {
-            f.env['PRODUCTION_PUBLISHING_ENABLED'] = 'false';
-          }
-          return f.git(args);
-        },
-        readBlob: f.blob,
-        environment: f.env,
-        confirm: (_) => f.answers.removeAt(0),
-        printLine: f.output.add,
-      );
-      final plan = cli.plan('android', 'production', dryRun: false);
-      expect(
-        () => cli.execute(plan, dryRun: false),
-        throwsA(
-          isA<ReleaseFailure>().having(
-            (error) => error.message,
-            'gate',
-            contains('Production publishing is disabled'),
-          ),
-        ),
-      );
-      expect(f.writes.map((args) => args.first), ['fetch']);
-      expect(f.local, isEmpty);
-      expect(f.writes.any((args) => args.first == 'push'), isFalse);
-    },
-  );
   test('missing origin/main blocks dry-run before blobs', () {
     final f = Fixture()..missingTracking = true;
     expect(() => f.cli.plan('ios', 'rc', dryRun: true), failure);
@@ -787,7 +764,6 @@ void main() {
         reads.add('$commit:$path');
         return 'version: 9.9.9+99\n';
       },
-      environment: {},
       confirm: (_) => 'y',
       printLine: (_) {},
     );
@@ -817,6 +793,16 @@ void main() {
       'android:production:True',
       'ios:production:True',
     ]);
+  });
+  test('pipeline URLs are stable per platform', () {
+    expect(
+      pipelineWatchUrl(ReleaseTag.parse('android/v1.2.4+25')),
+      'https://github.com/auyltech/prokat/actions?query=tag%3Aandroid%2Fv1.2.4%2B25',
+    );
+    expect(
+      pipelineWatchUrl(ReleaseTag.parse('ios/v1.2.4+25')),
+      'https://codemagic.io/apps',
+    );
   });
   test('documented wrappers and owner commands stay aligned', () {
     final script = File('tool/release/prokat-release.ps1').readAsStringSync();
@@ -861,23 +847,26 @@ void main() {
     expect(result.exitCode, 0);
     expect(result.stdout, contains('TYPO BLOCKED'));
   });
-  test('production CLI blocks on the gate before git exists', () {
-    final dart = _sdkDart();
-    final result = Process.runSync(
-      dart,
-      [File('tool/release/cli.dart').absolute.path, 'android', 'production'],
-      workingDirectory: Directory.systemTemp.path,
-      includeParentEnvironment: false,
-      environment: _gitlessEnvironment(dart),
-    );
-    final output = '${result.stdout}\n${result.stderr}';
-    expect(result.exitCode, 1, reason: output);
-    expect(output, contains('Production publishing is disabled'));
-    expect(output, isNot(contains('Git ')));
-    expect(output, isNot(contains('git.exe')));
-    expect(output, isNot(contains('ProcessException')));
-  });
-  test('PowerShell production commands block on the gate without git', () {
+  test(
+    'production CLI without git fails closed without launching a publisher',
+    () {
+      final dart = _sdkDart();
+      final result = Process.runSync(
+        dart,
+        [File('tool/release/cli.dart').absolute.path, 'android', 'production'],
+        workingDirectory: Directory.systemTemp.path,
+        includeParentEnvironment: false,
+        environment: _gitlessEnvironment(dart),
+      );
+      final output = '${result.stdout}\n${result.stderr}';
+      expect(result.exitCode, 1, reason: output);
+      expect(output, contains('Git '));
+      expect(output, isNot(contains('Production publishing is disabled')));
+      expect(output, isNot(contains('ProcessException')));
+      expect(output, isNot(contains('PUBLISHER_INVOKED')));
+    },
+  );
+  test('PowerShell production commands fail closed without git', () {
     if (!Platform.isWindows) return;
     final dart = _sdkDart();
     final powershell =
@@ -896,14 +885,9 @@ void main() {
       );
       final output = '${result.stdout}\n${result.stderr}';
       expect(output, contains('PROKAT release blocked'), reason: output);
-      expect(
-        output,
-        contains('Production publishing is disabled'),
-        reason: output,
-      );
-      expect(output, isNot(contains('Git ')));
-      expect(output, isNot(contains('git.exe')));
+      expect(output, isNot(contains('Production publishing is disabled')));
       expect(output, isNot(contains('is not recognized')));
+      expect(output, isNot(contains('PUBLISHER_INVOKED')));
     }
   });
   const objectId = 'cccccccccccccccccccccccccccccccccccccccc';
@@ -921,7 +905,6 @@ void main() {
       ReleaseCli(
         runGit: f.git,
         readBlob: f.blob,
-        environment: f.env,
         confirm: confirm ?? (prompt) => throw StateError('prompted: $prompt'),
         printLine: f.output.add,
       );
@@ -1109,7 +1092,6 @@ void main() {
   });
   test('resume exact confirmation pushes one ref and rechecks', () {
     final f = annotated(androidTag);
-    f.env['PRODUCTION_PUBLISHING_ENABLED'] = 'true';
     f.mirrorPush = true;
     f.answers
       ..clear()
@@ -1131,7 +1113,8 @@ void main() {
     );
     expect(prompts, [resumeTagPrompt]);
     final text = f.output.join('\n');
-    expect(text, contains('$androidTag@$sha#1'));
+    expect(text, contains('github.com/auyltech/prokat/actions'));
+    expect(text, isNot(contains('PRODUCTION_RELEASE_AUTH')));
     expect(text, contains('REMOTE_SAME'));
     expect(f.writes, [
       ['push', 'origin', 'refs/tags/$androidTag:refs/tags/$androidTag'],
@@ -1252,28 +1235,16 @@ void main() {
     expect(f.calls.where((args) => args.first == 'ls-remote'), isEmpty);
     expectNoResumeMutation(f);
   });
-  test('production resume without the gate fails before git', () {
-    final f = annotated(androidTag);
-    expect(
-      () => resume(f, androidTag, dryRun: false),
-      throwsA(
-        isA<ReleaseFailure>().having(
-          (error) => error.message,
-          'gate',
-          contains('Production publishing is disabled'),
-        ),
-      ),
-    );
-    expect(f.calls, isEmpty);
-    expectNoResumeMutation(f);
-  });
-  test('production resume dry-run classifies without the gate or a push', () {
-    final f = annotated(androidTag);
-    resume(f, androidTag, dryRun: true);
-    expect(f.output.join('\n'), contains('REMOTE_ABSENT'));
-    expect(f.calls, isNotEmpty);
-    expectNoResumeMutation(f);
-  });
+  test(
+    'production resume dry-run classifies without a local gate or a push',
+    () {
+      final f = annotated(androidTag);
+      resume(f, androidTag, dryRun: true);
+      expect(f.output.join('\n'), contains('REMOTE_ABSENT'));
+      expect(f.calls, isNotEmpty);
+      expectNoResumeMutation(f);
+    },
+  );
   test('resume history conflict does not push', () {
     final f = annotated('rc/android/v1.2.3+19');
     f.pair('rc/ios/v1.2.3+20');
