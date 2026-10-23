@@ -10,17 +10,21 @@
    Account setup: [ANDROID_SETUP](ANDROID_SETUP.md),
    [MANUAL_SETUP](MANUAL_SETUP.md), [OWNER_CHECKLIST](OWNER_CHECKLIST.md).
    Credentials остаются в CI, локально их копировать не требуется.
-2. Version bump и RU/EN/KK metadata проходят dev → main PR с review и squash.
+2. Version bump в `pubspec.yaml` и три файла `releases/X.Y.Z/{ru,en,kk}.txt`
+   проходят `dev` → `main` PR с review и squash. `release.json` не создают.
    Новая сборка использует общий build выше историй обеих платформ.
    Исторические floors 18 (Play), 17 (Apple) — не сегодняшняя доступность.
 3. Убедитесь в чистом checkout; подключите CLI:
    `. .\tool\release\prokat-release.ps1`.
-   Выполните `prokat-rc-android -DryRun` / `prokat-rc-ios -DryRun`.
-   Dry-run свежий по refs, но без fetch/записей. При отсутствии blobs отдельно
-   обновите object cache командой `git fetch origin main`.
-4. Проверьте preview текущего main, notes, канал и явное разрешение владельца.
-   После GO используйте нужную команду без -DryRun. Production default-deny;
-   дополнительно требуется PUBLISH PRODUCTION, и gate CI остаётся независимым.
+   Выполните `prokat-prod-android -DryRun` / `prokat-prod-ios -DryRun`
+   (для RC — `prokat-rc-* -DryRun`). Dry-run свежий по refs, но без
+   fetch/записей. При отсутствии blobs отдельно обновите object cache
+   командой `git fetch origin main`.
+4. После попадания коммита в `origin/main` запустите одну платформенную
+   команду без `-DryRun`. Production не спрашивает `y` / `PUBLISH PRODUCTION`:
+   вызов команды и есть намерение. Облачный gate
+   `PRODUCTION_PUBLISHING_ENABLED` настраивается один раз; переменные
+   `PRODUCTION_RELEASE_AUTH_*` не используются.
 
 Native versions задаёт tag; CLI получает его из pubspec текущего remote main.
 Не редактируйте Android/iOS version-файлы. CI повторно проверяет tag/pubspec.
@@ -59,13 +63,13 @@ submission и Rebuild того же тега не используются. `PUB
 
 Признак: прогон закончился, в полном логе нет `PUBLISHER_INVOKED`. Типичные коды:
 `Production publishing is disabled until owner gate U5`,
-`ANDROID_CLOUD_AUTHORIZATION_INVALID`, `IOS_CLOUD_AUTHORIZATION_INVALID`,
+`ANDROID_CLOUD_AUTHORIZATION_INVALID`,
 `IOS_PRODUCTION_AUTHORIZATION_INVALID`, `IOS_PRODUCTION_REQUIRES_WEBHOOK`,
 `iOS release requires Codemagic tag webhook context`, сообщения истории номеров
 и preflight до издателя.
 
-1. Прочитать код в логе и исправить причину: gate, строка разрешения, тег, SHA,
-   номер, notes или подпись.
+1. Прочитать код в логе и исправить причину: облачный gate, webhook/attempt,
+   тег, SHA, номер, notes или подпись. Не выставляйте `PRODUCTION_RELEASE_AUTH_*`.
 2. Play Console → App bundle explorer и production track: bundle этого номера
    отсутствует. App Store Connect → Build Uploads и App Store version: upload и
    submission этого номера отсутствуют.

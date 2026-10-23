@@ -150,7 +150,7 @@ versionCode **18** на эту дату. Новый аккаунт/ключ и �
 ## Перед запросом U4
 
 Нужны закрытые U1 (private/billing/Personal eligibility), U2/U3 и их probes,
-согласованные native locks/export compliance, готовые Git notes (`ready: true`),
+согласованные native locks/export compliance, готовые Git notes (`ru/en/kk.txt`),
 утверждённый HEAD свежего main, версия из его pubspec и общий build counter.
 После разрешения запускают четыре CLI-команды из памятки, не ручные теги.
 Не нужны merge или release tags для account probes. После этого можно запросить

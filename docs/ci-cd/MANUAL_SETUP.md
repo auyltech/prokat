@@ -354,30 +354,35 @@ replay store: его отсутствие U5 не блокирует. Агент
 и preview prokat-prod-android / prokat-prod-ios. Владелец явно разрешает U5.
 
 1. Только после разрешения: Play service account получает app-specific
-   **Release to production**. Согласованно отключите Managed publishing, если
-   цель — автоматический выпуск после одобрения Google; это production-настройка
-   и её не меняют на U2. Existing managed publishing сохраняем до разрешения.
-2. GitHub Repository Secret `PRODUCTION_PUBLISHING_ENABLED=true` и repository
-   Variable `PRODUCTION_RELEASE_AUTH_ANDROID=<tag>@<sha>#<attempt>` строго по 5.4.
-3. Codemagic `prokat-ios-release`: Secret `PRODUCTION_PUBLISHING_ENABLED=true` и
-   переменная `PRODUCTION_RELEASE_AUTH_IOS=<tag>@<sha>`. Штатный путь — push
+   **Release to production**. Managed publishing в Google Play сохраняем: CLI
+   не отключает его. Публичный выпуск после review Google остаётся решением
+   в Play Console, если Managed publishing включён.
+2. Один раз: GitHub Repository Secret `PRODUCTION_PUBLISHING_ENABLED=true`.
+   Repository Variable `PRODUCTION_RELEASE_AUTH_ANDROID` не используется;
+   оставьте её пустой или удалите. Android production принимает только первую
+   попытку run (`GITHUB_RUN_ATTEMPT=1`); Re-run того же job блокируется.
+3. Один раз: Codemagic группа `prokat-ios-release`, Secret
+   `PRODUCTION_PUBLISHING_ENABLED=true`. Переменная
+   `PRODUCTION_RELEASE_AUTH_IOS` не используется. Штатный путь — push
    production-тега `ios/v*`, который Codemagic принимает как tag webhook.
    `CM_TRIGGER_SOURCE` и `when.condition` отсекают обычный ручной и плановый
    запуск; это фильтр, а не криптографическое доказательство. Переменная группы
-   или REST API может перекрыть `CM_*`. Отдельный replay store не требуется и
-   код им iOS production не блокирует. Оператор не делает Rebuild, ручной или
+   или REST API может перекрыть `CM_*`. Оператор не делает Rebuild, ручной или
    REST-запуск того же релиза. Диагностика `ios-apple-diagnostic` остаётся
    ручным `api`-запуском с `main`.
-4. После этого владелец отдельно разрешает локальный production gate при запуске
-   CLI (PRODUCTION_PUBLISHING_ENABLED=true), проверяет preview и дополнительное
-   PUBLISH PRODUCTION. Это не изменяет CI secrets. Android: production/review;
+4. После одноразовой настройки владелец запускает `prokat-prod-android` или
+   `prokat-prod-ios` из чистого checkout. Локальный env и строки
+   `PUBLISH PRODUCTION` не нужны. Команда отправляет тег выбранной платформы
+   и печатает URL pipeline. Android: production/review с Managed publishing.
    iOS: App Review и AFTER_APPROVAL. Accepted RC того же номера не re-upload:
    promotion в publishers не реализован; нужен отдельный разрешённый recovery.
-5. **Первый production-тег создаёт сам владелец.** Агент не создаёт его в рамках
-   активации U5. Коммит должен быть явно утверждён и достижим из origin/main.
-6. Аварийное отключение следующих production attempts: установить gate=false
-   у обоих провайдеров. Это не отменяет уже отправленный review/начатый run;
-   проверьте их состояние отдельно. Не отзывайте signing keys ради остановки CI.
+5. **Первый production-тег создаёт сам владелец командой `prokat-prod-*`.**
+   Агент не создаёт его в рамках активации U5. Коммит должен быть явно
+   утверждён и достижим из origin/main.
+6. Аварийное отключение следующих production attempts: установить
+   `PRODUCTION_PUBLISHING_ENABLED` не равным `true` у обоих провайдеров.
+   Это не отменяет уже отправленный review/начатый run; проверьте их состояние
+   отдельно. Не отзывайте signing keys ради остановки CI.
 
 Официальные инструкции: [Play API setup](https://developers.google.com/android-publisher/getting_started),
 [Play permissions](https://support.google.com/googleplay/android-developer/answer/9844686),

@@ -567,8 +567,6 @@ def require_production_cloud(context):
     tag = context.get("tag")
     if not isinstance(tag, str) or not re.fullmatch(r"[0-9a-f]{40}", commit):
         raise Blocked("IOS_PRODUCTION_AUTHORIZATION_INVALID")
-    if os.environ.get("PRODUCTION_RELEASE_AUTH_IOS") != f"{tag}@{commit}":
-        raise Blocked("IOS_PRODUCTION_AUTHORIZATION_INVALID")
 
 
 def checked_publish_arguments(context, ipa, group=None):

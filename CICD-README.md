@@ -2,23 +2,25 @@
 
 ## A. Подготовка релиза
 
-Изменения идут через feature PR → dev. В dev задайте, например:
+Изменения идут через feature PR → `dev`. В `pubspec.yaml` задайте, например:
 
 ```yaml
-version: 1.2.3+19
+version: 1.2.5+26
 ```
 
-Коммит: `chore: bump version to 1.2.3+19`.
-Подготовьте `releases/1.2.3/release.json`:
+Добавьте три пользовательских текста «Что нового»:
 
-```json
-{"schema":1,"version":"1.2.3","ready":true}
+```text
+releases/1.2.5/ru.txt
+releases/1.2.5/en.txt
+releases/1.2.5/kk.txt
 ```
 
-Добавьте проверенные «Что нового» в `ru.txt`, `en.txt`, `kk.txt`: UTF-8 без BOM,
-plain text, 1–500 символов, без placeholders. Если каталога ещё нет:
-`dart tool/release/release.dart init --version 1.2.3` создаёт draft с ready=false.
-Не затирайте существующие notes. Правила локалей: [releases/README](releases/README.md).
+UTF-8 без BOM, plain text, 1–500 символов, без placeholders. Четвёртый файл
+`release.json` не нужен: CLI и CI читают только три языковых файла. Если каталога
+ещё нет: `dart tool/release/release.dart init --version 1.2.5` создаёт пустые
+черновики. Не затирайте существующие notes. Правила локалей:
+[releases/README](releases/README.md).
 
 Перед PR:
 
@@ -44,27 +46,35 @@ CLI всегда выбирает текущий remote main: это требу�
 
 ## C. Запуск публикации
 
-После отдельного разрешения владельца на реальную публикацию:
+После squash-merge в `main` подключите CLI: `. .\tool\release\prokat-release.ps1`.
 
-| Команда | Канал | Тег для 1.2.3+19 |
+| Команда | Канал | Тег |
 | --- | --- | --- |
-| `prokat-rc-android` | Google Play Internal Testing | `rc/android/v1.2.3+19` |
-| `prokat-rc-ios` | TestFlight Internal, AuylTech Test Team | `rc/ios/v1.2.3+19` |
-| `prokat-prod-android` | Google Play Production, U5 gate | `android/v1.2.3+19` |
-| `prokat-prod-ios` | App Store Review / AFTER_APPROVAL, U5 gate | `ios/v1.2.3+19` |
+| `prokat-rc-android` | Google Play Internal Testing | `rc/android/vX.Y.Z+N` |
+| `prokat-rc-ios` | TestFlight Internal, AuylTech Test Team | `rc/ios/vX.Y.Z+N` |
+| `prokat-prod-android` | Google Play Production | `android/vX.Y.Z+N` |
+| `prokat-prod-ios` | App Store Review / AFTER_APPROVAL | `ios/vX.Y.Z+N` |
 
-Production-строки показывают формат, **не разрешают** production 1.2.3+19.
-Каждая команда сначала показывает platform/channel/version/full SHA/tag, затем
-`Continue? [y/N]`. Production дополнительно требует `PUBLISH PRODUCTION`.
-Локальная и CI-проверки default-deny требуют явного U5 gate; наличие локального
-разрешения не включает secret CI. Не включайте gates ради проверки CLI.
+Production: сначала `-DryRun`, затем одна команда выбранной платформы. Вызов
+`prokat-prod-android` / `prokat-prod-ios` и есть намерение выпуска: повторных
+`y` / `PUBLISH PRODUCTION` нет. Команда берёт SHA из актуального `origin/main`,
+проверяет версию и три языковых файла, создаёт и отправляет тег и печатает URL
+pipeline. Android и iOS независимы: одна команда не публикует вторую платформу.
+
+Облачный аварийный выключатель `PRODUCTION_PUBLISHING_ENABLED=true` и tag ruleset
+настраиваются **один раз**. Переменные `PRODUCTION_RELEASE_AUTH_ANDROID` и
+`PRODUCTION_RELEASE_AUTH_IOS` больше не используются. Не меняйте GitHub/Codemagic
+Variables перед каждым релизом.
+
+RC по-прежнему спрашивает `Continue? [y/N]`.
 
 Результаты: [GitHub Actions](https://github.com/auyltech/prokat/actions),
 [Codemagic Builds](https://codemagic.io/apps),
 [Play Console](https://play.google.com/console/),
 [App Store Connect / TestFlight](https://appstoreconnect.apple.com/apps).
-Зелёный CI не доказывает доступность тестировщикам или публикацию: проверьте
-магазин, группу, установку и smoke tests.
+Зелёный CI не доказывает доступность в магазине: Android с Managed publishing
+ждёт выпуска в Play Console после review Google; iOS ждёт App Review и
+AFTER_APPROVAL. Проверьте магазин, установку и smoke tests.
 
 ## D. Ошибка CI или отказ магазина
 

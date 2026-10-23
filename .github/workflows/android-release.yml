@@ -43,14 +43,11 @@ jobs:
         env:
           RELEASE_TAG: ${{ github.ref_name }}
           PRODUCTION_PUBLISHING_ENABLED: ${{ secrets.PRODUCTION_PUBLISHING_ENABLED }}
-          PRODUCTION_RELEASE_AUTH_ANDROID: ${{ vars.PRODUCTION_RELEASE_AUTH_ANDROID }}
-          GITHUB_SHA: ${{ github.sha }}
           GITHUB_RUN_ATTEMPT: ${{ github.run_attempt }}
         run: |
           set -euo pipefail
           if [[ "$RELEASE_TAG" == android/* ]]; then
-            expected="${GITHUB_REF_NAME}@${GITHUB_SHA}#${GITHUB_RUN_ATTEMPT}"
-            if [[ "$PRODUCTION_PUBLISHING_ENABLED" != true || ! "$GITHUB_RUN_ATTEMPT" =~ ^[1-9][0-9]*$ || "$PRODUCTION_RELEASE_AUTH_ANDROID" != "$expected" ]]; then
+            if [[ "$PRODUCTION_PUBLISHING_ENABLED" != true || "$GITHUB_RUN_ATTEMPT" != 1 ]]; then
               echo 'BLOCKED: Production requires owner authorization at U5.'
               exit 1
             fi
@@ -67,7 +64,6 @@ jobs:
         env:
           RELEASE_TAG: ${{ github.ref_name }}
           PRODUCTION_PUBLISHING_ENABLED: ${{ secrets.PRODUCTION_PUBLISHING_ENABLED }}
-          PRODUCTION_RELEASE_AUTH_ANDROID: ${{ vars.PRODUCTION_RELEASE_AUTH_ANDROID }}
           GITHUB_SHA: ${{ github.sha }}
           GITHUB_RUN_ATTEMPT: ${{ github.run_attempt }}
         run: |
@@ -130,7 +126,6 @@ jobs:
         env:
           PLAY_HISTORICAL_MAX_BUILD: ${{ vars.PLAY_HISTORICAL_MAX_BUILD }}
           PRODUCTION_PUBLISHING_ENABLED: ${{ secrets.PRODUCTION_PUBLISHING_ENABLED }}
-          PRODUCTION_RELEASE_AUTH_ANDROID: ${{ vars.PRODUCTION_RELEASE_AUTH_ANDROID }}
           GITHUB_SHA: ${{ github.sha }}
           GITHUB_RUN_ATTEMPT: ${{ github.run_attempt }}
         run: bundle exec ruby tool/release/play.rb preflight
@@ -160,7 +155,6 @@ jobs:
         env:
           PLAY_HISTORICAL_MAX_BUILD: ${{ vars.PLAY_HISTORICAL_MAX_BUILD }}
           PRODUCTION_PUBLISHING_ENABLED: ${{ secrets.PRODUCTION_PUBLISHING_ENABLED }}
-          PRODUCTION_RELEASE_AUTH_ANDROID: ${{ vars.PRODUCTION_RELEASE_AUTH_ANDROID }}
           GITHUB_SHA: ${{ github.sha }}
           GITHUB_RUN_ATTEMPT: ${{ github.run_attempt }}
         run: bundle exec ruby tool/release/play.rb publish

@@ -293,99 +293,86 @@ void main() {
     );
   });
 
-  test('cloud authorization is exact and stays off without every gate', () {
-    const commit = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
-    final android = release.ReleaseTag.parse('android/v1.2.4+25');
-    final ios = release.ReleaseTag.parse('ios/v1.2.4+25');
-    final androidEnv = {
-      'PRODUCTION_PUBLISHING_ENABLED': 'true',
-      'GITHUB_RUN_ATTEMPT': '1',
-      'PRODUCTION_RELEASE_AUTH_ANDROID': '${android.tag}@$commit#1',
-    };
-    release.validateCloudAuthorization(android, androidEnv, commit: commit);
-    release.validateCloudAuthorization(android, androidEnv, commit: commit);
-    final iosEnv = {
-      'PRODUCTION_PUBLISHING_ENABLED': 'true',
-      'PRODUCTION_RELEASE_AUTH_IOS': '${ios.tag}@$commit',
-    };
-    release.validateCloudAuthorization(ios, iosEnv, commit: commit);
-    final disabled = [
-      {...androidEnv}..remove('PRODUCTION_PUBLISHING_ENABLED'),
-      {...androidEnv, 'PRODUCTION_PUBLISHING_ENABLED': ''},
-      {...androidEnv, 'PRODUCTION_PUBLISHING_ENABLED': 'false'},
-      {...androidEnv, 'PRODUCTION_PUBLISHING_ENABLED': 'TRUE'},
-      {...androidEnv, 'PRODUCTION_PUBLISHING_ENABLED': '1'},
-    ];
-    for (final env in disabled) {
+  test(
+    'cloud authorization uses the permanent gate and ignores leftover AUTH',
+    () {
+      const commit = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
+      final android = release.ReleaseTag.parse('android/v1.2.4+25');
+      final ios = release.ReleaseTag.parse('ios/v1.2.4+25');
+      final androidEnv = {
+        'PRODUCTION_PUBLISHING_ENABLED': 'true',
+        'GITHUB_RUN_ATTEMPT': '1',
+        'PRODUCTION_RELEASE_AUTH_ANDROID': '${android.tag}@$commit#1',
+      };
+      release.validateCloudAuthorization(android, androidEnv, commit: commit);
+      release.validateCloudAuthorization(android, androidEnv, commit: commit);
+      final iosEnv = {
+        'PRODUCTION_PUBLISHING_ENABLED': 'true',
+        'PRODUCTION_RELEASE_AUTH_IOS': 'stale-value',
+      };
+      release.validateCloudAuthorization(ios, iosEnv, commit: commit);
+      release.validateCloudAuthorization(ios, {
+        'PRODUCTION_PUBLISHING_ENABLED': 'true',
+      }, commit: commit);
+      final disabled = [
+        {...androidEnv}..remove('PRODUCTION_PUBLISHING_ENABLED'),
+        {...androidEnv, 'PRODUCTION_PUBLISHING_ENABLED': ''},
+        {...androidEnv, 'PRODUCTION_PUBLISHING_ENABLED': 'false'},
+        {...androidEnv, 'PRODUCTION_PUBLISHING_ENABLED': 'TRUE'},
+        {...androidEnv, 'PRODUCTION_PUBLISHING_ENABLED': '1'},
+      ];
+      for (final env in disabled) {
+        expect(
+          () =>
+              release.validateCloudAuthorization(android, env, commit: commit),
+          throwsA(isA<release.ReleaseFailure>()),
+        );
+      }
+      for (final bad in [
+        {...androidEnv, 'GITHUB_RUN_ATTEMPT': '2'},
+        {...androidEnv, 'GITHUB_RUN_ATTEMPT': 'x'},
+        {...androidEnv}..remove('GITHUB_RUN_ATTEMPT'),
+      ]) {
+        expect(
+          () =>
+              release.validateCloudAuthorization(android, bad, commit: commit),
+          throwsA(
+            isA<release.ReleaseFailure>().having(
+              (error) => error.toString(),
+              'code',
+              contains('ANDROID_CLOUD_AUTHORIZATION_INVALID'),
+            ),
+          ),
+        );
+      }
       expect(
-        () => release.validateCloudAuthorization(android, env, commit: commit),
+        () => release.validateCloudAuthorization(
+          android,
+          androidEnv,
+          commit: 'b' * 39,
+        ),
         throwsA(isA<release.ReleaseFailure>()),
       );
-    }
-    for (final bad in [
-      {
-        ...androidEnv,
-        'PRODUCTION_RELEASE_AUTH_ANDROID': '${android.tag}@$commit#2',
-      },
-      {...androidEnv, 'GITHUB_RUN_ATTEMPT': '2'},
-      {...androidEnv, 'GITHUB_RUN_ATTEMPT': 'x'},
-      {
-        ...androidEnv,
-        'PRODUCTION_RELEASE_AUTH_ANDROID': ' ${android.tag}@$commit#1',
-      },
-      {
-        ...androidEnv,
-        'PRODUCTION_RELEASE_AUTH_ANDROID': '${android.tag}@${'b' * 40}#1',
-      },
-      {...iosEnv},
-    ]) {
       expect(
-        () => release.validateCloudAuthorization(android, bad, commit: commit),
-        throwsA(
-          isA<release.ReleaseFailure>().having(
-            (error) => error.toString(),
-            'code',
-            contains('ANDROID_CLOUD_AUTHORIZATION_INVALID'),
-          ),
+        () => release.validateCloudAuthorization(
+          release.ReleaseTag.parse('rc/android/v1.2.4+25'),
+          androidEnv,
+          commit: commit,
         ),
+        throwsA(isA<release.ReleaseFailure>()),
       );
-    }
-    expect(
-      () => release.validateCloudAuthorization(ios, {
-        ...iosEnv,
-        'PRODUCTION_RELEASE_AUTH_IOS': '${ios.tag}@$commit ',
-      }, commit: commit),
-      throwsA(
-        isA<release.ReleaseFailure>().having(
-          (error) => error.toString(),
-          'code',
-          contains('IOS_CLOUD_AUTHORIZATION_INVALID'),
-        ),
-      ),
-    );
-    expect(
-      () => release.validateCloudAuthorization(
-        release.ReleaseTag.parse('rc/android/v1.2.4+25'),
-        androidEnv,
-        commit: commit,
-      ),
-      throwsA(isA<release.ReleaseFailure>()),
-    );
-  });
+    },
+  );
 
   group('metadata and shared notes', () {
     late Directory temp;
     final tag = release.ReleaseTag.parse('rc/ios/v1.8.0+108');
     setUp(() {
       temp = Directory.systemTemp.createTempSync('prokat-release-test-');
-      release.writeJson('${temp.path}/releases/1.8.0/release.json', {
-        'schema': 1,
-        'version': '1.8.0',
-        'ready': true,
-      });
       for (final language in ['ru', 'en', 'kk']) {
         File('${temp.path}/releases/1.8.0/$language.txt')
-            .writeAsStringSync('Update $language\r\nSecond line');
+          ..parent.createSync(recursive: true)
+          ..writeAsStringSync('Update $language\r\nSecond line');
       }
     });
     tearDown(() => temp.deleteSync(recursive: true));
@@ -430,16 +417,13 @@ void main() {
         );
       });
     }
-    test('unapproved draft fails', () {
+    test('legacy release.json is ignored', () {
       release.writeJson('${temp.path}/releases/1.8.0/release.json', {
         'schema': 1,
         'version': '1.8.0',
         'ready': false,
       });
-      expect(
-        () => release.readNotes(temp, tag),
-        throwsA(isA<release.ReleaseFailure>()),
-      );
+      expect(release.readNotes(temp, tag)['ru'], 'Update ru\nSecond line');
     });
   });
 }

@@ -498,6 +498,31 @@ track этапа 2 для RC не активны.
 
 E4-R1 останавливал весь iOS production из-за гарантий, которые владелец для первого использования не требует. Отсутствие абсолютной отказоустойчивости не держит публикацию выключенной. Ручная сверка консоли не становится отдельным продуктом.
 
+### 5.11 Повторяемый production без динамических Variables (2026-10-23)
+
+Это решение уточняет операторский путь Q1 варианта A, не стирая запись 2026-10-22.
+
+**Операторский цикл.** Сменить `pubspec.yaml`, заполнить только
+`releases/X.Y.Z/{ru,en,kk}.txt`, обычный PR в `main`, затем одна команда
+`prokat-prod-android` или `prokat-prod-ios`. `-DryRun` сохраняется. Вызов
+production-команды — намерение выпуска: локальный env
+`PRODUCTION_PUBLISHING_ENABLED`, `y` и `PUBLISH PRODUCTION` не требуются.
+`release.json` и `ready: true` больше не являются источником.
+
+**Авторизация.** Постоянный облачный gate `PRODUCTION_PUBLISHING_ENABLED=true`
+(GitHub Secret и Codemagic Secret группы `prokat-ios-release`) плюс push
+проверенного production-тега. Переменные `PRODUCTION_RELEASE_AUTH_ANDROID` и
+`PRODUCTION_RELEASE_AUTH_IOS` не читаются. Android отклоняет повтор того же
+Actions run (`GITHUB_RUN_ATTEMPT` должен быть `1`). iOS production по-прежнему
+требует tag webhook. История номеров и live store preflight запрещают
+повторную загрузку принятого бинарника.
+
+**Одноразовая настройка, которую репозиторий не может выставить сам.** Tag
+ruleset (U5 / OC-C0) остаётся блокирующим условием и из CLI не проверяется.
+Секрет `PRODUCTION_PUBLISHING_ENABLED` остаётся выключенным, пока владелец
+явно не включит его. Play «Release to production» и Managed publishing, Apple
+App Review / AFTER_APPROVAL — внешние решения магазина.
+
 ---
 
 ## 6. Порядок этапов

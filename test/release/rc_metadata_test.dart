@@ -18,7 +18,7 @@ void main() {
     addTearDown(() => temp.deleteSync(recursive: true));
     final source = Directory('${temp.path}/releases/1.2.3')
       ..createSync(recursive: true);
-    for (final name in ['release.json', 'ru.txt', 'en.txt', 'kk.txt']) {
+    for (final name in ['ru.txt', 'en.txt', 'kk.txt']) {
       File('${root.path}/releases/1.2.3/$name')
           .copySync('${source.path}/$name');
     }
