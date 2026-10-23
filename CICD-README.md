@@ -55,18 +55,19 @@ CLI всегда выбирает текущий remote main: это требу�
 | `prokat-prod-android` | Google Play Production | `android/vX.Y.Z+N` |
 | `prokat-prod-ios` | App Store Review / AFTER_APPROVAL | `ios/vX.Y.Z+N` |
 
-Production: сначала `-DryRun`, затем одна команда выбранной платформы. Вызов
-`prokat-prod-android` / `prokat-prod-ios` и есть намерение выпуска: повторных
-`y` / `PUBLISH PRODUCTION` нет. Команда берёт SHA из актуального `origin/main`,
-проверяет версию и три языковых файла, создаёт и отправляет тег и печатает URL
-pipeline. Android и iOS независимы: одна команда не публикует вторую платформу.
+Production: сначала `-DryRun`, затем одна команда выбранной платформы. Реальный
+запуск печатает тот же preview, что и `-DryRun`, и спрашивает `Continue? [y/N]`.
+Строка `PUBLISH PRODUCTION` больше не нужна. После `y` команда берёт SHA из
+актуального `origin/main`, проверяет версию и три языковых файла, создаёт и
+отправляет тег и печатает URL pipeline. Android и iOS независимы: одна команда
+не публикует вторую платформу.
 
 Облачный аварийный выключатель `PRODUCTION_PUBLISHING_ENABLED=true` и tag ruleset
 настраиваются **один раз**. Переменные `PRODUCTION_RELEASE_AUTH_ANDROID` и
 `PRODUCTION_RELEASE_AUTH_IOS` больше не используются. Не меняйте GitHub/Codemagic
 Variables перед каждым релизом.
 
-RC по-прежнему спрашивает `Continue? [y/N]`.
+RC спрашивает то же `Continue? [y/N]`.
 
 Результаты: [GitHub Actions](https://github.com/auyltech/prokat/actions),
 [Codemagic Builds](https://codemagic.io/apps),

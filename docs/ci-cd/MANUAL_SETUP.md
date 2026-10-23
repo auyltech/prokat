@@ -371,8 +371,9 @@ replay store: его отсутствие U5 не блокирует. Агент
    REST-запуск того же релиза. Диагностика `ios-apple-diagnostic` остаётся
    ручным `api`-запуском с `main`.
 4. После одноразовой настройки владелец запускает `prokat-prod-android` или
-   `prokat-prod-ios` из чистого checkout. Локальный env и строки
-   `PUBLISH PRODUCTION` не нужны. Команда отправляет тег выбранной платформы
+   `prokat-prod-ios` из чистого checkout. Локальный env и строка
+   `PUBLISH PRODUCTION` не нужны. Команда печатает preview как `-DryRun` и
+   спрашивает `Continue? [y/N]`. После `y` отправляет тег выбранной платформы
    и печатает URL pipeline. Android: production/review с Managed publishing.
    iOS: App Review и AFTER_APPROVAL. Accepted RC того же номера не re-upload:
    promotion в publishers не реализован; нужен отдельный разрешённый recovery.

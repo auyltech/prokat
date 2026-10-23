@@ -49,13 +49,13 @@ dart tool/release/cli.dart ios production --dry-run
 No yes/force/SHA/version override. Production dry-run requires a fresh local
 `refs/remotes/origin/main` that matches `git ls-remote` and already contains
 that commit's objects; it never fetches. A real `prokat-prod-*` command is the
-release intent: it does not prompt for `y` / `PUBLISH PRODUCTION` and does not
-read a local `PRODUCTION_PUBLISHING_ENABLED`. CI independently requires the
-permanent cloud gate `PRODUCTION_PUBLISHING_ENABLED=true` and rejects Android
-GitHub Actions re-runs (`GITHUB_RUN_ATTEMPT` must be `1`). Per-release
-`PRODUCTION_RELEASE_AUTH_*` variables are not used. Never enable the cloud gate
-for testing. RC is Internal only and still asks `Continue? [y/N]`. No automatic
-production promotion exists.
+release intent after `Continue? [y/N]`. It does not ask for `PUBLISH PRODUCTION`
+and does not read a local `PRODUCTION_PUBLISHING_ENABLED`. CI independently
+requires the permanent cloud gate `PRODUCTION_PUBLISHING_ENABLED=true` and
+rejects Android GitHub Actions re-runs (`GITHUB_RUN_ATTEMPT` must be `1`).
+Per-release `PRODUCTION_RELEASE_AUTH_*` variables are not used. Never enable
+the cloud gate for testing. RC is Internal only and uses the same `y/N`
+prompt. No automatic production promotion exists.
 
 Normal planning fetches main into a disposable bare object cache, not the user's
 checkout. Cancel leaves checkout/index/refs/object database unchanged; temp cache

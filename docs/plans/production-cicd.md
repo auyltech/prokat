@@ -504,9 +504,9 @@ E4-R1 останавливал весь iOS production из-за гаранти�
 
 **Операторский цикл.** Сменить `pubspec.yaml`, заполнить только
 `releases/X.Y.Z/{ru,en,kk}.txt`, обычный PR в `main`, затем одна команда
-`prokat-prod-android` или `prokat-prod-ios`. `-DryRun` сохраняется. Вызов
-production-команды — намерение выпуска: локальный env
-`PRODUCTION_PUBLISHING_ENABLED`, `y` и `PUBLISH PRODUCTION` не требуются.
+`prokat-prod-android` или `prokat-prod-ios`. `-DryRun` сохраняется. Реальный
+запуск печатает тот же preview и спрашивает `Continue? [y/N]`. Локальный env
+`PRODUCTION_PUBLISHING_ENABLED` и строка `PUBLISH PRODUCTION` не требуются.
 `release.json` и `ready: true` больше не являются источником.
 
 **Авторизация.** Постоянный облачный gate `PRODUCTION_PUBLISHING_ENABLED=true`

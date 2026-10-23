@@ -276,23 +276,42 @@ void main() {
       expect(f.local, isEmpty);
     });
   }
-  test('production command pushes without prompts or local gate', () {
+  test('production command prints the dry-run preview then requires y', () {
+    final dry = Fixture();
+    dry.cli.execute(
+      dry.cli.plan('ios', 'production', dryRun: true),
+      dryRun: true,
+    );
     final f = Fixture();
     f.cli.execute(
       f.cli.plan('ios', 'production', dryRun: false),
       dryRun: false,
     );
-    expect(f.answers, ['y', 'PUBLISH PRODUCTION']);
+    expect(f.answers, ['PUBLISH PRODUCTION']);
     expect(f.local.keys, ['ios/v1.2.3+19']);
     expect(f.writes.where((args) => args.first == 'push').toList(), [
       ['push', 'origin', 'refs/tags/ios/v1.2.3+19:refs/tags/ios/v1.2.3+19'],
     ]);
+    expect(
+      f.output.take(dry.output.length - 1).toList(),
+      dry.output.take(dry.output.length - 1).toList(),
+    );
     final text = f.output.join('\n');
     expect(text, contains('https://codemagic.io/apps'));
     expect(text, contains('Pushed ios/v1.2.3+19 at $sha'));
     expect(text, isNot(contains('PRODUCTION_RELEASE_AUTH')));
     expect(text, isNot(contains('PUBLISH PRODUCTION')));
     expect(f.local.containsKey('android/v1.2.3+19'), isFalse);
+  });
+  test('production cancel N: no fetch, files, refs, tag or push', () {
+    final f = Fixture()..answers[0] = 'N';
+    f.cli.execute(
+      f.cli.plan('android', 'production', dryRun: false),
+      dryRun: false,
+    );
+    expect(f.writes, isEmpty);
+    expect(f.local, isEmpty);
+    expect(f.output.join('\n'), contains('Cancelled'));
   });
   test('android production does not tag or mention the iOS release', () {
     final f = Fixture();
@@ -637,7 +656,7 @@ void main() {
       dryRun: false,
     );
     expect(f.local.keys, ['android/v1.2.3+19']);
-    expect(f.answers, ['y', 'PUBLISH PRODUCTION']);
+    expect(f.answers, ['PUBLISH PRODUCTION']);
   });
   test('existing production tag is immutable', () {
     final f = Fixture()..pair('android/v1.2.3+19');

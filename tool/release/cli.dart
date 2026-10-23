@@ -342,8 +342,7 @@ class ReleaseCli {
       printLine('DRY RUN: no files, refs, tags or uploads changed.');
       return;
     }
-    if (!plan.release.production &&
-        confirm('Continue? [y/N]')?.toLowerCase() != 'y') {
+    if (confirm('Continue? [y/N]')?.toLowerCase() != 'y') {
       printLine('Cancelled; checkout, refs and tags unchanged.');
       return;
     }

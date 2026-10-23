@@ -21,10 +21,10 @@
    fetch/записей. При отсутствии blobs отдельно обновите object cache
    командой `git fetch origin main`.
 4. После попадания коммита в `origin/main` запустите одну платформенную
-   команду без `-DryRun`. Production не спрашивает `y` / `PUBLISH PRODUCTION`:
-   вызов команды и есть намерение. Облачный gate
-   `PRODUCTION_PUBLISHING_ENABLED` настраивается один раз; переменные
-   `PRODUCTION_RELEASE_AUTH_*` не используются.
+   команду без `-DryRun`. Она печатает тот же preview, что dry-run, и
+   спрашивает `Continue? [y/N]`. Строка `PUBLISH PRODUCTION` не нужна.
+   Облачный gate `PRODUCTION_PUBLISHING_ENABLED` настраивается один раз;
+   переменные `PRODUCTION_RELEASE_AUTH_*` не используются.
 
 Native versions задаёт tag; CLI получает его из pubspec текущего remote main.
 Не редактируйте Android/iOS version-файлы. CI повторно проверяет tag/pubspec.
