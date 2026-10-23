@@ -27,11 +27,39 @@ Map<String, String> releaseCommits(Map<String, String> refs) => {
       entry.key.substring(10): refs['${entry.key}^{}'] ?? entry.value,
 };
 
+const resumeTagPrompt = 'Type the full tag name to push it:';
+
+/// `ls-remote` for one annotated tag. Only an empty listing or the exact
+/// tag object plus peeled commit are conclusive.
+String _classifyRemoteTag(
+  String text, {
+  required String tagRef,
+  required String objectId,
+  required String expectSha,
+}) {
+  final parsed = <List<String>>[];
+  for (final raw in text.split('\n')) {
+    final line = raw.trim();
+    if (line.isEmpty) continue;
+    final match = RegExp(r'^([0-9a-f]{40})[ \t]+(\S+)$').firstMatch(line);
+    if (match == null) return 'REMOTE_UNKNOWN';
+    parsed.add([match[1]!, match[2]!]);
+  }
+  if (parsed.isEmpty) return 'REMOTE_ABSENT';
+  final same =
+      parsed.length == 2 &&
+      parsed.any((row) => row[0] == objectId && row[1] == tagRef) &&
+      parsed.any((row) => row[0] == expectSha && row[1] == '$tagRef^{}') &&
+      parsed[0][1] != parsed[1][1];
+  return same ? 'REMOTE_SAME' : 'REMOTE_DIFFERS';
+}
+
 class ReleasePlan {
-  ReleasePlan(this.release, this.sha, this.refs);
+  ReleasePlan(this.release, this.sha, this.refs, {required this.dryRun});
   final ReleaseTag release;
   final String sha;
   final Map<String, String> refs;
+  final bool dryRun;
   String get channel => release.platform == 'android'
       ? (release.production ? 'Google Play Production' : 'Internal Testing')
       : (release.production
@@ -71,7 +99,14 @@ class ReleaseCli {
     }
   }
 
-  ReleasePlan plan(String platform, String channel) {
+  ReleasePlan plan(String platform, String channel, {required bool dryRun}) {
+    if (channel == 'production' && !dryRun) {
+      // Before clean(), ls-remote or any blob. RC and dry-run do not read it.
+      validateProduction(
+        ReleaseTag('production-gate', 'android', 'production', '0.0.0', 1),
+        environment,
+      );
+    }
     if (!{'android', 'ios'}.contains(platform) ||
         !{'rc', 'production'}.contains(channel)) {
       blocked('Unknown command');
@@ -80,11 +115,11 @@ class ReleaseCli {
     final refs = snapshot();
     final sha =
         refs['refs/heads/main'] ?? blocked('Remote main is unavailable');
+    if (dryRun) requireFreshLocalMain(sha);
     final version = pubspecVersion(readBlob(sha, 'pubspec.yaml'));
     final release = ReleaseTag.parse(
       '${channel == 'rc' ? 'rc/' : ''}$platform/v$version',
     );
-    validateProduction(release, environment);
     // The approved source must contain this release contract, not an older
     // pipeline that could omit the common-counter/pubspec checks.
     readBlob(sha, 'tool/release/cli.dart');
@@ -115,6 +150,29 @@ class ReleaseCli {
         blocked('Selected main workflow is missing required guard: $guard');
       }
     }
+    if (channel == 'production' && platform == 'android') {
+      for (final guard in [
+        'PRODUCTION_RELEASE_AUTH_ANDROID',
+        'GITHUB_RUN_ATTEMPT',
+      ]) {
+        if (!workflow.contains(guard)) {
+          blocked('Selected main workflow is missing required guard: $guard');
+        }
+      }
+    }
+    if (channel == 'production' && platform == 'ios') {
+      final source = readBlob(sha, 'tool/release/release.dart');
+      for (final guard in ['validateCloudAuthorization', 'CM_TRIGGER_SOURCE']) {
+        if (!source.contains(guard)) {
+          blocked('Selected main workflow is missing required guard: $guard');
+        }
+      }
+      if (!workflow.contains('event.repository.full_name')) {
+        blocked(
+          'Selected main workflow is missing required guard: event.repository.full_name',
+        );
+      }
+    }
     final config =
         jsonDecode(readBlob(sha, 'tool/release/production.json')) as Map;
     if (config['APP_ENV'] != 'production' ||
@@ -132,7 +190,36 @@ class ReleaseCli {
       blocked('Remote main changed during preparation; retry');
     }
     validateTags(release, sha, fresh);
-    return ReleasePlan(release, sha, fresh);
+    return ReleasePlan(release, sha, fresh, dryRun: dryRun);
+  }
+
+  /// Dry-run reads blobs only for the SHA just returned by ls-remote, and only
+  /// when the local tracking ref already names that same commit.
+  void requireFreshLocalMain(String sha) {
+    String local;
+    try {
+      local = runGit([
+        'rev-parse',
+        '--verify',
+        'refs/remotes/origin/main^{commit}',
+      ]);
+    } on ReleaseFailure {
+      blocked(
+        'Local origin/main is missing; run git fetch origin main outside the CLI and retry',
+      );
+    }
+    if (local != sha) {
+      blocked(
+        'Local origin/main is stale ($local) vs remote ($sha); run git fetch origin main outside the CLI and retry',
+      );
+    }
+    try {
+      runGit(['cat-file', '-e', '$sha^{commit}']);
+    } on ReleaseFailure {
+      blocked(
+        'Dry-run cannot read approved commit $sha. Refresh the local object cache with git fetch origin main outside the CLI; dry-run never fetches',
+      );
+    }
   }
 
   void validateTags(ReleaseTag release, String sha, Map<String, String> refs) {
@@ -227,24 +314,40 @@ class ReleaseCli {
       final other = release.platform == 'android' ? 'ios' : 'android';
       final refs = releaseCommits(snapshot);
       final same = '${release.version}+${release.build}';
-      if (!refs.keys.any(
-        (name) =>
-            (name == 'rc/$other/v$same' || name == '$other/v$same') &&
-            refs[name] == sha,
-      )) {
+      final paired = '${release.production ? '' : 'rc/'}$other/v$same';
+      if (!refs.keys.any((name) => name == paired && refs[name] == sha)) {
         blocked('Equal other-store build has no paired release provenance');
       }
     }
   }
 
   void execute(ReleasePlan plan, {required bool dryRun}) {
+    if (dryRun != plan.dryRun) {
+      blocked(
+        'Dry-run plan cannot be executed and a real plan cannot be previewed as dry-run; rebuild the plan',
+      );
+    }
     printLine(plan.preview);
+    if (plan.release.production) {
+      final enabled = environment['PRODUCTION_PUBLISHING_ENABLED'] == 'true';
+      printLine('Production gate (local): ${enabled ? 'ENABLED' : 'DISABLED'}');
+      final authorization = plan.release.platform == 'android'
+          ? 'Cloud authorization required: GitHub variable PRODUCTION_RELEASE_AUTH_ANDROID = ${plan.release.tag}@${plan.sha}#1'
+          : 'Cloud authorization required: Codemagic variable PRODUCTION_RELEASE_AUTH_IOS = ${plan.release.tag}@${plan.sha}';
+      printLine(authorization);
+      printLine(
+        'Server tag ruleset is a U5 precondition (OC-C0); not verifiable from this CLI',
+      );
+    }
     printLine(
       'Store availability is UNKNOWN locally; CI rechecks live before build and upload.',
     );
     if (dryRun) {
       printLine('DRY RUN: no files, refs, tags or uploads changed.');
       return;
+    }
+    if (plan.release.production) {
+      validateProduction(plan.release, environment);
     }
     if (confirm('Continue? [y/N]')?.toLowerCase() != 'y') {
       printLine('Cancelled; checkout, refs and tags unchanged.');
@@ -279,6 +382,7 @@ class ReleaseCli {
       blocked('Remote main changed; no tag created');
     }
     validateTags(plan.release, plan.sha, last);
+    validateProduction(plan.release, environment);
     final ref = 'refs/tags/${plan.release.tag}';
     runGit([
       'tag',
@@ -293,13 +397,208 @@ class ReleaseCli {
     } on Object {
       blocked(
         'Tag retained locally: ${plan.release.tag}. Push outcome UNKNOWN. '
-        'Run git ls-remote --tags origin "$ref" "$ref^{}"; inspect CI/store. '
-        'If absent, revalidate main/history and retry ONLY git push origin "$ref:$ref". '
-        'If present verify peeled SHA ${plan.sha}; never force/delete/re-upload blindly.',
+        'A failed or interrupted push is not proof the tag is unpublished. '
+        'Re-classify with: dart tool/release/cli.dart ${plan.release.platform} ${plan.release.channel} '
+        '--resume-push ${plan.release.tag} --expect-sha ${plan.sha}',
       );
     }
     printLine(
       'Pushed ${plan.release.tag} at ${plan.sha}. Inspect CI and store results; publication is not proven.',
+    );
+  }
+
+  /// Read-only recovery after an ambiguous tag push. One exact refspec push
+  /// happens only for `REMOTE_ABSENT` after a fresh main/history check and an
+  /// exact tag-name confirmation.
+  void resumePush({
+    required String platform,
+    required String channel,
+    required String tag,
+    required String expectSha,
+    required bool dryRun,
+  }) {
+    if (channel == 'production' && !dryRun) {
+      validateProduction(
+        ReleaseTag('production-gate', 'android', 'production', '0.0.0', 1),
+        environment,
+      );
+    }
+    if (!{'android', 'ios'}.contains(platform) ||
+        !{'rc', 'production'}.contains(channel)) {
+      blocked('Unknown command');
+    }
+    final release = ReleaseTag.parse(tag);
+    if (release.platform != platform || release.channel != channel) {
+      blocked('Resume tag $tag does not match $platform $channel');
+    }
+    if (!RegExp(r'^[0-9a-f]{40}$').hasMatch(expectSha)) {
+      blocked('Expected SHA must be 40 lowercase hex characters');
+    }
+    final tagRef = 'refs/tags/${release.tag}';
+    final type = _localTagField(['cat-file', '-t', tagRef]);
+    final objectId = _localTagField(['rev-parse', tagRef]);
+    final peeled = _localTagField(['rev-parse', '$tagRef^{commit}']);
+    if (type != 'tag' ||
+        !RegExp(r'^[0-9a-f]{40}$').hasMatch(objectId) ||
+        peeled != expectSha) {
+      blocked(
+        'LOCAL_TAG_MISMATCH: annotated tag is missing or does not peel to --expect-sha',
+      );
+    }
+    final kind = _readRemoteTag(tagRef, objectId, expectSha);
+    if (kind == 'REMOTE_SAME') {
+      _printRemoteSame();
+      return;
+    }
+    if (kind == 'REMOTE_DIFFERS') {
+      blocked(
+        'REMOTE_DIFFERS: the remote tag does not match the local annotated object and expected commit. '
+        'Stop for manual inspection. Nothing was changed.',
+      );
+    }
+    if (kind != 'REMOTE_ABSENT') {
+      blocked(
+        'REMOTE_UNKNOWN: remote tag state is not established. Stop and retry only a later read. Nothing was changed.',
+      );
+    }
+    if (dryRun) {
+      printLine(
+        'REMOTE_ABSENT: origin has no $tagRef. Dry-run does not push or prompt. '
+        'A missing workflow run is not proof that no run was created.',
+      );
+      return;
+    }
+    final remoteMain = _remoteMain();
+    if (remoteMain != expectSha) {
+      blocked(
+        'MAIN_MOVED_NEW_NUMBER_REQUIRED: remote main is not the expected commit. '
+        'Discard this build number for a new release. The local tag remains and was not pushed.',
+      );
+    }
+    _requireRemoteHistory(release, expectSha);
+    printLine('REMOTE_ABSENT: origin has no $tagRef.');
+    printLine(
+      'This command cannot see provider runs. A missing workflow run is not proof that no run was created. '
+      'If a run exists, or you cannot establish that none was created, do not type the tag name.',
+    );
+    if (release.production) {
+      final auth = release.platform == 'android'
+          ? '${release.tag}@$expectSha#1'
+          : '${release.tag}@$expectSha';
+      printLine(
+        'Before pushing, set this platform cloud authorization to $auth and re-check the live store.',
+      );
+      if (release.platform == 'android') {
+        printLine(
+          'Freeze Google Play Console until the provider run reaches a terminal state.',
+        );
+      }
+    }
+    if (confirm(resumeTagPrompt) != release.tag) {
+      blocked('Confirmation did not match the tag. Nothing was pushed.');
+    }
+    try {
+      runGit(['push', 'origin', '$tagRef:$tagRef']);
+    } on Object {
+      // A failed push is not proof that origin rejected the tag.
+    }
+    final after = _readRemoteTag(tagRef, objectId, expectSha);
+    if (after == 'REMOTE_SAME') {
+      _printRemoteSame();
+      return;
+    }
+    blocked(
+      '$after: remote tag is not a confirmed match. Stop. Another push requires a new confirmation. Nothing else was changed.',
+    );
+  }
+
+  String _localTagField(List<String> args) {
+    try {
+      return runGit(args);
+    } on ReleaseFailure {
+      blocked(
+        'LOCAL_TAG_MISMATCH: annotated tag is missing or does not peel to --expect-sha',
+      );
+    }
+  }
+
+  String _readRemoteTag(String tagRef, String objectId, String expectSha) {
+    final String text;
+    try {
+      text = runGit(['ls-remote', 'origin', tagRef, '$tagRef^{}']);
+    } on ReleaseFailure {
+      blocked(
+        'REMOTE_UNKNOWN: cannot read the remote tag. Stop and retry only a later read. Nothing was changed.',
+      );
+    }
+    final kind = _classifyRemoteTag(
+      text,
+      tagRef: tagRef,
+      objectId: objectId,
+      expectSha: expectSha,
+    );
+    if (kind == 'REMOTE_UNKNOWN') {
+      blocked(
+        'REMOTE_UNKNOWN: remote tag listing is not readable. Stop and retry only a later read. Nothing was changed.',
+      );
+    }
+    return kind;
+  }
+
+  String _remoteMain() {
+    final String text;
+    try {
+      text = runGit(['ls-remote', 'origin', 'refs/heads/main']);
+    } on ReleaseFailure {
+      blocked(
+        'REMOTE_UNKNOWN: cannot read remote main. Stop and retry only a later read. Nothing was changed.',
+      );
+    }
+    final Map<String, String> refs;
+    try {
+      refs = remoteRefs(text);
+    } on ReleaseFailure {
+      blocked(
+        'REMOTE_UNKNOWN: remote main listing is not readable. Stop and retry only a later read. Nothing was changed.',
+      );
+    }
+    return refs['refs/heads/main'] ??
+        blocked(
+          'REMOTE_UNKNOWN: remote main is unavailable. Stop and retry only a later read. Nothing was changed.',
+        );
+  }
+
+  void _requireRemoteHistory(ReleaseTag release, String expectSha) {
+    final String text;
+    try {
+      text = runGit(['ls-remote', '--tags', 'origin']);
+    } on ReleaseFailure {
+      blocked(
+        'REMOTE_UNKNOWN: cannot read remote tags. Stop and retry only a later read. Nothing was changed.',
+      );
+    }
+    final Map<String, String> refs;
+    try {
+      refs = remoteRefs(text);
+    } on ReleaseFailure {
+      blocked(
+        'REMOTE_UNKNOWN: remote tag listing is not readable. Stop and retry only a later read. Nothing was changed.',
+      );
+    }
+    final commits = releaseCommits(refs);
+    validateBuildHistory(
+      release,
+      commits.keys,
+      revision: expectSha,
+      commits: commits,
+    );
+  }
+
+  void _printRemoteSame() {
+    printLine(
+      'REMOTE_SAME: the remote annotated tag and peeled commit match. '
+      'Do not push again. Watch the provider run. '
+      'A missing workflow run is not proof that no run was created.',
     );
   }
 }
@@ -307,23 +606,24 @@ class ReleaseCli {
 void main(List<String> args) {
   Directory? inspection;
   try {
-    if (args.length < 2 ||
-        args.length > 3 ||
-        (args.length == 3 && args.last != '--dry-run')) {
-      blocked(
-        'Usage: dart tool/release/cli.dart android|ios rc|production [--dry-run]',
+    final invocation = _parseInvocation(args);
+    final dryRun = invocation.dryRun;
+    if (invocation.channel == 'production' && !dryRun) {
+      validateProduction(
+        ReleaseTag('production-gate', 'android', 'production', '0.0.0', 1),
+        Platform.environment,
       );
     }
     final root = git(['rev-parse', '--show-toplevel']);
     String run(List<String> args) => git(args, directory: root);
-    if (run(['status', '--porcelain=v1', '--untracked-files=all']).isNotEmpty) {
+    if (!invocation.resume &&
+        run(['status', '--porcelain=v1', '--untracked-files=all']).isNotEmpty) {
       blocked('Working tree/index must be clean');
     }
     final url = run(['remote', 'get-url', 'origin']);
     if (!RegExp(r'[:/]auyltech/prokat(?:\.git)?$').hasMatch(url)) {
       blocked('origin must identify auyltech/prokat');
     }
-    final dryRun = args.contains('--dry-run');
     String read(String sha, String path) {
       if (dryRun) {
         try {
@@ -379,7 +679,20 @@ void main(List<String> args) {
       },
       printLine: stdout.writeln,
     );
-    cli.execute(cli.plan(args[0], args[1]), dryRun: dryRun);
+    if (invocation.resume) {
+      cli.resumePush(
+        platform: invocation.platform,
+        channel: invocation.channel,
+        tag: invocation.tag!,
+        expectSha: invocation.expectSha!,
+        dryRun: dryRun,
+      );
+    } else {
+      cli.execute(
+        cli.plan(invocation.platform, invocation.channel, dryRun: dryRun),
+        dryRun: dryRun,
+      );
+    }
   } on Object catch (error) {
     stderr.writeln(
       error is ReleaseFailure
@@ -391,6 +704,54 @@ void main(List<String> args) {
     // Only the exact unique temporary directory allocated above, never repo data.
     inspection?.deleteSync(recursive: true);
   }
+}
+
+class _Invocation {
+  const _Invocation({
+    required this.platform,
+    required this.channel,
+    required this.dryRun,
+    this.tag,
+    this.expectSha,
+  });
+  final String platform;
+  final String channel;
+  final bool dryRun;
+  final String? tag;
+  final String? expectSha;
+  bool get resume => tag != null;
+}
+
+_Invocation _parseInvocation(List<String> args) {
+  const usage =
+      'Usage: dart tool/release/cli.dart android|ios rc|production [--dry-run]\n'
+      '   or: dart tool/release/cli.dart android|ios rc|production '
+      '--resume-push <tag> --expect-sha <sha> [--dry-run]';
+  if (args.length < 2) blocked(usage);
+  final platform = args[0];
+  final channel = args[1];
+  final rest = args.sublist(2);
+  if (rest.isEmpty) {
+    return _Invocation(platform: platform, channel: channel, dryRun: false);
+  }
+  if (rest.length == 1 && rest.single == '--dry-run') {
+    return _Invocation(platform: platform, channel: channel, dryRun: true);
+  }
+  final dryRun = rest.length == 5 && rest.last == '--dry-run';
+  final body = dryRun ? rest.sublist(0, 4) : rest;
+  if (body.length == 4 &&
+      body[0] == '--resume-push' &&
+      body[2] == '--expect-sha' &&
+      (rest.length == 4 || dryRun)) {
+    return _Invocation(
+      platform: platform,
+      channel: channel,
+      dryRun: dryRun,
+      tag: body[1],
+      expectSha: body[3],
+    );
+  }
+  blocked(usage);
 }
 
 String readGitBlob(String directory, String sha, String path) {

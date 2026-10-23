@@ -347,17 +347,27 @@ GitHub Billing и применимость Personal Free ещё PENDING. Под�
 
 ## STOP: U5 — Однократное разрешение production
 
-Вход: успешный A5 обеих платформ, подтверждённые API/signing/notes/symbols и
-отсутствие нерешённых блокеров. Агент предъявляет доказательства, риски, расходы
+Вход: успешный A5 обеих платформ, подтверждённые API/signing/notes/symbols,
+активные tag ruleset из OC-A5 и проверка OC-C0. Q9 (2026-10-22) блокирует U5,
+пока ruleset не проверен. E4-LEAN (план, раздел 5.10) не добавляет к этому
+replay store: его отсутствие U5 не блокирует. Агент предъявляет доказательства, риски, расходы
 и preview prokat-prod-android / prokat-prod-ios. Владелец явно разрешает U5.
 
 1. Только после разрешения: Play service account получает app-specific
    **Release to production**. Согласованно отключите Managed publishing, если
    цель — автоматический выпуск после одобрения Google; это production-настройка
    и её не меняют на U2. Existing managed publishing сохраняем до разрешения.
-2. GitHub Repository Secret `PRODUCTION_PUBLISHING_ENABLED=true`.
-3. Codemagic `prokat-ios-release`: Secret `PRODUCTION_PUBLISHING_ENABLED=true`.
-   Ни один другой workflow/channel не должен переопределять gate.
+2. GitHub Repository Secret `PRODUCTION_PUBLISHING_ENABLED=true` и repository
+   Variable `PRODUCTION_RELEASE_AUTH_ANDROID=<tag>@<sha>#<attempt>` строго по 5.4.
+3. Codemagic `prokat-ios-release`: Secret `PRODUCTION_PUBLISHING_ENABLED=true` и
+   переменная `PRODUCTION_RELEASE_AUTH_IOS=<tag>@<sha>`. Штатный путь — push
+   production-тега `ios/v*`, который Codemagic принимает как tag webhook.
+   `CM_TRIGGER_SOURCE` и `when.condition` отсекают обычный ручной и плановый
+   запуск; это фильтр, а не криптографическое доказательство. Переменная группы
+   или REST API может перекрыть `CM_*`. Отдельный replay store не требуется и
+   код им iOS production не блокирует. Оператор не делает Rebuild, ручной или
+   REST-запуск того же релиза. Диагностика `ios-apple-diagnostic` остаётся
+   ручным `api`-запуском с `main`.
 4. После этого владелец отдельно разрешает локальный production gate при запуске
    CLI (PRODUCTION_PUBLISHING_ENABLED=true), проверяет preview и дополнительное
    PUBLISH PRODUCTION. Это не изменяет CI secrets. Android: production/review;

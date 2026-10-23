@@ -86,3 +86,67 @@ jobs:
           --dart-define=ENABLE_FIREBASE_SERVICES=true
           --dart-define=ENABLE_PUSH_NOTIFICATIONS=true
           test/core/config/local_replica_test.dart
+
+  release-python:
+    name: Release Python tests
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v6
+
+      - name: Install Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install locked release dependencies
+        run: python -m pip install --disable-pip-version-check -r tool/release/requirements.txt
+
+      - name: Run release tests
+        run: python -B -m unittest discover -s tool/release -p '*_test.py'
+
+  release-flutter:
+    name: Release Flutter tests
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v6
+
+      - name: Install Flutter from pubspec
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version-file: pubspec.yaml
+          cache: false
+
+      - name: Resolve locked dependencies
+        run: flutter pub get --enforce-lockfile
+
+      - name: Run release tests
+        run: flutter test --no-pub test/release
+
+      - name: Analyze release tooling
+        run: dart analyze --fatal-infos --fatal-warnings tool/release test/release
+
+  release-play-policy:
+    name: Release Play policy
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v6
+
+      - name: Install Ruby 3.3.10
+        uses: ruby/setup-ruby@651ff0d62c5c79bed6d53ec518387aae20e72c1a # v1
+        with:
+          ruby-version: '3.3.10'
+          bundler-cache: false
+
+      # play_policy_test.rb loads only the standard library, not Fastlane.
+      - name: Run Play policy test
+        run: ruby tool/release/play_policy_test.rb

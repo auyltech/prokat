@@ -3,6 +3,13 @@ import 'dart:io';
 
 import 'release.dart';
 
+void requireTargetSdk(String dumped, {int minimum = 36}) {
+  final parsed = int.tryParse(dumped.trim());
+  if (parsed == null || parsed < minimum) {
+    blocked('AAB targetSdkVersion must be at least $minimum');
+  }
+}
+
 String invoke(String executable, List<String> args) {
   final result = Process.runSync(executable, args);
   if (result.exitCode != 0) {
@@ -62,8 +69,18 @@ void main(List<String> args) {
         blocked('AAB ${attribute.key} differs from tag/project identity');
       }
     }
+    requireTargetSdk(
+      invoke('java', [
+        '-jar',
+        args.single,
+        'dump',
+        'manifest',
+        '--bundle=$aab',
+        '--xpath=/manifest/uses-sdk/@android:targetSdkVersion',
+      ]),
+    );
     stdout.writeln(
-      'VERIFIED: AAB structure, signature fingerprint, package, versionName/versionCode',
+      'VERIFIED: AAB structure, signature fingerprint, package, versionName/versionCode, targetSdk',
     );
   } on Object catch (error) {
     stderr.writeln(

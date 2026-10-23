@@ -28,6 +28,62 @@ void main() {
       () => release.validateBuildHistory(tag, ['rc/ios/v1.8.0+109']),
       throwsA(isA<release.ReleaseFailure>()),
     );
+    const same = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
+    const other = 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb';
+    release.validateBuildHistory(
+      release.ReleaseTag.parse('ios/v1.2.3+25'),
+      ['android/v1.2.3+25'],
+      revision: same,
+      commits: {'android/v1.2.3+25': same},
+    );
+    release.validateBuildHistory(
+      release.ReleaseTag.parse('rc/android/v1.2.3+24'),
+      ['rc/ios/v1.2.3+24'],
+      revision: same,
+      commits: {'rc/ios/v1.2.3+24': same},
+    );
+    expect(
+      () => release.validateBuildHistory(
+        release.ReleaseTag.parse('android/v1.2.3+24'),
+        ['rc/ios/v1.2.3+24'],
+        revision: same,
+        commits: {'rc/ios/v1.2.3+24': same},
+      ),
+      throwsA(
+        isA<release.ReleaseFailure>().having(
+          (error) => error.message,
+          'message',
+          contains('another channel'),
+        ),
+      ),
+    );
+    expect(
+      () => release.validateBuildHistory(
+        release.ReleaseTag.parse('ios/v1.2.3+24'),
+        ['rc/ios/v1.2.3+24'],
+        revision: same,
+        commits: {'rc/ios/v1.2.3+24': same},
+      ),
+      throwsA(isA<release.ReleaseFailure>()),
+    );
+    expect(
+      () => release.validateBuildHistory(
+        release.ReleaseTag.parse('ios/v1.2.3+25'),
+        ['android/v1.2.3+25'],
+        revision: same,
+        commits: {'android/v1.2.3+25': other},
+      ),
+      throwsA(isA<release.ReleaseFailure>()),
+    );
+    expect(
+      () => release.validateBuildHistory(
+        release.ReleaseTag.parse('ios/v1.2.4+25'),
+        ['android/v1.2.3+25'],
+        revision: same,
+        commits: {'android/v1.2.3+25': same},
+      ),
+      throwsA(isA<release.ReleaseFailure>()),
+    );
   });
   test('Java properties preserve password punctuation and whitespace', () {
     expect(inputs.propertiesValue(' a\\b\n:=\t'), r'\ a\\b\n\:\=\t');
@@ -194,6 +250,125 @@ void main() {
     expect(
       () =>
           release.validateEvent(tag, {...env, 'CM_REPO_SLUG': 'someone/fork'}),
+      throwsA(isA<release.ReleaseFailure>()),
+    );
+  });
+
+  test('iOS production accepts only an exact webhook; RC does not', () {
+    final tag = release.ReleaseTag.parse('ios/v1.0.0+1');
+    final env = {
+      'CM_BUILD_ID': 'fixture',
+      'CM_TAG': tag.tag,
+      'CM_REPO_SLUG': 'auyltech/prokat',
+      'CM_PULL_REQUEST': 'false',
+      'CM_TRIGGER_SOURCE': 'webhook',
+    };
+    release.validateEvent(tag, env);
+    for (final source in ['api', 'schedule', '', 'Webhook']) {
+      expect(
+        () => release.validateEvent(tag, {...env, 'CM_TRIGGER_SOURCE': source}),
+        throwsA(
+          isA<release.ReleaseFailure>().having(
+            (error) => error.toString(),
+            'code',
+            contains('IOS_PRODUCTION_REQUIRES_WEBHOOK'),
+          ),
+        ),
+      );
+    }
+    final missing = {...env}..remove('CM_TRIGGER_SOURCE');
+    expect(
+      () => release.validateEvent(tag, missing),
+      throwsA(isA<release.ReleaseFailure>()),
+    );
+    final rc = release.ReleaseTag.parse('rc/ios/v1.0.0+1');
+    release.validateEvent(rc, {
+      ...env,
+      'CM_TAG': rc.tag,
+      'CM_TRIGGER_SOURCE': 'api',
+    });
+    release.validateEvent(
+      rc,
+      {...env, 'CM_TAG': rc.tag}..remove('CM_TRIGGER_SOURCE'),
+    );
+  });
+
+  test('cloud authorization is exact and stays off without every gate', () {
+    const commit = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
+    final android = release.ReleaseTag.parse('android/v1.2.4+25');
+    final ios = release.ReleaseTag.parse('ios/v1.2.4+25');
+    final androidEnv = {
+      'PRODUCTION_PUBLISHING_ENABLED': 'true',
+      'GITHUB_RUN_ATTEMPT': '1',
+      'PRODUCTION_RELEASE_AUTH_ANDROID': '${android.tag}@$commit#1',
+    };
+    release.validateCloudAuthorization(android, androidEnv, commit: commit);
+    release.validateCloudAuthorization(android, androidEnv, commit: commit);
+    final iosEnv = {
+      'PRODUCTION_PUBLISHING_ENABLED': 'true',
+      'PRODUCTION_RELEASE_AUTH_IOS': '${ios.tag}@$commit',
+    };
+    release.validateCloudAuthorization(ios, iosEnv, commit: commit);
+    final disabled = [
+      {...androidEnv}..remove('PRODUCTION_PUBLISHING_ENABLED'),
+      {...androidEnv, 'PRODUCTION_PUBLISHING_ENABLED': ''},
+      {...androidEnv, 'PRODUCTION_PUBLISHING_ENABLED': 'false'},
+      {...androidEnv, 'PRODUCTION_PUBLISHING_ENABLED': 'TRUE'},
+      {...androidEnv, 'PRODUCTION_PUBLISHING_ENABLED': '1'},
+    ];
+    for (final env in disabled) {
+      expect(
+        () => release.validateCloudAuthorization(android, env, commit: commit),
+        throwsA(isA<release.ReleaseFailure>()),
+      );
+    }
+    for (final bad in [
+      {
+        ...androidEnv,
+        'PRODUCTION_RELEASE_AUTH_ANDROID': '${android.tag}@$commit#2',
+      },
+      {...androidEnv, 'GITHUB_RUN_ATTEMPT': '2'},
+      {...androidEnv, 'GITHUB_RUN_ATTEMPT': 'x'},
+      {
+        ...androidEnv,
+        'PRODUCTION_RELEASE_AUTH_ANDROID': ' ${android.tag}@$commit#1',
+      },
+      {
+        ...androidEnv,
+        'PRODUCTION_RELEASE_AUTH_ANDROID': '${android.tag}@${'b' * 40}#1',
+      },
+      {...iosEnv},
+    ]) {
+      expect(
+        () => release.validateCloudAuthorization(android, bad, commit: commit),
+        throwsA(
+          isA<release.ReleaseFailure>().having(
+            (error) => error.toString(),
+            'code',
+            contains('ANDROID_CLOUD_AUTHORIZATION_INVALID'),
+          ),
+        ),
+      );
+    }
+    expect(
+      () => release.validateCloudAuthorization(ios, {
+        ...iosEnv,
+        'PRODUCTION_RELEASE_AUTH_IOS': '${ios.tag}@$commit ',
+      }, commit: commit),
+      throwsA(
+        isA<release.ReleaseFailure>().having(
+          (error) => error.toString(),
+          'code',
+          contains('IOS_CLOUD_AUTHORIZATION_INVALID'),
+        ),
+      ),
+    );
+    expect(
+      () => release.validateCloudAuthorization(
+        release.ReleaseTag.parse('rc/android/v1.2.4+25'),
+        androidEnv,
+        commit: commit,
+      ),
       throwsA(isA<release.ReleaseFailure>()),
     );
   });
