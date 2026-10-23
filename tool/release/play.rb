@@ -21,9 +21,7 @@ begin
   raise PlayPolicy::Blocked, 'Expected preflight or publish' unless ARGV.length == 1 && %w[preflight publish].include?(ARGV.first)
   context = JSON.parse(File.read(CONTEXT))
   channel = context.fetch('channel')
-  if channel == 'production' && ENV['PRODUCTION_PUBLISHING_ENABLED'] != 'true'
-    raise PlayPolicy::Blocked, 'Production publishing disabled until U5'
-  end
+  PlayPolicy.authorize_android!(context, ENV)
   track = snapshot_and_check(context)
   if ARGV.first == 'publish'
     raise PlayPolicy::Blocked, 'Only GitHub tag pushes may publish' unless ENV['GITHUB_EVENT_NAME'] == 'push' && ENV['GITHUB_REF'] == "refs/tags/#{context.fetch('tag')}" && ENV['GITHUB_REF_TYPE'] == 'tag'
@@ -45,14 +43,20 @@ begin
       skip_upload_changelogs: false,
       timeout: 300
     })
+    if channel == 'production'
+      ProkatPlayStore.guard_publish!(track: 'production', version_code: Integer(context.fetch('build')))
+    end
+    PlayPolicy.handoff_to_publisher(context, ENV)
     Supply::Uploader.new.perform_upload
     puts 'PLAY_EDIT_COMMITTED: store review/managed publishing can still delay availability; verify the track.'
   else
     puts 'PLAY_PREFLIGHT_VERIFIED: current state read; no binary uploaded.'
   end
+rescue ProkatPlayStore::ChangesInReview, ProkatPlayStore::TrackNotClean => error
+  warn PlayPolicy.publish_failure_line(error)
+  exit 1
 rescue StandardError => error
   # Store SDK errors may contain HTTP bodies: keep credentials out of output.
-  safe = PlayPolicy.safe_error(error)
-  warn "BLOCKED: #{safe}. No automatic retry. Inspect store state before any next attempt."
+  warn PlayPolicy.publish_failure_line(error)
   exit 1
 end

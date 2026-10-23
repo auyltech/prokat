@@ -1,11 +1,12 @@
 import contextlib
+import urllib.error
 import io
 import json
 from pathlib import Path
 import tempfile
 from types import SimpleNamespace
 import unittest
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 import ios_store as store
 
@@ -155,6 +156,8 @@ class AppleStorePolicyTests(unittest.TestCase):
             responses = [app, {"data": [], "links": {}}, {"data": [upload], "links": {}}]
             if channel == "rc":
                 responses.append({"data": groups, "links": {}})
+            else:
+                responses.extend(({"data": [], "links": {}}, {"data": [], "links": {}}))
             with self.subTest(channel=channel), tempfile.TemporaryDirectory() as directory, \
                     patch.object(store, "ROOT", Path(directory)), patch.dict(store.os.environ, env, clear=True), \
                     patch.object(store, "get_json", side_effect=responses) as get, \
@@ -162,7 +165,12 @@ class AppleStorePolicyTests(unittest.TestCase):
                     contextlib.redirect_stdout(io.StringIO()) as output:
                 state = store.preflight(context)
                 snapshot = (Path(directory) / "build/release/apple-state.json").read_text(encoding="utf-8")
-            self.assertEqual(get.call_count, 4 if channel == "rc" else 3)
+            self.assertEqual(get.call_count, 4 if channel == "rc" else 5)
+            if channel == "production":
+                self.assertEqual(get.call_args_list[3].args[0], store.API + store.production_version_path(store.APP_ID))
+                self.assertEqual(get.call_args_list[4].args[0], store.API + store.production_submission_path(store.APP_ID))
+            else:
+                self.assertFalse(any("appStoreVersions" in call.args[0] or "reviewSubmissions" in call.args[0] for call in get.call_args_list))
             self.assertEqual(state["uploads"], [{"id": "old-upload", "attributes": {"cfBundleVersion": "18", "state": "FAILED"}}])
             self.assertEqual(json.loads(snapshot), state)
             self.assertNotIn("PRIVATE_UPLOAD_DETAIL", snapshot + output.getvalue())
@@ -369,10 +377,172 @@ class ApplePublishBoundaryTests(unittest.TestCase):
         self.create_ipa()
         context = {**self.context, 'channel': 'production', 'destination': 'app_store_review', 'tag': 'ios/v1.2.3+23'}
         (self.root / 'build/release/context.json').write_text(json.dumps(context))
-        with patch.dict(store.os.environ, {'CM_TAG': context['tag'], 'PRODUCTION_PUBLISHING_ENABLED': 'true'}):
-            self.assertIn('APPLE_SUBMISSION_STEP_COMPLETED', self.run_main('publish'))
+        commit = 'a' * 40
+        with patch.dict(store.os.environ, {
+                'CM_TAG': context['tag'], 'PRODUCTION_PUBLISHING_ENABLED': 'true',
+                'CM_TRIGGER_SOURCE': 'webhook', 'CM_COMMIT': commit,
+                'PRODUCTION_RELEASE_AUTH_IOS': f"{context['tag']}@{commit}"}):
+            preview = self.run_main('validate-publish')
+            published = self.run_main('publish')
+        self.assertIn('APPLE_PUBLISH_ARGUMENTS_VALID', preview)
+        self.assertIn('does not prove App Store publication', published)
+        self.assertNotIn('PUBLISHER_INVOKED', published)
+        self.read.assert_called_once_with(context)
         self.publish.assert_called_once()
         self.confirm.assert_not_called()
+        self.assertIn('--app-store', self.publish.call_args.args[0])
+
+    def test_ios_production_non_webhook_stops_before_preflight_and_does_not_retag(self):
+        self.create_ipa()
+        context = {**self.context, 'channel': 'production', 'destination': 'app_store_review', 'tag': 'ios/v1.2.3+23'}
+        (self.root / 'build/release/context.json').write_text(json.dumps(context))
+        commit = 'a' * 40
+        base = {
+            'CM_TAG': context['tag'], 'PRODUCTION_PUBLISHING_ENABLED': 'true',
+            'CM_COMMIT': commit, 'PRODUCTION_RELEASE_AUTH_IOS': f"{context['tag']}@{commit}",
+        }
+        for source in ('api', 'schedule', '', 'Webhook'):
+            with self.subTest(source=source), patch.dict(store.os.environ, {**base, 'CM_TRIGGER_SOURCE': source}):
+                with self.assertRaisesRegex(store.Blocked, 'IOS_PRODUCTION_REQUIRES_WEBHOOK'):
+                    self.run_main('publish')
+            self.read.assert_not_called()
+            self.publish.assert_not_called()
+        missing = {**store.os.environ, **base}
+        missing.pop('CM_TRIGGER_SOURCE', None)
+        with patch.dict(store.os.environ, missing, clear=True):
+            with self.assertRaisesRegex(store.Blocked, 'IOS_PRODUCTION_REQUIRES_WEBHOOK'):
+                self.run_main('publish')
+        self.read.assert_not_called()
+        self.publish.assert_not_called()
+        self.assertEqual(json.loads((self.root / 'build/release/context.json').read_text())['tag'], context['tag'])
+
+    def test_wrong_ios_cloud_authorization_stops_before_store_reads(self):
+        context = {**self.context, 'channel': 'production', 'destination': 'app_store_review', 'tag': 'ios/v1.2.3+23'}
+        (self.root / 'build/release/context.json').write_text(json.dumps(context))
+        commit = 'a' * 40
+        with patch.dict(store.os.environ, {
+                'CM_TAG': context['tag'], 'PRODUCTION_PUBLISHING_ENABLED': 'true',
+                'CM_TRIGGER_SOURCE': 'webhook', 'CM_COMMIT': commit,
+                'PRODUCTION_RELEASE_AUTH_IOS': f"{context['tag']}@{'b' * 40}"}):
+            with self.assertRaisesRegex(store.Blocked, 'IOS_PRODUCTION_AUTHORIZATION_INVALID'):
+                self.run_main('validate-publish')
+        self.read.assert_not_called()
+        self.publish.assert_not_called()
+
+    def test_rc_publish_does_not_require_production_webhook(self):
+        self.create_ipa()
+        self.assertNotIn('CM_TRIGGER_SOURCE', store.os.environ)
+        self.assertNotIn('PRODUCTION_RELEASE_AUTH_IOS', store.os.environ)
+        self.run_main('publish')
+        self.publish.assert_called_once()
+        self.read.assert_called_once()
+
+    def test_valid_authorization_is_not_consumed(self):
+        context = {**self.context, 'channel': 'production', 'destination': 'app_store_review', 'tag': 'ios/v1.2.3+23'}
+        commit = 'a' * 40
+        with patch.dict(store.os.environ, {
+                'PRODUCTION_PUBLISHING_ENABLED': 'true', 'CM_TRIGGER_SOURCE': 'webhook',
+                'CM_COMMIT': commit, 'PRODUCTION_RELEASE_AUTH_IOS': f"{context['tag']}@{commit}"}):
+            store.require_production_cloud(context)
+            store.require_production_cloud(context)
+        self.publish.assert_not_called()
+        self.read.assert_not_called()
+
+
+class ProductionReviewPreflightTests(unittest.TestCase):
+    def env(self, app_id):
+        from cryptography.hazmat.primitives.asymmetric import ec
+        from cryptography.hazmat.primitives.serialization import Encoding, NoEncryption, PrivateFormat
+        pem = ec.generate_private_key(ec.SECP256R1()).private_bytes(Encoding.PEM, PrivateFormat.PKCS8, NoEncryption()).decode()
+        return {"APP_STORE_CONNECT_ISSUER_ID": "00000000-0000-4000-8000-000000000000",
+                "APP_STORE_CONNECT_KEY_IDENTIFIER": "ABCDEFGHIJ", "PROKAT_ASC_PRIVATE_KEY_PEM": pem,
+                "APP_STORE_APP_ID": app_id, "IOS_HISTORICAL_MAX_BUILD": "17"}
+
+    def test_wrong_production_app_stops_before_reads(self):
+        with patch.dict(store.os.environ, self.env("2"), clear=True), patch.object(store, "get_json") as get:
+            with self.assertRaises(store.AppleCheckFailure) as caught:
+                store.preflight({"platform": "ios", "channel": "production", "destination": "app_store_review",
+                                 "version": "1.2.4", "build": 25})
+        self.assertEqual(caught.exception.code, "APPLE_APP_MISMATCH")
+        get.assert_not_called()
+
+    def test_inflight_version_stops_before_publisher_and_hides_body(self):
+        context = {"platform": "ios", "channel": "production", "destination": "app_store_review",
+                   "version": "1.2.4", "build": 25, "tag": "ios/v1.2.4+25"}
+        app = {"data": {"id": store.APP_ID, "attributes": {"bundleId": "com.auyltech.prokat", "primaryLocale": "ru"}}}
+        inflight = {"id": "version", "attributes": {
+            "versionString": "1.0.0", "platform": "IOS", "appStoreState": "IN_REVIEW",
+            "appVersionState": "READY_FOR_DISTRIBUTION"}}
+        secret = "PRIVATE_RESPONSE_BODY"
+        pages = [app, {"data": [], "links": {}}, {"data": [], "links": {}},
+                 {"data": [inflight], "links": {}, "raw": secret}, {"data": [], "links": {}}]
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / "build/release").mkdir(parents=True)
+            (root / "build/release/context.json").write_text(json.dumps(context))
+            with patch.object(store, "ROOT", root), patch.dict(store.os.environ, self.env(store.APP_ID), clear=True), \
+                    patch.object(store, "get_json", side_effect=pages), \
+                    contextlib.redirect_stdout(io.StringIO()) as output, \
+                    self.assertRaises(store.AppleCheckFailure) as caught:
+                store.preflight(context)
+        self.assertEqual(caught.exception.code, "APPLE_VERSION_IN_FLIGHT")
+        self.assertNotIn(secret, str(caught.exception) + output.getvalue())
+
+    def test_dropped_filter_on_next_page_is_unknown(self):
+        first = {"data": [], "links": {"next": store.API + "/v1/apps/6817078475/appStoreVersions?limit=100"}}
+        with patch.object(store, "get_json", return_value=first), self.assertRaises(store.AppleCheckFailure) as caught:
+            store.check_production_review({"app_id": store.APP_ID}, "token", "1.2.4")
+        self.assertEqual(caught.exception.code, "APPLE_PAGINATION_FAILED")
+
+    def test_expired_review_deadline_stops_without_a_second_read(self):
+        with patch.object(store.time, "monotonic", return_value=0), \
+                patch.object(store, "all_pages", side_effect=store.AppleCheckFailure("APPLE_API_UNAVAILABLE", "versions", "timeout")) as pages:
+            with self.assertRaises(store.AppleCheckFailure) as caught:
+                store.check_production_review({"app_id": store.APP_ID}, "token", "1.2.4")
+        self.assertEqual(caught.exception.reason, "timeout")
+        pages.assert_called_once()
+        self.assertEqual(pages.call_args.kwargs["deadline"], 90)
+
+    def test_review_urls_are_get_only_and_http_failures_hide_the_body(self):
+        secret = "PRIVATE_RESPONSE_BODY"
+        path = store.production_version_path(store.APP_ID)
+        self.assertNotIn("filter[state]", path)
+        self.assertNotIn("filter[appStoreState]", path)
+        self.assertNotIn("filter[state]", store.production_submission_path(store.APP_ID))
+        cases = ((401, "APPLE_AUTH_REJECTED"), (403, "APPLE_ACCESS_FORBIDDEN"),
+                 (429, "APPLE_API_UNAVAILABLE"), (500, "APPLE_API_UNAVAILABLE"), (503, "APPLE_API_UNAVAILABLE"))
+        for status, code in cases:
+            opener = Mock()
+            opener.open.side_effect = urllib.error.HTTPError(
+                store.API + path, status, "status", hdrs=None, fp=io.BytesIO(secret.encode()))
+            with self.subTest(status=status), patch.object(store.urllib.request, "build_opener", return_value=opener), \
+                    patch.object(store.subprocess, "run") as publisher, \
+                    self.assertRaises(store.AppleCheckFailure) as caught:
+                store.check_production_review({"app_id": store.APP_ID}, "token", "1.2.4")
+            self.assertEqual(caught.exception.code, code)
+            self.assertNotIn(secret, str(caught.exception))
+            self.assertEqual(opener.open.call_args.args[0].get_method(), "GET")
+            publisher.assert_not_called()
+        opener = Mock()
+        opener.open.side_effect = TimeoutError()
+        with patch.object(store.urllib.request, "build_opener", return_value=opener), \
+                self.assertRaises(store.AppleCheckFailure) as caught:
+            store.check_production_review({"app_id": store.APP_ID}, "token", "1.2.4")
+        self.assertEqual(caught.exception.reason, "timeout")
+
+    def test_unsafe_or_incomplete_review_pages_fail_closed(self):
+        version_path = store.production_version_path(store.APP_ID)
+        same = store.API + version_path
+        cases = (
+            [{"data": [], "links": {"next": "https://evil.example" + version_path}}],
+            [{"data": [{"id": "a"}], "links": {"next": same + "&cursor=2"}}, {"data": [{"id": "a"}], "links": {}}],
+            [{}],
+        )
+        for pages in cases:
+            with self.subTest(pages=pages), patch.object(store, "get_json", side_effect=pages), \
+                    self.assertRaises(store.AppleCheckFailure) as caught:
+                store.check_production_review({"app_id": store.APP_ID}, "token", "1.2.4")
+            self.assertIn(caught.exception.code, {"APPLE_PAGINATION_FAILED", "APPLE_RESPONSE_INVALID"})
 
 
 if __name__ == "__main__":

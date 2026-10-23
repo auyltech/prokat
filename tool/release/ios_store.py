@@ -16,6 +16,7 @@ from pathlib import Path
 API = "https://api.appstoreconnect.apple.com"
 ROOT = Path(__file__).resolve().parents[2]
 RC_APP_ID = "6817078475"
+APP_ID = "6817078475"
 RC_GROUP = "AuylTech Test Team"
 DISTRIBUTION_TIMEOUT = 20 * 60
 DISTRIBUTION_INTERVAL = 20
@@ -30,12 +31,16 @@ FAILURE_CODES = frozenset({
     "APPLE_ENV_MISSING", "APPLE_ENV_INVALID", "APPLE_PEM_INVALID", "APPLE_KEY_UNSUPPORTED",
     "APPLE_JWT_FAILED", "APPLE_AUTH_REJECTED", "APPLE_ACCESS_FORBIDDEN", "APPLE_API_REJECTED",
     "APPLE_API_UNAVAILABLE", "APPLE_RESPONSE_INVALID", "APPLE_PAGINATION_FAILED",
-    "APPLE_APP_MISMATCH", "APPLE_GROUP_INVALID", "APPLE_BUILD_ALREADY_USED",
+    "APPLE_APP_MISMATCH", "APPLE_GROUP_INVALID",     "APPLE_BUILD_ALREADY_USED",
     "APPLE_BUILD_NOT_INCREASING", "APPLE_STATE_INVALID", "APPLE_DIAGNOSTIC_INTERNAL_ERROR",
     "APPLE_DIAGNOSTIC_USAGE", "APPLE_DEPENDENCY_SETUP_FAILED", "APPLE_SOURCE_CONTEXT_INVALID",
+    "APPLE_REVIEW_SUBMISSION_OPEN", "APPLE_VERSION_IN_FLIGHT", "APPLE_VERSION_STATE_UNSUPPORTED",
+    "APPLE_VERSION_STATE_MISMATCH", "APPLE_VERSION_CONFLICT", "APPLE_VERSION_NOT_INCREASING",
+    "APPLE_SUBMISSION_GUARD_FAILED", "APPLE_SUBMISSION_ITEMS_CHANGED",
+    "APPLE_SUBMISSION_ITEMS_CHANGED_AFTER_CONFIRM", "APPLE_SUBMISSION_OUTCOME_UNKNOWN",
 })
 STAGES = frozenset({"environment", "pem", "key", "jwt", "api", "app", "builds", "uploads",
-                    "groups", "build", "usage", "runtime", "snapshot"})
+                    "groups", "build", "usage", "runtime", "snapshot", "versions", "submissions"})
 REASONS = frozenset({"format", "escaped_newline", "newline_missing", "leading_quote", "leading_backtick",
                      "bom", "file_reference", "env_reference", "load_failed",
                      "key_type", "curve", "unexpected", "http_4xx", "rate_limit", "server_error",
@@ -399,8 +404,12 @@ def read_apple_state(config, token, *, require_internal_group, emit=None, automa
 def preflight(context=None):
     require_group = context is None or context["channel"] == "rc"
     config, token = prepare_apple_auth(os.environ, require_internal_group=require_group)
+    if context is not None and context["channel"] == "production" and config["app_id"] != APP_ID:
+        raise AppleCheckFailure("APPLE_APP_MISMATCH", "app")
     state = read_apple_state(config, token, require_internal_group=require_group,
                             automatic=context is not None and context["channel"] == "rc")
+    if context is not None and context["channel"] == "production":
+        check_production_review(config, token, context.get("version"))
     snapshot = ROOT / "build/release/apple-state.json"
     snapshot.parent.mkdir(parents=True, exist_ok=True)
     snapshot.write_text(json.dumps(state, indent=2), encoding="utf-8")
@@ -408,6 +417,28 @@ def preflight(context=None):
     if context is not None:
         check_builds(context, state["builds"], state["uploads"], state["historical_floor"])
     return state
+
+
+def production_version_path(app_id):
+    return (f"/v1/apps/{app_id}/appStoreVersions?filter[platform]=IOS"
+            "&fields[appStoreVersions]=versionString,platform,appStoreState,appVersionState&limit=100")
+
+
+def production_submission_path(app_id):
+    return (f"/v1/reviewSubmissions?filter[app]={app_id}&filter[platform]=IOS"
+            "&fields[reviewSubmissions]=platform,state&limit=200")
+
+
+def check_production_review(config, token, version):
+    """GET-only early stop. Not the mutation-time guard."""
+    from apple_review_policy import classify
+
+    deadline = time.monotonic() + 90
+    versions = all_pages(production_version_path(config["app_id"]), token, stage="versions", deadline=deadline)
+    submissions = all_pages(production_submission_path(config["app_id"]), token, stage="submissions", deadline=deadline)
+    decision = classify(version, versions, submissions)
+    if not decision.ok:
+        raise AppleCheckFailure(decision.code, decision.stage)
 
 
 def distribution_resource(response, kind, identifier=None):
@@ -524,6 +555,22 @@ def publish_arguments(context, ipa, group=None):
     return args
 
 
+def require_production_cloud(context):
+    """Production-only. RC and diagnostic commands never reach this check."""
+    if context.get("channel") != "production":
+        return
+    if os.environ.get("PRODUCTION_PUBLISHING_ENABLED") != "true":
+        raise Blocked("Production disabled until U5")
+    if os.environ.get("CM_TRIGGER_SOURCE") != "webhook":
+        raise Blocked("IOS_PRODUCTION_REQUIRES_WEBHOOK")
+    commit = os.environ.get("CM_COMMIT") or ""
+    tag = context.get("tag")
+    if not isinstance(tag, str) or not re.fullmatch(r"[0-9a-f]{40}", commit):
+        raise Blocked("IOS_PRODUCTION_AUTHORIZATION_INVALID")
+    if os.environ.get("PRODUCTION_RELEASE_AUTH_IOS") != f"{tag}@{commit}":
+        raise Blocked("IOS_PRODUCTION_AUTHORIZATION_INVALID")
+
+
 def checked_publish_arguments(context, ipa, group=None):
     from apple_publish import PublishCliError, validate_publish_arguments
 
@@ -549,6 +596,7 @@ def main():
         raise Blocked("Codemagic iOS tag webhook required")
     if context["channel"] == "production" and os.environ.get("PRODUCTION_PUBLISHING_ENABLED") != "true":
         raise Blocked("Production disabled until U5")
+    require_production_cloud(context)
     if sys.argv[1] == "validate-publish":
         # No IPA exists yet. Only the path literal differs from the final argv;
         # context, group, localizations and every option use the same builder.
@@ -562,6 +610,7 @@ def main():
         if len(packages) != 1:
             raise Blocked("Expected exactly one signed IPA")
         args = checked_publish_arguments(context, packages[0], os.environ.get("TESTFLIGHT_GROUP"))
+        require_production_cloud(context)
         if context["channel"] == "rc":
             group_id = state.get("automatic_group_id")
             if not isinstance(group_id, str) or not re.fullmatch(r"[A-Za-z0-9_-]{1,128}", group_id):

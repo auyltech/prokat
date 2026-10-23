@@ -137,10 +137,20 @@ Failure exits 1; success exits 0. After failure no final success is printed.
 | `APPLE_BUILD_ALREADY_USED` | Build exists in builds or uploads, in any state. Inspect accepted/in-flight build; never upload the same number blindly |
 | `APPLE_BUILD_NOT_INCREASING` | Number is not above live history/floor. Plan a new shared number through review |
 | `APPLE_STATE_INVALID` | Unsupported build-number format/state. Inspect and add a reviewed policy; do not assume availability |
+| `APPLE_REVIEW_SUBMISSION_OPEN` | A review submission is not COMPLETE. Resolve it in App Store Connect before another submission |
+| `APPLE_VERSION_IN_FLIGHT` | A version field is in review, processing, or waiting for release. Do not rename or replace it |
+| `APPLE_VERSION_STATE_UNSUPPORTED` | A version field is outside the pipeline categories. State is UNKNOWN |
+| `APPLE_VERSION_STATE_MISMATCH` | The two version fields disagree. State is UNKNOWN; no correspondence between the fields is assumed |
+| `APPLE_VERSION_CONFLICT` | More than one editable version, or the editable version string is not the tag version |
+| `APPLE_VERSION_NOT_INCREASING` | A finished version is not older than the tag version |
+| `APPLE_SUBMISSION_GUARD_FAILED` | A local guard rejected the operation before the App Store mutation was sent. No automatic retry |
+| `APPLE_SUBMISSION_OUTCOME_UNKNOWN` | A version, submission, item, or confirm request was invoked and its result could not be verified. The request may have been processed by Apple; check the live state before any retry. Outcome is UNKNOWN. No automatic retry |
+| `APPLE_SUBMISSION_ITEMS_CHANGED` | Submission items changed before confirm. Confirm was not sent |
+| `APPLE_SUBMISSION_ITEMS_CHANGED_AFTER_CONFIRM` | Items after confirm were not the single expected item. Confirm is not atomic; no automatic cancellation |
 | `APPLE_DIAGNOSTIC_INTERNAL_ERROR` | Unexpected error safely suppressed. Reproduce offline; do not enable raw exception logging |
 
 Stages are fixed: `environment`, `pem`, `key`, `jwt`, `api`, `app`, `builds`,
-`uploads`, `groups`, `build`, `usage`, `runtime`, `snapshot`.
+`uploads`, `groups`, `build`, `usage`, `runtime`, `snapshot`, `versions`, `submissions`.
 Reasons are fixed: `format`, `escaped_newline`, `newline_missing`, `leading_quote`,
 `leading_backtick`, `bom`, `file_reference`, `env_reference`, `load_failed`,
 `key_type`, `curve`, `unexpected`, `http_4xx`, `rate_limit`,

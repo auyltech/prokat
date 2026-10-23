@@ -5,6 +5,10 @@ definitions:
       name: Validate tag webhook, source, production gate and native lock
       script: |
         set -euo pipefail
+        if [ "${RELEASE_EXPECTED_CHANNEL:-}" = production ] && [ "${CM_TRIGGER_SOURCE:-}" != webhook ]; then
+          echo 'BLOCKED: IOS_PRODUCTION_REQUIRES_WEBHOOK'
+          exit 1
+        fi
         test -n "${CM_TAG:-}" || { echo 'BLOCKED: iOS tag webhook required'; exit 1; }
         python3 -B tool/release/swiftpm_resolve.py start
         if [ "$(git rev-parse --is-shallow-repository)" = true ]; then git fetch --unshallow origin; fi
@@ -140,6 +144,12 @@ workflows:
         - pattern: 'ios/v*'
           include: true
       cancel_previous_builds: false
+    # After clone, before scripts. `event` filters a tag webhook: repository,
+    # create, not a delete, and SHA. It cannot bind event.ref to the tag, and
+    # CM_TRIGGER_SOURCE is not an independent attestation. The operator does not
+    # start this workflow by hand or through the API.
+    when:
+      condition: (event.repository.full_name == "auyltech/prokat") and (event.created) and (not event.deleted) and (event.after == env.CM_COMMIT) and (env.CM_TRIGGER_SOURCE == "webhook")
     scripts:
       - *validate-source
       - *apple-auth
