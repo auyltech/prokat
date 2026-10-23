@@ -162,10 +162,7 @@ class ReleaseCli {
     }
     if (channel == 'production' && platform == 'ios') {
       final source = readBlob(sha, 'tool/release/release.dart');
-      for (final guard in [
-        'validateCloudAuthorization',
-        'CM_TRIGGER_SOURCE',
-      ]) {
+      for (final guard in ['validateCloudAuthorization', 'CM_TRIGGER_SOURCE']) {
         if (!source.contains(guard)) {
           blocked('Selected main workflow is missing required guard: $guard');
         }

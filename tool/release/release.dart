@@ -115,7 +115,9 @@ void validateCloudAuthorization(
     blocked('Production publishing is disabled until owner gate U5');
   }
   if (!RegExp(r'^[0-9a-f]{40}$').hasMatch(commit)) {
-    blocked('Cloud authorization requires the verified 40-character commit SHA');
+    blocked(
+      'Cloud authorization requires the verified 40-character commit SHA',
+    );
   }
   if (release.platform == 'android') {
     final attempt = env['GITHUB_RUN_ATTEMPT'] ?? '';
@@ -415,7 +417,9 @@ void main(List<String> args) {
           ? Platform.environment['GITHUB_SHA']
           : Platform.environment['CM_COMMIT'];
       if (identity != revision) {
-        blocked('Cloud authorization commit does not match the approved revision');
+        blocked(
+          'Cloud authorization commit does not match the approved revision',
+        );
       }
       validateCloudAuthorization(
         release,
