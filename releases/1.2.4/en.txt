@@ -1,0 +1,1 @@
+Added notifications about new app versions that take store availability into account. Improved handling of public equipment links and opening them in the app.
