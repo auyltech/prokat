@@ -175,6 +175,49 @@ class CatalogUnit {
   }
 }
 
+/// Tariff pricing unit from `GET /catalog` (`tariffUnits`).
+///
+/// [code] is a free-form UPPER_SNAKE string (not a Dart enum). All locale
+/// strings in [names] are kept so UI can switch language without refetch.
+class CatalogTariffUnit {
+  final String id;
+  final String code;
+  final LocalizedNames names;
+  final int sortIndex;
+  final bool isActive;
+
+  const CatalogTariffUnit({
+    required this.id,
+    required this.code,
+    required this.names,
+    required this.sortIndex,
+    required this.isActive,
+  });
+
+  factory CatalogTariffUnit.fromJson(Map<String, dynamic> json) {
+    return CatalogTariffUnit(
+      id: _asString(json['id']),
+      code: _asString(json['code']),
+      names: LocalizedNames.fromJson(json['names']),
+      sortIndex: _asInt(json['sortIndex']),
+      isActive: _asBool(json['isActive'], fallback: true),
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'code': code,
+    'names': names.toJson(),
+    'sortIndex': sortIndex,
+    'isActive': isActive,
+  };
+
+  /// Locale → ru → en → kk → [code]. Ready for stage 4B UI resolvers.
+  String label(String languageCode) {
+    return names.pickPreferRu(languageCode, fallback: code);
+  }
+}
+
 class CatalogSpec {
   final String id;
   final String slug;
@@ -335,6 +378,9 @@ class CatalogBundle {
   final List<CatalogCity> cities;
   final List<CatalogCategory> categories;
   final List<CatalogUnit> units;
+
+  /// `null` = key absent (legacy backend/cache). Empty list = key present.
+  final List<CatalogTariffUnit>? tariffUnits;
   final List<CatalogSpec> specs;
   final List<CatalogSpecOption> specOptions;
   final List<CatalogCategorySpec> categorySpecs;
@@ -344,6 +390,7 @@ class CatalogBundle {
     required this.cities,
     required this.categories,
     required this.units,
+    this.tariffUnits,
     required this.specs,
     required this.specOptions,
     required this.categorySpecs,
@@ -353,6 +400,21 @@ class CatalogBundle {
     final version = json['version']?.toString().trim() ?? '';
     if (version.isEmpty) {
       throw const FormatException('Failed to load CatalogBundle.');
+    }
+
+    final List<CatalogTariffUnit>? parsedTariffUnits;
+    if (!json.containsKey('tariffUnits')) {
+      parsedTariffUnits = null;
+    } else {
+      parsedTariffUnits =
+          _asObjectList(json['tariffUnits'])
+              .map(CatalogTariffUnit.fromJson)
+              .toList()
+            ..sort((a, b) {
+              final bySort = a.sortIndex.compareTo(b.sortIndex);
+              if (bySort != 0) return bySort;
+              return a.code.compareTo(b.code);
+            });
     }
 
     return CatalogBundle(
@@ -366,6 +428,7 @@ class CatalogBundle {
             ..sort((a, b) => a.sortIndex.compareTo(b.sortIndex)),
       units: _asObjectList(json['units']).map(CatalogUnit.fromJson).toList()
         ..sort((a, b) => a.sortIndex.compareTo(b.sortIndex)),
+      tariffUnits: parsedTariffUnits,
       specs: _asObjectList(json['specs']).map(CatalogSpec.fromJson).toList(),
       specOptions:
           _asObjectList(json['specOptions'])
@@ -380,15 +443,22 @@ class CatalogBundle {
     );
   }
 
-  Map<String, dynamic> toJson() => {
-    'version': version,
-    'cities': cities.map((item) => item.toJson()).toList(),
-    'categories': categories.map((item) => item.toJson()).toList(),
-    'units': units.map((item) => item.toJson()).toList(),
-    'specs': specs.map((item) => item.toJson()).toList(),
-    'specOptions': specOptions.map((item) => item.toJson()).toList(),
-    'categorySpecs': categorySpecs.map((item) => item.toJson()).toList(),
-  };
+  Map<String, dynamic> toJson() {
+    final map = <String, dynamic>{
+      'version': version,
+      'cities': cities.map((item) => item.toJson()).toList(),
+      'categories': categories.map((item) => item.toJson()).toList(),
+      'units': units.map((item) => item.toJson()).toList(),
+      'specs': specs.map((item) => item.toJson()).toList(),
+      'specOptions': specOptions.map((item) => item.toJson()).toList(),
+      'categorySpecs': categorySpecs.map((item) => item.toJson()).toList(),
+    };
+    final tariff = tariffUnits;
+    if (tariff != null) {
+      map['tariffUnits'] = tariff.map((item) => item.toJson()).toList();
+    }
+    return map;
+  }
 
   List<CatalogCity> get visibleCities =>
       cities.where((item) => item.isVisible).toList();
@@ -451,6 +521,22 @@ class CatalogBundle {
   CatalogUnit? unitById(String? id) {
     if (id == null || id.isEmpty) return null;
     return units.where((item) => item.id == id).firstOrNull;
+  }
+
+  /// Whether the payload included a `tariffUnits` key (even if empty).
+  bool get hasTariffUnitsField => tariffUnits != null;
+
+  List<CatalogTariffUnit> get activeTariffUnits {
+    final units = tariffUnits;
+    if (units == null) return const [];
+    return units.where((item) => item.isActive).toList();
+  }
+
+  CatalogTariffUnit? tariffUnitByCode(String? code) {
+    if (code == null || code.isEmpty) return null;
+    final units = tariffUnits;
+    if (units == null) return null;
+    return units.where((item) => item.code == code).firstOrNull;
   }
 
   CatalogSpecOption? optionById(String? id) {
