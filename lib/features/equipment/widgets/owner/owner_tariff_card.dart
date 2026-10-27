@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:prokat/core/constants/price_rate_options.dart';
-import 'package:prokat/core/utils/format.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/core/constants/price_rate_options.dart'
+    show PriceRateOption;
 import 'package:prokat/core/utils/max_int_input_formatter.dart';
 import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
+import 'package:prokat/features/catalog/catalog_provider.dart';
+import 'package:prokat/features/catalog/tariff_unit_labels.dart';
 import 'package:prokat/features/equipment/utils/equipment_limits.dart';
 import 'package:prokat/features/equipment/utils/vacuum_tariffs.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
-class OwnerTariffCard extends StatefulWidget {
+class OwnerTariffCard extends ConsumerStatefulWidget {
   final TariffDraft draft;
   final bool canEdit;
   final ValueChanged<TariffDraft> onChanged;
@@ -25,10 +28,10 @@ class OwnerTariffCard extends StatefulWidget {
   });
 
   @override
-  State<OwnerTariffCard> createState() => _OwnerTariffCardState();
+  ConsumerState<OwnerTariffCard> createState() => _OwnerTariffCardState();
 }
 
-class _OwnerTariffCardState extends State<OwnerTariffCard> {
+class _OwnerTariffCardState extends ConsumerState<OwnerTariffCard> {
   late TextEditingController _priceController;
   late TextEditingController _customNameController;
   late FocusNode _priceFocus;
@@ -116,11 +119,7 @@ class _OwnerTariffCardState extends State<OwnerTariffCard> {
   }
 
   void _validateBillingUnit() {
-    _billingUnitError =
-        !priceRateOptions.contains(widget.draft.priceRate) &&
-        !priceRateOptions.any(
-          (item) => item.value == widget.draft.priceRate.value,
-        );
+    _billingUnitError = widget.draft.priceRate.value.trim().isEmpty;
   }
 
   void _onPriceFocusChange() {
@@ -146,6 +145,14 @@ class _OwnerTariffCardState extends State<OwnerTariffCard> {
   Widget build(BuildContext context) {
     final colors = context.colors;
     final l10n = AppLocalizations.of(context)!;
+    final catalog = ref.watch(catalogProvider).valueOrNull;
+    final languageCode = Localizations.localeOf(context).languageCode;
+    final rateOptions = buildTariffUnitSelectOptions(
+      catalog: catalog,
+      languageCode: languageCode,
+      legacyLookup: legacyTariffUnitLookupFromL10n(l10n),
+      includeCode: widget.draft.priceRate.value,
+    );
     final draft = widget.draft;
     final isLocalDraft = draft.isLocalDraft;
     final showDelete = widget.onDelete != null && widget.canEdit;
@@ -201,7 +208,11 @@ class _OwnerTariffCardState extends State<OwnerTariffCard> {
                           ),
                         ),
                         Text(
-                          draft.collapsedSubtitle(l10n),
+                          draft.collapsedSubtitle(
+                            l10n,
+                            catalog: catalog,
+                            languageCode: languageCode,
+                          ),
                           style: AppFonts.body16(context).copyWith(
                             color: draft.hasPrice
                                 ? colors.text.main
@@ -307,24 +318,25 @@ class _OwnerTariffCardState extends State<OwnerTariffCard> {
                   AppDropdownField<PriceRateOption>(
                     title: l10n.billingUnit,
                     isRequired: true,
-                    value: priceRateOptions.contains(draft.priceRate)
-                        ? draft.priceRate
-                        : priceRateOptions.firstWhere(
-                            (item) => item.value == draft.priceRate.value,
-                            orElse: () => priceRateOptions.first,
-                          ),
+                    value:
+                        rateOptions
+                            .where(
+                              (item) => item.value == draft.priceRate.value,
+                            )
+                            .firstOrNull ??
+                        (rateOptions.isNotEmpty
+                            ? rateOptions.first
+                            : draft.priceRate),
                     hint: l10n.billingUnit,
                     enabled: widget.canEdit,
                     readOnly: !widget.canEdit,
                     sheetTitle: l10n.billingUnit,
                     errorText: _billingUnitError ? emptyError : null,
                     onFocusLost: _onBillingUnitFocusLost,
-                    options: priceRateOptions
+                    options: rateOptions
                         .map(
-                          (rate) => DropdownOption(
-                            value: rate,
-                            label: getPriceRateLabel(rate, l10n),
-                          ),
+                          (rate) =>
+                              DropdownOption(value: rate, label: rate.label),
                         )
                         .toList(),
                     onChanged: (value) {

@@ -117,16 +117,18 @@ int? parseGroupedInt(String raw) {
   return int.tryParse(digits);
 }
 
+/// Short historic unit noun (legacy). Prefer [tariffUnitLabelForUi] for UI.
 String rateUnitLabel(PriceRateOption? priceRate, AppLocalizations l10n) {
   return switch (priceRate?.value) {
     'PER_TRIP' => l10n.rateUnitTrip,
     'PER_CUBIC_METER' => l10n.rateUnitCubicMeter,
     'PER_HOUR' => l10n.rateUnitHour,
     'PER_DAY' => l10n.rateUnitDay,
-    _ => '',
+    _ => priceRate?.value ?? '',
   };
 }
 
+/// Legacy ARB-only label (full phrase, no slash). Prefer [tariffUnitLabelForUi].
 String getPriceRate(PriceRateOption? priceRate, {AppLocalizations? l10n}) {
   if (priceRate == null ||
       priceRate.value == "null" ||
@@ -136,17 +138,18 @@ String getPriceRate(PriceRateOption? priceRate, {AppLocalizations? l10n}) {
 
   final temp = priceRate.value;
 
-  if (temp == "PER_TRIP") return l10n?.perTrip ?? "/ Trip";
+  if (temp == "PER_TRIP") return l10n?.ratePerTrip ?? "per trip";
 
-  if (temp == "PER_CUBIC_METER") return l10n?.perM3 ?? "/ M3";
+  if (temp == "PER_CUBIC_METER") return l10n?.ratePerCubicMeter ?? "per m³";
 
-  if (temp == "PER_HOUR") return l10n?.perHour ?? "/ Hour";
+  if (temp == "PER_HOUR") return l10n?.ratePerHour ?? "per hour";
 
-  if (temp == "PER_DAY") return l10n?.perDay ?? "/ Day";
+  if (temp == "PER_DAY") return l10n?.ratePerDay ?? "per day";
 
   return temp;
 }
 
+/// Legacy ARB-only select label. Prefer [tariffUnitLabelForUi] / catalog options.
 String getPriceRateLabel(PriceRateOption rate, AppLocalizations l10n) {
   switch (rate.value) {
     case 'PER_TRIP':

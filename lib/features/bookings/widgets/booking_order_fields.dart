@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/core/widgets/job_schedule_section.dart';
 import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
+import 'package:prokat/features/catalog/catalog_provider.dart';
+import 'package:prokat/features/catalog/models/catalog_bundle.dart';
 import 'package:prokat/features/catalog/models/catalog_group.dart';
+import 'package:prokat/features/catalog/tariff_unit_labels.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
 import 'package:prokat/features/equipment/models/price_entry_model.dart';
 import 'package:prokat/features/equipment/utils/vacuum_tariffs.dart';
@@ -20,9 +22,19 @@ bool bookingIsEquipmentGroup(Equipment equipment) {
   return equipment.category?.catalogGroup == CatalogGroup.equipment;
 }
 
-String bookingTariffLabel(PriceEntry entry, AppLocalizations l10n) {
-  final priceText =
-      '${formatPrice(entry.price)} ${getPriceRate(entry.priceRate, l10n: l10n)}';
+String bookingTariffLabel(
+  PriceEntry entry,
+  AppLocalizations l10n, {
+  CatalogBundle? catalog,
+  String languageCode = 'ru',
+}) {
+  final priceText = formatEquipmentPriceLine(
+    price: entry.price,
+    code: entry.priceRate.value,
+    languageCode: languageCode,
+    catalog: catalog,
+    l10n: l10n,
+  );
   final serviceName = savedTariffTitle(entry, l10n);
   if (serviceName == null) return priceText;
   return '$priceText — $serviceName';
@@ -78,11 +90,19 @@ class BookingOrderFields extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context)!;
+    final catalog = ref.watch(catalogProvider).valueOrNull;
+    final languageCode = Localizations.localeOf(context).languageCode;
     final singleTariff = prices.length == 1;
     final tariffValue = singleTariff ? prices.first : selectedPrice;
     final addressLabel = address == null
         ? null
         : formatLocationModel(ref, context, address!);
+    String labelFor(PriceEntry entry) => bookingTariffLabel(
+      entry,
+      l10n,
+      catalog: catalog,
+      languageCode: languageCode,
+    );
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -110,15 +130,10 @@ class BookingOrderFields extends ConsumerWidget {
           enabled: !singleTariff,
           sheetTitle: l10n.bookingTariffSelectTitle,
           value: tariffValue,
-          selectedLabel: tariffValue == null
-              ? null
-              : bookingTariffLabel(tariffValue, l10n),
+          selectedLabel: tariffValue == null ? null : labelFor(tariffValue),
           options: [
             for (final entry in prices)
-              DropdownOption(
-                value: entry,
-                label: bookingTariffLabel(entry, l10n),
-              ),
+              DropdownOption(value: entry, label: labelFor(entry)),
           ],
           onChanged: onPriceChanged,
         ),

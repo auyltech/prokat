@@ -3,6 +3,8 @@ import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:prokat/core/utils/format.dart';
+import 'package:prokat/features/catalog/catalog_provider.dart';
+import 'package:prokat/features/catalog/tariff_unit_labels.dart';
 import 'package:prokat/features/chat/models/chat_message_model.dart';
 import 'package:prokat/features/price_negotiations/models/price_negotiation_model.dart';
 import 'package:prokat/features/price_negotiations/models/price_negotiation_status.dart';
@@ -32,6 +34,8 @@ class _NegotiationMessageBubbleState
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
+    final catalog = ref.watch(catalogProvider).valueOrNull;
+    final languageCode = Localizations.localeOf(context).languageCode;
 
     final parsed = () {
       try {
@@ -115,7 +119,13 @@ class _NegotiationMessageBubbleState
                 child: Row(
                   children: [
                     Text(
-                      "${formatPrice(parsed.price)} ${getPriceRate(priceNegotiation.priceRate, l10n: l10n)}",
+                      formatEquipmentPriceLine(
+                        price: parsed.price,
+                        code: priceNegotiation.priceRate?.value,
+                        languageCode: languageCode,
+                        catalog: catalog,
+                        l10n: l10n,
+                      ),
                       style: theme.textTheme.titleLarge?.copyWith(
                         color: theme.colorScheme.onSurface,
                         fontWeight: FontWeight.w800,

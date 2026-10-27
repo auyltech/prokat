@@ -1,8 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
 import 'package:prokat/core/router/app_routes.dart';
-import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/core/widgets/optimized_network_image.dart';
+import 'package:prokat/features/catalog/catalog_provider.dart';
+import 'package:prokat/features/catalog/tariff_unit_labels.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
 import 'package:prokat/features/favorites/state/favorites_provider.dart';
 import 'package:go_router/go_router.dart';
@@ -28,13 +29,20 @@ class FavoriteItemTile extends ConsumerWidget {
         ) ??
         false;
 
+    final catalog = ref.watch(catalogProvider).valueOrNull;
+    final languageCode = Localizations.localeOf(context).languageCode;
     final priceEntry = equipment.prices.isNotEmpty
         ? equipment.prices.first
         : null;
     final priceLabel = priceEntry == null
         ? l10n.poa
-        : '${formatPrice(priceEntry.price)} ${getPriceRate(priceEntry.priceRate, l10n: l10n)}'
-              .trim();
+        : formatEquipmentPriceLine(
+            price: priceEntry.price,
+            code: priceEntry.priceRate.value,
+            languageCode: languageCode,
+            catalog: catalog,
+            l10n: l10n,
+          );
     final ratingLabel = '${equipment.owner?.rating ?? 0}';
 
     return GestureDetector(

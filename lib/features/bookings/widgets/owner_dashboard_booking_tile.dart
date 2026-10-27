@@ -1,21 +1,26 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:intl/intl.dart';
 import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/core/widgets/optimized_network_image.dart';
 import 'package:prokat/features/bookings/models/booking_model.dart';
 import 'package:prokat/features/bookings/widgets/booking_status_badge.dart';
+import 'package:prokat/features/catalog/catalog_provider.dart';
+import 'package:prokat/features/catalog/tariff_unit_labels.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
-class OwnerDashboardBookingTile extends StatelessWidget {
+class OwnerDashboardBookingTile extends ConsumerWidget {
   final BookingModel booking;
 
   const OwnerDashboardBookingTile({super.key, required this.booking});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
+    final catalog = ref.watch(catalogProvider).valueOrNull;
+    final languageCode = Localizations.localeOf(context).languageCode;
     final colorScheme = theme.colorScheme;
 
     final minutesLeft = getRemainingMinutes(booking.createdAt);
@@ -126,7 +131,13 @@ class OwnerDashboardBookingTile extends StatelessWidget {
                 ),
               ),
               Text(
-                "${formatPrice(booking.price)} ${getPriceRate(booking.priceRate, l10n: l10n)}",
+                formatEquipmentPriceLine(
+                  price: booking.price,
+                  code: booking.priceRate.value,
+                  languageCode: languageCode,
+                  catalog: catalog,
+                  l10n: l10n,
+                ),
                 style: theme.textTheme.bodySmall?.copyWith(
                   color: colorScheme.primary,
                   fontWeight: FontWeight.bold,
