@@ -14,10 +14,14 @@ const priceRateOptions = [
 
 PriceRateOption parseRateOption(String? value) {
   final normalized = (value ?? '').trim().toUpperCase();
+  if (normalized.isEmpty || normalized == 'NULL') {
+    return priceRateOptions.first;
+  }
 
   return priceRateOptions.firstWhere(
     (option) => option.value == normalized,
-    orElse: () => priceRateOptions.first,
+    // Keep unknown backend codes (e.g. PER_MONTH) — never remap to PER_TRIP.
+    orElse: () => PriceRateOption(value: normalized, label: normalized),
   );
 }
 

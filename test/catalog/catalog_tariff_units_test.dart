@@ -8,7 +8,7 @@ import 'package:prokat/features/catalog/catalog_cache.dart';
 import 'package:prokat/features/catalog/catalog_provider.dart';
 import 'package:prokat/features/catalog/catalog_service.dart';
 import 'package:prokat/features/catalog/models/catalog_bundle.dart';
-import 'package:prokat/features/catalog/models/localized_names.dart';
+import 'package:prokat/features/catalog/tariff_unit_labels.dart';
 
 class _TestApiClient implements ApiClient {
   _TestApiClient(this.dio);
@@ -388,52 +388,71 @@ void main() {
       expect(calls, 2);
     });
 
-    test(
-      'locale label switching does not trigger catalog network calls',
-      () async {
-        var calls = 0;
-        final dio = Dio();
-        dio.interceptors.add(
-          InterceptorsWrapper(
-            onRequest: (options, handler) {
-              calls++;
-              handler.resolve(
-                Response<dynamic>(
-                  requestOptions: options,
-                  statusCode: 200,
-                  data: {
-                    'data': _minimalBundle(
-                      version: 'locale-v1',
-                      tariffUnits: [
-                        CatalogTariffUnit.fromJson(_tariffUnitJson()),
-                      ],
-                    ).toJson(),
-                  },
-                ),
-              );
-            },
+    test('locale label switching does not trigger catalog network calls', () async {
+      var calls = 0;
+      final dio = Dio();
+      dio.interceptors.add(
+        InterceptorsWrapper(
+          onRequest: (options, handler) {
+            calls++;
+            handler.resolve(
+              Response<dynamic>(
+                requestOptions: options,
+                statusCode: 200,
+                data: {
+                  'data': _minimalBundle(
+                    version: 'locale-v1',
+                    tariffUnits: [
+                      CatalogTariffUnit.fromJson(_tariffUnitJson()),
+                    ],
+                  ).toJson(),
+                },
+              ),
+            );
+          },
+        ),
+      );
+
+      final cache = _MemoryCatalogCache();
+      final container = ProviderContainer(
+        overrides: [
+          catalogCacheProvider.overrideWithValue(cache),
+          catalogServiceProvider.overrideWithValue(
+            CatalogService(_TestApiClient(dio)),
           ),
-        );
+        ],
+      );
+      addTearDown(container.dispose);
 
-        final container = ProviderContainer(
-          overrides: [
-            catalogCacheProvider.overrideWithValue(_MemoryCatalogCache()),
-            catalogServiceProvider.overrideWithValue(
-              CatalogService(_TestApiClient(dio)),
-            ),
-          ],
-        );
-        addTearDown(container.dispose);
+      final bundle = await container.read(catalogProvider.future);
+      expect(calls, 1);
 
-        final bundle = await container.read(catalogProvider.future);
-        expect(calls, 1);
+      final unit = bundle.tariffUnitByCode('PER_HOUR')!;
+      expect(unit.label('ru'), 'за час');
+      expect(unit.label('en'), 'per hour');
+      expect(unit.label('kk'), 'сағатына');
+      expect(calls, 1);
 
-        final unit = bundle.tariffUnitByCode('PER_HOUR')!;
-        expect(unit.label('ru'), 'за час');
-        expect(unit.label('en'), 'per hour');
-        expect(unit.label('kk'), 'сағатына');
-        expect(calls, 1);
-      },
-    );
+      // Card-layer resolver uses the same in-memory bundle after disk restore.
+      final fromDisk = cache.disk!.bundle;
+      expect(
+        resolveTariffUnitLabel(
+          code: 'PER_HOUR',
+          languageCode: 'kk',
+          catalog: fromDisk,
+        ),
+        'сағатына',
+      );
+      expect(
+        formatPriceWithTariffUnitCode(
+          price: 15000,
+          code: 'PER_HOUR',
+          languageCode: 'en',
+          catalog: fromDisk,
+        ),
+        '15 000 ₸ per hour',
+      );
+      expect(calls, 1);
+    });
   });
 }

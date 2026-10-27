@@ -110,6 +110,38 @@ String formatPriceWithTariffUnitCode({
   );
 }
 
+/// Resolves a unit label for equipment/catalog cards (catalog + optional ARB).
+String tariffUnitLabelForUi({
+  required String? code,
+  required String languageCode,
+  CatalogBundle? catalog,
+  AppLocalizations? l10n,
+}) {
+  return resolveTariffUnitLabel(
+    code: code,
+    languageCode: languageCode,
+    catalog: catalog,
+    legacyLookup: l10n == null ? null : legacyTariffUnitLookupFromL10n(l10n),
+  );
+}
+
+/// Formats card price line using [formatPriceWithTariffUnitCode].
+String formatEquipmentPriceLine({
+  required dynamic price,
+  required String? code,
+  required String languageCode,
+  CatalogBundle? catalog,
+  AppLocalizations? l10n,
+}) {
+  return formatPriceWithTariffUnitCode(
+    price: price,
+    code: code,
+    languageCode: languageCode,
+    catalog: catalog,
+    legacyLookup: l10n == null ? null : legacyTariffUnitLookupFromL10n(l10n),
+  );
+}
+
 /// Active catalog units as selectable options (`value` = code).
 ///
 /// When [CatalogBundle.tariffUnits] is `null` (legacy payload), falls back to

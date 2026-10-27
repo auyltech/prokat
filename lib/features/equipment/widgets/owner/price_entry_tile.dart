@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/features/catalog/catalog_provider.dart';
+import 'package:prokat/features/catalog/tariff_unit_labels.dart';
 import 'package:prokat/features/equipment/models/price_entry_model.dart';
 import 'package:prokat/features/equipment/providers/equipment_mutation_provider.dart';
-import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
 class PriceEntryTile extends ConsumerStatefulWidget {
@@ -30,6 +31,15 @@ class _PriceEntryTileState extends ConsumerState<PriceEntryTile> {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
     final colorScheme = theme.colorScheme;
+    final catalog = ref.watch(catalogProvider).valueOrNull;
+    final languageCode = Localizations.localeOf(context).languageCode;
+    final priceLine = formatEquipmentPriceLine(
+      price: widget.priceEntry.price,
+      code: widget.priceEntry.priceRate.value,
+      languageCode: languageCode,
+      catalog: catalog,
+      l10n: l10n,
+    );
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -43,25 +53,12 @@ class _PriceEntryTileState extends ConsumerState<PriceEntryTile> {
         children: [
           /// PRICE INFO
           Expanded(
-            child: Row(
-              spacing: 8,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  "${widget.priceEntry.price} ₸",
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                Text(
-                  getPriceRate(widget.priceEntry.priceRate, l10n: l10n),
-                  style: theme.textTheme.labelMedium?.copyWith(
-                    fontSize: 16,
-                    color: theme.colorScheme.primary,
-                  ),
-                ),
-              ],
+            child: Text(
+              priceLine,
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
 

@@ -8,6 +8,7 @@ import 'package:prokat/features/equipment/models/equipment_model.dart';
 import 'package:prokat/features/equipment/models/equipment_spec.dart';
 import 'package:prokat/features/catalog/catalog_provider.dart';
 import 'package:prokat/features/catalog/models/catalog_bundle.dart';
+import 'package:prokat/features/catalog/tariff_unit_labels.dart';
 import 'package:prokat/features/equipment_share/widgets/share_equipment_button.dart';
 import 'package:prokat/features/favorites/state/favorites_provider.dart';
 import 'package:prokat/features/user_safety/models/report_target.dart';
@@ -45,7 +46,13 @@ class ClientEquipmentTile extends ConsumerWidget {
         ? equipment.prices.first
         : null;
 
-    final priceRate = getPriceRate(priceEntry?.priceRate, l10n: l10n);
+    final languageCode = Localizations.localeOf(context).languageCode;
+    final priceAmount = priceEntry == null
+        ? null
+        : '${formatPriceNumber(priceEntry.price)} ₸';
+    final priceRate = priceEntry == null
+        ? ''
+        : ' ${tariffUnitLabelForUi(code: priceEntry.priceRate.value, languageCode: languageCode, catalog: catalog, l10n: l10n)}';
 
     return AppCard(
       radius: AppDimens.r16$xl,
@@ -159,23 +166,22 @@ class ClientEquipmentTile extends ConsumerWidget {
                     child: Row(
                       children: [
                         Text(
-                          priceEntry == null
-                              ? l10n.poa
-                              : formatPrice(priceEntry.price),
+                          priceEntry == null ? l10n.poa : priceAmount!,
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.w500,
                             color: theme.colorScheme.primary,
                           ),
                         ),
-                        Text(
-                          priceRate,
-                          style: const TextStyle(
-                            fontSize: 12,
-                            color: Color.fromARGB(255, 65, 65, 65),
-                            fontWeight: FontWeight.w700,
+                        if (priceEntry != null)
+                          Text(
+                            priceRate,
+                            style: const TextStyle(
+                              fontSize: 12,
+                              color: Color.fromARGB(255, 65, 65, 65),
+                              fontWeight: FontWeight.w700,
+                            ),
                           ),
-                        ),
                       ],
                     ),
                   ),
