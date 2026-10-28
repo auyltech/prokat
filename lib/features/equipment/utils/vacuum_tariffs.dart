@@ -1,5 +1,6 @@
 import 'package:prokat/core/constants/price_rate_options.dart';
-import 'package:prokat/core/utils/format.dart';
+import 'package:prokat/features/catalog/models/catalog_bundle.dart';
+import 'package:prokat/features/catalog/tariff_unit_labels.dart';
 import 'package:prokat/features/categories/vacuum_trucks.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
 import 'package:prokat/features/equipment/models/price_entry_model.dart';
@@ -171,14 +172,23 @@ class TariffDraft {
     return l10n.newRate;
   }
 
-  String collapsedSubtitle(AppLocalizations l10n) {
+  String collapsedSubtitle(
+    AppLocalizations l10n, {
+    CatalogBundle? catalog,
+    String languageCode = 'ru',
+  }) {
     if (!hasPrice) return l10n.priceNotSpecified;
-    final unit = rateUnitLabel(priceRate, l10n);
-    final amount = formatPriceNumber(price!);
+    final line = formatEquipmentPriceLine(
+      price: price!,
+      code: priceRate.value,
+      languageCode: languageCode,
+      catalog: catalog,
+      l10n: l10n,
+    );
     if (isStartingFrom) {
-      return '${l10n.priceFromPrefix} $amount ₸ / $unit';
+      return '${l10n.priceFromPrefix} $line';
     }
-    return '$amount ₸ / $unit';
+    return line;
   }
 
   String contentKey() {

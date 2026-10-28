@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:prokat/core/widgets/optimized_network_image.dart';
-import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/features/auth/models/user_model.dart';
 import 'package:prokat/features/owner/models/owner_status.dart';
 import 'package:prokat/features/catalog/catalog_provider.dart';
+import 'package:prokat/features/catalog/tariff_unit_labels.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
 import 'package:prokat/features/equipment/models/equipment_image_model.dart';
 import 'package:prokat/features/equipment/models/price_entry_model.dart';
@@ -412,6 +412,9 @@ class _ClientCompanyUnitScreenState
         final unit = Equipment.fromJson(
           Map<String, dynamic>.from((result['units'] as List).first),
         );
+        final l10n = AppLocalizations.of(context)!;
+        final catalog = ref.watch(catalogProvider).valueOrNull;
+        final languageCode = Localizations.localeOf(context).languageCode;
         return ListView(
           children: [
             EquipmentImageHeader(imageUrls: unit.displayImageUrls),
@@ -435,7 +438,17 @@ class _ClientCompanyUnitScreenState
                       padding: const EdgeInsets.only(bottom: 12),
                       child: AppCard(
                         child: Text(
-                          '${price.label ?? ''} ${formatPrice(price.price)} ${getPriceRate(price.priceRate, l10n: AppLocalizations.of(context)!)}',
+                          [
+                            if ((price.label ?? '').trim().isNotEmpty)
+                              price.label!.trim(),
+                            formatEquipmentPriceLine(
+                              price: price.price,
+                              code: price.priceRate.value,
+                              languageCode: languageCode,
+                              catalog: catalog,
+                              l10n: l10n,
+                            ),
+                          ].join(' '),
                         ),
                       ),
                     ),

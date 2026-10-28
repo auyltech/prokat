@@ -93,7 +93,7 @@ void main() {
       );
 
       expect(shareDescriptionOf(equipment), isNull);
-      expect(sharePriceLine(equipment, l10n), '12 000 ₸ / час');
+      expect(sharePriceLine(equipment, l10n), '12 000 ₸ за час');
       expect(
         equipmentShareMessage(
           l10n,
@@ -101,7 +101,7 @@ void main() {
           priceLine: sharePriceLine(equipment, l10n)!,
           url: Env.publicEquipmentShareUrl('AbCdEfGhIjKlMnOpQr_-12'),
         ),
-        'Илосос\n12 000 ₸ / час\nhttps://prokat.auyltech.kz/e/AbCdEfGhIjKlMnOpQr_-12',
+        'Илосос\n12 000 ₸ за час\nhttps://prokat.auyltech.kz/e/AbCdEfGhIjKlMnOpQr_-12',
       );
     });
 
@@ -113,7 +113,7 @@ void main() {
       );
 
       expect(shareDescriptionOf(equipment), 'С водителем');
-      expect(sharePriceLine(equipment, l10n), 'от 12 000 ₸ / час');
+      expect(sharePriceLine(equipment, l10n), 'от 12 000 ₸ за час');
     });
   });
 }
