@@ -8,6 +8,7 @@ import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/core/widgets/optimized_network_image.dart';
 import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:prokat/features/catalog/catalog_provider.dart';
+import 'package:prokat/features/catalog/tariff_unit_labels.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
 import 'package:prokat/features/equipment/utils/vacuum_tariffs.dart';
 import 'package:prokat/l10n/app_localizations.dart';
@@ -43,6 +44,8 @@ class GuestEquipmentCard extends ConsumerWidget {
     final priceEntry = item.prices
         .where((entry) => entry.price > 0)
         .firstOrNull;
+    final catalog = ref.watch(catalogProvider).valueOrNull;
+    final languageCode = Localizations.localeOf(context).languageCode;
 
     return Material(
       color: Colors.transparent,
@@ -143,7 +146,7 @@ class GuestEquipmentCard extends ConsumerWidget {
                               TextSpan(
                                 text: priceEntry == null
                                     ? l10n.poa
-                                    : formatPrice(priceEntry.price),
+                                    : '${formatPriceNumber(priceEntry.price)} ₸',
                                 style: const TextStyle(
                                   fontSize: 15,
                                   fontWeight: FontWeight.w600,
@@ -153,7 +156,7 @@ class GuestEquipmentCard extends ConsumerWidget {
                               if (priceEntry != null)
                                 TextSpan(
                                   text:
-                                      ' ${getPriceRate(priceEntry.priceRate, l10n: l10n)}',
+                                      ' ${tariffUnitLabelForUi(code: priceEntry.priceRate.value, languageCode: languageCode, catalog: catalog, l10n: l10n)}',
                                   style: const TextStyle(
                                     fontSize: 11,
                                     color: Color(0xFF1D4ED8),

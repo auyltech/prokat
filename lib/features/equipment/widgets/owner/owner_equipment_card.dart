@@ -5,9 +5,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
-import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/core/widgets/optimized_network_image.dart';
 import 'package:prokat/features/catalog/catalog_provider.dart';
+import 'package:prokat/features/catalog/tariff_unit_labels.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
 import 'package:prokat/features/equipment/providers/equipment_mutation_provider.dart';
 import 'package:prokat/features/equipment/utils/equipment_submit_readiness.dart';
@@ -68,8 +68,16 @@ class OwnerEquipmentCard extends ConsumerWidget {
         .firstOrNull;
 
     final hasPrice = priceEntry != null;
+    final catalog = ref.watch(catalogProvider).valueOrNull;
+    final languageCode = Localizations.localeOf(context).languageCode;
     final priceDisplay = hasPrice
-        ? "${priceEntry.price} ${getPriceRate(priceEntry.priceRate, l10n: l10n)}"
+        ? formatEquipmentPriceLine(
+            price: priceEntry.price,
+            code: priceEntry.priceRate.value,
+            languageCode: languageCode,
+            catalog: catalog,
+            l10n: l10n,
+          )
         : l10n.noPriceSet;
 
     if (companyControls && !readOnly) {

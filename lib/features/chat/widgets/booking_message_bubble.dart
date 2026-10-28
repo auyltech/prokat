@@ -6,9 +6,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:prokat/core/widgets/optimized_network_image.dart';
-import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/core/widgets/info_tile.dart';
 import 'package:prokat/features/appstartup/app_mode_storage.dart';
+import 'package:prokat/features/catalog/catalog_provider.dart';
+import 'package:prokat/features/catalog/tariff_unit_labels.dart';
 import 'package:prokat/features/bookings/models/booking_status.dart';
 import 'package:prokat/features/bookings/models/work_status.dart';
 import 'package:prokat/features/bookings/providers/booking_mutation_provider.dart';
@@ -53,6 +54,8 @@ class _BookingMessageBubbleState extends ConsumerState<BookingMessageBubble> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
+    final catalog = ref.watch(catalogProvider).valueOrNull;
+    final languageCode = Localizations.localeOf(context).languageCode;
 
     final booking = widget.currentChat?.booking;
 
@@ -227,8 +230,13 @@ class _BookingMessageBubbleState extends ConsumerState<BookingMessageBubble> {
               InfoTile(
                 icon: LucideIcons.coins,
                 // label: l10n.price,
-                value:
-                    "${formatPrice(booking.price)} ${getPriceRate(booking.priceRate, l10n: l10n)}",
+                value: formatEquipmentPriceLine(
+                  price: booking.price,
+                  code: booking.priceRate.value,
+                  languageCode: languageCode,
+                  catalog: catalog,
+                  l10n: l10n,
+                ),
               ),
 
               const Spacer(),

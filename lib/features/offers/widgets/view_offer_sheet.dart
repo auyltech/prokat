@@ -3,8 +3,10 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:prokat/core/theme/legacy/app_theme.dart';
-import 'package:prokat/core/utils/format.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/widgets/optimized_network_image.dart';
+import 'package:prokat/features/catalog/catalog_provider.dart';
+import 'package:prokat/features/catalog/tariff_unit_labels.dart';
 import 'package:prokat/features/offers/models/offer_model.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
@@ -28,7 +30,7 @@ void openViewOfferSheet({
   );
 }
 
-class ViewOfferSheet extends StatelessWidget {
+class ViewOfferSheet extends ConsumerWidget {
   final OfferModel offer;
   final VoidCallback onCancel;
 
@@ -39,10 +41,12 @@ class ViewOfferSheet extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final l10n = AppLocalizations.of(context)!;
+    final catalog = ref.watch(catalogProvider).valueOrNull;
+    final languageCode = Localizations.localeOf(context).languageCode;
     final nestedSurface = colorScheme.surfaceContainerHighest;
     final mutedText = colorScheme.onSurfaceVariant;
     final priceColor = AppTheme.brandTintFg(theme.brightness);
@@ -157,7 +161,13 @@ class ViewOfferSheet extends StatelessWidget {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      "${formatPrice(offer.price)} ${getPriceRate(offer.priceRate, l10n: l10n)}",
+                      formatEquipmentPriceLine(
+                        price: offer.price,
+                        code: offer.priceRate?.value,
+                        languageCode: languageCode,
+                        catalog: catalog,
+                        l10n: l10n,
+                      ),
                       style: theme.textTheme.titleMedium?.copyWith(
                         color: priceColor,
                         fontWeight: FontWeight.w800,

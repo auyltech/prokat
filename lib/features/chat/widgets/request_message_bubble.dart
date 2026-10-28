@@ -4,10 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
-import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/core/widgets/info_tile.dart';
 import 'package:prokat/core/widgets/optimized_network_image.dart';
 import 'package:prokat/features/appstartup/app_mode_storage.dart';
+import 'package:prokat/features/catalog/catalog_provider.dart';
+import 'package:prokat/features/catalog/tariff_unit_labels.dart';
 import 'package:prokat/features/bookings/widgets/show_location_sheet.dart';
 import 'package:prokat/features/chat/models/chat_message_model.dart';
 import 'package:prokat/features/chat/models/chat_model.dart';
@@ -40,6 +41,8 @@ class _RequestMessageBubbleState extends ConsumerState<RequestMessageBubble> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
+    final catalog = ref.watch(catalogProvider).valueOrNull;
+    final languageCode = Localizations.localeOf(context).languageCode;
     final request = widget.currentChat?.request;
 
     if (request == null) return Text(l10n.errorLoadingRequest);
@@ -242,7 +245,13 @@ class _RequestMessageBubbleState extends ConsumerState<RequestMessageBubble> {
                   Text(
                     request.offeredPrice <= 0
                         ? l10n.requestWaitOwnerPrice
-                        : "${formatPrice(request.offeredPrice)} ${getPriceRate(request.offeredPriceRate, l10n: l10n)}",
+                        : formatEquipmentPriceLine(
+                            price: request.offeredPrice,
+                            code: request.offeredPriceRate?.value,
+                            languageCode: languageCode,
+                            catalog: catalog,
+                            l10n: l10n,
+                          ),
                     style: theme.textTheme.titleMedium?.copyWith(
                       color: theme.colorScheme.onPrimary,
                       fontWeight: FontWeight.w800,
