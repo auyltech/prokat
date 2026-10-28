@@ -24,6 +24,9 @@ import 'package:prokat/features/equipment/widgets/equipment_details_sheet.dart';
 import 'package:prokat/features/owner/owner_offline_guard.dart';
 import 'package:prokat/features/chat/utils/owner_offline_chat_lock.dart';
 import 'package:prokat/features/price_negotiations/widgets/counter_offer_sheet.dart';
+import 'package:prokat/features/price_negotiations/widgets/booking_terms_proposal_sheet.dart';
+import 'package:prokat/features/price_negotiations/models/price_negotiation_query.dart';
+import 'package:prokat/features/price_negotiations/state/price_negotiation_provider.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
 class BookingMessageBubble extends ConsumerStatefulWidget {
@@ -545,6 +548,15 @@ class _BookingMessageBubbleState extends ConsumerState<BookingMessageBubble> {
     AppLocalizations l10n,
     ProkatFlowPalette palette,
   ) {
+    final negotiationQuery = priceNegotiationQueryFor(bookingId: booking.id);
+    final hasPendingProposal =
+        negotiationQuery != null &&
+        (ref
+                .watch(priceNegotiationsProvider(negotiationQuery))
+                .valueOrNull
+                ?.items
+                .any((item) => item.isPending) ??
+            false);
     final canCancel =
         [
           BookingStatus.created,
@@ -553,9 +565,12 @@ class _BookingMessageBubbleState extends ConsumerState<BookingMessageBubble> {
         booking.workStatus != WorkStatus.completed;
     final canNegotiate =
         booking.status == BookingStatus.created &&
+        !hasPendingProposal &&
+        widget.currentChat?.blockState?.isBlocked != true &&
         !(widget.mode == AppMode.clientMode && _isOfflineLockedForBubble());
     final canAccept =
         widget.mode == AppMode.ownerMode &&
+        !hasPendingProposal &&
         booking.status == BookingStatus.created;
     if (!canCancel && !canNegotiate && !canAccept) return const [];
 
@@ -578,8 +593,10 @@ class _BookingMessageBubbleState extends ConsumerState<BookingMessageBubble> {
         ),
       if (canNegotiate)
         _FlowBookingAction(
-          label: l10n.proposeYourPrice,
-          icon: LucideIcons.coins,
+          label: BookingTermsProposalSheet.canPropose(booking)
+              ? l10n.proposeOrderTerms
+              : l10n.proposeYourPrice,
+          icon: LucideIcons.filePenLine,
           color: palette.primary,
           surface: palette.surface,
           loading: mutation.isActionActive('price:create'),
@@ -619,6 +636,15 @@ class _BookingMessageBubbleState extends ConsumerState<BookingMessageBubble> {
       if (!online || !context.mounted) return;
     }
 
+    if (BookingTermsProposalSheet.canPropose(booking)) {
+      await BookingTermsProposalSheet.show(
+        context,
+        booking: booking,
+        mode: widget.mode,
+        chatId: widget.message.chatId,
+      );
+      return;
+    }
     await CounterOfferSheet.show(
       context,
       bookingId: booking.id,

@@ -91,6 +91,7 @@ class PriceNegotiationService {
     required int price,
     String? priceRate,
     String? comment,
+    Map<String, dynamic>? terms,
     String? type,
   }) async {
     final hasBooking = (bookingId ?? '').trim().isNotEmpty;
@@ -112,6 +113,7 @@ class PriceNegotiationService {
           'price': price,
           'priceRate': priceRate,
           if ((comment ?? '').trim().isNotEmpty) 'comment': comment,
+          if (terms != null) 'terms': terms,
         },
       );
 
@@ -140,6 +142,8 @@ class PriceNegotiationService {
   Future<ApiResponse<void>> respondToPriceNegotiation({
     required String negotiationId,
     required PriceNegotiationResponse decision,
+    int? acceptedTermsVersion,
+    DateTime? expectedNegotiationUpdatedAt,
   }) async {
     try {
       final response = await _dio.post(
@@ -148,6 +152,12 @@ class PriceNegotiationService {
           'action': decision == PriceNegotiationResponse.accept
               ? "ACCEPT"
               : "REJECT",
+          if (acceptedTermsVersion != null)
+            'acceptedTermsVersion': acceptedTermsVersion,
+          if (expectedNegotiationUpdatedAt != null)
+            'expectedNegotiationUpdatedAt': expectedNegotiationUpdatedAt
+                .toUtc()
+                .toIso8601String(),
         },
       );
 

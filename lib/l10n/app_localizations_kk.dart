@@ -4121,4 +4121,47 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get flowSchedulePick => 'Уақытты таңдау';
+
+  @override
+  String get proposeOrderTerms => 'Тапсырыс шарттарын ұсыну';
+
+  @override
+  String get orderTermsProposalHint =>
+      'Қажетті өрістерді өзгертіңіз. Жаңа шарттар екінші тарап растағаннан кейін ғана күшіне енеді.';
+
+  @override
+  String get sendOrderTermsProposal => 'Растауға жіберу';
+
+  @override
+  String get orderTermsUnchanged => 'Кемінде бір шартты өзгертіңіз.';
+
+  @override
+  String get orderTermsUnavailable =>
+      'Осы тапсырыстың шарттарын өзгерту үшін чатты жаңартыңыз.';
+
+  @override
+  String get orderTermsCurrentAddress => 'Ағымдағы сұраудың мекенжайы';
+
+  @override
+  String get orderTermsProposalTitle => 'Ұсынылған шарттар';
+
+  @override
+  String get currentOrderTerms => 'Ағымдағы шарттар';
+
+  @override
+  String get proposedOrderTerms => 'Жаңа шарттар';
+
+  @override
+  String get acceptOrderTerms => 'Шарттарды қабылдау';
+
+  @override
+  String get withdrawOrderTerms => 'Ұсынысты қайтарып алу';
+
+  @override
+  String get orderTermsUpdateRequired =>
+      'Осы шарттарды растау үшін қолданбаны жаңартыңыз.';
+
+  @override
+  String get orderTermsRefreshRequired =>
+      'Шарттар өзгерді. Чатты жаңартып, соңғы ұсынысты тексеріңіз.';
 }

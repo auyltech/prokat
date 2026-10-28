@@ -58,7 +58,11 @@ class CurrentChatNotifier extends FamilyAsyncNotifier<ChatModel?, String> {
     final introducesBooking =
         update.booking != null && chat.booking?.id != update.booking!.id;
     state = AsyncData(applyWorkflowDeltaToChat(chat, update));
+    final changesTerms =
+        update.reason == 'BOOKING_TERMS_ACCEPTED' &&
+        update.booking?.id == chat.booking?.id;
     if (introducesBooking ||
+        changesTerms ||
         workflowUpdateIntroducesUnknownOffer(chat, update)) {
       unawaited(refresh());
     }

@@ -1472,5 +1472,18 @@
   "offerCompareUnitHint": "Бағаларды салыстыру үшін бір есептеу бірлігін таңдаңыз.",
   "offerPricesPartialHint": "Бағаларды салыстыру үшін барлық ұсыныстарды жүктеңіз.",
   "offerLoadAll": "Барлық ұсыныстарды жүктеу",
-  "flowSchedulePick": "Уақытты таңдау"
+  "flowSchedulePick": "Уақытты таңдау",
+  "proposeOrderTerms": "Тапсырыс шарттарын ұсыну",
+  "orderTermsProposalHint": "Қажетті өрістерді өзгертіңіз. Жаңа шарттар екінші тарап растағаннан кейін ғана күшіне енеді.",
+  "sendOrderTermsProposal": "Растауға жіберу",
+  "orderTermsUnchanged": "Кемінде бір шартты өзгертіңіз.",
+  "orderTermsUnavailable": "Осы тапсырыстың шарттарын өзгерту үшін чатты жаңартыңыз.",
+  "orderTermsCurrentAddress": "Ағымдағы сұраудың мекенжайы",
+  "orderTermsProposalTitle": "Ұсынылған шарттар",
+  "currentOrderTerms": "Ағымдағы шарттар",
+  "proposedOrderTerms": "Жаңа шарттар",
+  "acceptOrderTerms": "Шарттарды қабылдау",
+  "withdrawOrderTerms": "Ұсынысты қайтарып алу",
+  "orderTermsUpdateRequired": "Осы шарттарды растау үшін қолданбаны жаңартыңыз.",
+  "orderTermsRefreshRequired": "Шарттар өзгерді. Чатты жаңартып, соңғы ұсынысты тексеріңіз."
 }

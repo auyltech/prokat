@@ -1,5 +1,6 @@
 import 'package:prokat/core/constants/price_rate_options.dart';
 import 'package:prokat/features/price_negotiations/models/price_negotiation_status.dart';
+import 'package:prokat/features/price_negotiations/models/booking_terms_proposal.dart';
 
 enum PriceNegotiationResponse { accept, reject }
 
@@ -20,6 +21,9 @@ class PriceNegotiation {
   final DateTime? createdAt;
   final DateTime? respondedAt;
   final DateTime? cancelledAt;
+  final DateTime? updatedAt;
+  final BookingTermsProposal? proposedTerms;
+  final bool requiresTermsAcknowledgement;
 
   const PriceNegotiation({
     required this.id,
@@ -34,9 +38,15 @@ class PriceNegotiation {
     this.createdAt,
     this.respondedAt,
     this.cancelledAt,
+    this.updatedAt,
+    this.proposedTerms,
+    this.requiresTermsAcknowledgement = false,
   });
 
   bool get isPending => status == PriceNegotiationStatus.created;
+  bool get canAcknowledgeTerms =>
+      !requiresTermsAcknowledgement ||
+      (proposedTerms != null && updatedAt != null);
 
   static DateTime? _tryParseDate(dynamic value) {
     if (value == null) return null;
@@ -71,6 +81,11 @@ class PriceNegotiation {
       createdAt: _tryParseDate(json['createdAt']),
       respondedAt: _tryParseDate(json['respondedAt']),
       cancelledAt: _tryParseDate(json['cancelledAt']),
+      updatedAt: _tryParseDate(json['updatedAt']),
+      proposedTerms: BookingTermsProposal.tryParse(json['proposedTerms']),
+      requiresTermsAcknowledgement:
+          json['requiresTermsAcknowledgement'] == true ||
+          json['proposedTerms'] != null,
     );
   }
 }

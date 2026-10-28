@@ -1471,5 +1471,18 @@
   "offerCompareUnitHint": "Для сравнения цен выберите одну единицу расчёта.",
   "offerPricesPartialHint": "Для сравнения цен загрузите все предложения.",
   "offerLoadAll": "Загрузить все предложения",
-  "flowSchedulePick": "Выбрать время"
+  "flowSchedulePick": "Выбрать время",
+  "proposeOrderTerms": "Предложить условия",
+  "orderTermsProposalHint": "Измените нужные поля. Новые условия вступят в силу только после подтверждения собеседником.",
+  "sendOrderTermsProposal": "Отправить на подтверждение",
+  "orderTermsUnchanged": "Измените хотя бы одно условие.",
+  "orderTermsUnavailable": "Обновите чат, чтобы изменить условия этого заказа.",
+  "orderTermsCurrentAddress": "Адрес текущего запроса",
+  "orderTermsProposalTitle": "Предложение условий",
+  "currentOrderTerms": "Текущие условия",
+  "proposedOrderTerms": "Новые условия",
+  "acceptOrderTerms": "Принять условия",
+  "withdrawOrderTerms": "Отозвать предложение",
+  "orderTermsUpdateRequired": "Для подтверждения этих условий обновите приложение.",
+  "orderTermsRefreshRequired": "Условия изменились. Обновите чат и проверьте новое предложение."
 }

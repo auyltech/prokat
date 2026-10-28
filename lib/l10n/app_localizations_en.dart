@@ -4119,4 +4119,47 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get flowSchedulePick => 'Choose time';
+
+  @override
+  String get proposeOrderTerms => 'Propose order terms';
+
+  @override
+  String get orderTermsProposalHint =>
+      'Change the fields you need. The new terms take effect only after the other party confirms.';
+
+  @override
+  String get sendOrderTermsProposal => 'Send for confirmation';
+
+  @override
+  String get orderTermsUnchanged => 'Change at least one term.';
+
+  @override
+  String get orderTermsUnavailable =>
+      'Refresh the chat to change this order’s terms.';
+
+  @override
+  String get orderTermsCurrentAddress => 'Current request address';
+
+  @override
+  String get orderTermsProposalTitle => 'Proposed terms';
+
+  @override
+  String get currentOrderTerms => 'Current terms';
+
+  @override
+  String get proposedOrderTerms => 'New terms';
+
+  @override
+  String get acceptOrderTerms => 'Accept terms';
+
+  @override
+  String get withdrawOrderTerms => 'Withdraw proposal';
+
+  @override
+  String get orderTermsUpdateRequired =>
+      'Update the app to confirm these terms.';
+
+  @override
+  String get orderTermsRefreshRequired =>
+      'The terms have changed. Refresh the chat and review the latest proposal.';
 }

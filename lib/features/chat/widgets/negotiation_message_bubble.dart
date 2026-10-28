@@ -9,6 +9,7 @@ import 'package:prokat/features/price_negotiations/models/price_negotiation_stat
 import 'package:prokat/features/price_negotiations/models/price_negotiation_query.dart';
 import 'package:prokat/features/price_negotiations/state/price_negotiation_provider.dart';
 import 'package:prokat/features/price_negotiations/widgets/price_negotiation_status_badge.dart';
+import 'package:prokat/features/price_negotiations/widgets/booking_terms_proposal_card.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
 class NegotiationMessageBubble extends ConsumerStatefulWidget {
@@ -61,6 +62,14 @@ class _NegotiationMessageBubbleState
             .firstOrNull ??
         parsed;
 
+    if (priceNegotiation.requiresTermsAcknowledgement) {
+      return BookingTermsProposalCard(
+        proposal: priceNegotiation,
+        isMe: widget.isMe,
+        chatId: widget.message.chatId,
+      );
+    }
+
     return Align(
       alignment: widget.isMe ? Alignment.centerRight : Alignment.centerLeft,
       child: ConstrainedBox(
@@ -87,7 +96,7 @@ class _NegotiationMessageBubbleState
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Icon(
-                    LucideIcons.coins,
+                    LucideIcons.filePenLine,
                     color: theme.colorScheme.onSurface,
                     size: 26,
                   ),

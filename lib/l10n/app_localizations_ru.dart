@@ -4158,4 +4158,47 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get flowSchedulePick => 'Выбрать время';
+
+  @override
+  String get proposeOrderTerms => 'Предложить условия';
+
+  @override
+  String get orderTermsProposalHint =>
+      'Измените нужные поля. Новые условия вступят в силу только после подтверждения собеседником.';
+
+  @override
+  String get sendOrderTermsProposal => 'Отправить на подтверждение';
+
+  @override
+  String get orderTermsUnchanged => 'Измените хотя бы одно условие.';
+
+  @override
+  String get orderTermsUnavailable =>
+      'Обновите чат, чтобы изменить условия этого заказа.';
+
+  @override
+  String get orderTermsCurrentAddress => 'Адрес текущего запроса';
+
+  @override
+  String get orderTermsProposalTitle => 'Предложение условий';
+
+  @override
+  String get currentOrderTerms => 'Текущие условия';
+
+  @override
+  String get proposedOrderTerms => 'Новые условия';
+
+  @override
+  String get acceptOrderTerms => 'Принять условия';
+
+  @override
+  String get withdrawOrderTerms => 'Отозвать предложение';
+
+  @override
+  String get orderTermsUpdateRequired =>
+      'Для подтверждения этих условий обновите приложение.';
+
+  @override
+  String get orderTermsRefreshRequired =>
+      'Условия изменились. Обновите чат и проверьте новое предложение.';
 }

@@ -7701,6 +7701,84 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Choose time'**
   String get flowSchedulePick;
+
+  /// No description provided for @proposeOrderTerms.
+  ///
+  /// In en, this message translates to:
+  /// **'Propose order terms'**
+  String get proposeOrderTerms;
+
+  /// No description provided for @orderTermsProposalHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Change the fields you need. The new terms take effect only after the other party confirms.'**
+  String get orderTermsProposalHint;
+
+  /// No description provided for @sendOrderTermsProposal.
+  ///
+  /// In en, this message translates to:
+  /// **'Send for confirmation'**
+  String get sendOrderTermsProposal;
+
+  /// No description provided for @orderTermsUnchanged.
+  ///
+  /// In en, this message translates to:
+  /// **'Change at least one term.'**
+  String get orderTermsUnchanged;
+
+  /// No description provided for @orderTermsUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh the chat to change this order’s terms.'**
+  String get orderTermsUnavailable;
+
+  /// No description provided for @orderTermsCurrentAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'Current request address'**
+  String get orderTermsCurrentAddress;
+
+  /// No description provided for @orderTermsProposalTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Proposed terms'**
+  String get orderTermsProposalTitle;
+
+  /// No description provided for @currentOrderTerms.
+  ///
+  /// In en, this message translates to:
+  /// **'Current terms'**
+  String get currentOrderTerms;
+
+  /// No description provided for @proposedOrderTerms.
+  ///
+  /// In en, this message translates to:
+  /// **'New terms'**
+  String get proposedOrderTerms;
+
+  /// No description provided for @acceptOrderTerms.
+  ///
+  /// In en, this message translates to:
+  /// **'Accept terms'**
+  String get acceptOrderTerms;
+
+  /// No description provided for @withdrawOrderTerms.
+  ///
+  /// In en, this message translates to:
+  /// **'Withdraw proposal'**
+  String get withdrawOrderTerms;
+
+  /// No description provided for @orderTermsUpdateRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Update the app to confirm these terms.'**
+  String get orderTermsUpdateRequired;
+
+  /// No description provided for @orderTermsRefreshRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'The terms have changed. Refresh the chat and review the latest proposal.'**
+  String get orderTermsRefreshRequired;
 }
 
 class _AppLocalizationsDelegate

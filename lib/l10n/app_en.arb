@@ -1476,5 +1476,18 @@
   "offerCompareUnitHint": "Choose a single price unit to compare offers.",
   "offerPricesPartialHint": "Load all offers to compare prices.",
   "offerLoadAll": "Load all offers",
-  "flowSchedulePick": "Choose time"
+  "flowSchedulePick": "Choose time",
+  "proposeOrderTerms": "Propose order terms",
+  "orderTermsProposalHint": "Change the fields you need. The new terms take effect only after the other party confirms.",
+  "sendOrderTermsProposal": "Send for confirmation",
+  "orderTermsUnchanged": "Change at least one term.",
+  "orderTermsUnavailable": "Refresh the chat to change this order’s terms.",
+  "orderTermsCurrentAddress": "Current request address",
+  "orderTermsProposalTitle": "Proposed terms",
+  "currentOrderTerms": "Current terms",
+  "proposedOrderTerms": "New terms",
+  "acceptOrderTerms": "Accept terms",
+  "withdrawOrderTerms": "Withdraw proposal",
+  "orderTermsUpdateRequired": "Update the app to confirm these terms.",
+  "orderTermsRefreshRequired": "The terms have changed. Refresh the chat and review the latest proposal."
 }
