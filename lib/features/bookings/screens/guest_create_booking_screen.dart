@@ -728,7 +728,8 @@ class _GuestCreateBookingScreenState
                     heroActions: [
                       ShareEquipmentButton(
                         equipment: item,
-                        variant: AppIconButtonVariant.soft,
+                        variant: AppIconButtonVariant.filled,
+                        tone: AppIconButtonTone.inverse,
                       ),
                     ],
                   ),

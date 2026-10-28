@@ -274,6 +274,15 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
 
   void _back() {
     FocusManager.instance.primaryFocus?.unfocus();
+    final inquiryChatId = widget.inquiryChatId;
+    if (inquiryChatId != null) {
+      if (context.canPop()) {
+        context.pop();
+      } else {
+        context.go('${AppRoutes.clientChatList}/direct/$inquiryChatId');
+      }
+      return;
+    }
     if (_showRequestForm && widget.companyId == null) {
       setState(() => _showRequestForm = false);
     } else if (context.canPop()) {
@@ -347,7 +356,10 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
             ? SystemUiOverlayStyle.dark
             : SystemUiOverlayStyle.light,
         child: PopScope(
-          canPop: !_showRequestForm || widget.companyId != null,
+          canPop:
+              widget.inquiryChatId != null ||
+              !_showRequestForm ||
+              widget.companyId != null,
           onPopInvokedWithResult: (didPop, result) {
             if (!didPop) _back();
           },
@@ -397,7 +409,8 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
                               ReportTargetType.equipment,
                               equipment.id,
                             ),
-                            variant: AppIconButtonVariant.plain,
+                            variant: AppIconButtonVariant.filled,
+                            tone: AppIconButtonTone.inverse,
                             onBlocked: _back,
                           ),
                         ),
@@ -405,14 +418,16 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
                         _heroAction(
                           ShareEquipmentButton(
                             equipment: equipment,
-                            variant: AppIconButtonVariant.plain,
+                            variant: AppIconButtonVariant.filled,
+                            tone: AppIconButtonTone.inverse,
                           ),
                         )
                       else
                         _heroAction(
                           AppIconButton(
                             icon: LucideIcons.share2,
-                            variant: AppIconButtonVariant.plain,
+                            variant: AppIconButtonVariant.filled,
+                            tone: AppIconButtonTone.inverse,
                             onTap: () => shareCompany(context, ref, {
                               'company': companyForShare(equipment),
                             }),

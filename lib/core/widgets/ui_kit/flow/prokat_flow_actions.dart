@@ -30,6 +30,7 @@ class ProkatFlowPrimaryButton extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
             child: Center(
+              heightFactor: 1,
               child: loading
                   ? const SizedBox.square(
                       dimension: 22,

@@ -18,6 +18,7 @@ class UgcMoreButton extends ConsumerWidget {
     this.isBlockedByMe = false,
     this.onBlocked,
     this.variant = AppIconButtonVariant.soft,
+    this.tone = AppIconButtonTone.neutral,
   });
 
   final String? counterpartUserId;
@@ -27,6 +28,7 @@ class UgcMoreButton extends ConsumerWidget {
   final bool isBlockedByMe;
   final VoidCallback? onBlocked;
   final AppIconButtonVariant variant;
+  final AppIconButtonTone tone;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -45,6 +47,7 @@ class UgcMoreButton extends ConsumerWidget {
       key: const ValueKey('ugc-more-button'),
       icon: LucideIcons.ellipsisVertical,
       variant: variant,
+      tone: tone,
       tooltip: l10n.reportAction,
       onTap: () => UgcActionsSheet.show(
         context,

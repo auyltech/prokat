@@ -7,6 +7,65 @@ import 'package:prokat/core/widgets/ui_kit/flow/prokat_flow_actions.dart';
 import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 
 void main() {
+  for (final textScale in [1.0, 2.0]) {
+    testWidgets('bottom action keeps the listing visible at scale $textScale', (
+      tester,
+    ) async {
+      tester.view.physicalSize = const Size(360, 800);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      var taps = 0;
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: AppTheme.lightTheme,
+          home: MediaQuery(
+            data: MediaQueryData(textScaler: TextScaler.linear(textScale)),
+            child: Scaffold(
+              body: const SizedBox.expand(key: ValueKey('listing-body')),
+              bottomNavigationBar: SafeArea(
+                top: false,
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Row(
+                    children: [
+                      ProkatFlowIconButton(
+                        icon: Icons.chat_bubble_outline,
+                        label: 'Написать владельцу',
+                        onPressed: () {},
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: ProkatFlowPrimaryButton(
+                          title: 'Отправить запрос',
+                          onPressed: () => taps++,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      final button = tester.getRect(find.byType(ProkatFlowPrimaryButton));
+      final label = tester.getRect(find.text('Отправить запрос'));
+      final listing = tester.getRect(
+        find.byKey(const ValueKey('listing-body')),
+      );
+      expect(button.height, inInclusiveRange(56, 180));
+      expect(listing.height, greaterThan(500));
+      expect(listing.bottom, lessThanOrEqualTo(button.top));
+      expect(button.contains(label.topLeft), isTrue);
+      expect(button.contains(label.bottomRight), isTrue);
+      await tester.tap(find.text('Отправить запрос'));
+      expect(taps, 1);
+      expect(tester.takeException(), isNull);
+    });
+  }
+
   testWidgets('large budget text and multiline action stay inside controls', (
     tester,
   ) async {

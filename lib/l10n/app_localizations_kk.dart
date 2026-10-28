@@ -4018,11 +4018,11 @@ class AppLocalizationsKk extends AppLocalizations {
   String get requestTermsTitle => 'Сұрау шарттары';
 
   @override
-  String get agreedTermsTitle => 'Келісілген шарттар';
+  String get agreedTermsTitle => 'Тапсырыс шарттары';
 
   @override
   String get requestTermsHint =>
-      'Мекенжайды, уақытты және тарифті көрсетіңіз. Иесі растауы немесе өзгертуді ұсынуы мүмкін.';
+      'Мекенжайды, уақытты және тарифті көрсетіңіз. Шарттарды иесіне растауға жіберіңіз.';
 
   @override
   String get listingSpecifications => 'Барлық сипаттамалар';

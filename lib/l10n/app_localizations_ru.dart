@@ -4054,11 +4054,11 @@ class AppLocalizationsRu extends AppLocalizations {
   String get requestTermsTitle => 'Условия запроса';
 
   @override
-  String get agreedTermsTitle => 'Согласованные условия';
+  String get agreedTermsTitle => 'Условия заказа';
 
   @override
   String get requestTermsHint =>
-      'Укажите адрес, время и тариф. Владелец подтвердит запрос или предложит изменения.';
+      'Укажите адрес, время и тариф. Отправьте условия владельцу на подтверждение.';
 
   @override
   String get listingSpecifications => 'Все характеристики';

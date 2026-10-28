@@ -7513,13 +7513,13 @@ abstract class AppLocalizations {
   /// No description provided for @agreedTermsTitle.
   ///
   /// In en, this message translates to:
-  /// **'Agreed terms'**
+  /// **'Order terms'**
   String get agreedTermsTitle;
 
   /// No description provided for @requestTermsHint.
   ///
   /// In en, this message translates to:
-  /// **'Add the address, time and rate. The owner can confirm or suggest changes.'**
+  /// **'Add the address, time and rate. Send the terms to the owner for confirmation.'**
   String get requestTermsHint;
 
   /// No description provided for @listingSpecifications.

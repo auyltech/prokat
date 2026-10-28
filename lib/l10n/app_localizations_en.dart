@@ -4018,11 +4018,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get requestTermsTitle => 'Request details';
 
   @override
-  String get agreedTermsTitle => 'Agreed terms';
+  String get agreedTermsTitle => 'Order terms';
 
   @override
   String get requestTermsHint =>
-      'Add the address, time and rate. The owner can confirm or suggest changes.';
+      'Add the address, time and rate. Send the terms to the owner for confirmation.';
 
   @override
   String get listingSpecifications => 'All specifications';
