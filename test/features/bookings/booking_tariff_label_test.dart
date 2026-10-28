@@ -9,16 +9,16 @@ import 'package:prokat/l10n/app_localizations_kk.dart';
 import 'package:prokat/l10n/app_localizations_ru.dart';
 
 void main() {
-  final catalog = CatalogBundle(
+  const catalog = CatalogBundle(
     version: 'booking-label',
-    cities: const [],
-    categories: const [],
-    units: const [],
+    cities: [],
+    categories: [],
+    units: [],
     tariffUnits: [
       CatalogTariffUnit(
         id: '1',
         code: 'PER_HOUR',
-        names: const LocalizedNames(
+        names: LocalizedNames(
           ru: 'за час',
           en: 'per hour',
           kk: 'сағатына',
@@ -29,7 +29,7 @@ void main() {
       CatalogTariffUnit(
         id: '2',
         code: 'PER_MONTH',
-        names: const LocalizedNames(
+        names: LocalizedNames(
           ru: 'за месяц',
           en: 'per month',
           kk: 'айына',
@@ -38,9 +38,9 @@ void main() {
         isActive: true,
       ),
     ],
-    specs: const [],
-    specOptions: const [],
-    categorySpecs: const [],
+    specs: [],
+    specOptions: [],
+    categorySpecs: [],
   );
 
   test('bookingTariffLabel uses catalog names without slash', () {
