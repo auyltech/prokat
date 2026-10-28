@@ -78,9 +78,12 @@ class EquipmentMutationNotifier
         error: result.success
             ? null
             : AppError(
-                type: ErrorType.unknown,
-                code: "",
+                type: result.statusCode == 409
+                    ? ErrorType.conflict
+                    : ErrorType.unknown,
+                code: result.errorCode ?? "",
                 message: result.message,
+                originalError: result.errorDetails,
               ),
       );
 

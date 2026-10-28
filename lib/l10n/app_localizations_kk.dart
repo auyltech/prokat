@@ -10,6 +10,16 @@ class AppLocalizationsKk extends AppLocalizations {
   AppLocalizationsKk([String locale = 'kk']) : super(locale);
 
   @override
+  String machineryQuotaReached(int maximum) {
+    return 'Техника лимитіне жеттіңіз: $maximum бірлік. Жаңа техника қосу үшін орын босатыңыз немесе әкімшілікке хабарласыңыз.';
+  }
+
+  @override
+  String equipmentQuotaReached(int maximum) {
+    return 'Жабдық лимитіне жеттіңіз: $maximum бірлік. Жаңа жабдық қосу үшін орын босатыңыз немесе әкімшілікке хабарласыңыз.';
+  }
+
+  @override
   String get appLanguage => 'Қолданба тілі';
 
   @override

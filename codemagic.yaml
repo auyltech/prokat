@@ -1,0 +1,200 @@
+# Tag-only iOS releases plus a separate manual GET-only Apple diagnostic.
+definitions:
+  scripts:
+    - &validate-source
+      name: Validate tag webhook, source, production gate and native lock
+      script: |
+        set -euo pipefail
+        if [ "${RELEASE_EXPECTED_CHANNEL:-}" = production ] && [ "${CM_TRIGGER_SOURCE:-}" != webhook ]; then
+          echo 'BLOCKED: IOS_PRODUCTION_REQUIRES_WEBHOOK'
+          exit 1
+        fi
+        test -n "${CM_TAG:-}" || { echo 'BLOCKED: iOS tag webhook required'; exit 1; }
+        python3 -B tool/release/swiftpm_resolve.py start
+        if [ "$(git rev-parse --is-shallow-repository)" = true ]; then git fetch --unshallow origin; fi
+        git fetch origin main:refs/remotes/origin/main
+        git fetch origin "refs/tags/$CM_TAG:refs/tags/$CM_TAG"
+        dart tool/release/release.dart ci --tag "$CM_TAG" --platform ios --channel "$RELEASE_EXPECTED_CHANNEL" --revision "$CM_COMMIT"
+        dart tool/release/check_toolchain.dart ios
+    - &apple-auth
+      name: Validate Apple authentication locally before expensive release steps
+      script: |
+        set +x
+        set -euo pipefail
+        python3 -m pip --isolated install --disable-pip-version-check --no-cache-dir --only-binary=:all: --index-url https://pypi.org/simple -r tool/release/requirements-apple.txt >/dev/null 2>&1 || { echo 'BLOCKED: APPLE_DEPENDENCY_SETUP_FAILED'; exit 1; }
+        python3 -B tool/release/apple_diagnostic.py auth --channel "$RELEASE_EXPECTED_CHANNEL"
+    - &dependencies
+      name: Resolve locked dependencies and record tools
+      script: |
+        set -euo pipefail
+        python3 -m pip install --disable-pip-version-check -r tool/release/requirements.txt
+        python3 -B tool/release/ios_store.py validate-publish
+        flutter pub get --enforce-lockfile
+        (cd ios && pod install --deployment)
+        python3 -B tool/release/swiftpm_resolve.py resolve
+        git diff --exit-code -- pubspec.lock ios/Podfile.lock ios/Runner.xcworkspace/xcshareddata/swiftpm/Package.resolved ios/Runner.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved
+        xcodebuild -version
+        pod --version
+        app-store-connect --version
+        python3 -m pip freeze
+    - &quality
+      name: Analyze and run tests before signing
+      script: |
+        set -euo pipefail
+        flutter analyze --no-pub --fatal-infos --fatal-warnings
+        flutter test --no-pub --dart-define=ENABLE_FIREBASE_SERVICES=false --dart-define=ENABLE_PUSH_NOTIFICATIONS=false
+        python3 -m unittest discover -s tool/release -p '*_test.py'
+        git diff --exit-code
+    - &inputs
+      name: Prepare protected Firebase and Mapbox inputs
+      script: |
+        set -euo pipefail
+        dart tool/release/inputs.dart ios
+        test "$(plutil -extract BUNDLE_ID raw ios/Runner/GoogleService-Info.plist)" = com.auyltech.prokat
+        test "$(plutil -extract PROJECT_ID raw ios/Runner/GoogleService-Info.plist)" = prokat-bfbec
+        test "$(plutil -extract GOOGLE_APP_ID raw ios/Runner/GoogleService-Info.plist)" = 1:1074557540622:ios:77d941fb94c43410845f5f
+        python3 tool/release/ios_store.py preflight
+    - &sign-build
+      name: Apply existing distribution profiles and build IPA
+      script: |
+        set -euo pipefail
+        # ios_signing installs the owner's existing uploaded identities. No
+        # fetch-signing-files --create, revocation or certificate generation.
+        xcode-project use-profiles
+        source build/release/release.env
+        flutter build ipa --release --no-pub --build-name "$RELEASE_VERSION" --build-number "$RELEASE_BUILD" --dart-define-from-file=.env --export-options-plist="$HOME/export_options.plist"
+        ditto -c -k --keepParent build/ios/archive/Runner.xcarchive/dSYMs build/release/ios-symbols.zip
+        git diff --exit-code -- ios/Podfile.lock ios/Runner.xcworkspace/xcshareddata/swiftpm/Package.resolved ios/Runner.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved
+        python3 tool/release/verify_ios.py
+    - &symbols
+      name: Upload all native dSYMs to Firebase before any store upload
+      script: |
+        set -euo pipefail
+        test -d build/ios/archive/Runner.xcarchive/dSYMs/Runner.app.dSYM
+        test -d build/ios/archive/Runner.xcarchive/dSYMs/App.framework.dSYM
+        test -f build/release/SourcePackages/checkouts/firebase-ios-sdk/Crashlytics/upload-symbols
+        build/release/SourcePackages/checkouts/firebase-ios-sdk/Crashlytics/upload-symbols -gsp ios/Runner/GoogleService-Info.plist -p ios build/ios/archive/Runner.xcarchive/dSYMs
+        # The ZIP is only retained as a recovery artifact when upload failed.
+        rm -f -- build/release/ios-symbols.zip
+    - &publish
+      name: Recheck Apple state and publish once using Codemagic CLI
+      script: |
+        set -euo pipefail
+        python3 tool/release/ios_store.py publish
+
+workflows:
+  ios-rc:
+    name: iOS RC to TestFlight internal group
+    instance_type: mac_mini_m2
+    max_build_duration: 90
+    integrations:
+      app_store_connect: prokat-app-store
+    environment:
+      flutter: 3.47.2
+      xcode: '26.6'
+      cocoapods: 1.16.2
+      groups:
+        - prokat-ios-release
+      vars:
+        RELEASE_EXPECTED_CHANNEL: rc
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: com.auyltech.prokat
+    triggering:
+      events:
+        - tag
+      tag_patterns:
+        - pattern: 'rc/ios/v*'
+          include: true
+      cancel_previous_builds: false
+    scripts:
+      - *validate-source
+      - *apple-auth
+      - *dependencies
+      - *quality
+      - *inputs
+      - *sign-build
+      - *symbols
+      - *publish
+    artifacts:
+      - build/release/ios-symbols.zip
+      - build/ios/ipa/*.ipa
+
+  ios-production:
+    name: iOS production review and release after approval (U5 protected)
+    instance_type: mac_mini_m2
+    max_build_duration: 90
+    integrations:
+      app_store_connect: prokat-app-store
+    environment:
+      flutter: 3.47.2
+      xcode: '26.6'
+      cocoapods: 1.16.2
+      groups:
+        - prokat-ios-release
+      vars:
+        RELEASE_EXPECTED_CHANNEL: production
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: com.auyltech.prokat
+    triggering:
+      events:
+        - tag
+      tag_patterns:
+        - pattern: 'ios/v*'
+          include: true
+      cancel_previous_builds: false
+    # After clone, before scripts. `event` filters a tag webhook: repository,
+    # create, not a delete. Do not compare event.after to CM_COMMIT: GitHub
+    # sends the annotated tag object SHA, Codemagic peels it to the commit
+    # (clone: "refs/tags/... is not a commit"). Peeled identity is checked by
+    # release.dart ci --revision "$CM_COMMIT". It cannot bind event.ref to the
+    # tag, and CM_TRIGGER_SOURCE is not an independent attestation. The
+    # operator does not start this workflow by hand or through the API.
+    when:
+      condition: (event.repository.full_name == "auyltech/prokat") and (event.created) and (not event.deleted) and (env.CM_TRIGGER_SOURCE == "webhook")
+    scripts:
+      - *validate-source
+      - *apple-auth
+      - *dependencies
+      - *quality
+      - *inputs
+      - *sign-build
+      - *symbols
+      - *publish
+    artifacts:
+      - build/release/ios-symbols.zip
+      - build/ios/ipa/*.ipa
+
+  ios-apple-diagnostic:
+    name: iOS Apple GET-only diagnostic
+    instance_type: mac_mini_m2
+    max_build_duration: 5
+    integrations:
+      app_store_connect: prokat-app-store
+    environment:
+      groups:
+        - prokat-ios-release
+    # No triggering, signing, artifacts or publishing: manual main checks only.
+    scripts:
+      - name: Validate manual main checkout
+        script: |
+          set +x
+          set -euo pipefail
+          if [ "${CM_BRANCH:-}" != main ] || [ "${CM_REPO_SLUG:-}" != auyltech/prokat ] || [ "${CM_PULL_REQUEST:-}" != false ] || [ "${CM_TRIGGER_SOURCE:-}" != api ] || [ -n "${CM_TAG:-}" ]; then
+            echo 'BLOCKED: APPLE_SOURCE_CONTEXT_INVALID'; exit 1
+          fi
+          actual_commit=$(git rev-parse HEAD 2>/dev/null) || { echo 'BLOCKED: APPLE_SOURCE_CONTEXT_INVALID'; exit 1; }
+          test "$actual_commit" = "${CM_COMMIT:-}" || { echo 'BLOCKED: APPLE_SOURCE_CONTEXT_INVALID'; exit 1; }
+      - name: Install isolated minimal Apple dependencies
+        script: |
+          set +x
+          set -euo pipefail
+          python3 -m venv "$CM_BUILD_DIR/.apple-diagnostic-venv" >/dev/null 2>&1 || { echo 'BLOCKED: APPLE_DEPENDENCY_SETUP_FAILED'; exit 1; }
+          "$CM_BUILD_DIR/.apple-diagnostic-venv/bin/python3" -m pip --isolated install --disable-pip-version-check --no-cache-dir --only-binary=:all: --index-url https://pypi.org/simple -r tool/release/requirements-apple.txt >/dev/null 2>&1 || { echo 'BLOCKED: APPLE_DEPENDENCY_SETUP_FAILED'; exit 1; }
+      - name: Check current Apple access and build 20 without upload
+        script: |
+          set +x
+          set -euo pipefail
+          source "$CM_BUILD_DIR/.apple-diagnostic-venv/bin/activate"
+          python3 -B tool/release/apple_diagnostic.py check --build 20

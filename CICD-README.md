@@ -1,0 +1,212 @@
+# PROKAT — памятка по CI/CD
+
+## A. Подготовка релиза
+
+Изменения идут через feature PR → `dev`. В `pubspec.yaml` задайте, например:
+
+```yaml
+version: 1.2.5+26
+```
+
+Добавьте три пользовательских текста «Что нового»:
+
+```text
+releases/1.2.5/ru.txt
+releases/1.2.5/en.txt
+releases/1.2.5/kk.txt
+```
+
+UTF-8 без BOM, plain text, 1–500 символов, без placeholders. Четвёртый файл
+`release.json` не нужен: CLI и CI читают только три языковых файла. Если каталога
+ещё нет: `dart tool/release/release.dart init --version 1.2.5` создаёт пустые
+черновики. Не затирайте существующие notes. Правила локалей:
+[releases/README](releases/README.md).
+
+Перед PR:
+
+```powershell
+flutter analyze --no-pub --fatal-infos --fatal-warnings
+flutter test --no-pub --dart-define=ENABLE_FIREBASE_SERVICES=false --dart-define=ENABLE_PUSH_NOTIFICATIONS=false
+git diff --check
+```
+
+## B. Git-интеграция
+
+Feature PR → dev, review, затем отдельный PR dev → main с проверкой полного diff.
+Выполните **Squash and merge**; сообщение:
+`release: 1.2.3+19 (Android+iOS)`.
+Для платформенного retry допустимо `release: 1.2.3+20 (iOS)`.
+
+CLI всегда выбирает текущий remote main: это требует предварительного review
+и утверждения его HEAD. Версию/SHA вручную не вводят. Старые SHA выбирать нельзя.
+Если main продвинулся между двумя платформами, даже при неизменной версии парный
+тег блокируется: подготовьте новый общий build через dev → main.
+Не используйте `merge -s ours` как регулярную процедуру — он может скрыть изменения.
+Откат существующего main для внедрения CLI не нужен.
+
+## C. Запуск публикации
+
+После squash-merge в `main` подключите CLI: `. .\tool\release\prokat-release.ps1`.
+
+| Команда | Канал | Тег |
+| --- | --- | --- |
+| `prokat-rc-android` | Google Play Internal Testing | `rc/android/vX.Y.Z+N` |
+| `prokat-rc-ios` | TestFlight Internal, AuylTech Test Team | `rc/ios/vX.Y.Z+N` |
+| `prokat-prod-android` | Google Play Production | `android/vX.Y.Z+N` |
+| `prokat-prod-ios` | App Store Review / AFTER_APPROVAL | `ios/vX.Y.Z+N` |
+
+Production: сначала `-DryRun`, затем одна команда выбранной платформы. Реальный
+запуск печатает тот же preview, что и `-DryRun`, и спрашивает `Continue? [y/N]`.
+Строка `PUBLISH PRODUCTION` больше не нужна. После `y` команда берёт SHA из
+актуального `origin/main`, проверяет версию и три языковых файла, создаёт и
+отправляет тег и печатает URL pipeline. Android и iOS независимы: одна команда
+не публикует вторую платформу.
+
+Облачный аварийный выключатель `PRODUCTION_PUBLISHING_ENABLED=true` и tag ruleset
+настраиваются **один раз**. Переменные `PRODUCTION_RELEASE_AUTH_ANDROID` и
+`PRODUCTION_RELEASE_AUTH_IOS` больше не используются. Не меняйте GitHub/Codemagic
+Variables перед каждым релизом.
+
+RC спрашивает то же `Continue? [y/N]`.
+
+Результаты: [GitHub Actions](https://github.com/auyltech/prokat/actions),
+[Codemagic Builds](https://codemagic.io/apps),
+[Play Console](https://play.google.com/console/),
+[App Store Connect / TestFlight](https://appstoreconnect.apple.com/apps).
+Зелёный CI не доказывает доступность в магазине: Android с Managed publishing
+ждёт выпуска в Play Console после review Google; iOS ждёт App Review и
+AFTER_APPROVAL. Проверьте магазин, установку и smoke tests.
+
+## D. Ошибка CI или отказ магазина
+
+Для publishing-сбоя iOS `1.2.3+22` см. [CLI preflight и IPA recovery](docs/ci-cd/IOS_PUBLISHING.md).
+Все три CLI attempt-count options заданы явно как `1` (без повторного upload/API
+запроса); `0` не принимается CLI 0.70.0. Полный argv из того же builder проверяется
+offline до dependencies/IPA и повторно перед upload. UNKNOWN state — STOP.
+IPA сохраняется в Codemagic Artifacts при любом исходе со стандартным retention:
+это простой компромисс без удаления по одному лишь exit 0. После review/integration
+отдельно готовится iOS-only `1.2.3+23`, с history/live availability и новым U4 GO.
+
+Для сетевого SwiftPM-сбоя iOS +21 действует [узкий retry resolve](docs/ci-cd/IOS_SWIFTPM_RETRIES.md):
+до 3 попыток, паузы 15/45 секунд, только exit 74 с распознанной сетевой ошибкой
+загрузки. Locks сравниваются с HEAD до/после попыток; неизвестные ошибки, manifest,
+versions, checksum/signature и drift — немедленный STOP. IPA/sign/publish не
+повторяются. Helper ограничен 32 минутами, попытка — 10 минутами; workflow остаётся
+90 минут. После окончательного FAIL не переносить +21 и не повторять Android +19.
+SwiftPM fix вошёл в уже зарезервированный iOS-only `1.2.3+22`.
+Текущий следующий candidate описан выше; bump/tag/build в этой задаче запрещены.
+
+Python Apple auth/preflight/диагностика требуют отдельный Secret
+`PROKAT_ASC_PRIVATE_KEY_PEM`: владелец вручную добавляет его в существующую группу
+`prokat-ios-release` с исходным PEM-текстом того же API key (реальные переносы,
+без кавычек, base64, `@file:` или `@env:`). К старому имени fallback отсутствует.
+`APP_STORE_CONNECT_PRIVATE_KEY` и остальные `APP_STORE_CONNECT_*`, integration,
+signing и CLI publisher не менять. Новый API key не нужен. Перед добавлением
+проверить имена/scopes новой переменной на app/team/API уровнях без раскрытия
+значений; фактическая причина появления старой file reference не установлена.
+До настройки нового Secret ранний auth ожидаемо остановится с `APPLE_ENV_MISSING`.
+
+Для iOS доступна отдельная ручная [GET-only диагностика](docs/ci-cd/IOS_CI_DIAGNOSTICS.md):
+`ios-apple-diagnostic`, ветка main, без signing/IPA/publishing. Сначала review и
+интеграция кода, затем отдельный GO на облачный запуск. Она использует существующие
+Secrets и не разрешает их замену. Успех после пересохранения Secret не доказывает
+причину исторического сбоя. Ранний `auth` в release workflows работает без Apple API;
+полные live checks до build/upload сохранены.
+
+Для уже существующего `rc/ios/v1.2.3+20` не повторяйте CLI вслепую: +20 допускает
+только подтверждённый provider retry с исходными CM_TAG/SHA/guards и текущим env.
+Если он недоступен или нужен новый release-код — отдельно согласуйте iOS-only
+`1.2.3+21` через feature → dev → main. Android +19 не повторять, +20 не перемещать.
+
+| Ситуация | Действие |
+| --- | --- |
+| CI упал до upload | Установить точную стадию и состояние магазина; исправить причину. Если нужен новый tag/build — повысить общий номер через PR. Старый тег неизменяем |
+| Отказ только метаданных | Исправить metadata/reviewer access; после отдельного разрешения повторить submission уже принятой сборки без upload. Новый бинарник/номер может не требоваться |
+| Отказ бинарника | Исправить код, повысить общий build, пройти dev → main и запустить только нужную платформу |
+| Android принят, iOS нет | Не повторять Android; после проверки Apple подготовить, например, 1.2.3+20 и выполнить только prokat-rc-ios |
+| iOS принят, Android нет | Аналогично: повысить общий build и выполнить только prokat-rc-android |
+| Timeout / неизвестный upload | STOP: проверить API, uploads/builds и CI. Отсутствие ответа не означает свободный номер |
+| Локальный тег создан, push не удался | Сохранить тег, прочитать напечатанную инструкцию восстановления; сначала remote refs/CI/store, без force/delete и слепого rerun |
+
+Новый retry только номера требует отдельного согласования следующего свободного
+общего build. Уже существующий +20 повторно не резервировать. Изменение идёт через
+feature → dev → main с review/squash; notes той же версии меняются только при
+изменении содержания. Native version-файлы не меняйте.
+
+## E. Следующий общий релиз
+
+Уже зарезервированы Android `1.2.3+19`, iOS +20, +21 и `1.2.3+22`. Следующий отдельно
+согласованный retry — iOS-only **`1.2.3+23`**, если история/магазин разрешают 23.
+Без этого retry следующий общий релиз может использовать `1.2.4+23`; после
+резервирования retry +23 следующий общий релиз — **`1.2.4+24`** или выше.
+Новая версия требует нового каталога notes, version bump, тестов и PR.
+Будущую доработку профиля собственника готовят отдельно, не в CLI-задаче.
+
+## F. Ограничения и безопасность
+
+- CLI читает pubspec и notes из свежего remote main, не из текущей ветки.
+  CI получает version/build из immutable tag и проверяет совпадение с pubspec.
+- Счётчик общий, 1..9999. Новый номер больше всех предыдущих release-тегов
+  обеих платформ и известных store builds. Одинаковый номер двух платформ
+  допустим только для одной версии и одного SHA.
+- Git не гарантирует свободный номер: обязательные live preflight выполняются
+  до build и непосредственно перед upload. Локальные snapshots — только нижние границы.
+- RC → Production того же бинарника логически возможен, но **promotion в текущих
+  publishers не реализован**. CLI блокирует другой канал того же platform/build.
+  Принятый AAB/IPA повторно не загружать. Ручной promotion/submission — отдельная
+  операция владельца с проверкой accepted build, не эти четыре команды.
+- Production новой сборки требует нового общего номера, одобрения U5, CI gate
+  и прав магазина. Эти команды не включают разрешения.
+- Отмена не меняет checkout/index/refs/tags. Обычная подготовка использует
+  временный bare Git-кэш вне checkout и удаляет его. После подтверждения CLI
+  fetch-ит main в origin/main, создаёт annotated tag и отправляет только его.
+- Dry-run ничего не записывает и не fetch-ит: свежий remote SHA читается через
+  ls-remote, blobs должны уже быть в локальном object cache. Если их нет,
+  отдельно выполните `git fetch origin main`, затем повторите dry-run.
+- Чистый checkout обязателен. CLI не делает switch, merge, rebase, push веток,
+  force, удаление или перемещение тегов. Изменение main/тегов во время проверки — STOP.
+- Между последней проверкой refs и push остаётся малая неатомарная гонка main.
+  CI независимо проверяет ancestry, tag identity, подпись, package и live store state.
+- RC использует production API/Firebase: тестовые действия могут менять реальные данные.
+  Export Compliance действует для Kazakhstan only / France Not Available; при
+  изменении SDK/криптографии/географии повторить [аудит](docs/ci-cd/APPLE_EXPORT_COMPLIANCE.md).
+
+## G. Установка CLI (Windows / PowerShell)
+
+Нужны Git, Dart из pinned Flutter, SSH-доступ к origin. В корне checkout:
+
+```powershell
+. .\tool\release\prokat-release.ps1
+Get-Command prokat-rc-android, prokat-rc-ios, prokat-prod-android, prokat-prod-ios
+prokat-rc-android -DryRun
+prokat-rc-ios -DryRun
+```
+
+Для постоянного подключения один раз добавьте **в существующий** PowerShell
+`$PROFILE` строку (не перезаписывайте остальной профиль):
+
+```powershell
+. 'C:\Users\User\Documents\GitHub\prokat\tool\release\prokat-release.ps1'
+```
+
+Загрузчик не создаёт aliases и отказывается перезаписать одноимённые чужие
+aliases/functions. После перемещения checkout обновите путь в профиле.
+Из любого shell доступен кроссплатформенный эквивалент:
+`dart tool/release/cli.dart android rc --dry-run` (из корня checkout).
+
+После review/merge CLI в main, успешного dry-run и отдельного GO:
+
+```powershell
+prokat-rc-android
+prokat-rc-ios
+```
+
+Для следующего production сначала подготовьте новый общий номер/notes через
+dev → main, подтвердите U4/A5, получите U5. Только после отдельной настройки
+разрешённых локального и CI gates: `prokat-prod-android -DryRun`,
+`prokat-prod-ios -DryRun`, затем соответствующая команда без -DryRun.
+Не пытайтесь этим способом продвинуть уже загруженный RC с тем же номером.
+
+Подробности: [runbook](docs/ci-cd/RELEASE_RUNBOOK.md),
+[настройка аккаунтов](docs/ci-cd/MANUAL_SETUP.md),
+[CLI contract/tests](tool/release/README.md).

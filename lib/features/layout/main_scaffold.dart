@@ -41,15 +41,17 @@ class MainScaffold extends StatelessWidget {
         currentPath == '/search/companies';
 
     final flow = ProkatFlowPalette.of(context);
-    final useCatalogFlow =
+    final useFlowTheme =
         currentPath == AppRoutes.searchList ||
         currentPath == AppRoutes.clientRequests ||
-        currentPath == AppRoutes.clientRequestsCreate;
+        currentPath == AppRoutes.clientRequestsCreate ||
+        (isChatDetailScreen &&
+            currentPath.startsWith('${AppRoutes.clientChatList}/'));
     return ProkatFlowScope(
       palette: flow,
-      enabled: useCatalogFlow,
+      enabled: useFlowTheme,
       child: Theme(
-        data: useCatalogFlow
+        data: useFlowTheme
             ? theme.copyWith(
                 scaffoldBackgroundColor: flow.background,
                 colorScheme: theme.colorScheme.copyWith(
@@ -62,7 +64,7 @@ class MainScaffold extends StatelessWidget {
               )
             : theme,
         child: Scaffold(
-          backgroundColor: useCatalogFlow
+          backgroundColor: useFlowTheme
               ? flow.background
               : theme.scaffoldBackgroundColor,
           resizeToAvoidBottomInset: !isPinMapScreen,

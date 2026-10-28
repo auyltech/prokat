@@ -1,0 +1,3 @@
+codemagic-cli-tools==0.70.0
+-r requirements-apple.txt
+PyYAML==6.0.2

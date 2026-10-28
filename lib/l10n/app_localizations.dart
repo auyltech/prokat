@@ -100,6 +100,18 @@ abstract class AppLocalizations {
     Locale('ru'),
   ];
 
+  /// No description provided for @machineryQuotaReached.
+  ///
+  /// In en, this message translates to:
+  /// **'Machinery limit reached: {maximum} units. To add more, free up space or contact the administration.'**
+  String machineryQuotaReached(int maximum);
+
+  /// No description provided for @equipmentQuotaReached.
+  ///
+  /// In en, this message translates to:
+  /// **'Equipment limit reached: {maximum} units. To add more, free up space or contact the administration.'**
+  String equipmentQuotaReached(int maximum);
+
   /// No description provided for @appLanguage.
   ///
   /// In en, this message translates to:

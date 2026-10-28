@@ -58,7 +58,9 @@ void main() {
           sortIndex: 0,
         ),
         capacity: '',
-        offeredPrice: 0,
+        offeredPrice: 25000,
+        requiredOn: DateTime.utc(2026, 11, 1),
+        requiredAt: DateTime.utc(2026, 11, 1, 9),
       );
       final offers = [
         _offer('hour-high', 30000),

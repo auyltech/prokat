@@ -10,6 +10,16 @@ class AppLocalizationsRu extends AppLocalizations {
   AppLocalizationsRu([String locale = 'ru']) : super(locale);
 
   @override
+  String machineryQuotaReached(int maximum) {
+    return 'Достигнут лимит техники: $maximum единиц. Чтобы добавить новую технику, освободите место или обратитесь к администрации.';
+  }
+
+  @override
+  String equipmentQuotaReached(int maximum) {
+    return 'Достигнут лимит оборудования: $maximum единиц. Чтобы добавить новое оборудование, освободите место или обратитесь к администрации.';
+  }
+
+  @override
   String get appLanguage => 'Язык приложения';
 
   @override

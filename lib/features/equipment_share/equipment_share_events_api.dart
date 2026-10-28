@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/api/api_provider.dart';
 import 'package:prokat/core/constants/api_routes.dart';
 import 'package:uuid/uuid.dart';
+import 'package:prokat/core/config/env.dart';
 
 /// Best-effort ledger transport; durable OPENED retry belongs to share ingress.
 class EquipmentShareEventsApi {
@@ -13,6 +14,29 @@ class EquipmentShareEventsApi {
 
   final Dio _dio;
   final String Function() _newEventId;
+
+  Future<void> registerLink({
+    required String shareId,
+    required String equipmentId,
+  }) async {
+    final response = await _dio.post<Object?>(
+      '/equipment-shares/links',
+      data: {'shareId': shareId, 'equipmentId': equipmentId},
+      options: Options(
+        sendTimeout: const Duration(seconds: 10),
+        receiveTimeout: const Duration(seconds: 10),
+        followRedirects: false,
+      ),
+    );
+    final body = response.data;
+    final data = body is Map && body['success'] == true ? body['data'] : null;
+    if ((response.statusCode != 200 && response.statusCode != 201) ||
+        data is! Map ||
+        data['shareId'] != shareId ||
+        data['equipmentId'] != equipmentId) {
+      throw StateError('Share link registration failed');
+    }
+  }
 
   Future<void> recordShared({
     required String shareId,
@@ -43,6 +67,7 @@ class EquipmentShareEventsApi {
   }, clientEventId: clientEventId);
 
   Future<bool> _post(Map<String, Object> body, {String? clientEventId}) async {
+    if (!Env.shareAnalyticsEnabled) return true;
     final cancellation = CancelToken();
     try {
       final response = await _dio

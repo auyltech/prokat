@@ -9,6 +9,8 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/core/config/env.dart';
+import 'package:prokat/core/updates/app_update_policy.dart';
+import 'package:prokat/core/updates/app_update_prompt.dart';
 import 'package:prokat/core/router/app_router.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/features/appstartup/app_mode_storage.dart';
@@ -23,6 +25,7 @@ import 'package:prokat/features/equipment_share/equipment_share_storage.dart';
 import 'package:prokat/features/equipment_share/equipment_share_resolver.dart';
 
 import '../../helpers/recording_share_open_recorder.dart';
+import '../../helpers/test_app_upgrader.dart';
 
 const _shareId = 'AbCdEfGhIjKlMnOpQr_-12';
 const _linksMethod = MethodChannel('com.llfbandit.app_links/messages');
@@ -86,6 +89,8 @@ Future<_Harness> _start(
   Map<String, String> storage = const {},
   _Resolver? resolver,
   Future<String?>? initialReply,
+  TestAppUpgrader? upgrader,
+  List<ForcedAppVersion> forcedVersions = const [],
 }) async {
   FlutterSecureStorage.setMockInitialValues(Map.of(storage));
 
@@ -150,10 +155,32 @@ Future<_Harness> _start(
   addTearDown(router.dispose);
   addTearDown(container.dispose);
 
+  if (upgrader != null) {
+    await tester.runAsync(upgrader.initialize);
+  }
+
   await tester.pumpWidget(
     UncontrolledProviderScope(
       container: container,
-      child: MaterialApp.router(routerConfig: router),
+      child: MaterialApp.router(
+        routerConfig: router,
+        builder: (_, child) => upgrader == null
+            ? child!
+            : Consumer(
+                builder: (_, ref, _) {
+                  final startup = ref.watch(appStartupProvider).routeState;
+                  return AppUpdatePrompt(
+                    navigatorKey: router.routerDelegate.navigatorKey,
+                    backButtonDispatcher: router.backButtonDispatcher,
+                    locale: const Locale('en'),
+                    enabled: shareStartupReady(startup),
+                    upgrader: upgrader,
+                    forcedVersions: forcedVersions,
+                    child: child!,
+                  );
+                },
+              ),
+      ),
     ),
   );
   container.read(equipmentShareBootstrapProvider);
@@ -163,6 +190,152 @@ Future<_Harness> _start(
 }
 
 void main() {
+  for (final (legacy, forced) in [
+    (false, false),
+    (true, false),
+    (false, true),
+    (true, true),
+  ]) {
+    testWidgets(
+      '${forced ? 'Exact-force' : 'Major'} HARD preserves ${legacy ? 'legacy' : 'registry'} pending and accepted share context',
+      (tester) async {
+        resetUpgradePreferences();
+        final upgrader = TestAppUpgrader(
+          TestUpgradeStore(availableVersion: forced ? '1.0.1' : '2.0.0'),
+        );
+        addTearDown(upgrader.dispose);
+        final resolver = _Resolver(
+          (_) async =>
+              const ShareResolution(ShareResolutionStatus.resolved, 'eq-hard'),
+        );
+        final h = await _start(
+          tester,
+          initialLink: legacy
+              ? _shareUrl('eq-hard', shareId: _shareId)
+              : 'https://open.prokat.auyltech.kz/e/$_shareId',
+          route: AppStartupRouteState.loading,
+          resolver: resolver,
+          upgrader: upgrader,
+          forcedVersions: forced
+              ? [ForcedAppVersion.tryParse('1.0.0+1')!]
+              : const [],
+        );
+        expect((await h.storage.readPendingOpen())?.link.shareId, _shareId);
+        expect(find.byKey(const Key('upgrader_hard_dialog')), findsOneWidget);
+        h.startup.setRoute(AppStartupRouteState.guest);
+        await tester.pumpAndSettle();
+        expect(h.router.state.uri.path, '/e/eq-hard');
+        await tester.binding.handlePopRoute();
+        await tester.pumpAndSettle();
+        expect(h.router.state.uri.path, '/e/eq-hard');
+        expect(
+          (await h.storage.readAcceptedOpen(equipmentId: 'eq-hard'))
+              ?.link
+              .shareId,
+          _shareId,
+        );
+        expect(h.recorder.opens, hasLength(1));
+        h.startup.setRoute(AppStartupRouteState.otp);
+        await tester.pumpAndSettle();
+        h.startup.setRoute(AppStartupRouteState.client);
+        await tester.pumpAndSettle();
+        expect(find.byKey(const Key('upgrader_hard_dialog')), findsOneWidget);
+        expect(
+          (await h.storage.readAcceptedOpen(equipmentId: 'eq-hard'))
+              ?.link
+              .shareId,
+          _shareId,
+        );
+        expect(h.recorder.opens, hasLength(1));
+      },
+      variant: const TargetPlatformVariant({TargetPlatform.android}),
+    );
+  }
+
+  for (final legacy in [false, true]) {
+    for (final warm in [false, true]) {
+      for (final action in ['LATER', 'IGNORE']) {
+        testWidgets(
+          '${legacy ? 'legacy' : 'registry'} ${warm ? 'warm' : 'cold pending'} link survives $action and login continuation',
+          (tester) async {
+            resetUpgradePreferences();
+            final upgrader = TestAppUpgrader(TestUpgradeStore());
+            addTearDown(upgrader.dispose);
+            final uri = legacy
+                ? _shareUrl('eq-update', shareId: _shareId)
+                : 'https://open.prokat.auyltech.kz/e/$_shareId';
+            final resolver = _Resolver(
+              (_) async => const ShareResolution(
+                ShareResolutionStatus.resolved,
+                'eq-update',
+              ),
+            );
+            final h = await _start(
+              tester,
+              initialLink: warm ? null : uri,
+              route: warm
+                  ? AppStartupRouteState.guest
+                  : AppStartupRouteState.loading,
+              resolver: resolver,
+              upgrader: upgrader,
+            );
+            if (!warm) {
+              expect(find.byType(AlertDialog), findsNothing);
+              expect(
+                (await h.storage.readPendingOpen())?.link.shareId,
+                _shareId,
+              );
+              h.startup.setRoute(AppStartupRouteState.guest);
+              await tester.pump();
+              await tester.pumpAndSettle();
+            }
+            final button = tester.widget<TextButton>(
+              find.widgetWithText(TextButton, action, skipOffstage: false),
+            );
+            if (warm) {
+              h.events()!.success(uri);
+              await tester.pumpAndSettle();
+            }
+            button.onPressed!();
+            await tester.pumpAndSettle();
+            expect(find.text('Share eq-update'), findsOneWidget);
+            expect(find.byType(AlertDialog, skipOffstage: false), findsNothing);
+            expect(h.recorder.opens, hasLength(1));
+            expect(
+              (await h.storage.readAcceptedOpen(equipmentId: 'eq-update'))
+                  ?.link
+                  .shareId,
+              _shareId,
+            );
+            expect(await h.storage.readPendingOpen(), isNull);
+            // The durable accepted context survives guest -> OTP -> client.
+            await h.storage.saveOverlay(
+              const EquipmentShareOverlay(
+                path: '/e/eq-update',
+                afterAuth: true,
+              ),
+            );
+            h.router.pop();
+            h.startup.setRoute(AppStartupRouteState.otp);
+            await tester.pumpAndSettle();
+            h.startup.setRoute(AppStartupRouteState.client);
+            await tester.pumpAndSettle();
+            expect(find.text('Share eq-update'), findsOneWidget);
+            expect(h.recorder.opens, hasLength(1));
+            expect(
+              (await h.storage.readAcceptedOpen(equipmentId: 'eq-update'))
+                  ?.link
+                  .shareId,
+              _shareId,
+            );
+            expect(resolver.calls, legacy ? isEmpty : [_shareId]);
+          },
+          variant: const TargetPlatformVariant({TargetPlatform.android}),
+        );
+      }
+    }
+  }
+
   testWidgets(
     'durable newer B wins over delayed platform initial A after restart',
     (tester) async {
