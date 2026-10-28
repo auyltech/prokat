@@ -18,22 +18,14 @@ void main() {
       CatalogTariffUnit(
         id: '1',
         code: 'PER_HOUR',
-        names: LocalizedNames(
-          ru: 'за час',
-          en: 'per hour',
-          kk: 'сағатына',
-        ),
+        names: LocalizedNames(ru: 'за час', en: 'per hour', kk: 'сағатына'),
         sortIndex: 0,
         isActive: true,
       ),
       CatalogTariffUnit(
         id: '2',
         code: 'PER_MONTH',
-        names: LocalizedNames(
-          ru: 'за месяц',
-          en: 'per month',
-          kk: 'айына',
-        ),
+        names: LocalizedNames(ru: 'за месяц', en: 'per month', kk: 'айына'),
         sortIndex: 1,
         isActive: true,
       ),
