@@ -32,7 +32,7 @@
 
 - Полный mobile suite до новых основных списков:1319 passed/4 skipped. Актуальный набор затронутых разделов386 passed; после последней правки visibility —34 финальных проверки (включая5 визуальных рендеров), analyze clean. Есть narrow320/2x light/dark тесты, реальные PG26 сценариев гонок/rollback и API smoke. Логи: `mobile-flow-regressions.log`, `final-park-theme-preview.log`, `final-analyze.log`.
 - Disposable PG `prokat-redesign-terms-tests` после26 успешных проверок остановлен/удалён (`--rm`, tmpfs), рабочая реплика не использовалась этим destructive suite.
-- Backend локальный commit `f13ffe5`, web `198da8c`; последние targeted backend8/web8 passed. Mobile изменения подготовлены к локальному коммиту, чужая product-flow правка исключена.
+- Backend локальный commit `f13ffe5`, web `198da8c`; последние targeted backend8/web8 passed. Mobile код и пресеты сохранены коммитом `2d4a27e8`, чужая product-flow правка исключена.
 - Логи/превью/API-сценарии: `C:/Projects/Prokat-Mobile/artifacts/resume-20261028` и `resume-20261029`.
 - Реальный HTTP smoke: обсуждение без заказа, повторное открытие, один CREATED, rich proposal без изменения заказа до accept, точное согласие v1+updatedAt, тот же CONFIRMED booking/chat, terminal history, сохранённый/primary address неизменны. Созданный тестовый Booking a81fb612-3bc4-4031-bebd-23834ccb0585 в chatcmvso3w5w0000hdp4dli22n9p штатно отменён; owner2 возвращён OFFLINE, временные сессии закрыты. Результат `local-terms-workflow-result.json`.
 - Fakeclient5 +77000000005/000000, id00000000-0000-4000-8000-202610280001. Owner2 +77000000002/000000, idd04045ec-0b83-4fa3-b0c0-64670ae221e8.
@@ -49,5 +49,7 @@
 5. При следующих изменениях сборка только через `C:/Projects/Prokat-Mobile/scripts/build-redesign-local.ps1`: local endpoints, fake Firebase, public Mapbox token из whitelist. Операции Flutter/Dart последовательно, только root. Обновить checkpoint/commit по итогам UI QA; пока сервер оставить работающим.
 
 Остаток после основных списков: формы добавления/редактирования техники, внутренний экран машины, профили/настройки/вспомогательные экраны; закреплённый контекст тендерного offer; добавление нового адреса на карте в форме rich terms. Полная централизация всех локальных метрик/текстовых ролей ещё не завершена. Не объявлять весь редизайн готовым. Не добавлять изменение уже CONFIRMED условий под видом оформления.
+
+После завершения полного редизайна и ручного прохода пользователь также просил записать видео новой работы PROKAT и короткое объяснение пользы изменений: понятные действия/названия, возможность сначала написать без заказа, единый аккуратный вид и меньше препятствий. Финальное видео пока не записывалось.
 
 Отдельный существующий пробел: createBooking без inquiryChatId не имеет request-id idempotency и после timeout может продублировать отдельный заказ; явная конвертация inquiry защищена от дубликата, но повтор отвечает409. Глобальную дедупликацию по адресу/времени не вводили, чтобы не запрещать реальные отдельные заказы.
