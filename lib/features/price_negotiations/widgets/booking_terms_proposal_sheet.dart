@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:prokat/core/constants/price_rate_options.dart';
 import 'package:prokat/core/theme/prokat_flow_palette.dart';
 import 'package:prokat/core/theme/prokat_flow_scope.dart';
@@ -137,12 +138,15 @@ class _BookingTermsProposalSheetState
       address.longitude >= -180 &&
       address.longitude <= 180;
 
+  bool get _scheduleChanged =>
+      _mode == JobScheduleMode.asap ||
+      _date != widget.booking.bookedOn?.toLocal() ||
+      _time != widget.booking.bookedAt?.toLocal();
+
   bool get _changed =>
       int.tryParse(_priceController.text) != widget.booking.price ||
       _rate.value != widget.booking.priceRate.value ||
-      _mode == JobScheduleMode.asap ||
-      _date != widget.booking.bookedOn?.toLocal() ||
-      _time != widget.booking.bookedAt?.toLocal() ||
+      _scheduleChanged ||
       !_sameAddress(_address, widget.booking.location);
 
   void _scheduled() {
@@ -206,7 +210,7 @@ class _BookingTermsProposalSheetState
     }
     final original = widget.booking.location;
     final addresses = <LocationModel>[
-      if (original != null) original,
+      ?original,
       for (final address in result.data ?? <LocationModel>[])
         if (address.service.toUpperCase() == 'ADDRESS' &&
             _validAddress(address) &&
@@ -222,13 +226,13 @@ class _BookingTermsProposalSheetState
           for (final address in addresses)
             ListTile(
               contentPadding: EdgeInsets.zero,
-              leading: const Icon(Icons.location_on_outlined),
+              leading: const Icon(LucideIcons.mapPin),
               title: Text(_addressLabel(address)),
               subtitle: identical(address, original)
                   ? Text(l10n.orderTermsCurrentAddress)
                   : null,
               trailing: _sameAddress(address, _address)
-                  ? const Icon(Icons.check_rounded)
+                  ? const Icon(LucideIcons.check)
                   : null,
               onTap: () => Navigator.of(sheetContext).pop(address),
             ),
@@ -258,7 +262,7 @@ class _BookingTermsProposalSheetState
         ? _date
         : DateTime(asap.year, asap.month, asap.day);
     final time = asap ?? _time;
-    if (error == null && time!.isBefore(DateTime.now())) {
+    if (error == null && _scheduleChanged && time!.isBefore(DateTime.now())) {
       error = l10n.pleaseSelectTime;
     }
     if (error != null) {
@@ -366,7 +370,7 @@ class _BookingTermsProposalSheetState
           enabled: !submitting && !_loadingAddresses,
           value: _address,
           selectedLabel: _address == null ? null : _addressLabel(_address!),
-          prefix: Icon(Icons.location_on_outlined, color: flow.primary),
+          prefix: Icon(LucideIcons.mapPin, color: flow.primary),
           openCustomSheet: _chooseAddress,
           onChanged: (address) => setState(() {
             _address = address;

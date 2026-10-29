@@ -3,9 +3,11 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:prokat/core/router/app_routes.dart';
+import 'package:prokat/core/theme/prokat_flow_palette.dart';
+import 'package:prokat/core/theme/prokat_flow_scope.dart';
 import 'package:prokat/core/widgets/empty_state_tile.dart';
+import 'package:prokat/core/widgets/ui_kit/flow/prokat_flow_actions.dart';
 import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:prokat/features/appstartup/app_mode_storage.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
@@ -82,28 +84,31 @@ class _ChatListViewState extends ConsumerState<ChatListView> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
+    final flow = ProkatFlowPalette.of(context);
 
-    return Scaffold(
-      backgroundColor: theme.scaffoldBackgroundColor,
-      body: AppTabs(
-        titles: [l10n.chatsActiveTab, l10n.chatsArchiveTab],
-        onChanged: (index) => _refreshIfStale(
-          index == 0 ? ChatListFilter.active : ChatListFilter.archived,
+    return ProkatFlowScope(
+      palette: flow,
+      child: Scaffold(
+        backgroundColor: flow.background,
+        body: AppTabs(
+          titles: [l10n.chatsActiveTab, l10n.chatsArchiveTab],
+          onChanged: (index) => _refreshIfStale(
+            index == 0 ? ChatListFilter.active : ChatListFilter.archived,
+          ),
+          children: [
+            _ChatListPane(
+              isOwner: widget.isOwner,
+              filter: ChatListFilter.active,
+              scrollController: _activeScrollController,
+            ),
+            _ChatListPane(
+              isOwner: widget.isOwner,
+              filter: ChatListFilter.archived,
+              scrollController: _archivedScrollController,
+            ),
+          ],
         ),
-        children: [
-          _ChatListPane(
-            isOwner: widget.isOwner,
-            filter: ChatListFilter.active,
-            scrollController: _activeScrollController,
-          ),
-          _ChatListPane(
-            isOwner: widget.isOwner,
-            filter: ChatListFilter.archived,
-            scrollController: _archivedScrollController,
-          ),
-        ],
       ),
     );
   }
@@ -139,24 +144,7 @@ class _ChatListPane extends ConsumerWidget {
       onRefresh: refresh,
       child: chatsAsync.when(
         skipLoadingOnRefresh: !isOwner,
-        loading: () => filter == ChatListFilter.active && !isOwner
-            ? ListView.builder(
-                controller: scrollController,
-                physics: const AlwaysScrollableScrollPhysics(),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 24,
-                  vertical: 24,
-                ),
-                itemCount: 5,
-                itemBuilder: (context, index) {
-                  return Shimmer.fromColors(
-                    baseColor: Colors.grey[500]!.withValues(alpha: 0.2),
-                    highlightColor: Colors.grey[200]!.withValues(alpha: 0.2),
-                    child: ChatTileSkeleton(index: index),
-                  );
-                },
-              )
-            : _ownerSkeleton(scrollController),
+        loading: () => _chatSkeleton(scrollController),
         error: (_, _) => ListView(
           controller: scrollController,
           physics: const AlwaysScrollableScrollPhysics(),
@@ -171,7 +159,7 @@ class _ChatListPane extends ConsumerWidget {
         ),
         data: (state) {
           if (isOwner && state.isRefreshing) {
-            return _ownerSkeleton(scrollController);
+            return _chatSkeleton(scrollController);
           }
 
           final chats = state.items;
@@ -189,11 +177,10 @@ class _ChatListPane extends ConsumerWidget {
                       ? l10n.youHaveNoArchivedChats
                       : l10n.youHaveNoChats,
                   imageName: 'empty_chats.png',
-                  actionButton: AppElevatedButton(
+                  actionButton: ProkatFlowPrimaryButton(
                     title: l10n.refresh,
-                    isLoading: chatsAsync.isRefreshing,
-                    prefix: const Icon(LucideIcons.refreshCw),
-                    onTap: refresh,
+                    loading: chatsAsync.isRefreshing,
+                    onPressed: refresh,
                   ),
                 ),
               ],
@@ -203,6 +190,7 @@ class _ChatListPane extends ConsumerWidget {
           return ListView.builder(
             controller: scrollController,
             physics: const AlwaysScrollableScrollPhysics(),
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
             itemCount: chats.length + (state.isLoadingMore ? 1 : 0),
             itemBuilder: (context, index) {
               if (index == chats.length) {
@@ -233,24 +221,18 @@ class _ChatListPane extends ConsumerWidget {
   }
 }
 
-Widget _ownerSkeleton(ScrollController controller) {
+Widget _chatSkeleton(ScrollController controller) {
   return ListView.builder(
     controller: controller,
     physics: const AlwaysScrollableScrollPhysics(),
-    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+    padding: const EdgeInsets.all(16),
     itemCount: 5,
     itemBuilder: (context, index) {
+      final flow = ProkatFlowPalette.of(context);
       return Shimmer.fromColors(
-        baseColor: Colors.grey[500]!.withValues(alpha: 0.2),
-        highlightColor: Colors.grey[200]!.withValues(alpha: 0.2),
-        child: Container(
-          height: 80,
-          margin: const EdgeInsets.only(bottom: 16),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
-          ),
-        ),
+        baseColor: flow.border,
+        highlightColor: flow.surface,
+        child: ChatTileSkeleton(index: index),
       );
     },
   );

@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
+import 'package:prokat/core/theme/prokat_flow_scope.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:prokat/core/router/app_routes.dart';
@@ -20,6 +21,7 @@ import 'package:prokat/features/requests/providers/request_mutation_provider.dar
 import 'package:prokat/features/requests/state/request_lifetime.dart';
 import 'package:prokat/features/requests/state/request_utils.dart';
 import 'package:prokat/features/requests/widgets.dart/request_status_badge.dart';
+import 'package:prokat/features/requests/widgets.dart/owner_request_flow_card.dart';
 import 'package:prokat/features/user/widgets/user_info_tile.dart';
 import 'package:prokat/features/user_safety/models/report_target.dart';
 import 'package:prokat/features/user_safety/widgets/ugc_more_button.dart';
@@ -58,6 +60,76 @@ class OwnerRequestTile extends ConsumerWidget {
     final lifetimeLabel = remaining >= const Duration(hours: 1)
         ? l10n.hoursLeft(requestLifetimeHoursLeft(remaining))
         : l10n.minutesLeft(requestLifetimeMinutesLeft(remaining));
+
+    if (ProkatFlowScope.maybeOf(context) != null) {
+      return OwnerRequestFlowCard(
+        request: request,
+        requestState: requestState,
+        lifetimeLabel: lifetimeLabel,
+        clientSummary: UserInfoTile(user: request.client),
+        moreAction: UgcMoreButton(
+          counterpartUserId: request.client?.id,
+          counterpartName: request.client?.displayNameOr('') ?? '',
+          reportTarget: ReportTarget(ReportTargetType.request, request.id),
+          variant: AppIconButtonVariant.plain,
+        ),
+        hasActiveOffer: activeOffer != null,
+        onLocation: request.location == null
+            ? null
+            : () => showLocationSheet(context, request.location!),
+        onChat: () {
+          if (activeOffer == null) return;
+          unawaited(
+            context.push(
+              '${AppRoutes.ownerChatList}/direct/${activeOffer.chatId}',
+            ),
+          );
+        },
+        onViewOffer: () {
+          if (activeOffer == null) return;
+          openViewOfferSheet(
+            context: context,
+            offer: activeOffer,
+            onCancel: () async {
+              final result = await ref
+                  .read(offerMutationProvider.notifier)
+                  .cancelOffer(
+                    activeOffer.id,
+                    chatId: activeOffer.chatId,
+                    requestId: activeOffer.requestId,
+                  );
+              AppToast.show(
+                message: result.message,
+                type: result.success
+                    ? AppToastType.success
+                    : AppToastType.error,
+              );
+            },
+          );
+        },
+        onHide: () async {
+          final result = await ref
+              .read(requestMutationProvider.notifier)
+              .viewRequest(request.id);
+          if (context.mounted) {
+            AppToast.show(
+              message: result ? l10n.requestHidden : l10n.saveFailed,
+              type: result ? AppToastType.success : AppToastType.error,
+            );
+          }
+        },
+        onSend: () async {
+          final online = await ensureOwnerOnline(
+            context,
+            ref,
+            message: l10n.ownerOfflineMustBeOnlineForTender,
+          );
+          if (!online || !context.mounted) return;
+          ref.read(offerMutationProvider.notifier).selectRequest(request);
+          unawaited(context.push(AppRoutes.ownerCreateOffer));
+        },
+      );
+    }
 
     return Container(
       decoration: BoxDecoration(color: theme.cardColor),

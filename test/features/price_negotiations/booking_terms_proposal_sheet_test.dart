@@ -165,9 +165,14 @@ void main() {
   );
 
   Future<void> submit(WidgetTester tester) async {
+    await tester.pumpAndSettle();
+    tester.binding.focusManager.primaryFocus?.unfocus();
+    await tester.pumpAndSettle();
     final button = find.byType(ProkatFlowPrimaryButton);
     await tester.ensureVisible(button);
-    await tester.tap(button);
+    await tester.pumpAndSettle();
+    expect(button.hitTestable(), findsOneWidget);
+    await tester.tap(button.hitTestable());
     await tester.pump();
   }
 
@@ -192,6 +197,10 @@ void main() {
     expect(fixture.mutation.submissions, isEmpty);
     expect(booking.price, 18000);
     expect(booking.location, same(_originalAddress));
+    await tester.enterText(priceInput(), '17500');
+    await submit(tester);
+    expect(fixture.mutation.submissions.single['price'], 17500);
+    expect(tester.takeException(), isNull);
   });
 
   testWidgets(
@@ -260,6 +269,26 @@ void main() {
     },
   );
 
+  testWidgets('price proposal preserves an unchanged elapsed schedule', (
+    tester,
+  ) async {
+    final yesterday = DateTime.now().subtract(const Duration(days: 1));
+    final booking = _booking().copyWith(
+      bookedOn: DateTime(yesterday.year, yesterday.month, yesterday.day),
+      bookedAt: DateTime(yesterday.year, yesterday.month, yesterday.day, 10),
+    );
+    final fixture = await pumpForm(tester, booking: booking);
+    await tester.enterText(priceInput(), '17000');
+    await submit(tester);
+    final sent = fixture.mutation.submissions.single;
+    final terms = sent['terms'] as Map;
+    expect(terms['bookedOn'], booking.bookedOn!.toUtc().toIso8601String());
+    expect(terms['bookedAt'], booking.bookedAt!.toUtc().toIso8601String());
+    expect(sent['price'], 17000);
+    expect(booking.price, 18000);
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets(
     'duplicate tap is blocked while proposal is pending and failure keeps the draft',
     (tester) async {
@@ -268,7 +297,11 @@ void main() {
       fixture.mutation.failNext = true;
       await tester.enterText(priceInput(), '16000');
       await submit(tester);
-      await tester.tap(find.byType(ProkatFlowPrimaryButton));
+      final button = find.byType(ProkatFlowPrimaryButton);
+      await tester.ensureVisible(button);
+      await tester.pump();
+      expect(button.hitTestable(), findsOneWidget);
+      await tester.tap(button.hitTestable());
       await tester.pump();
       expect(fixture.mutation.submissions.length, 1);
       fixture.mutation.pending!.complete();

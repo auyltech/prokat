@@ -7,19 +7,23 @@ import 'package:prokat/features/chat/models/chat_message_model.dart';
 import 'package:prokat/features/price_negotiations/models/price_negotiation_model.dart';
 import 'package:prokat/features/price_negotiations/models/price_negotiation_status.dart';
 import 'package:prokat/features/price_negotiations/models/price_negotiation_query.dart';
+import 'package:prokat/features/price_negotiations/models/price_negotiation_page.dart';
 import 'package:prokat/features/price_negotiations/state/price_negotiation_provider.dart';
 import 'package:prokat/features/price_negotiations/widgets/price_negotiation_status_badge.dart';
 import 'package:prokat/features/price_negotiations/widgets/booking_terms_proposal_card.dart';
 import 'package:prokat/l10n/app_localizations.dart';
+import 'package:prokat/features/appstartup/app_mode_storage.dart';
 
 class NegotiationMessageBubble extends ConsumerStatefulWidget {
   final ChatMessageModel message;
   final bool isMe;
+  final AppMode mode;
 
   const NegotiationMessageBubble({
     super.key,
     required this.message,
     required this.isMe,
+    this.mode = AppMode.clientMode,
   });
 
   @override
@@ -46,27 +50,33 @@ class _NegotiationMessageBubbleState
       return Text(l10n.failedToLoadNegotiation);
     }
 
-    final query = priceNegotiationQueryFor(
+    final subject = priceNegotiationQueryFor(
       bookingId: parsed.bookingId,
       offerId: parsed.offerId,
     );
+    final query = subject == null
+        ? null
+        : PriceNegotiationQuery(
+            bookingId: subject.bookingId,
+            offerId: subject.offerId,
+          );
     final priceNegotiationState = query == null
         ? const <PriceNegotiation>[]
         : ref.watch(priceNegotiationsProvider(query)).valueOrNull?.items ??
               const <PriceNegotiation>[];
     final mutationState = ref.watch(priceNegotiationMutationProvider);
 
-    final priceNegotiation =
-        priceNegotiationState
-            .where((item) => item.id == parsed.id)
-            .firstOrNull ??
-        parsed;
+    final priceNegotiation = resolveMessageNegotiation(
+      widget.message.meta!,
+      priceNegotiationState,
+    );
 
     if (priceNegotiation.requiresTermsAcknowledgement) {
       return BookingTermsProposalCard(
         proposal: priceNegotiation,
         isMe: widget.isMe,
         chatId: widget.message.chatId,
+        mode: widget.mode,
       );
     }
 

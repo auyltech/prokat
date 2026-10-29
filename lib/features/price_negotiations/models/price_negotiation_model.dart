@@ -46,7 +46,10 @@ class PriceNegotiation {
   bool get isPending => status == PriceNegotiationStatus.created;
   bool get canAcknowledgeTerms =>
       !requiresTermsAcknowledgement ||
-      (proposedTerms != null && updatedAt != null);
+      (proposedTerms != null &&
+          updatedAt != null &&
+          priceRate != null &&
+          price > 0);
 
   static DateTime? _tryParseDate(dynamic value) {
     if (value == null) return null;
@@ -75,7 +78,7 @@ class PriceNegotiation {
       receiverId:
           json['receiverId']?.toString() ?? json['toUserId']?.toString(),
       price: parsePrice(json['price']),
-      priceRate: parseRateOption(json['priceRate']),
+      priceRate: parseKnownRateOption(json['priceRate']),
       comment: json['comment']?.toString(),
       status: parsePriceNegotiationStatus(json['status']?.toString()),
       createdAt: _tryParseDate(json['createdAt']),

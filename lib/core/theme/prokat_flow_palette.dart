@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:prokat/core/theme/app_fonts.dart';
 
 /// Palette for the refreshed client/owner flow. Screens opt in gradually.
 @immutable
@@ -28,6 +29,23 @@ class ProkatFlowPalette {
 
   /// Filled controls keep white content readable in both appearance modes.
   Color get filledPrimary => light.primary;
+
+  /// Material controls and inherited text share the same opt-in presets.
+  ThemeData themeFor(ThemeData base) => base.copyWith(
+    scaffoldBackgroundColor: background,
+    textTheme: base.textTheme.apply(
+      fontFamily: AppFonts.manropeFamily,
+      bodyColor: title,
+      displayColor: title,
+    ),
+    colorScheme: base.colorScheme.copyWith(
+      primary: filledPrimary,
+      onPrimary: Colors.white,
+      surface: surface,
+      onSurface: title,
+      outline: border,
+    ),
+  );
 
   static const light = ProkatFlowPalette(
     background: Color(0xFFF3F6FC),

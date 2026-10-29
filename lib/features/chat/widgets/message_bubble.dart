@@ -76,6 +76,7 @@ class _MessageBubbleState extends State<MessageBubble> {
       return NegotiationMessageBubble(
         message: widget.message,
         isMe: widget.isMe,
+        mode: widget.mode,
       );
     }
 

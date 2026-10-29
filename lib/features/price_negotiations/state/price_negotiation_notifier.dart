@@ -46,6 +46,12 @@ class PriceNegotiationMutationNotifier
 
   Future<void> _syncQueries(PriceNegotiationQuery query) async {
     final updates = <Future<void>>[];
+    final all = priceNegotiationsProvider(
+      PriceNegotiationQuery(bookingId: query.bookingId, offerId: query.offerId),
+    );
+    if (ref.exists(all)) {
+      updates.add(ref.read(all.notifier).refresh());
+    }
     final active = priceNegotiationsProvider(query);
     if (ref.exists(active)) {
       updates.add(ref.read(active.notifier).refresh());

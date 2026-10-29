@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:prokat/core/theme/prokat_flow_scope.dart';
 
 class ChatTileSkeleton extends StatelessWidget {
   final int index;
@@ -6,6 +7,43 @@ class ChatTileSkeleton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final flow = ProkatFlowScope.maybeOf(context);
+    if (flow != null) {
+      return Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: flow.surface,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: flow.border),
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            CircleAvatar(radius: 24, backgroundColor: flow.border),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  FractionallySizedBox(
+                    widthFactor: .75,
+                    child: Container(height: 14, color: flow.border),
+                  ),
+                  const SizedBox(height: 10),
+                  Container(height: 12, color: flow.border),
+                  const SizedBox(height: 8),
+                  FractionallySizedBox(
+                    widthFactor: .55,
+                    child: Container(height: 12, color: flow.border),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      );
+    }
     return Padding(
       padding: const EdgeInsets.only(
         bottom: 24.0,

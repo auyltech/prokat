@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/core/theme/prokat_flow_scope.dart';
 import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:prokat/features/equipment/providers/equipment_mutation_provider.dart';
 import 'package:prokat/l10n/app_localizations.dart';
@@ -23,11 +24,22 @@ class OnlineToggle extends ConsumerWidget {
     final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final flow = ProkatFlowScope.maybeOf(context);
     final actionId = "equipment:update:$id:status";
 
     final isSubmitting = ref
         .watch(equipmentMutationProvider.notifier)
         .isActionActive(actionId);
+
+    final label = Text(
+      isVisible && canShow ? l10n.equipmentShown : l10n.equipmentHidden,
+      style: theme.textTheme.labelMedium?.copyWith(
+        fontWeight: FontWeight.bold,
+        color: isVisible && canShow
+            ? flow?.success ?? colorScheme.primary
+            : colorScheme.error,
+      ),
+    );
 
     return Flex(
       direction: vertical ? Axis.vertical : Axis.horizontal,
@@ -36,20 +48,14 @@ class OnlineToggle extends ConsumerWidget {
       children: [
         if (isSubmitting) const CircularProgressIndicator(),
 
-        Text(
-          isVisible && canShow ? l10n.equipmentShown : l10n.equipmentHidden,
-          style: theme.textTheme.labelMedium?.copyWith(
-            fontWeight: FontWeight.bold,
-            color: isVisible && canShow
-                ? colorScheme.primary
-                : colorScheme.error,
-          ),
-        ),
+        if (flow != null && !vertical) Expanded(child: label) else label,
 
         Transform.scale(
           scale: 0.8,
           child: Switch(
             value: isVisible && canShow,
+            activeTrackColor: flow?.success,
+            activeThumbColor: flow == null ? null : Colors.white,
             onChanged: !canShow
                 ? (val) {
                     if (val) {

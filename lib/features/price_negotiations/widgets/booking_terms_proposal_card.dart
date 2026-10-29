@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:prokat/core/theme/prokat_flow_palette.dart';
 import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
+import 'package:prokat/features/appstartup/app_mode_storage.dart';
+import 'package:prokat/features/owner/owner_offline_guard.dart';
 import 'package:prokat/features/price_negotiations/models/price_negotiation_model.dart';
 import 'package:prokat/features/price_negotiations/state/price_negotiation_provider.dart';
 import 'package:prokat/features/price_negotiations/widgets/booking_terms_summary.dart';
@@ -13,11 +15,13 @@ class BookingTermsProposalCard extends ConsumerWidget {
   final PriceNegotiation proposal;
   final bool isMe;
   final String chatId;
+  final AppMode mode;
   const BookingTermsProposalCard({
     super.key,
     required this.proposal,
     required this.isMe,
     required this.chatId,
+    this.mode = AppMode.clientMode,
   });
 
   Future<void> _respond(
@@ -25,6 +29,16 @@ class BookingTermsProposalCard extends ConsumerWidget {
     WidgetRef ref,
     PriceNegotiationResponse decision,
   ) async {
+    if (decision == PriceNegotiationResponse.accept &&
+        mode == AppMode.ownerMode) {
+      final online = await ensureOwnerOnline(
+        context,
+        ref,
+        message: AppLocalizations.of(context)!
+            .ownerOfflineMustBeOnlineToAcceptOrder,
+      );
+      if (!online || !context.mounted) return;
+    }
     try {
       await ref
           .read(priceNegotiationMutationProvider.notifier)

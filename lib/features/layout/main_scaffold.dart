@@ -45,24 +45,21 @@ class MainScaffold extends StatelessWidget {
         currentPath == AppRoutes.searchList ||
         currentPath == AppRoutes.clientRequests ||
         currentPath == AppRoutes.clientRequestsCreate ||
+        currentPath == AppRoutes.clientChatList ||
+        currentPath == AppRoutes.ownerChatList ||
+        currentPath == AppRoutes.clientOrders ||
+        currentPath == AppRoutes.clientOrdersHistory ||
+        currentPath == AppRoutes.ownerBookings ||
+        currentPath == AppRoutes.ownerBookingsHistory ||
+        currentPath == AppRoutes.ownerEquipment ||
+        currentPath == AppRoutes.ownerRequests ||
         (isChatDetailScreen &&
             currentPath.startsWith('${AppRoutes.clientChatList}/'));
     return ProkatFlowScope(
       palette: flow,
       enabled: useFlowTheme,
       child: Theme(
-        data: useFlowTheme
-            ? theme.copyWith(
-                scaffoldBackgroundColor: flow.background,
-                colorScheme: theme.colorScheme.copyWith(
-                  primary: flow.filledPrimary,
-                  onPrimary: Colors.white,
-                  surface: flow.surface,
-                  onSurface: flow.title,
-                  outline: flow.border,
-                ),
-              )
-            : theme,
+        data: useFlowTheme ? flow.themeFor(theme) : theme,
         child: Scaffold(
           backgroundColor: useFlowTheme
               ? flow.background

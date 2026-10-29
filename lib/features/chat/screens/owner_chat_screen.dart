@@ -145,18 +145,13 @@ class _OwnerChatScreenState extends ConsumerState<OwnerChatScreen> {
     return ProkatFlowScope(
       palette: flow,
       child: Theme(
-        data: theme.copyWith(
-          colorScheme: theme.colorScheme.copyWith(
-            primary: flow.filledPrimary,
-            onPrimary: Colors.white,
-            surface: flow.surface,
-            onSurface: flow.title,
-            outline: flow.border,
-          ),
-          bottomNavigationBarTheme: theme.bottomNavigationBarTheme.copyWith(
-            backgroundColor: theme.colorScheme.surface,
-          ),
-        ),
+        data: flow
+            .themeFor(theme)
+            .copyWith(
+              bottomNavigationBarTheme: theme.bottomNavigationBarTheme.copyWith(
+                backgroundColor: theme.colorScheme.surface,
+              ),
+            ),
         child: Scaffold(
           backgroundColor: flow.background,
           body: Column(
@@ -164,7 +159,7 @@ class _OwnerChatScreenState extends ConsumerState<OwnerChatScreen> {
               if (currentChat != null &&
                   (currentChat.inquiryEquipment != null ||
                       currentChat.booking?.equipment != null))
-                InquiryContextCard(chat: currentChat),
+                InquiryContextCard(chat: currentChat, mode: AppMode.ownerMode),
               if ((chatAsync.hasError || messagesAsync.hasError) &&
                   messages.isEmpty)
                 Expanded(

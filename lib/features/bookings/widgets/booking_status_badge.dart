@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:prokat/core/theme/app_dimens.dart';
+import 'package:prokat/core/theme/app_fonts.dart';
+import 'package:prokat/core/theme/prokat_flow_scope.dart';
 import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/features/bookings/models/booking_status.dart';
 import 'package:prokat/l10n/app_localizations.dart';
@@ -29,6 +32,31 @@ class BookingStatusBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+
+    final palette = ProkatFlowScope.maybeOf(context);
+    if (palette != null) {
+      final foreground = switch (status) {
+        BookingStatus.confirmed => palette.success,
+        BookingStatus.completed || BookingStatus.reviewed => palette.primary,
+        BookingStatus.cancelled ||
+        BookingStatus.rejected ||
+        BookingStatus.failed => Theme.of(context).colorScheme.error,
+        BookingStatus.created => palette.primary,
+        BookingStatus.draft => palette.secondary,
+      };
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        decoration: BoxDecoration(
+          color: foreground.withValues(alpha: .1),
+          borderRadius: BorderRadius.circular(AppDimens.r10$base),
+          border: Border.all(color: foreground.withValues(alpha: .22)),
+        ),
+        child: Text(
+          getBookingStatus(status, l10n: l10n),
+          style: AppFonts.body14SemiBold(context).copyWith(color: foreground),
+        ),
+      );
+    }
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),

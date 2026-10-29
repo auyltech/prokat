@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/core/theme/prokat_flow_palette.dart';
+import 'package:prokat/core/theme/prokat_flow_scope.dart';
 import 'package:prokat/core/widgets/empty_state_tile.dart';
 import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:prokat/features/catalog/models/catalog_group.dart';
@@ -14,7 +16,6 @@ import 'package:prokat/features/offers/state/offers_provider.dart';
 import 'package:prokat/features/requests/providers/owner_active_requests_provider.dart';
 import 'package:prokat/features/requests/state/request_lifetime.dart';
 import 'package:prokat/features/requests/widgets.dart/new_request_highlight.dart';
-import 'package:prokat/features/requests/widgets.dart/owner_request_skeleton.dart';
 import 'package:prokat/features/requests/widgets.dart/owner_request_tile.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
@@ -44,42 +45,46 @@ class _OwnerRequestsScreenState extends ConsumerState<OwnerRequestsScreen> {
   @override
   Widget build(BuildContext context) {
     final fleet = ref.watch(ownerFleetGroupsProvider);
+    final palette = ProkatFlowPalette.of(context);
 
-    return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      body: fleet.when(
-        loading: () => const RequestTileSkeleton(),
-        error: (error, _) => ListView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(12),
-              child: EmptyStateTile(
-                imageName: 'empty_error.png',
-                title: AppLocalizations.of(context)!.errorLoadingRequests,
-                subtitle: error.toString(),
-              ),
-            ),
-          ],
-        ),
-        data: (groups) {
-          final resolved = groups.isEmpty
-              ? const [CatalogGroup.machinery]
-              : groups;
-          if (resolved.length < 2) {
-            return _OwnerRequestsPane(group: resolved.first);
-          }
-          final l10n = AppLocalizations.of(context)!;
-          return AppTabs(
-            titles: [
-              for (final group in resolved) _requestTabTitle(l10n, group),
-            ],
+    return ProkatFlowScope(
+      palette: palette,
+      child: Scaffold(
+        backgroundColor: palette.background,
+        body: fleet.when(
+          loading: () => const _OwnerRequestsLoading(),
+          error: (error, _) => ListView(
+            physics: const AlwaysScrollableScrollPhysics(),
             children: [
-              for (final group in resolved)
-                _OwnerRequestsPane(key: ValueKey(group), group: group),
+              Padding(
+                padding: const EdgeInsets.all(12),
+                child: EmptyStateTile(
+                  imageName: 'empty_error.png',
+                  title: AppLocalizations.of(context)!.errorLoadingRequests,
+                  subtitle: error.toString(),
+                ),
+              ),
             ],
-          );
-        },
+          ),
+          data: (groups) {
+            final resolved = groups.isEmpty
+                ? const [CatalogGroup.machinery]
+                : groups;
+            if (resolved.length < 2) {
+              return _OwnerRequestsPane(group: resolved.first);
+            }
+            final l10n = AppLocalizations.of(context)!;
+            return AppTabs(
+              titles: [
+                for (final group in resolved) _requestTabTitle(l10n, group),
+              ],
+              children: [
+                for (final group in resolved)
+                  _OwnerRequestsPane(key: ValueKey(group), group: group),
+              ],
+            );
+          },
+        ),
       ),
     );
   }
@@ -145,7 +150,6 @@ class _OwnerRequestsPaneState extends ConsumerState<_OwnerRequestsPane> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
     final requestsAsync = ref.watch(ownerActiveRequestsProvider(widget.group));
     final offersAsync = ref.watch(
@@ -175,7 +179,7 @@ class _OwnerRequestsPaneState extends ConsumerState<_OwnerRequestsPane> {
         loading: () => ListView(
           controller: _scrollController,
           physics: const AlwaysScrollableScrollPhysics(),
-          children: const [RequestTileSkeleton()],
+          children: const [_OwnerRequestsLoading()],
         ),
         error: (error, _) => ListView(
           controller: _scrollController,
@@ -202,6 +206,7 @@ class _OwnerRequestsPaneState extends ConsumerState<_OwnerRequestsPane> {
           return ListView(
             controller: _scrollController,
             physics: const AlwaysScrollableScrollPhysics(),
+            padding: const EdgeInsets.all(AppDimens.s16$base),
             children: [
               if (requests.isEmpty)
                 Padding(
@@ -217,13 +222,8 @@ class _OwnerRequestsPaneState extends ConsumerState<_OwnerRequestsPane> {
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
                   itemCount: requests.length,
-                  separatorBuilder: (context, index) => Divider(
-                    height: 1,
-                    thickness: 0.5,
-                    indent: 16,
-                    endIndent: 16,
-                    color: theme.dividerColor.withValues(alpha: 0.7),
-                  ),
+                  separatorBuilder: (context, index) =>
+                      const SizedBox(height: AppDimens.s12$md),
                   itemBuilder: (context, index) {
                     final request = requests[index];
                     return NewRequestHighlight(
@@ -246,6 +246,59 @@ class _OwnerRequestsPaneState extends ConsumerState<_OwnerRequestsPane> {
             ],
           );
         },
+      ),
+    );
+  }
+}
+
+class _OwnerRequestsLoading extends StatelessWidget {
+  const _OwnerRequestsLoading();
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = ProkatFlowPalette.of(context);
+    return Semantics(
+      label: AppLocalizations.of(context)!.loading,
+      child: Container(
+        margin: const EdgeInsets.all(AppDimens.s16$base),
+        padding: const EdgeInsets.all(AppDimens.s16$base),
+        decoration: BoxDecoration(
+          color: palette.surface,
+          border: Border.all(color: palette.border),
+          borderRadius: BorderRadius.circular(AppDimens.r20$xxl),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              children: [
+                Container(
+                  width: 64,
+                  height: 64,
+                  decoration: BoxDecoration(
+                    color: palette.border,
+                    borderRadius: BorderRadius.circular(AppDimens.r12$lg),
+                  ),
+                ),
+                const SizedBox(width: AppDimens.s12$md),
+                Expanded(
+                  child: Column(
+                    children: [
+                      Container(height: 14, color: palette.border),
+                      const SizedBox(height: AppDimens.s08$sm),
+                      Container(height: 12, color: palette.background),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: AppDimens.s16$base),
+            Container(height: 42, color: palette.background),
+            const SizedBox(height: AppDimens.s16$base),
+            const LinearProgressIndicator(minHeight: 2),
+          ],
+        ),
       ),
     );
   }

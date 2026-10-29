@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:prokat/core/theme/prokat_flow_palette.dart';
 import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:prokat/core/widgets/optimized_network_image.dart';
 import 'package:prokat/features/bookings/models/booking_status.dart';
+import 'package:prokat/features/appstartup/app_mode_storage.dart';
+import 'package:prokat/features/chat/widgets/chat_booking_terms_sheet.dart';
 import 'package:prokat/features/chat/models/chat_model.dart';
 import 'package:prokat/features/chat/providers/chat_dependencies.dart';
 import 'package:prokat/features/chat/state/post_mutation_cache_coordinator.dart';
@@ -15,8 +18,14 @@ import 'package:prokat/l10n/app_localizations.dart';
 class InquiryContextCard extends ConsumerStatefulWidget {
   final ChatModel chat;
   final VoidCallback? onSetTerms;
+  final AppMode mode;
 
-  const InquiryContextCard({super.key, required this.chat, this.onSetTerms});
+  const InquiryContextCard({
+    super.key,
+    required this.chat,
+    this.onSetTerms,
+    this.mode = AppMode.clientMode,
+  });
 
   @override
   ConsumerState<InquiryContextCard> createState() => _InquiryContextCardState();
@@ -95,11 +104,29 @@ class _InquiryContextCardState extends ConsumerState<InquiryContextCard> {
         !_closing &&
         onSetTerms != null &&
         chat.status == ChatStatus.active;
+    final canViewTerms = chat.booking != null;
     final statusColor = chat.booking?.status == BookingStatus.confirmed
         ? palette.success
         : chat.booking?.status == BookingStatus.created
         ? palette.primary
         : palette.secondary;
+    final booking = chat.booking;
+    final date = booking?.bookedOn;
+    final time = booking?.bookedAt;
+    final schedule = [
+      if (date != null) DateFormat.MMMd(l10n.localeName).format(date.toLocal()),
+      if (time != null) DateFormat.Hm(l10n.localeName).format(time.toLocal()),
+    ].join(' · ');
+    final VoidCallback? onOpenContext = canSetTerms
+        ? onSetTerms
+        : canViewTerms
+        ? () => ChatBookingTermsSheet.show(
+            context,
+            ref,
+            chat: chat,
+            mode: widget.mode,
+          )
+        : null;
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(12, 8, 12, 6),
@@ -107,136 +134,192 @@ class _InquiryContextCardState extends ConsumerState<InquiryContextCard> {
         color: palette.surface,
         borderRadius: BorderRadius.circular(18),
         clipBehavior: Clip.antiAlias,
-        child: InkWell(
-          onTap: canSetTerms ? onSetTerms : null,
-          child: Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              border: Border.all(
-                color: chat.booking?.status == BookingStatus.confirmed
-                    ? palette.success.withValues(alpha: .35)
-                    : palette.border,
-              ),
-              borderRadius: BorderRadius.circular(18),
-            ),
-            child: Row(
-              children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
-                  child: SizedBox.square(
-                    dimension: 54,
-                    child: OptimizedNetworkImage(
-                      imageUrl:
-                          equipment?.primaryImageUrl ??
-                          bookedEquipment?.imageUrl,
-                      fit: BoxFit.cover,
-                    ),
-                  ),
+        child: Semantics(
+          key: const ValueKey('inquiry-context-card'),
+          container: true,
+          button: onOpenContext != null,
+          label: canSetTerms
+              ? l10n.inquiryCreateOrder
+              : canViewTerms
+              ? l10n.agreedTermsTitle
+              : null,
+          onTap: onOpenContext,
+          child: InkWell(
+            onTap: onOpenContext,
+            excludeFromSemantics: true,
+            child: Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                border: Border.all(
+                  color: chat.booking?.status == BookingStatus.confirmed
+                      ? palette.success.withValues(alpha: .35)
+                      : palette.border,
                 ),
-                const SizedBox(width: 11),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                borderRadius: BorderRadius.circular(18),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Row(
                     children: [
-                      Text(
-                        equipment?.name ??
-                            bookedEquipment?.name ??
-                            l10n.unknownEquipment,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontFamily: 'Manrope',
-                          fontSize: 14,
-                          fontWeight: FontWeight.w700,
-                          color: palette.title,
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(12),
+                        child: SizedBox.square(
+                          dimension: 54,
+                          child: OptimizedNetworkImage(
+                            imageUrl:
+                                equipment?.primaryImageUrl ??
+                                bookedEquipment?.imageUrl,
+                            fit: BoxFit.cover,
+                          ),
                         ),
                       ),
-                      const SizedBox(height: 3),
-                      Text(
-                        status,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontFamily: 'Manrope',
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: statusColor,
+                      const SizedBox(width: 11),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              equipment?.name ??
+                                  bookedEquipment?.name ??
+                                  l10n.unknownEquipment,
+                              key: const ValueKey('inquiry-context-title'),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontFamily: 'Manrope',
+                                fontSize: 14,
+                                fontWeight: FontWeight.w700,
+                                color: palette.title,
+                              ),
+                            ),
+                            const SizedBox(height: 3),
+                            Text(
+                              status,
+                              key: const ValueKey('inquiry-context-status'),
+                              style: TextStyle(
+                                fontFamily: 'Manrope',
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                                color: statusColor,
+                              ),
+                            ),
+                            if (canSetTerms) ...[
+                              const SizedBox(height: 3),
+                              Text(
+                                l10n.inquiryCreateOrder,
+                                style: TextStyle(
+                                  fontFamily: 'Manrope',
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w700,
+                                  color: palette.primary,
+                                ),
+                              ),
+                            ],
+                          ],
                         ),
                       ),
-                      if (canSetTerms) ...[
-                        const SizedBox(height: 3),
-                        Text(
-                          l10n.inquiryCreateOrder,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
+                      if (canSetTerms || canViewTerms) ...[
+                        const SizedBox(width: 4),
+                        Icon(
+                          LucideIcons.chevronRight,
+                          color: palette.primary,
+                          size: 20,
+                        ),
+                      ],
+                      if (isOpenInquiry)
+                        IconButton(
+                          key: const ValueKey('inquiry-close-button'),
+                          tooltip: l10n.inquiryCloseAction,
+                          onPressed: _closing ? null : _closeDiscussion,
+                          icon: _closing
+                              ? SizedBox.square(
+                                  dimension: 16,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: palette.secondary,
+                                  ),
+                                )
+                              : Icon(
+                                  LucideIcons.archive,
+                                  color: palette.secondary,
+                                  size: 19,
+                                ),
+                        ),
+                    ],
+                  ),
+                  if (booking != null) ...[
+                    const SizedBox(height: 8),
+                    Wrap(
+                      spacing: 10,
+                      runSpacing: 6,
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      children: [
+                        if (schedule.isNotEmpty)
+                          _ContextSchedule(text: schedule, palette: palette),
+                        Text.rich(
+                          TextSpan(
+                            text: formatPrice(booking.price),
+                            children: [
+                              TextSpan(
+                                text:
+                                    ' ${getPriceRate(booking.priceRate, l10n: l10n)}',
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w500,
+                                  color: palette.secondary,
+                                ),
+                              ),
+                            ],
+                          ),
+                          key: const ValueKey('inquiry-context-price'),
                           style: TextStyle(
                             fontFamily: 'Manrope',
-                            fontSize: 12,
-                            fontWeight: FontWeight.w700,
+                            fontSize: 13,
+                            fontWeight: FontWeight.w800,
                             color: palette.primary,
                           ),
                         ),
                       ],
-                    ],
-                  ),
-                ),
-                if (chat.booking != null) ...[
-                  const SizedBox(width: 8),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Text(
-                        formatPrice(chat.booking!.price),
-                        style: TextStyle(
-                          fontFamily: 'Manrope',
-                          fontSize: 13,
-                          fontWeight: FontWeight.w800,
-                          color: palette.primary,
-                        ),
-                      ),
-                      Text(
-                        getPriceRate(chat.booking!.priceRate, l10n: l10n),
-                        style: TextStyle(
-                          fontFamily: 'Manrope',
-                          fontSize: 11,
-                          color: palette.secondary,
-                        ),
-                      ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ],
-                if (canSetTerms) ...[
-                  const SizedBox(width: 4),
-                  Icon(
-                    LucideIcons.chevronRight,
-                    color: palette.primary,
-                    size: 20,
-                  ),
-                ],
-                if (isOpenInquiry)
-                  IconButton(
-                    key: const ValueKey('inquiry-close-button'),
-                    tooltip: l10n.inquiryCloseAction,
-                    onPressed: _closing ? null : _closeDiscussion,
-                    icon: _closing
-                        ? SizedBox.square(
-                            dimension: 16,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: palette.secondary,
-                            ),
-                          )
-                        : Icon(
-                            LucideIcons.archive,
-                            color: palette.secondary,
-                            size: 19,
-                          ),
-                  ),
-              ],
+              ),
             ),
           ),
         ),
       ),
+    );
+  }
+}
+
+class _ContextSchedule extends StatelessWidget {
+  final String text;
+  final ProkatFlowPalette palette;
+
+  const _ContextSchedule({required this.text, required this.palette});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(LucideIcons.calendarDays, size: 14, color: palette.secondary),
+        const SizedBox(width: 5),
+        Flexible(
+          child: Text(
+            text,
+            key: const ValueKey('inquiry-context-schedule'),
+            style: TextStyle(
+              fontFamily: 'Manrope',
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: palette.secondary,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
