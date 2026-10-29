@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:prokat/core/theme/prokat_flow_palette.dart';
 import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/features/chat/models/chat_message_model.dart';
 import 'package:prokat/features/price_negotiations/models/price_negotiation_model.dart';
@@ -48,6 +49,57 @@ class _NegotiationMessageBubbleState
 
     if (parsed == null) {
       return Text(l10n.failedToLoadNegotiation);
+    }
+
+    // A decision event records the outcome. Keep the full comparison on the
+    // original proposal message, whose actions follow the canonical row.
+    if (parsed.requiresTermsAcknowledgement &&
+        const {
+          PriceNegotiationStatus.accepted,
+          PriceNegotiationStatus.rejected,
+          PriceNegotiationStatus.cancelled,
+          PriceNegotiationStatus.closed,
+          PriceNegotiationStatus.expired,
+        }.contains(parsed.status)) {
+      final palette = ProkatFlowPalette.of(context);
+      final accepted = parsed.status == PriceNegotiationStatus.accepted;
+      return Align(
+        alignment: Alignment.center,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 480),
+          child: Container(
+            key: const ValueKey('terms-decision-event'),
+            padding: const EdgeInsets.all(12),
+            margin: const EdgeInsets.symmetric(vertical: 6),
+            decoration: BoxDecoration(
+              color: accepted
+                  ? palette.success.withValues(alpha: .08)
+                  : palette.surface,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: palette.border),
+            ),
+            child: Wrap(
+              alignment: WrapAlignment.center,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              spacing: 8,
+              runSpacing: 6,
+              children: [
+                Icon(
+                  accepted ? LucideIcons.check : LucideIcons.undo2,
+                  size: 18,
+                  color: accepted ? palette.success : palette.secondary,
+                ),
+                Text(
+                  l10n.orderTermsProposalTitle,
+                  style: AppFonts.captionMedium(context)
+                      .copyWith(color: palette.secondary),
+                ),
+                PriceNegotiationStatusBadge(status: parsed.status),
+              ],
+            ),
+          ),
+        ),
+      );
     }
 
     final subject = priceNegotiationQueryFor(

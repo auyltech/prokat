@@ -29,6 +29,12 @@ class MainScaffold extends StatelessWidget {
         currentPath == AppRoutes.clientPinAddress ||
         currentPath == AppRoutes.ownerAddressMap;
 
+    final isOwnerEquipmentDetail =
+        segments.length == 3 &&
+        currentPath.startsWith('${AppRoutes.ownerEquipment}/') &&
+        segments.last != 'create' &&
+        segments.last != 'map';
+
     final bool hideAppBar =
         [
           AppRoutes.launch,
@@ -52,6 +58,10 @@ class MainScaffold extends StatelessWidget {
         currentPath == AppRoutes.ownerBookings ||
         currentPath == AppRoutes.ownerBookingsHistory ||
         currentPath == AppRoutes.ownerEquipment ||
+        currentPath == AppRoutes.ownerEquipmentCreate ||
+        isOwnerEquipmentDetail ||
+        currentPath == AppRoutes.clientProfile ||
+        currentPath == AppRoutes.ownerProfile ||
         currentPath == AppRoutes.ownerRequests ||
         (isChatDetailScreen &&
             currentPath.startsWith('${AppRoutes.clientChatList}/'));

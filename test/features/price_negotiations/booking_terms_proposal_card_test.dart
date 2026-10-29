@@ -3,6 +3,11 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:prokat/core/theme/legacy/app_theme.dart';
+import 'package:prokat/features/appstartup/app_mode_storage.dart';
+import 'package:prokat/features/owner/models/owner_profile_model.dart';
+import 'package:prokat/features/owner/models/owner_status.dart';
+import 'package:prokat/features/owner/state/owner_profile_notifier.dart';
+import 'package:prokat/features/owner/state/owner_registration_provider.dart';
 import 'package:prokat/features/price_negotiations/models/price_negotiation_model.dart';
 import 'package:prokat/features/price_negotiations/state/price_negotiation_notifier.dart';
 import 'package:prokat/features/price_negotiations/state/price_negotiation_provider.dart';
@@ -106,6 +111,19 @@ class _Mutation extends PriceNegotiationMutationNotifier {
   }
 }
 
+class _FixedOwnerProfile extends OwnerProfileNotifier {
+  _FixedOwnerProfile(this.initialStatus);
+  final OwnerStatus initialStatus;
+
+  @override
+  Future<OwnerProfileModel?> build() async =>
+      OwnerProfileModel(onlineStatus: initialStatus);
+
+  void completeGoOnline() {
+    state = AsyncData(OwnerProfileModel(onlineStatus: OwnerStatus.online));
+  }
+}
+
 void main() {
   Future<_Mutation> pumpCard(
     WidgetTester tester, {
@@ -114,6 +132,8 @@ void main() {
     double textScale = 1,
     Locale locale = const Locale('en'),
     bool isMe = false,
+    AppMode mode = AppMode.clientMode,
+    OwnerStatus? ownerStatus,
   }) async {
     tester.view.physicalSize = const Size(320, 900);
     tester.view.devicePixelRatio = 1;
@@ -123,6 +143,10 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
+          if (ownerStatus != null)
+            ownerProfileProvider.overrideWith(
+              () => _FixedOwnerProfile(ownerStatus),
+            ),
           priceNegotiationMutationProvider.overrideWith(
             (ref) => mutation = _Mutation(ref),
           ),
@@ -144,12 +168,18 @@ void main() {
                 proposal: proposal,
                 isMe: isMe,
                 chatId: 'chat-1',
+                mode: mode,
               ),
             ),
           ),
         ),
       ),
     );
+    if (ownerStatus != null) {
+      await ProviderScope.containerOf(
+        tester.element(find.byType(BookingTermsProposalCard)),
+      ).read(ownerProfileProvider.future);
+    }
     await tester.pumpAndSettle();
     return mutation;
   }
@@ -242,6 +272,77 @@ void main() {
       'acceptedTermsVersion': 1,
       'expectedNegotiationUpdatedAt': DateTime.parse(_updatedAt),
     });
+  });
+
+  testWidgets(
+    'offline owner cannot consent and going online requires a new consent tap',
+    (tester) async {
+      final mutation = await pumpCard(
+        tester,
+        proposal: _proposal(),
+        mode: AppMode.ownerMode,
+        ownerStatus: OwnerStatus.offline,
+      );
+      final cardContext = tester.element(find.byType(BookingTermsProposalCard));
+      final l10n = AppLocalizations.of(cardContext)!;
+      await tapVisible(tester, filledButton(l10n.acceptOrderTerms));
+      expect(
+        find.text(l10n.ownerOfflineMustBeOnlineToAcceptOrder),
+        findsOneWidget,
+      );
+      expect(mutation.responses, isEmpty);
+
+      // Simulate the existing online sheet's successful completion, without
+      // invoking its billing/equipment/network dependencies in this card test.
+      final profile = ProviderScope.containerOf(
+        cardContext,
+      ).read(ownerProfileProvider.notifier) as _FixedOwnerProfile;
+      profile.completeGoOnline();
+      Navigator.of(cardContext, rootNavigator: true).pop(true);
+      await tester.pumpAndSettle();
+      expect(mutation.responses, isEmpty);
+      expect(
+        find.text(l10n.ownerOfflineMustBeOnlineToAcceptOrder),
+        findsNothing,
+      );
+
+      await tapVisible(tester, filledButton(l10n.acceptOrderTerms));
+      expect(mutation.responses, hasLength(1));
+      expect(
+        mutation.responses.single['response'],
+        PriceNegotiationResponse.accept,
+      );
+      expect(mutation.responses.single['acceptedTermsVersion'], 1);
+      expect(
+        mutation.responses.single['expectedNegotiationUpdatedAt'],
+        DateTime.parse(_updatedAt),
+      );
+      expect(tester.takeException(), isNull);
+    },
+  );
+
+  testWidgets('already online owner sends exact displayed consent once', (
+    tester,
+  ) async {
+    final proposal = _proposal();
+    final mutation = await pumpCard(
+      tester,
+      proposal: proposal,
+      mode: AppMode.ownerMode,
+      ownerStatus: OwnerStatus.online,
+    );
+    await tapVisible(tester, filledButton('Accept terms'));
+    expect(mutation.responses, hasLength(1));
+    expect(mutation.responses.single, {
+      'negotiationId': proposal.id,
+      'response': PriceNegotiationResponse.accept,
+      'bookingId': proposal.bookingId,
+      'offerId': null,
+      'chatId': 'chat-1',
+      'acceptedTermsVersion': 1,
+      'expectedNegotiationUpdatedAt': DateTime.parse(_updatedAt),
+    });
+    expect(tester.takeException(), isNull);
   });
 
   testWidgets('unknown terms version cannot be accepted but can be rejected', (

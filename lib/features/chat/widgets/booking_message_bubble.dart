@@ -235,7 +235,7 @@ class _BookingMessageBubbleState extends ConsumerState<BookingMessageBubble> {
           Row(
             children: [
               InfoTile(
-                icon: LucideIcons.coins,
+                icon: LucideIcons.filePenLine,
                 // label: l10n.price,
                 value:
                     "${formatPrice(booking.price)} ${getPriceRate(booking.priceRate, l10n: l10n)}",
@@ -288,7 +288,7 @@ class _BookingMessageBubbleState extends ConsumerState<BookingMessageBubble> {
                   )
                 else
                   AppIconButton(
-                    icon: LucideIcons.coins,
+                    icon: LucideIcons.filePenLine,
                     tone: AppIconButtonTone.primary,
                     onTap: () => _counterOffer(context, booking, l10n),
                   ),

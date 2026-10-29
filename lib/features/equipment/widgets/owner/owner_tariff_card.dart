@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:prokat/core/theme/prokat_flow_scope.dart';
 import 'package:prokat/core/constants/price_rate_options.dart';
 import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/core/utils/max_int_input_formatter.dart';
@@ -145,6 +147,7 @@ class _OwnerTariffCardState extends State<OwnerTariffCard> {
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
+    final flow = ProkatFlowScope.maybeOf(context);
     final l10n = AppLocalizations.of(context)!;
     final draft = widget.draft;
     final isLocalDraft = draft.isLocalDraft;
@@ -155,16 +158,16 @@ class _OwnerTariffCardState extends State<OwnerTariffCard> {
     );
     final headerRadius = draft.expanded ? headerExpandedRadius : cardRadius;
     final emptyError = l10n.cannotBeEmpty;
-    final titleStyle = AppFonts.headingS(context);
+    final titleStyle = AppFonts.headingS(context).copyWith(color: flow?.title);
 
     final card = Material(
-      color: Colors.transparent,
+      color: flow?.surface ?? Colors.transparent,
       shape: RoundedRectangleBorder(
         borderRadius: cardRadius,
         side: isLocalDraft
             ? BorderSide.none
             : BorderSide(
-                color: colors.borders.main,
+                color: flow?.border ?? colors.borders.main,
                 width: AppDimens.inputBorderWidth,
               ),
       ),
@@ -204,8 +207,8 @@ class _OwnerTariffCardState extends State<OwnerTariffCard> {
                           draft.collapsedSubtitle(l10n),
                           style: AppFonts.body16(context).copyWith(
                             color: draft.hasPrice
-                                ? colors.text.main
-                                : colors.text.tertiary,
+                                ? flow?.primary ?? colors.text.main
+                                : flow?.secondary ?? colors.text.tertiary,
                           ),
                         ),
                       ],
@@ -217,16 +220,22 @@ class _OwnerTariffCardState extends State<OwnerTariffCard> {
                     children: [
                       if (showDelete)
                         AppIconButton(
-                          icon: Icons.delete_outline,
+                          icon: flow == null
+                              ? Icons.delete_outline
+                              : LucideIcons.trash2,
                           onTap: widget.onDelete,
                           tooltip: l10n.deletePriceEntry,
                           tone: AppIconButtonTone.destructive,
                         ),
                       Icon(
-                        draft.expanded
+                        flow != null
+                            ? draft.expanded
+                                  ? LucideIcons.chevronUp
+                                  : LucideIcons.chevronDown
+                            : draft.expanded
                             ? Icons.expand_less_rounded
                             : Icons.expand_more_rounded,
-                        color: colors.text.secondary,
+                        color: flow?.secondary ?? colors.text.secondary,
                       ),
                     ],
                   ),
@@ -300,8 +309,9 @@ class _OwnerTariffCardState extends State<OwnerTariffCard> {
                     hint: '0',
                     prefix: Text(
                       '₸',
-                      style: AppFonts.body16SemiBold(context)
-                          .copyWith(color: colors.text.secondary),
+                      style: AppFonts.body16SemiBold(context).copyWith(
+                        color: flow?.secondary ?? colors.text.secondary,
+                      ),
                     ),
                   ),
                   AppDropdownField<PriceRateOption>(
@@ -339,7 +349,8 @@ class _OwnerTariffCardState extends State<OwnerTariffCard> {
                       Text.rich(
                         TextSpan(
                           text: l10n.howToShowPrice,
-                          style: AppFonts.headingS(context),
+                          style: AppFonts.headingS(context)
+                              .copyWith(color: flow?.title),
                           children: [
                             if (widget.canEdit)
                               TextSpan(
@@ -354,30 +365,85 @@ class _OwnerTariffCardState extends State<OwnerTariffCard> {
                         spacing: AppDimens.s08$sm,
                         runSpacing: AppDimens.s08$sm,
                         children: [
-                          AppLabelButton(
-                            title: l10n.priceFrom,
-                            onTap: widget.canEdit
-                                ? () => _emitAndCommit(
-                                    draft.copyWith(isStartingFrom: true),
-                                  )
-                                : null,
-                            variant: draft.isStartingFrom
-                                ? AppLabelButtonVariant.filled
-                                : AppLabelButtonVariant.outlined,
-                            tone: AppLabelButtonTone.primary,
-                          ),
-                          AppLabelButton(
-                            title: l10n.priceFixed,
-                            onTap: widget.canEdit
-                                ? () => _emitAndCommit(
-                                    draft.copyWith(isStartingFrom: false),
-                                  )
-                                : null,
-                            variant: !draft.isStartingFrom
-                                ? AppLabelButtonVariant.filled
-                                : AppLabelButtonVariant.outlined,
-                            tone: AppLabelButtonTone.primary,
-                          ),
+                          if (flow != null) ...[
+                            ChoiceChip(
+                              label: Text(l10n.priceFrom),
+                              selected: draft.isStartingFrom,
+                              showCheckmark: false,
+                              selectedColor: flow.primarySoft,
+                              backgroundColor: flow.surface,
+                              disabledColor: draft.isStartingFrom
+                                  ? flow.primarySoft
+                                  : flow.surface,
+                              side: BorderSide(
+                                color: draft.isStartingFrom
+                                    ? flow.primary
+                                    : flow.border,
+                              ),
+                              labelStyle: AppFonts.body14SemiBold(context)
+                                  .copyWith(
+                                    color: draft.isStartingFrom
+                                        ? flow.primary
+                                        : flow.secondary,
+                                  ),
+                              onSelected: widget.canEdit
+                                  ? (_) => _emitAndCommit(
+                                      draft.copyWith(isStartingFrom: true),
+                                    )
+                                  : null,
+                            ),
+                            ChoiceChip(
+                              label: Text(l10n.priceFixed),
+                              selected: !draft.isStartingFrom,
+                              showCheckmark: false,
+                              selectedColor: flow.primarySoft,
+                              backgroundColor: flow.surface,
+                              disabledColor: !draft.isStartingFrom
+                                  ? flow.primarySoft
+                                  : flow.surface,
+                              side: BorderSide(
+                                color: !draft.isStartingFrom
+                                    ? flow.primary
+                                    : flow.border,
+                              ),
+                              labelStyle: AppFonts.body14SemiBold(context)
+                                  .copyWith(
+                                    color: !draft.isStartingFrom
+                                        ? flow.primary
+                                        : flow.secondary,
+                                  ),
+                              onSelected: widget.canEdit
+                                  ? (_) => _emitAndCommit(
+                                      draft.copyWith(isStartingFrom: false),
+                                    )
+                                  : null,
+                            ),
+                          ] else ...[
+                            AppLabelButton(
+                              title: l10n.priceFrom,
+                              onTap: widget.canEdit
+                                  ? () => _emitAndCommit(
+                                      draft.copyWith(isStartingFrom: true),
+                                    )
+                                  : null,
+                              variant: draft.isStartingFrom
+                                  ? AppLabelButtonVariant.filled
+                                  : AppLabelButtonVariant.outlined,
+                              tone: AppLabelButtonTone.primary,
+                            ),
+                            AppLabelButton(
+                              title: l10n.priceFixed,
+                              onTap: widget.canEdit
+                                  ? () => _emitAndCommit(
+                                      draft.copyWith(isStartingFrom: false),
+                                    )
+                                  : null,
+                              variant: !draft.isStartingFrom
+                                  ? AppLabelButtonVariant.filled
+                                  : AppLabelButtonVariant.outlined,
+                              tone: AppLabelButtonTone.primary,
+                            ),
+                          ],
                         ],
                       ),
                     ],
@@ -393,7 +459,7 @@ class _OwnerTariffCardState extends State<OwnerTariffCard> {
 
     return CustomPaint(
       painter: _DashedRRectPainter(
-        color: colors.borders.main,
+        color: flow?.border ?? colors.borders.main,
         radius: const Radius.circular(AppDimens.r16$xl),
         strokeWidth: AppDimens.inputBorderWidth,
       ),

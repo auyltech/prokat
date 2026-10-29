@@ -9,6 +9,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:prokat/core/media/media_image_provider.dart';
 import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
+import 'package:prokat/core/theme/prokat_flow_scope.dart';
 import 'package:prokat/features/appstartup/app_mode_storage.dart';
 import 'package:prokat/features/owner/state/owner_registration_provider.dart';
 import 'package:prokat/features/user/state/client_profile_provider.dart';
@@ -219,6 +220,7 @@ class _ProfileImagePickerState extends ConsumerState<ProfileImagePicker> {
 
   @override
   Widget build(BuildContext context) {
+    final flow = ProkatFlowScope.maybeOf(context);
     return Center(
       child: GestureDetector(
         onTap: _showPickerOptions,
@@ -270,9 +272,12 @@ class _ProfileImagePickerState extends ConsumerState<ProfileImagePicker> {
                 child: Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: Colors.deepPurple,
+                    color: flow?.filledPrimary ?? Colors.deepPurple,
                     shape: BoxShape.circle,
-                    border: Border.all(color: Colors.grey, width: 1),
+                    border: Border.all(
+                      color: flow == null ? Colors.grey : Colors.white,
+                      width: 1,
+                    ),
                   ),
                   child: const Icon(
                     LucideIcons.pencil,

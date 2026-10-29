@@ -5,6 +5,7 @@ import 'package:prokat/features/company_profile/company_access_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/router/app_routes.dart';
+import 'package:prokat/core/theme/prokat_flow_palette.dart';
 import 'package:prokat/core/widgets/prokat_list_tile.dart';
 import 'package:prokat/features/auth/widgets/logout_button.dart';
 import 'package:prokat/features/categories/state/category_provider.dart';
@@ -50,13 +51,14 @@ class _ClientProfileScreenState extends ConsumerState<ClientProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final palette = ProkatFlowPalette.of(context);
     final l10n = AppLocalizations.of(context)!;
 
     final userProfileAsync = ref.watch(clientProfileProvider);
     final userProfile = userProfileAsync.valueOrNull;
 
     return Scaffold(
+      backgroundColor: palette.background,
       body: RefreshIndicator(
         onRefresh: () async {
           await Future.wait([
@@ -68,20 +70,19 @@ class _ClientProfileScreenState extends ConsumerState<ClientProfileScreen> {
         child: CustomScrollView(
           slivers: [
             // User Profile
-            SliverAppBar(
-              backgroundColor: theme.colorScheme.primary,
-              expandedHeight: 320,
-              actions: const [
-                NotificationBadge(color: Colors.white),
-                SizedBox(width: 16),
-              ],
-              // Removes default constraints and back button spacing padding from the title area
-              primary: true,
-              flexibleSpace: FlexibleSpaceBar(
-                // 1. Reset titlePadding so the background layout fills the entire width
-                titlePadding: EdgeInsets.zero,
-                // 2. Move your full-width UI block into the background property
-                background: ClientProfileHeader(userProfile: userProfile),
+            SliverToBoxAdapter(
+              child: Stack(
+                children: [
+                  ClientProfileHeader(userProfile: userProfile),
+                  const Positioned(
+                    top: 8,
+                    right: 16,
+                    child: SafeArea(
+                      bottom: false,
+                      child: NotificationBadge(color: Colors.white),
+                    ),
+                  ),
+                ],
               ),
             ),
 
@@ -90,7 +91,7 @@ class _ClientProfileScreenState extends ConsumerState<ClientProfileScreen> {
                 padding: EdgeInsets.symmetric(horizontal: 16),
                 child: Column(
                   children: [
-                    SizedBox(height: 40),
+                    SizedBox(height: 24),
                     ClientRentalPreferencesSection(),
                   ],
                 ),
@@ -99,7 +100,7 @@ class _ClientProfileScreenState extends ConsumerState<ClientProfileScreen> {
 
             const SliverToBoxAdapter(
               child: Padding(
-                padding: EdgeInsets.symmetric(vertical: 40),
+                padding: EdgeInsets.symmetric(vertical: 24),
                 child: BecomeOwnerCTA(),
               ),
             ),
@@ -124,29 +125,25 @@ class _ClientProfileScreenState extends ConsumerState<ClientProfileScreen> {
 
                     ProkatListTile(
                       icon: LucideIcons.fileText,
-                      iconColor: theme.colorScheme.onPrimary,
-                      iconBgColor: theme.colorScheme.primary.withValues(
-                        alpha: 0.2,
-                      ),
+                      iconColor: palette.primary,
+                      iconBgColor: palette.primarySoft,
                       title: l10n.legalDocuments,
                       subtitle: l10n.legalDocumentsSubtitle,
                       onTap: () => context.push(AppRoutes.clientDocuments),
                     ),
 
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 16),
 
                     ProkatListTile(
                       icon: LucideIcons.settings,
-                      iconColor: theme.colorScheme.onPrimary,
-                      iconBgColor: theme.colorScheme.primary.withValues(
-                        alpha: 0.2,
-                      ),
+                      iconColor: palette.primary,
+                      iconBgColor: palette.primarySoft,
                       title: l10n.appSettings,
                       subtitle: l10n.appSettingsSubtitle,
                       onTap: () => context.push(AppRoutes.clientSettings),
                     ),
 
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 16),
 
                     ProkatListTile(
                       icon: LucideIcons.headset,
@@ -157,7 +154,7 @@ class _ClientProfileScreenState extends ConsumerState<ClientProfileScreen> {
                       onTap: () => context.push(AppRoutes.helpSupport),
                     ),
 
-                    const SizedBox(height: 40),
+                    const SizedBox(height: 24),
                   ],
                 ),
               ),
@@ -174,8 +171,8 @@ class _ClientProfileScreenState extends ConsumerState<ClientProfileScreen> {
               fillOverscroll: true,
               child: Padding(
                 padding: EdgeInsets.only(
-                  top: 40,
-                  bottom: 60,
+                  top: 24,
+                  bottom: 32,
                   left: 16,
                   right: 16,
                 ),
