@@ -47,9 +47,9 @@ class RequestStatusBadge extends StatelessWidget {
     }
 
     return ConstrainedBox(
-      constraints: const BoxConstraints(maxWidth: 120, minHeight: 34),
+      constraints: const BoxConstraints(maxWidth: 180, minHeight: 32),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
         decoration: BoxDecoration(
           color: color,
           borderRadius: BorderRadius.circular(16),
@@ -59,14 +59,12 @@ class RequestStatusBadge extends StatelessWidget {
           children: [
             Text(
               statusText,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
               textAlign: TextAlign.center,
               textWidthBasis: TextWidthBasis.longestLine,
               style: const TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
-                height: 1,
+                height: 1.25,
                 color: Colors.white,
               ),
             ),

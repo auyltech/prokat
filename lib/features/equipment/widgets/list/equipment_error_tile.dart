@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:prokat/core/theme/prokat_flow_scope.dart';
+import 'package:prokat/core/widgets/empty_state_tile.dart';
+import 'package:prokat/core/widgets/ui_kit/flow/prokat_flow_actions.dart';
 import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
@@ -16,6 +19,17 @@ class EquipmentErrorTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
+    if (ProkatFlowScope.maybeOf(context) != null) {
+      return EmptyStateTile(
+        imageName: 'connection_error.png',
+        title: l10n.couldNotLoadEquipment,
+        subtitle: l10n.loadEquipmentErrorHint,
+        actionButton: ProkatFlowPrimaryButton(
+          title: l10n.retryNow,
+          onPressed: onRetry,
+        ),
+      );
+    }
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),

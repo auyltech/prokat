@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:prokat/core/theme/app_dimens.dart';
 import 'package:prokat/core/theme/app_fonts.dart';
 import 'package:prokat/core/theme/extensions/app_theme_getter.dart';
+import 'package:prokat/core/theme/prokat_flow_scope.dart';
 
 abstract final class AppBottomSheet {
   static Future<T?> show<T>(
@@ -24,12 +25,15 @@ abstract final class AppBottomSheet {
       enableDrag: enableDrag,
       barrierColor: colors.barrierColor,
       backgroundColor: Colors.transparent,
-      builder: (context) => AppBottomSheetBarrier(
-        dismissOnBarrierTap: isDismissible,
-        child: AppBottomSheetLayout(
-          title: title,
-          subtitle: subtitle,
-          contentBuilder: contentBuilder,
+      builder: (sheetContext) => ProkatFlowScope.capture(
+        context,
+        AppBottomSheetBarrier(
+          dismissOnBarrierTap: isDismissible,
+          child: AppBottomSheetLayout(
+            title: title,
+            subtitle: subtitle,
+            contentBuilder: contentBuilder,
+          ),
         ),
       ),
     );
@@ -55,16 +59,19 @@ abstract final class AppBottomSheet {
       isScrollControlled: true,
       barrierColor: colors.barrierColor,
       backgroundColor: Colors.transparent,
-      builder: (context) => AppBottomSheetBarrier(
-        child: AppScrollableBottomSheet(
-          title: title,
-          subtitle: subtitle,
-          minChildSize: minChildSize,
-          maxChildSize: maxChildSize,
-          initialChildSize: initialChildSize,
-          headerBuilder: headerBuilder,
-          scrollableListBuilder: scrollableListBuilder,
-          footerBuilder: footerBuilder,
+      builder: (sheetContext) => ProkatFlowScope.capture(
+        context,
+        AppBottomSheetBarrier(
+          child: AppScrollableBottomSheet(
+            title: title,
+            subtitle: subtitle,
+            minChildSize: minChildSize,
+            maxChildSize: maxChildSize,
+            initialChildSize: initialChildSize,
+            headerBuilder: headerBuilder,
+            scrollableListBuilder: scrollableListBuilder,
+            footerBuilder: footerBuilder,
+          ),
         ),
       ),
     );
@@ -113,14 +120,15 @@ class AppBottomSheetFrame extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
+    final flow = ProkatFlowScope.maybeOf(context);
 
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: colors.background.elevated,
+        color: flow?.surface ?? colors.background.elevated,
         borderRadius: const BorderRadius.vertical(
           top: Radius.circular(AppDimens.sheetTopRadius),
         ),
-        boxShadow: colors.dialogShadows,
+        boxShadow: flow == null ? colors.dialogShadows : null,
       ),
       child: Material(type: MaterialType.transparency, child: child),
     );

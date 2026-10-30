@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:prokat/core/config/env.dart';
 import 'package:prokat/core/updates/app_update_policy.dart';
 import 'package:prokat/core/utils/logger.dart';
 import 'package:upgrader/upgrader.dart';
@@ -198,7 +199,7 @@ class _AppUpdatePromptState extends State<AppUpdatePrompt> {
         !kIsWeb &&
         (defaultTargetPlatform == TargetPlatform.android ||
             defaultTargetPlatform == TargetPlatform.iOS);
-    if (!mobile) return widget.child;
+    if (!mobile || Env.isLocal) return widget.child;
     return _RouteSafeUpgradeAlert(
       enabled: widget.enabled,
       upgrader: _upgrader,

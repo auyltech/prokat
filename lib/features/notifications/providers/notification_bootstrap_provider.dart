@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:prokat/features/notifications/providers/foreground_notification_provider.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/config/env.dart';
 import 'package:prokat/core/providers/socket_provider.dart';
@@ -17,6 +19,7 @@ import 'package:prokat/features/company_profile/company_profile_api.dart';
 
 final notificationBootstrapProvider = Provider<void>((ref) {
   final appSocket = ref.watch(appSocketProvider);
+  final foreground = ref.watch(foregroundNotificationProvider);
   final push = Env.pushNotificationsEnabled
       ? ref.watch(pushNotificationServiceProvider)
       : null;
@@ -53,7 +56,9 @@ final notificationBootstrapProvider = Provider<void>((ref) {
       if (notificationRefreshesOwnerOrderBadge(notification.type)) {
         refreshOwnerOrderBadge(ref);
       }
-      unawaited(push?.presentIncoming(notification));
+      if (!foreground.present(notification)) {
+        unawaited(push?.presentIncoming(notification));
+      }
     });
   }
 
@@ -138,16 +143,17 @@ final notificationBootstrapProvider = Provider<void>((ref) {
     }
   }
 
-  ref.listen(
-    notificationCompanyScopeProvider,
-    (_, _) => unawaited(syncProfilePush()),
-  );
-  ref.listen(
-    appStartupProvider.select((s) => s.routeState),
-    (_, _) => unawaited(syncProfilePush()),
-  );
+  ref.listen(notificationCompanyScopeProvider, (_, _) {
+    foreground.dismiss();
+    unawaited(syncProfilePush());
+  });
+  ref.listen(appStartupProvider.select((s) => s.routeState), (_, _) {
+    foreground.dismiss();
+    unawaited(syncProfilePush());
+  });
 
   void stopForLogout() {
+    foreground.reset();
     if (!started && !pushStarted) return;
 
     started = false;
@@ -165,6 +171,7 @@ final notificationBootstrapProvider = Provider<void>((ref) {
   }
 
   void stopForBackground() {
+    foreground.dismiss();
     if (!started) return;
 
     started = false;

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:prokat/core/theme/prokat_flow_scope.dart';
+import 'package:prokat/core/theme/app_fonts.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/core/router/app_routes.dart';
@@ -9,6 +11,61 @@ class LogoTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final flow = ProkatFlowScope.maybeOf(context);
+    if (flow != null) {
+      return GestureDetector(
+        onTap: () => context.go(AppRoutes.main),
+        child: Row(
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(18),
+              child: Image.asset(
+                'assets/icons/app_icon.png',
+                width: 64,
+                height: 64,
+                cacheWidth: 192,
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text.rich(
+                      TextSpan(
+                        children: [
+                          const TextSpan(text: 'PRO'),
+                          TextSpan(
+                            text: 'KAT',
+                            style: TextStyle(color: flow.primary),
+                          ),
+                        ],
+                      ),
+                      style: TextStyle(
+                        fontFamily: AppFonts.manropeFamily,
+                        fontSize: 28,
+                        fontWeight: FontWeight.w800,
+                        color: flow.title,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    AppLocalizations.of(context)!.equipmentRenting,
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: flow.secondary,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      );
+    }
 
     return GestureDetector(
       onTap: () => context.go(AppRoutes.main),

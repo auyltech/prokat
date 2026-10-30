@@ -388,8 +388,8 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
             body: equipment == null
                 ? EmptyStateTile(
                     imageName: 'empty_equipment.png',
-                    title: l10n.notFound,
-                    subtitle: l10n.equipmentNotFound,
+                    title: l10n.equipmentNotFound,
+                    subtitle: l10n.listingUnavailableHint,
                   )
                 : !_showRequestForm
                 ? EquipmentListingContent(
@@ -400,19 +400,17 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
                     additionalDetails: widget.beforeOrderFields,
                     heroActions: [
                       if (isClient && widget.companyId == null)
-                        _heroAction(
-                          UgcMoreButton(
-                            counterpartUserId: equipment.owner?.id,
-                            counterpartName:
-                                equipment.owner?.displayNameOr('') ?? '',
-                            reportTarget: ReportTarget(
-                              ReportTargetType.equipment,
-                              equipment.id,
-                            ),
-                            variant: AppIconButtonVariant.filled,
-                            tone: AppIconButtonTone.inverse,
-                            onBlocked: _back,
+                        UgcMoreButton(
+                          counterpartUserId: equipment.owner?.id,
+                          counterpartName:
+                              equipment.owner?.displayNameOr('') ?? '',
+                          reportTarget: ReportTarget(
+                            ReportTargetType.equipment,
+                            equipment.id,
                           ),
+                          variant: AppIconButtonVariant.filled,
+                          tone: AppIconButtonTone.inverse,
+                          onBlocked: _back,
                         ),
                       if (widget.companyId == null)
                         _heroAction(

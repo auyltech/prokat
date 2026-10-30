@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:prokat/core/theme/app_dimens.dart';
 import 'package:prokat/core/theme/app_fonts.dart';
 import 'package:prokat/core/theme/extensions/app_theme_getter.dart';
+import 'package:prokat/core/theme/prokat_flow_scope.dart';
 
 enum AppElevatedButtonStyle { primary, destructive }
 
@@ -38,14 +39,18 @@ class AppElevatedButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
+    final flow = ProkatFlowScope.maybeOf(context);
     final buttonTheme = colors.elevatedButton;
     final enabled = onTap != null && !isLoading;
     final contentColor = buttonTheme.content;
     final background = switch (style) {
-      AppElevatedButtonStyle.primary => buttonTheme.background,
+      AppElevatedButtonStyle.primary =>
+        flow?.filledPrimary ?? buttonTheme.background,
       AppElevatedButtonStyle.destructive => buttonTheme.destructiveBackground,
     };
-    final borderRadius = BorderRadius.circular(AppDimens.r12$lg);
+    final borderRadius = BorderRadius.circular(
+      flow == null ? AppDimens.r12$lg : AppDimens.r16$xl,
+    );
 
     return Opacity(
       opacity: onTap == null ? buttonTheme.disabledOpacity : 1,
@@ -61,12 +66,16 @@ class AppElevatedButton extends StatelessWidget {
             child: InkWell(
               onTap: enabled ? onTap : null,
               borderRadius: borderRadius,
-              child: SizedBox(
-                height: AppDimens.buttonHeight,
+              child: Container(
+                height: flow == null ? AppDimens.buttonHeight : null,
+                constraints: flow == null
+                    ? null
+                    : const BoxConstraints(minHeight: AppDimens.buttonHeight),
                 width: isExpanded ? double.infinity : null,
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(
+                  padding: EdgeInsets.symmetric(
                     horizontal: AppDimens.s16$base,
+                    vertical: flow == null ? 0 : 12,
                   ),
                   child: IconTheme.merge(
                     data: IconThemeData(
@@ -92,14 +101,16 @@ class AppElevatedButton extends StatelessWidget {
                             ]
                           : [
                               ?prefix,
-                              if (isExpanded)
+                              if (isExpanded || flow != null)
                                 Flexible(
                                   child: Text(
                                     title,
                                     style: AppFonts.button(context)
                                         .copyWith(color: contentColor),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
+                                    maxLines: flow == null ? 1 : null,
+                                    overflow: flow == null
+                                        ? TextOverflow.ellipsis
+                                        : TextOverflow.visible,
                                     textAlign: TextAlign.center,
                                   ),
                                 )

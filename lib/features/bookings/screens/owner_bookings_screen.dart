@@ -74,7 +74,7 @@ class _OwnerBookingsScreenState extends ConsumerState<OwnerBookingsScreen>
                 child: EmptyStateTile(
                   imageName: 'empty_error.png',
                   title: l10n.errorLoadingOrders,
-                  subtitle: error.toString(),
+                  subtitle: l10n.loadContentRetryHint,
                 ),
               ),
             ],
@@ -97,7 +97,7 @@ class _OwnerBookingsScreenState extends ConsumerState<OwnerBookingsScreen>
                     child: EmptyStateTile(
                       imageName: 'empty_bookings.png',
                       title: l10n.noBookingsFound,
-                      subtitle: l10n.noActiveOrders,
+                      subtitle: l10n.youHaveNoActiveOrders,
                       actionButton: AppElevatedButton(
                         title: l10n.refresh,
                         isLoading: bookingsAsync.isRefreshing,

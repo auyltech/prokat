@@ -70,8 +70,14 @@ void main() {
                 items: const [
                   AppNavigationBarItem(icon: Icons.person, label: 'Профиль'),
                   AppNavigationBarItem(icon: Icons.search, label: 'Каталог'),
-                  AppNavigationBarItem(icon: Icons.campaign, label: 'Запросы'),
-                  AppNavigationBarItem(icon: Icons.receipt, label: 'Заказы'),
+                  AppNavigationBarItem(
+                    icon: Icons.campaign,
+                    label: 'Сұраныстар',
+                  ),
+                  AppNavigationBarItem(
+                    icon: Icons.receipt,
+                    label: 'Тапсырыстар',
+                  ),
                   AppNavigationBarItem(icon: Icons.chat, label: 'Чаты'),
                 ],
                 currentIndex: 1,
@@ -84,6 +90,11 @@ void main() {
     );
     await tester.tap(find.byIcon(Icons.chat));
     expect(tapped, 4);
+    final longLabel = find.text('Тапсырыстар');
+    expect(
+      find.ancestor(of: longLabel, matching: find.byType(FittedBox)),
+      findsOneWidget,
+    );
     expect(tester.takeException(), isNull);
   });
 }

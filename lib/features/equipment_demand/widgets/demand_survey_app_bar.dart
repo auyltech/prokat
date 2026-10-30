@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:prokat/core/theme/prokat_flow_scope.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/features/notifications/widgets/notification_badge.dart';
@@ -15,14 +17,15 @@ class DemandSurveyAppBar extends StatelessWidget
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final flow = ProkatFlowScope.maybeOf(context);
 
     return AppBar(
-      elevation: 5,
-      backgroundColor: theme.cardColor,
+      elevation: flow == null ? 5 : 0,
+      backgroundColor: flow?.surface ?? theme.cardColor,
       automaticallyImplyLeading: false,
       iconTheme: IconThemeData(color: theme.colorScheme.primary),
       leading: AppIconButton(
-        icon: Icons.arrow_back_ios_new_rounded,
+        icon: LucideIcons.chevronLeft,
         onTap: () {
           if (context.canPop()) {
             context.pop();
@@ -40,7 +43,7 @@ class DemandSurveyAppBar extends StatelessWidget
       actionsPadding: const EdgeInsets.only(right: 16),
       bottom: PreferredSize(
         preferredSize: const Size.fromHeight(1),
-        child: Container(color: Colors.black12, height: 1),
+        child: Container(color: flow?.border ?? Colors.black12, height: 1),
       ),
     );
   }

@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/widgets/empty_state_tile.dart';
+import 'package:prokat/core/widgets/empty_state_artwork.dart';
 import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:prokat/core/theme/prokat_flow_scope.dart';
 import 'package:prokat/core/widgets/ui_kit/flow/prokat_flow_actions.dart';
@@ -139,7 +140,7 @@ class _ClientRequestsScreenState extends ConsumerState<ClientRequestsScreen> {
               EmptyStateTile(
                 imageName: 'empty_error.png',
                 title: l10n.errorLoadingRequests,
-                subtitle: error.toString(),
+                subtitle: l10n.loadContentRetryHint,
               ),
             ],
           ),
@@ -279,7 +280,9 @@ class _FlowEmptyRequestsTile extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Icon(Icons.campaign_outlined, size: 48, color: flow.primary),
+          const Center(
+            child: EmptyStateArtwork(imageName: 'empty_requests.png'),
+          ),
           const SizedBox(height: 20),
           Text(
             l10n.noRequestsAtMoment,

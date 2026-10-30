@@ -4,6 +4,8 @@ import 'package:prokat/core/theme/app_fonts.dart';
 /// Palette for the refreshed client/owner flow. Screens opt in gradually.
 @immutable
 class ProkatFlowPalette {
+  static const brandNavy = Color(0xFF10234A);
+  static const readReceiptOnPrimary = Color(0xFFB8FFE9);
   final Color background;
   final Color surface;
   final Color primary;

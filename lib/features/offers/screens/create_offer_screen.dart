@@ -205,7 +205,7 @@ class _CreateOfferScreenState extends ConsumerState<CreateOfferScreen> {
               AppTextArea(
                 title: l10n.comments,
                 controller: _comment,
-                hint: l10n.equipmentNameHint,
+                hint: l10n.offerCommentHint,
                 minLines: 2,
                 maxLines: 4,
               ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
+import 'package:prokat/core/theme/prokat_flow_scope.dart';
 
 class AccountStatusCard extends StatelessWidget {
   final bool isOnline;
@@ -16,6 +17,64 @@ class AccountStatusCard extends StatelessWidget {
   });
   @override
   Widget build(BuildContext context) {
+    final flow = ProkatFlowScope.maybeOf(context);
+    if (flow != null) {
+      return AppCard(
+        padding: const EdgeInsets.all(AppDimens.s16$base),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              children: [
+                CircleAvatar(
+                  radius: 5,
+                  backgroundColor: isOnline ? flow.success : flow.secondary,
+                ),
+                const SizedBox(width: AppDimens.s12$md),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
+                        style: AppFonts.body16SemiBold(context)
+                            .copyWith(color: flow.title),
+                      ),
+                      const SizedBox(height: AppDimens.s04$xs),
+                      Text(
+                        subtitle,
+                        style: AppFonts.caption(context)
+                            .copyWith(color: flow.secondary),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: AppDimens.s08$sm),
+                Switch.adaptive(
+                  value: isOnline,
+                  activeThumbColor: Colors.white,
+                  activeTrackColor: flow.success,
+                  inactiveThumbColor: Colors.white,
+                  inactiveTrackColor: flow.secondary,
+                  trackOutlineColor: const WidgetStatePropertyAll(
+                    Colors.transparent,
+                  ),
+                  onChanged: onChanged,
+                ),
+              ],
+            ),
+            if (!isOnline && explanation != null) ...[
+              const SizedBox(height: AppDimens.s12$md),
+              Text(
+                explanation!,
+                style: AppFonts.caption(context)
+                    .copyWith(color: flow.secondary),
+              ),
+            ],
+          ],
+        ),
+      );
+    }
     return AppCard(
       padding: EdgeInsets.zero,
       child: Column(

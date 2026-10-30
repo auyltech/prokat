@@ -1,5 +1,6 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/router/app_routes.dart';
@@ -80,7 +81,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         backgroundColor: theme.colorScheme.primary,
         automaticallyImplyLeading: false,
         leading: AppIconButton(
-          icon: Icons.arrow_back_ios_new_rounded,
+          icon: LucideIcons.chevronLeft,
           onTap: () => context.go(AppRoutes.main),
           tone: AppIconButtonTone.inverse,
         ),

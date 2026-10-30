@@ -182,7 +182,7 @@ void main() {
             dark: dark,
           );
           expect(tester.takeException(), isNull);
-          expect(find.text('Комментарий к заказу'), findsOneWidget);
+          expect(find.text('Order comment'), findsOneWidget);
           readable(tester, find.text(_comment));
           readable(tester, find.byKey(const ValueKey('booking-flow-price')));
         },

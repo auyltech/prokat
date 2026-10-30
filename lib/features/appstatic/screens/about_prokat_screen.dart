@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
 class AboutProkatScreen extends StatelessWidget {
@@ -10,17 +11,17 @@ class AboutProkatScreen extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
     final features = [
       _AboutFeature(
-        icon: Icons.search_rounded,
+        icon: LucideIcons.search,
         title: l10n.aboutFeatureSearchTitle,
         description: l10n.aboutFeatureSearchDescription,
       ),
       _AboutFeature(
-        icon: Icons.verified_user_outlined,
+        icon: LucideIcons.shieldCheck,
         title: l10n.aboutFeatureTrustedTitle,
         description: l10n.aboutFeatureTrustedDescription,
       ),
       _AboutFeature(
-        icon: Icons.star_outline_rounded,
+        icon: LucideIcons.star,
         title: l10n.aboutFeatureRatingsTitle,
         description: l10n.aboutFeatureRatingsDescription,
       ),

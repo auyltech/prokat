@@ -513,21 +513,29 @@ class _FlowOwnerEquipmentCard extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            equipment.name,
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              fontFamily: 'Manrope',
-                              fontSize: 16,
-                              fontWeight: FontWeight.w700,
-                              color: palette.title,
+                          ConstrainedBox(
+                            constraints: BoxConstraints(
+                              minHeight:
+                                  MediaQuery.textScalerOf(context).scale(16) *
+                                  2.8,
+                            ),
+                            child: Text(
+                              equipment.name,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontFamily: 'Manrope',
+                                fontSize: 16,
+                                fontWeight: FontWeight.w700,
+                                height: 1.4,
+                                color: palette.title,
+                              ),
                             ),
                           ),
                           const SizedBox(height: 4),
                           Text(
                             equipment.model,
-                            maxLines: 2,
+                            maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
                               fontFamily: 'Manrope',
@@ -545,17 +553,39 @@ class _FlowOwnerEquipmentCard extends StatelessWidget {
                   ],
                 ),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 8),
               Wrap(
                 spacing: 8,
                 runSpacing: 8,
                 crossAxisAlignment: WrapCrossAlignment.center,
                 children: [
                   EquipmentStatusBadge(status: equipment.status),
-                  if (!isDraft && showShare && canShowShareButton(equipment))
-                    ShareEquipmentButton(
-                      equipment: equipment,
-                      variant: AppIconButtonVariant.soft,
+                  if (!isDraft)
+                    ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 140),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            LucideIcons.mapPin,
+                            size: 14,
+                            color: palette.secondary,
+                          ),
+                          const SizedBox(width: 4),
+                          Flexible(
+                            child: Text(
+                              locationText,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontFamily: 'Manrope',
+                                fontSize: 12,
+                                color: palette.secondary,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                 ],
               ),
@@ -574,33 +604,9 @@ class _FlowOwnerEquipmentCard extends StatelessWidget {
                   ),
                 ),
               ] else ...[
-                const SizedBox(height: 10),
+                const SizedBox(height: 8),
                 Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Icon(
-                      LucideIcons.mapPin,
-                      size: 16,
-                      color: palette.secondary,
-                    ),
-                    const SizedBox(width: 5),
-                    Expanded(
-                      child: Text(
-                        locationText,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontFamily: 'Manrope',
-                          fontSize: 12,
-                          color: palette.secondary,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 10),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Tooltip(
                       message: hasPrice
@@ -630,16 +636,20 @@ class _FlowOwnerEquipmentCard extends StatelessWidget {
                         ),
                       ),
                     ),
+                    if (showShare && canShowShareButton(equipment))
+                      ShareEquipmentButton(
+                        equipment: equipment,
+                        variant: AppIconButtonVariant.plain,
+                      ),
+                    if (canShowVisibility)
+                      OnlineToggle(
+                        id: equipment.id,
+                        isVisible: equipment.isVisible,
+                        canShow: hasPrice,
+                        compact: true,
+                      ),
                   ],
                 ),
-                if (canShowVisibility) ...[
-                  const SizedBox(height: 8),
-                  OnlineToggle(
-                    id: equipment.id,
-                    isVisible: equipment.isVisible,
-                    canShow: hasPrice,
-                  ),
-                ],
               ],
             ],
           ),

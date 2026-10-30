@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:prokat/core/theme/prokat_flow_scope.dart';
 import 'package:prokat/core/constants/app_colors.dart';
 import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/features/billing/models/volume_discount_model.dart';
@@ -18,6 +19,7 @@ class VolumeDiscountTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
+    final flow = ProkatFlowScope.maybeOf(context);
     final colorScheme = theme.colorScheme;
 
     return Container(
@@ -25,13 +27,14 @@ class VolumeDiscountTile extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
         color: isHighlighted
-            ? colorScheme.primaryContainer.withValues(alpha: 0.15)
-            : theme.cardColor,
+            ? flow?.primarySoft ??
+                  colorScheme.primaryContainer.withValues(alpha: 0.15)
+            : flow?.surface ?? theme.cardColor,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: isHighlighted
-              ? AppColors.teal700
-              : theme.dividerColor.withValues(alpha: 0.2),
+              ? flow?.primary ?? AppColors.teal700
+              : flow?.border ?? theme.dividerColor.withValues(alpha: 0.2),
           width: isHighlighted ? 1.5 : 1,
         ),
       ),
@@ -55,7 +58,7 @@ class VolumeDiscountTile extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 margin: const EdgeInsets.only(right: 8),
                 decoration: BoxDecoration(
-                  color: AppColors.teal700,
+                  color: flow?.filledPrimary ?? AppColors.teal700,
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Text(
@@ -75,7 +78,7 @@ class VolumeDiscountTile extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
               color: isHighlighted
-                  ? AppColors.teal700
+                  ? flow?.filledPrimary ?? AppColors.teal700
                   : colorScheme.surfaceContainer,
               borderRadius: BorderRadius.circular(8),
             ),

@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:prokat/core/theme/app_dimens.dart';
 import 'package:prokat/core/theme/extensions/app_theme_getter.dart';
+import 'package:prokat/core/theme/prokat_flow_scope.dart';
 
-/// Bordered surface with a soft drop shadow. Pass [onTap] for an ink ripple.
+/// Shared surface; refreshed screens opt into a flat Flow border.
 class AppCard extends StatelessWidget {
   final Widget child;
   final EdgeInsetsGeometry padding;
@@ -22,6 +23,7 @@ class AppCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cardTheme = context.colors.card;
+    final flow = ProkatFlowScope.maybeOf(context);
     final ripple = context.colors.ripple;
     final borderRadius = BorderRadius.circular(radius);
     final content = Padding(padding: padding, child: child);
@@ -30,20 +32,22 @@ class AppCard extends StatelessWidget {
       width: width,
       decoration: BoxDecoration(
         borderRadius: borderRadius,
-        boxShadow: [
-          BoxShadow(
-            color: cardTheme.shadow,
-            blurRadius: AppDimens.cardShadowBlurRadius,
-            offset: const Offset(0, AppDimens.cardShadowOffsetY),
-          ),
-        ],
+        boxShadow: flow != null
+            ? const []
+            : [
+                BoxShadow(
+                  color: cardTheme.shadow,
+                  blurRadius: AppDimens.cardShadowBlurRadius,
+                  offset: const Offset(0, AppDimens.cardShadowOffsetY),
+                ),
+              ],
       ),
       child: Material(
-        color: cardTheme.background,
+        color: flow?.surface ?? cardTheme.background,
         shape: RoundedRectangleBorder(
           borderRadius: borderRadius,
           side: BorderSide(
-            color: cardTheme.border,
+            color: flow?.border ?? cardTheme.border,
             width: AppDimens.cardBorderWidth,
           ),
         ),

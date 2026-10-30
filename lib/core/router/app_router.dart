@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/features/company_profile/company_access_screen.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/core/router/app_routes.dart';
+import 'package:prokat/core/theme/prokat_flow_scope.dart';
 import 'package:prokat/core/router/post_login_location.dart';
 import 'package:prokat/core/router/refresh_stream.dart';
 import 'package:prokat/features/appstartup/app_startup_provider.dart';
@@ -178,8 +179,14 @@ final routerProvider = Provider<GoRouter>((ref) {
       /// 🚀 PUBLIC
       /// Routes outside StatefulShellRoute are fully separate navigation trees.
       GoRoute(path: AppRoutes.launch, builder: (_, _) => const LaunchScreen()),
-      GoRoute(path: AppRoutes.error, builder: (_, _) => const ErrorScreen()),
-      GoRoute(path: AppRoutes.login, builder: (_, _) => const LoginScreen()),
+      GoRoute(
+        path: AppRoutes.error,
+        builder: (_, _) => ProkatFlowPage(builder: (_) => const ErrorScreen()),
+      ),
+      GoRoute(
+        path: AppRoutes.login,
+        builder: (_, _) => ProkatFlowPage(builder: (_) => const LoginScreen()),
+      ),
       // Listing and request form sit above the tab shell, preserving its state.
       GoRoute(
         path: AppRoutes.createBooking,
@@ -207,8 +214,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: AppRoutes.equipmentDemand,
-        builder: (_, state) => EquipmentDemandScreen(
-          campaignId: state.pathParameters['campaignId']!,
+        builder: (_, state) => ProkatFlowPage(
+          builder: (_) => EquipmentDemandScreen(
+            campaignId: state.pathParameters['campaignId']!,
+          ),
         ),
       ),
 

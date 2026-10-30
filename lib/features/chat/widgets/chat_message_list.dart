@@ -212,6 +212,24 @@ class _ChatMessageListState extends ConsumerState<ChatMessageList>
         }
 
         final newestId = messagesData.items.first.id;
+        final visibleMessage = messagesData.items
+            .where((m) => !m.isPending && !m.isFailed)
+            .firstOrNull;
+        if (visibleMessage != null &&
+            WidgetsBinding.instance.lifecycleState !=
+                AppLifecycleState.paused &&
+            WidgetsBinding.instance.lifecycleState !=
+                AppLifecycleState.inactive) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) {
+              unawaited(
+                ref
+                    .read(chatMessagesProvider(widget.chatId).notifier)
+                    .markVisibleRead(visibleMessage.id),
+              );
+            }
+          });
+        }
         _newestMessageId ??= newestId;
 
         if (!_didInitialLoadMoreCheck) {

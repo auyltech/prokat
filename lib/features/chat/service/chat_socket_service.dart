@@ -21,6 +21,7 @@ class ChatSocketService {
   final List<String> _desiredChatIds = [];
   final List<_ChatMessageListenerRegistration> _messageListeners = [];
   final List<_ChatSidebarListenerRegistration> _sidebarListeners = [];
+  final Map<Object, void Function(Map<String, dynamic>)> _readListeners = {};
   bool _newMessageSocketAttached = false;
   bool _sidebarSocketAttached = false;
 
@@ -32,6 +33,18 @@ class ChatSocketService {
 
   ChatSocketService(this.appSocket) {
     appSocket.addConnectListener(_connectListenerKey, _handleSocketConnected);
+    appSocket.on('chat:read', (payload) {
+      if (payload is! Map) return;
+      for (final listener in List.of(_readListeners.values)) {
+        listener(Map<String, dynamic>.from(payload));
+      }
+    });
+  }
+
+  void Function() onReadReceipt(void Function(Map<String, dynamic>) handler) {
+    final key = Object();
+    _readListeners[key] = handler;
+    return () => _readListeners.remove(key);
   }
 
   Future<void> connect() async {
@@ -352,6 +365,8 @@ class ChatSocketService {
     appSocket.removeConnectListener(_connectListenerKey);
     appSocket.off(newMessageEvent);
     appSocket.off(sidebarUpdateEvent);
+    appSocket.off('chat:read');
+    _readListeners.clear();
   }
 }
 

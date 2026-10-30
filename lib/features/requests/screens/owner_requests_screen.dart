@@ -61,7 +61,7 @@ class _OwnerRequestsScreenState extends ConsumerState<OwnerRequestsScreen> {
                 child: EmptyStateTile(
                   imageName: 'empty_error.png',
                   title: AppLocalizations.of(context)!.errorLoadingRequests,
-                  subtitle: error.toString(),
+                  subtitle: AppLocalizations.of(context)!.loadContentRetryHint,
                 ),
               ),
             ],
@@ -190,7 +190,7 @@ class _OwnerRequestsPaneState extends ConsumerState<_OwnerRequestsPane> {
               child: EmptyStateTile(
                 imageName: 'empty_error.png',
                 title: l10n.errorLoadingRequests,
-                subtitle: error.toString(),
+                subtitle: l10n.loadContentRetryHint,
               ),
             ),
           ],

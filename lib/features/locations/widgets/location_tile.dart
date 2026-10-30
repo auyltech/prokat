@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:prokat/core/theme/prokat_flow_scope.dart';
+import 'package:prokat/core/theme/prokat_flow_icons.dart';
 import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/features/locations/location_label.dart';
@@ -22,6 +24,7 @@ class LocationTile extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final flow = ProkatFlowScope.maybeOf(context);
     final l10n = AppLocalizations.of(context)!;
 
     final radius = BorderRadius.circular(AppDimens.r16$xl);
@@ -29,17 +32,19 @@ class LocationTile extends ConsumerWidget {
     return Padding(
       padding: const EdgeInsets.only(bottom: AppDimens.s08$sm),
       child: Material(
-        color: theme.colorScheme.surfaceBright,
+        color: flow?.surface ?? theme.colorScheme.surfaceBright,
         shape: RoundedRectangleBorder(
           borderRadius: radius,
-          side: BorderSide(color: theme.colorScheme.outline.withAlpha(50)),
+          side: BorderSide(
+            color: flow?.border ?? theme.colorScheme.outline.withAlpha(50),
+          ),
         ),
         clipBehavior: Clip.antiAlias,
         child: ListTile(
           onTap: onTap,
           leading: Icon(
-            Icons.location_on_outlined,
-            color: theme.colorScheme.onSurface,
+            ProkatFlowIcons.address,
+            color: flow?.primary ?? theme.colorScheme.onSurface,
             size: AppDimens.iconButtonIconSize,
           ),
           title: Text(
@@ -65,7 +70,7 @@ class LocationTile extends ConsumerWidget {
               : AppIconButton(
                   tooltip: l10n.deleteAddress,
                   onTap: onDelete,
-                  icon: Icons.delete_outline,
+                  icon: ProkatFlowIcons.delete,
                   tone: AppIconButtonTone.destructive,
                 ),
         ),

@@ -71,7 +71,7 @@ class _CreateRequestScreenState extends ConsumerState<CreateRequestScreen> {
               EmptyStateTile(
                 imageName: 'empty_error.png',
                 title: l10n.errorLoadingRequests,
-                subtitle: error.toString(),
+                subtitle: l10n.loadContentRetryHint,
               ),
             ],
           ),

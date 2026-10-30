@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:prokat/core/theme/prokat_flow_scope.dart';
+import 'package:prokat/core/widgets/empty_state_artwork.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
 class EquipmentEmptyTile extends StatelessWidget {
@@ -37,18 +38,22 @@ class EquipmentEmptyTile extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          CircleAvatar(
-            radius: 30,
-            backgroundColor:
-                flow?.primarySoft ?? theme.colorScheme.surfaceContainerHighest,
-            child: Icon(
-              icon ?? Icons.inventory_2_outlined,
-              color:
-                  flow?.primary ??
-                  theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
-              size: 32,
+          if (flow != null)
+            const EmptyStateArtwork(imageName: 'empty_equipment.png')
+          else
+            CircleAvatar(
+              radius: 30,
+              backgroundColor:
+                  flow?.primarySoft ??
+                  theme.colorScheme.surfaceContainerHighest,
+              child: Icon(
+                icon ?? Icons.inventory_2_outlined,
+                color:
+                    flow?.primary ??
+                    theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
+                size: 32,
+              ),
             ),
-          ),
           const SizedBox(height: 16),
           Text(
             title ?? l10n.noEquipmentAvailable,

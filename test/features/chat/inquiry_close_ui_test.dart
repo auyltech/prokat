@@ -92,7 +92,7 @@ void main() {
       await showCard(tester, service, discussion());
       await tester.tap(find.byKey(const ValueKey('inquiry-close-button')));
       await tester.pumpAndSettle();
-      await tester.tap(find.text('End discussion'));
+      await tester.tap(find.text('Finish'));
       await tester.pump(const Duration(milliseconds: 400));
       expect(service.calls, 1);
       await tester.pumpWidget(const SizedBox.shrink());

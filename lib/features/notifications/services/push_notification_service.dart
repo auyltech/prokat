@@ -29,6 +29,7 @@ class PushNotificationService {
   final bool Function(String id)? shouldSuppressDisplay;
   final String Function()? currentLocale;
   final bool Function(AppNotification)? accepts;
+  final bool Function(AppNotification)? presentForeground;
 
   StreamSubscription<RemoteMessage>? _onMessageSub;
   StreamSubscription<RemoteMessage>? _onMessageOpenedSub;
@@ -63,6 +64,7 @@ class PushNotificationService {
     this.shouldSuppressDisplay,
     this.currentLocale,
     this.accepts,
+    this.presentForeground,
   });
 
   Future<void> initialize({required AuthSession session}) async {
@@ -364,6 +366,7 @@ class PushNotificationService {
     if (id.isNotEmpty) _displayedIds[id] = now;
 
     try {
+      if (presentForeground?.call(notification) ?? false) return;
       await _initLocalNotifications();
       await _showLocalNotification(notification);
     } catch (_) {

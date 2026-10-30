@@ -42,7 +42,7 @@ class _InquiryContextCardState extends ConsumerState<InquiryContextCard> {
       context,
       title: l10n.inquiryCloseQuestion,
       description: l10n.inquiryCloseDescription,
-      primaryLabel: l10n.inquiryCloseAction,
+      primaryLabel: l10n.inquiryCloseConfirm,
       secondaryLabel: l10n.cancel,
     );
     if (!mounted || confirmed != true || widget.chat.id != chatId) return;

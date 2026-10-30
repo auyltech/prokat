@@ -52,6 +52,12 @@ class EquipmentListingContent extends ConsumerWidget {
     final keySpecs = specs.where((s) => s.showInCard != false).take(3).toList();
     final description = equipment.ownerComment?.trim() ?? '';
     final conditions = equipment.rentCondition?.trim() ?? '';
+    // Old listings sometimes contain the same text in both fields. Keep the
+    // titled terms block once without altering the owner's stored content.
+    final showDescription =
+        description.isNotEmpty &&
+        description.replaceAll(RegExp(r'\s+'), ' ') !=
+            conditions.replaceAll(RegExp(r'\s+'), ' ');
     final topInset = MediaQuery.paddingOf(context).top;
 
     return ListView(
@@ -191,7 +197,7 @@ class EquipmentListingContent extends ConsumerWidget {
                     ],
                   ),
                 ],
-                if (description.isNotEmpty) ...[
+                if (showDescription) ...[
                   const SizedBox(height: 20),
                   Text(
                     description,

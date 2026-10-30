@@ -143,7 +143,7 @@ class _ChatListPane extends ConsumerWidget {
     return RefreshIndicator(
       onRefresh: refresh,
       child: chatsAsync.when(
-        skipLoadingOnRefresh: !isOwner,
+        skipLoadingOnRefresh: true,
         loading: () => _chatSkeleton(scrollController),
         error: (_, _) => ListView(
           controller: scrollController,
@@ -151,14 +151,14 @@ class _ChatListPane extends ConsumerWidget {
           padding: const EdgeInsets.all(16),
           children: [
             EmptyStateTile(
-              title: l10n.error,
-              subtitle: l10n.couldNotLoadChats,
-              imageName: isOwner ? 'connection_error.png' : null,
+              title: l10n.couldNotLoadChats,
+              subtitle: l10n.loadContentRetryHint,
+              imageName: 'connection_error.png',
             ),
           ],
         ),
         data: (state) {
-          if (isOwner && state.isRefreshing) {
+          if (isOwner && state.isRefreshing && state.items.isEmpty) {
             return _chatSkeleton(scrollController);
           }
 

@@ -39,12 +39,14 @@ class AppNavigationBar extends StatelessWidget {
     final navigationBarTheme = context.colors.navigationBar;
     final flow = ProkatFlowScope.maybeOf(context);
     final ripple = context.colors.ripple;
-    final selectedColor = switch (tone) {
-      AppNavigationBarTone.primary =>
-        flow?.primary ?? navigationBarTheme.selected,
-      AppNavigationBarTone.owner => navigationBarTheme.ownerSelected,
-      AppNavigationBarTone.company => const Color(0xff702d45),
-    };
+    final selectedColor =
+        flow?.primary ??
+        switch (tone) {
+          AppNavigationBarTone.primary =>
+            flow?.primary ?? navigationBarTheme.selected,
+          AppNavigationBarTone.owner => navigationBarTheme.ownerSelected,
+          AppNavigationBarTone.company => const Color(0xff702d45),
+        };
 
     return Material(
       color: flow?.surface ?? navigationBarTheme.background,
@@ -127,14 +129,36 @@ class _NavigationBarItem extends StatelessWidget {
       color: contentColor,
       shadows: glowShadows,
     );
+    final label = Text(
+      item.label,
+      maxLines: 1,
+      overflow: TextOverflow.fade,
+      softWrap: false,
+      textAlign: TextAlign.center,
+      style: AppFonts.captionMedium(context).copyWith(
+        fontSize: flow == null ? null : 12,
+        fontWeight: flow == null
+            ? null
+            : isSelected
+            ? FontWeight.w700
+            : FontWeight.w500,
+        color: contentColor,
+        height: 1.1,
+        shadows: glowShadows,
+      ),
+    );
     return Semantics(
       button: true,
       selected: isSelected,
       label: item.label,
       child: InkWell(
         onTap: onTap,
-        splashColor: splashColor,
-        highlightColor: highlightColor,
+        splashFactory: flow == null ? null : NoSplash.splashFactory,
+        splashColor: flow == null ? splashColor : Colors.transparent,
+        highlightColor: flow == null ? highlightColor : Colors.transparent,
+        overlayColor: flow == null
+            ? null
+            : const WidgetStatePropertyAll(Colors.transparent),
         child: SizedBox.expand(
           child: ExcludeSemantics(
             child: Column(
@@ -143,7 +167,11 @@ class _NavigationBarItem extends StatelessWidget {
                 if (flow == null)
                   item.iconWrapper?.call(icon) ?? icon
                 else
-                  Container(
+                  AnimatedContainer(
+                    duration: MediaQuery.disableAnimationsOf(context)
+                        ? Duration.zero
+                        : const Duration(milliseconds: 180),
+                    curve: Curves.easeOutCubic,
                     padding: const EdgeInsets.symmetric(
                       horizontal: 14,
                       vertical: 5,
@@ -159,24 +187,9 @@ class _NavigationBarItem extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(
                     horizontal: AppDimens.s04$xs,
                   ),
-                  child: Text(
-                    item.label,
-                    maxLines: 1,
-                    overflow: TextOverflow.fade,
-                    softWrap: false,
-                    textAlign: TextAlign.center,
-                    style: AppFonts.captionMedium(context).copyWith(
-                      fontSize: flow == null ? null : 12,
-                      fontWeight: flow == null
-                          ? null
-                          : isSelected
-                          ? FontWeight.w700
-                          : FontWeight.w500,
-                      color: contentColor,
-                      height: 1.1,
-                      shadows: glowShadows,
-                    ),
-                  ),
+                  child: flow == null
+                      ? label
+                      : FittedBox(fit: BoxFit.scaleDown, child: label),
                 ),
               ],
             ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:prokat/core/theme/prokat_flow_icons.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/core/widgets/job_schedule_section.dart';
@@ -21,9 +22,11 @@ bool bookingIsEquipmentGroup(Equipment equipment) {
   return equipment.category?.catalogGroup == CatalogGroup.equipment;
 }
 
+String bookingTariffPriceLabel(PriceEntry entry, AppLocalizations l10n) =>
+    '${formatPrice(entry.price)} ${getPriceRate(entry.priceRate, l10n: l10n)}';
+
 String bookingTariffLabel(PriceEntry entry, AppLocalizations l10n) {
-  final priceText =
-      '${formatPrice(entry.price)} ${getPriceRate(entry.priceRate, l10n: l10n)}';
+  final priceText = bookingTariffPriceLabel(entry, l10n);
   final serviceName = savedTariffTitle(entry, l10n);
   if (serviceName == null) return priceText;
   return '$priceText — $serviceName';
@@ -84,6 +87,9 @@ class BookingOrderFields extends ConsumerWidget {
     final flow = ProkatFlowScope.maybeOf(context);
     final singleTariff = prices.length == 1;
     final tariffValue = singleTariff ? prices.first : selectedPrice;
+    final tariffDescription = tariffValue == null
+        ? null
+        : savedTariffTitle(tariffValue, l10n);
     final addressLabel = address == null
         ? null
         : formatLocationModel(ref, context, address!);
@@ -105,7 +111,7 @@ class BookingOrderFields extends ConsumerWidget {
           selectedLabel: addressLabel,
           prefix: flow == null
               ? null
-              : Icon(Icons.location_on_outlined, color: flow.primary, size: 20),
+              : Icon(ProkatFlowIcons.address, color: flow.primary, size: 20),
           openCustomSheet: openAddressSheet,
           onChanged: onAddressChanged,
         ),
@@ -121,10 +127,12 @@ class BookingOrderFields extends ConsumerWidget {
           value: tariffValue,
           prefix: flow == null
               ? null
-              : Icon(Icons.payments_outlined, color: flow.primary, size: 20),
+              : Icon(ProkatFlowIcons.price, color: flow.primary, size: 20),
           selectedLabel: tariffValue == null
               ? null
-              : bookingTariffLabel(tariffValue, l10n),
+              : flow == null
+              ? bookingTariffLabel(tariffValue, l10n)
+              : bookingTariffPriceLabel(tariffValue, l10n),
           options: [
             for (final entry in prices)
               DropdownOption(
@@ -134,6 +142,13 @@ class BookingOrderFields extends ConsumerWidget {
           ],
           onChanged: onPriceChanged,
         ),
+        if (flow != null && tariffDescription != null) ...[
+          const SizedBox(height: AppDimens.s08$sm),
+          Text(
+            tariffDescription,
+            style: AppFonts.body14(context).copyWith(color: flow.secondary),
+          ),
+        ],
         const SizedBox(height: AppDimens.s20$lg),
         JobScheduleSection(
           mode: scheduleMode,

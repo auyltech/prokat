@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:typed_data';
 
 import 'package:flutter/widgets.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
@@ -32,6 +33,10 @@ class ChatMessagesNotifier
   ChatSocketService? _socketService;
 
   void Function()? _removeMessageListener;
+  void Function()? _removeReadListener;
+  DateTime? _readThroughAt;
+  String? _lastVisibleReadId;
+  final Map<String, String> _photoRetryIds = {};
   final List<ChatMessageModel> _incomingBuffer = [];
   final Map<String, Timer> _pendingConfirmationTimers = {};
   bool _shouldMaintainSession = true;
@@ -80,6 +85,8 @@ class ChatMessagesNotifier
 
     ref.onDispose(() {
       _isDisposed = true;
+      _removeReadListener?.call();
+      _removeReadListener = null;
       _removeLifecycleObserver();
       if (_socketScope == scope) {
         _shouldMaintainSession = false;
@@ -167,6 +174,51 @@ class ChatMessagesNotifier
 
   void dismissDisplayedPush() => _dismissDisplayedChatPush();
 
+  Future<void> markVisibleRead(String messageId) async {
+    if (_isDisposed ||
+        !_shouldMaintainSession ||
+        _lastVisibleReadId == messageId) {
+      return;
+    }
+    _lastVisibleReadId = messageId;
+    try {
+      final result = await api.markChatRead(
+        chatId: chatId,
+        messageId: messageId,
+      );
+      if (!result.success) _lastVisibleReadId = null;
+    } catch (_) {
+      _lastVisibleReadId = null;
+    }
+  }
+
+  Future<bool> sendPhoto(Uint8List bytes, {String caption = ''}) async {
+    final scope = readAuthenticatedSessionScope(ref);
+    if (scope == null) return false;
+    final retryKey = '${bytes.length}:${Object.hashAll(bytes)}:$caption';
+    final clientTempId = _photoRetryIds.putIfAbsent(
+      retryKey,
+      () => DateTime.now().microsecondsSinceEpoch.toString(),
+    );
+    try {
+      final message = await api.sendPhoto(
+        chatId: chatId,
+        bytes: bytes,
+        clientTempId: clientTempId,
+        caption: caption,
+      );
+      if (_isDisposed || !isAuthenticatedSessionScopeCurrent(ref, scope)) {
+        return false;
+      }
+      mergeIncoming(message);
+      _updateRelatedChatState(message, scope);
+      _photoRetryIds.remove(retryKey);
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
   void _dismissDisplayedChatPush() {
     if (!Env.pushNotificationsEnabled) return;
 
@@ -206,6 +258,11 @@ class ChatMessagesNotifier
     final activeChatId = requestedChatId ?? chatId;
 
     if (_socketScope != scope) {
+      _photoRetryIds.clear();
+      _readThroughAt = null;
+      _lastVisibleReadId = null;
+      _removeReadListener?.call();
+      _removeReadListener = null;
       _removeMessageListener?.call();
       _removeMessageListener = null;
       _incomingBuffer.clear();
@@ -222,6 +279,41 @@ class ChatMessagesNotifier
     _removeMessageListener ??= socket.onNewMessage(
       (message) => _handleIncomingMessage(message, scope),
     );
+    _removeReadListener ??= socket.onReadReceipt((event) {
+      if (_isDisposed ||
+          !_shouldMaintainSession ||
+          !isAuthenticatedSessionScopeCurrent(ref, scope) ||
+          event['chatId'] != chatId) {
+        return;
+      }
+      final through = DateTime.tryParse(
+        event['readThroughAt']?.toString() ?? '',
+      );
+      if (through == null) return;
+      if (_readThroughAt == null || through.isAfter(_readThroughAt!)) {
+        _readThroughAt = through;
+      }
+      final current = state.valueOrNull;
+      final userId = ref.read(authProvider).session?.user?.id;
+      if (current != null) {
+        state = AsyncData(
+          current.copyWith(
+            items: current.items
+                .map(
+                  (m) =>
+                      m.senderId == userId &&
+                          m.createdAt != null &&
+                          !m.createdAt!.isAfter(through) &&
+                          !m.isPending &&
+                          !m.isFailed
+                      ? m.copyWith(readAt: through)
+                      : m,
+                )
+                .toList(),
+          ),
+        );
+      }
+    });
 
     await socket.joinChat(activeChatId);
 
@@ -272,6 +364,14 @@ class ChatMessagesNotifier
     if (_stateScope != scope || current == null) {
       _incomingBuffer.add(message);
       return;
+    }
+
+    final ownId = ref.read(authProvider).session?.user?.id;
+    if (message.senderId == ownId &&
+        _readThroughAt != null &&
+        message.createdAt != null &&
+        !message.createdAt!.isAfter(_readThroughAt!)) {
+      message = message.copyWith(readAt: _readThroughAt);
     }
 
     final clientTempId = message.clientTempId?.trim();
@@ -667,7 +767,17 @@ class ChatMessagesNotifier
       return false;
     }
 
-    final normalized = confirmed.copyWith(isPending: false, isFailed: false);
+    final normalized = confirmed.copyWith(
+      isPending: false,
+      isFailed: false,
+      readAt:
+          confirmed.readAt ??
+          (confirmed.createdAt != null &&
+                  _readThroughAt != null &&
+                  !confirmed.createdAt!.isAfter(_readThroughAt!)
+              ? _readThroughAt
+              : null),
+    );
 
     var replaced = false;
 

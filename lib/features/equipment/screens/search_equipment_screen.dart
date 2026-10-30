@@ -312,7 +312,7 @@ class _SearchGroupPageState extends ConsumerState<_SearchGroupPage> {
                         }),
                   onTap: () {
                     if (equipment.companyId != null) {
-                      Navigator.of(context).push(
+                      Navigator.of(context, rootNavigator: true).push(
                         MaterialPageRoute(
                           builder: (_) => ClientCompanyDetailsScreen(
                             companyId: equipment.companyId!,

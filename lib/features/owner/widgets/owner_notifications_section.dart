@@ -4,6 +4,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:prokat/core/config/env.dart';
 import 'package:prokat/core/constants/app_colors.dart' as legacy_colors;
 import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
@@ -220,10 +221,10 @@ class _OwnerNotificationsSectionState
         const SizedBox(height: 16),
 
         SettingsSwitchTile(
-          icon: Icons.notifications_outlined,
+          icon: LucideIcons.bell,
           iconColor: _ownerColor,
           iconBgColor: _ownerBackground,
-          title: l10n.notifications,
+          title: l10n.pushNotifications,
           subtitle: _permissionTitle(l10n),
           value: _pushEnabled,
           isLoading: _loadingPermission,
@@ -237,7 +238,7 @@ class _OwnerNotificationsSectionState
           const SizedBox(height: 16),
 
           SettingsSwitchTile(
-            icon: Icons.campaign_outlined,
+            icon: LucideIcons.megaphone,
             iconColor: _ownerColor,
             iconBgColor: _ownerBackground,
             title: l10n.notifRequestsAndOffers,
@@ -257,7 +258,7 @@ class _OwnerNotificationsSectionState
           const SizedBox(height: 16),
 
           SettingsSwitchTile(
-            icon: Icons.assignment_outlined,
+            icon: LucideIcons.scrollText,
             iconColor: _ownerColor,
             iconBgColor: _ownerBackground,
             title: l10n.notifOrdersAndWorkProgress,
@@ -277,7 +278,7 @@ class _OwnerNotificationsSectionState
           const SizedBox(height: 16),
 
           SettingsSwitchTile(
-            icon: Icons.chat_bubble_outline,
+            icon: LucideIcons.messageCircle,
             iconColor: _ownerColor,
             iconBgColor: _ownerBackground,
             title: l10n.messages,
@@ -297,7 +298,7 @@ class _OwnerNotificationsSectionState
           const SizedBox(height: 16),
 
           SettingsSwitchTile(
-            icon: Icons.verified_outlined,
+            icon: LucideIcons.badgeCheck,
             iconColor: _ownerColor,
             iconBgColor: _ownerBackground,
             title: l10n.notifEquipmentAndVerification,
@@ -319,7 +320,7 @@ class _OwnerNotificationsSectionState
           const SizedBox(height: 16),
 
           SettingsSwitchTile(
-            icon: Icons.account_balance_wallet_outlined,
+            icon: LucideIcons.wallet,
             iconColor: _ownerColor,
             iconBgColor: _ownerBackground,
             title: l10n.notifBalanceAlerts,
@@ -339,7 +340,7 @@ class _OwnerNotificationsSectionState
           const SizedBox(height: 16),
 
           SettingsSwitchTile(
-            icon: Icons.event_available_outlined,
+            icon: LucideIcons.calendarCheck,
             iconColor: _ownerColor,
             iconBgColor: _ownerBackground,
             title: l10n.notifRemindersAndReviews,

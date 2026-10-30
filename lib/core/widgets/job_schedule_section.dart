@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:prokat/core/theme/prokat_flow_icons.dart';
 import 'package:intl/intl.dart';
 import 'package:prokat/core/widgets/form_choice.dart';
 import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
@@ -591,7 +592,7 @@ class JobScheduleSection extends StatelessWidget {
                     label: l10n.selectDate,
                     value: dateLabel,
                     isRequired: true,
-                    icon: Icons.calendar_today_outlined,
+                    icon: ProkatFlowIcons.calendar,
                     onTap: onPickDate,
                   ),
                 ),
@@ -601,7 +602,7 @@ class JobScheduleSection extends StatelessWidget {
                     label: l10n.selectTime,
                     value: timeLabel,
                     isRequired: true,
-                    icon: Icons.access_time,
+                    icon: ProkatFlowIcons.time,
                     onTap: onPickTime,
                   ),
                 ),

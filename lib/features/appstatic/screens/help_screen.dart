@@ -5,6 +5,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/core/providers/locale_provider.dart';
 import 'package:prokat/core/router/app_routes.dart';
+import 'package:prokat/core/theme/prokat_flow_scope.dart';
+import 'package:prokat/core/widgets/ui_kit/flow/prokat_flow_actions.dart';
 import 'package:prokat/core/widgets/section_title.dart';
 import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:prokat/features/appstatic/widgets/faq_tile.dart';
@@ -80,10 +82,18 @@ class _HelpScreenState extends ConsumerState<HelpScreen> {
               ),
               const SizedBox(height: 12),
               // Primary Action Form Button Wrapper
-              AppElevatedButton(
-                title: l10n.contactSupport,
-                onTap: () => unawaited(context.push(AppRoutes.contactSupport)),
-              ),
+              if (ProkatFlowScope.maybeOf(context) != null)
+                ProkatFlowPrimaryButton(
+                  title: l10n.contactSupport,
+                  onPressed: () =>
+                      unawaited(context.push(AppRoutes.contactSupport)),
+                )
+              else
+                AppElevatedButton(
+                  title: l10n.contactSupport,
+                  onTap: () =>
+                      unawaited(context.push(AppRoutes.contactSupport)),
+                ),
             ],
           ),
         ),

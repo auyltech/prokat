@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:prokat/core/theme/prokat_flow_icons.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -363,8 +364,8 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
               ? null
               : Icon(
                   mutationGroup == CatalogGroup.equipment
-                      ? Icons.inventory_2_outlined
-                      : Icons.local_shipping_outlined,
+                      ? ProkatFlowIcons.equipment
+                      : ProkatFlowIcons.machinery,
                   color: flow.primary,
                   size: 20,
                 ),
@@ -383,7 +384,7 @@ class _CreateRequestFormState extends ConsumerState<CreateRequestForm> {
           selectedLabel: addressLabel,
           prefix: flow == null
               ? null
-              : Icon(Icons.location_on_outlined, color: flow.primary, size: 20),
+              : Icon(ProkatFlowIcons.address, color: flow.primary, size: 20),
           openCustomSheet: _openAddressSheet,
           onChanged: (address) {
             ref.read(requestMutationProvider.notifier).selectLocation(address);

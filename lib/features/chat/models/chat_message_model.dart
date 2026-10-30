@@ -20,6 +20,7 @@ class ChatMessageModel {
   final Map<String, dynamic>? meta;
 
   final DateTime? createdAt;
+  final DateTime? readAt;
 
   const ChatMessageModel({
     required this.id,
@@ -35,6 +36,7 @@ class ChatMessageModel {
     this.isFailed = false,
     this.meta,
     this.createdAt,
+    this.readAt,
   });
 
   ChatMessageModel copyWith({
@@ -51,6 +53,7 @@ class ChatMessageModel {
     bool? isFailed,
     Map<String, dynamic>? meta,
     DateTime? createdAt,
+    DateTime? readAt,
   }) {
     return ChatMessageModel(
       id: id ?? this.id,
@@ -66,6 +69,7 @@ class ChatMessageModel {
       isFailed: isFailed ?? this.isFailed,
       meta: meta ?? this.meta,
       createdAt: createdAt ?? this.createdAt,
+      readAt: readAt ?? this.readAt,
     );
   }
 
@@ -110,6 +114,7 @@ class ChatMessageModel {
           ? Map<String, dynamic>.from(json['meta'])
           : null,
       createdAt: _parseDate(json['createdAt'] ?? json['timestamp']),
+      readAt: _parseDate(json['readAt']),
     );
   }
 
@@ -125,6 +130,8 @@ class ChatMessageModel {
       'clientTempId': clientTempId,
       'isFailed': isFailed,
       'createdAt': createdAt?.toIso8601String(),
+      'readAt': readAt?.toIso8601String(),
+      'meta': meta,
     };
   }
 
@@ -141,6 +148,13 @@ class ChatMessageModel {
   }
 
   String localizedContent(String languageCode) {
+    if (type == 'IMAGE' && content.trim().isEmpty) {
+      return switch (languageCode) {
+        'kk' => 'Фото',
+        'en' => 'Photo',
+        _ => 'Фото',
+      };
+    }
     return pickLocalizedText(
       meta?['i18n'],
       languageCode: languageCode,

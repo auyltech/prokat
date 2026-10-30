@@ -27,6 +27,7 @@ class CatalogGroupTabs extends StatelessWidget {
 
     return AppSegmentedButton<CatalogGroup>(
       isExpanded: isExpanded,
+      equalWidth: true,
       value: value,
       segments: [
         for (final group in groups)

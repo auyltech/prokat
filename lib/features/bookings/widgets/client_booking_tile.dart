@@ -132,10 +132,10 @@ class ClientBookingTile extends ConsumerWidget {
 
           booking.companyId != null
               ? InfoTile(
-                  label: 'Комментарий к заказу',
+                  label: l10n.bookingOrderCommentTitle,
                   value: booking.comment?.isNotEmpty == true
                       ? booking.comment!
-                      : 'Не указан',
+                      : l10n.bookingOrderCommentEmpty,
                   icon: Icons.comment_outlined,
                 )
               : EquipmentInfoTile(equipment: booking.equipment),

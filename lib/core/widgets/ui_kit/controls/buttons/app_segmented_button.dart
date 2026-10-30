@@ -31,6 +31,7 @@ class AppSegmentedButton<T> extends StatelessWidget {
   final ValueChanged<T> onChanged;
   final bool isExpanded;
   final bool enabled;
+  final bool equalWidth;
 
   const AppSegmentedButton({
     super.key,
@@ -39,6 +40,7 @@ class AppSegmentedButton<T> extends StatelessWidget {
     this.value,
     this.isExpanded = false,
     this.enabled = true,
+    this.equalWidth = false,
   }) : assert(
          segments.length >= 2,
          'AppSegmentedButton needs at least 2 segments',
@@ -59,7 +61,7 @@ class AppSegmentedButton<T> extends StatelessWidget {
           ? null
           : FontWeight.w600,
     );
-    final flexes = isExpanded
+    final flexes = isExpanded && !equalWidth
         ? _contentFlexes(context, textStyle)
         : List<int>.filled(segments.length, 1);
 
@@ -92,7 +94,14 @@ class AppSegmentedButton<T> extends StatelessWidget {
       ],
     );
 
-    final control = SizedBox(height: AppDimens.buttonHeight, child: row);
+    final control = ProkatFlowScope.maybeOf(context) == null
+        ? SizedBox(height: AppDimens.buttonHeight, child: row)
+        : ConstrainedBox(
+            constraints: const BoxConstraints(
+              minHeight: AppDimens.buttonHeight,
+            ),
+            child: IntrinsicHeight(child: row),
+          );
 
     return Opacity(
       opacity: enabled ? 1 : theme.disabledOpacity,
@@ -222,6 +231,7 @@ class _Segment extends StatelessWidget {
           child: Padding(
             padding: EdgeInsets.symmetric(
               horizontal: flow == null ? AppDimens.s20$lg : 12,
+              vertical: flow == null ? 0 : 10,
             ),
             child: IconTheme.merge(
               data: IconThemeData(color: contentColor, size: AppDimens.s20$lg),
@@ -240,8 +250,8 @@ class _Segment extends StatelessWidget {
                           fontSize: flow == null ? null : 14,
                           fontWeight: flow == null ? null : FontWeight.w600,
                         ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+                        maxLines: flow == null ? 1 : null,
+                        overflow: flow == null ? TextOverflow.ellipsis : null,
                         textAlign: TextAlign.center,
                       ),
                     )

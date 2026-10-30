@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:prokat/features/equipment/providers/equipment_dependencies.dart';
 
 import 'package:flutter/material.dart';
+import 'package:prokat/core/theme/prokat_flow_icons.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -576,11 +578,9 @@ class _GeneralInfoSectionState extends ConsumerState<GeneralInfoSection> {
               forceFocused: _cityPickerOpen,
               onTap: _canEdit ? _pickCity : null,
               errorText: _cityError == null ? null : l10n.cannotBeEmpty,
-              prefix: Icon(
-                hasLocation ? Icons.location_on : Icons.location_on_outlined,
-              ),
+              prefix: const Icon(ProkatFlowIcons.address),
               suffix: Icon(
-                Icons.expand_more_rounded,
+                ProkatFlowIcons.expand,
                 size: AppDimens.s24$xl,
                 color: context.colors.text.secondary,
               ),
@@ -660,7 +660,7 @@ class _GeneralInfoSectionState extends ConsumerState<GeneralInfoSection> {
                                 );
                                 _onChanged();
                               },
-                        prefix: const Icon(Icons.add),
+                        prefix: const Icon(LucideIcons.plus),
                         variant: AppLabelButtonVariant.text,
                       ),
                     ),

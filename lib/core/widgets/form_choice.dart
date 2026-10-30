@@ -61,6 +61,7 @@ class ChoicePair extends StatelessWidget {
   Widget build(BuildContext context) {
     return AppSegmentedButton<int>(
       isExpanded: true,
+      equalWidth: true,
       value: leftSelected
           ? 0
           : rightSelected

@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/core/analytics/analytics_service.dart';
@@ -445,11 +446,9 @@ class _RegisterOwnerPageState extends ConsumerState<RegisterOwnerPage> {
                 onTap: isReadOnly ? null : _pickCity,
                 showError: _showFieldErrors,
                 errorText: hasCity ? null : l10n.cannotBeEmpty,
-                prefix: Icon(
-                  hasCity ? Icons.location_on : Icons.location_on_outlined,
-                ),
+                prefix: const Icon(LucideIcons.mapPin),
                 suffix: Icon(
-                  Icons.expand_more_rounded,
+                  LucideIcons.chevronDown,
                   size: AppDimens.s24$xl,
                   color: context.colors.text.secondary,
                 ),
@@ -478,7 +477,7 @@ class _RegisterOwnerPageState extends ConsumerState<RegisterOwnerPage> {
                 AppElevatedButton(
                   title: submitLabel,
                   isLoading: mutationState.isLoading,
-                  prefix: const Icon(Icons.send_rounded),
+                  prefix: const Icon(LucideIcons.send),
                   onTap: mutationState.isLoading ? null : _submit,
                 ),
               ] else if (isAccepted) ...[

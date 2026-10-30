@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:prokat/core/widgets/empty_state_artwork.dart';
+import 'package:prokat/core/theme/prokat_flow_scope.dart';
 import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 
 class EmptyStateTile extends StatelessWidget {
@@ -28,14 +30,27 @@ class EmptyStateTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final flow = ProkatFlowScope.maybeOf(context);
+    final subtitleStyle = flow == null
+        ? theme.textTheme.labelMedium
+        : theme.textTheme.bodyMedium?.copyWith(
+            color: flow.secondary,
+            fontWeight: FontWeight.w400,
+            letterSpacing: 0,
+            height: 1.5,
+          );
     final displayColor = color ?? theme.colorScheme.outline;
     final hasImage = imageName?.trim().isNotEmpty ?? false;
+    final hasArtwork = EmptyStateArtwork.supports(imageName);
 
     if (compact) {
       return AppCard(
         child: Row(
           children: [
-            if (hasImage) ...[
+            if (hasArtwork) ...[
+              EmptyStateArtwork(imageName: imageName!, compact: true),
+              const SizedBox(width: 16),
+            ] else if (hasImage) ...[
               Image.asset(
                 'assets/media/$imageName',
                 width: 72,
@@ -51,8 +66,7 @@ class EmptyStateTile extends StatelessWidget {
                 children: [
                   if (title != null)
                     Text(title!, style: theme.textTheme.bodyLarge),
-                  if (subtitle != null)
-                    Text(subtitle!, style: theme.textTheme.labelMedium),
+                  if (subtitle != null) Text(subtitle!, style: subtitleStyle),
                   if (actionButton != null) ...[
                     const SizedBox(height: 12),
                     actionButton!,
@@ -72,7 +86,10 @@ class EmptyStateTile extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          if (hasImage) ...[
+          if (hasArtwork) ...[
+            Center(child: EmptyStateArtwork(imageName: imageName!)),
+            const SizedBox(height: 12),
+          ] else if (hasImage) ...[
             Center(
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(12),
@@ -99,11 +116,7 @@ class EmptyStateTile extends StatelessWidget {
             ),
           if (subtitle != null) ...[
             const SizedBox(height: 4),
-            Text(
-              subtitle!,
-              textAlign: TextAlign.center,
-              style: theme.textTheme.labelMedium,
-            ),
+            Text(subtitle!, textAlign: TextAlign.center, style: subtitleStyle),
           ],
 
           if (actionButton != null)

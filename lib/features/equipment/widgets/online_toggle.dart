@@ -10,6 +10,7 @@ class OnlineToggle extends ConsumerWidget {
   final bool isVisible;
   final bool canShow;
   final bool vertical;
+  final bool compact;
 
   const OnlineToggle({
     super.key,
@@ -17,6 +18,7 @@ class OnlineToggle extends ConsumerWidget {
     required this.isVisible,
     this.canShow = true,
     this.vertical = false,
+    this.compact = false,
   });
 
   @override
@@ -43,46 +45,61 @@ class OnlineToggle extends ConsumerWidget {
 
     return Flex(
       direction: vertical ? Axis.vertical : Axis.horizontal,
-      mainAxisSize: vertical ? MainAxisSize.min : MainAxisSize.max,
+      mainAxisSize: vertical || compact ? MainAxisSize.min : MainAxisSize.max,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        if (isSubmitting) const CircularProgressIndicator(),
+        if (isSubmitting)
+          const SizedBox.square(
+            dimension: 18,
+            child: CircularProgressIndicator(strokeWidth: 2),
+          ),
 
-        if (flow != null && !vertical) Expanded(child: label) else label,
+        if (!compact)
+          if (flow != null && !vertical) Expanded(child: label) else label,
 
-        Transform.scale(
-          scale: 0.8,
-          child: Switch(
-            value: isVisible && canShow,
-            activeTrackColor: flow?.success,
-            activeThumbColor: flow == null ? null : Colors.white,
-            onChanged: !canShow
-                ? (val) {
-                    if (val) {
-                      AppToast.show(
-                        message: l10n.equipmentNeedsTariffToShow,
-                        type: AppToastType.error,
-                      );
+        Tooltip(
+          message: isVisible && canShow
+              ? l10n.equipmentShown
+              : l10n.equipmentHidden,
+          child: Transform.scale(
+            scale: 0.8,
+            child: Switch(
+              value: isVisible && canShow,
+              activeTrackColor: flow?.success,
+              activeThumbColor: flow == null ? null : Colors.white,
+              inactiveThumbColor: flow == null ? null : Colors.white,
+              inactiveTrackColor: flow?.secondary,
+              trackOutlineColor: flow == null
+                  ? null
+                  : const WidgetStatePropertyAll(Colors.transparent),
+              onChanged: !canShow
+                  ? (val) {
+                      if (val) {
+                        AppToast.show(
+                          message: l10n.equipmentNeedsTariffToShow,
+                          type: AppToastType.error,
+                        );
+                      }
                     }
-                  }
-                : (val) async {
-                    final result = await ref
-                        .read(equipmentMutationProvider.notifier)
-                        .toggleEquipmentOnline(id, val);
+                  : (val) async {
+                      final result = await ref
+                          .read(equipmentMutationProvider.notifier)
+                          .toggleEquipmentOnline(id, val);
 
-                    if (context.mounted) {
-                      AppToast.show(
-                        message: result
-                            ? (val
-                                  ? l10n.equipmentNowShown
-                                  : l10n.equipmentNowHidden)
-                            : l10n.failedToToggleEquipmentVisibility,
-                        type: result
-                            ? AppToastType.success
-                            : AppToastType.error,
-                      );
-                    }
-                  },
+                      if (context.mounted) {
+                        AppToast.show(
+                          message: result
+                              ? (val
+                                    ? l10n.equipmentNowShown
+                                    : l10n.equipmentNowHidden)
+                              : l10n.failedToToggleEquipmentVisibility,
+                          type: result
+                              ? AppToastType.success
+                              : AppToastType.error,
+                        );
+                      }
+                    },
+            ),
           ),
         ),
       ],

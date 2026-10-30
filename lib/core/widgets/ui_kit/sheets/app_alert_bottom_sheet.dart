@@ -35,26 +35,29 @@ abstract final class AppAlertBottomSheet {
                 textAlign: TextAlign.center,
                 style: AppFonts.body16(sheetContext),
               ),
-            Row(
-              spacing: AppDimens.s12$md,
-              children: [
-                if (secondaryLabel != null)
+            IntrinsicHeight(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                spacing: AppDimens.s12$md,
+                children: [
+                  if (secondaryLabel != null)
+                    Expanded(
+                      child: AppOutlinedButton(
+                        title: secondaryLabel,
+                        onTap: () => Navigator.of(sheetContext).pop(false),
+                      ),
+                    ),
                   Expanded(
-                    child: AppOutlinedButton(
-                      title: secondaryLabel,
-                      onTap: () => Navigator.of(sheetContext).pop(false),
+                    child: AppElevatedButton(
+                      title: primaryLabel,
+                      style: isDestructivePrimary
+                          ? AppElevatedButtonStyle.destructive
+                          : AppElevatedButtonStyle.primary,
+                      onTap: () => Navigator.of(sheetContext).pop(true),
                     ),
                   ),
-                Expanded(
-                  child: AppElevatedButton(
-                    title: primaryLabel,
-                    style: isDestructivePrimary
-                        ? AppElevatedButtonStyle.destructive
-                        : AppElevatedButtonStyle.primary,
-                    onTap: () => Navigator.of(sheetContext).pop(true),
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
           ],
         );

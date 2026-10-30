@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:prokat/core/theme/prokat_flow_icons.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_cropper/image_cropper.dart';
@@ -51,6 +52,7 @@ class _ProfileImagePickerState extends ConsumerState<ProfileImagePicker> {
 
   Future<void> _pickAndCropImage(ImageSource source) async {
     final l10n = AppLocalizations.of(context)!;
+    final flow = ProkatFlowScope.maybeOf(context);
     try {
       final XFile? pickedFile = await _picker.pickImage(
         source: source,
@@ -68,7 +70,7 @@ class _ProfileImagePickerState extends ConsumerState<ProfileImagePicker> {
         uiSettings: [
           AndroidUiSettings(
             toolbarTitle: l10n.cropProfilePicture,
-            toolbarColor: Colors.deepPurple,
+            toolbarColor: flow?.filledPrimary ?? Colors.deepPurple,
             toolbarWidgetColor: Colors.white,
             initAspectRatio: CropAspectRatioPreset.square,
             lockAspectRatio: true,
@@ -108,67 +110,70 @@ class _ProfileImagePickerState extends ConsumerState<ProfileImagePicker> {
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
         ),
-        builder: (context) => SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.only(
-              bottom: 24,
-              top: 12,
-              left: 24,
-              right: 24,
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Center(
-                  child: Container(
-                    width: 40,
-                    height: 4,
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant
-                          .withValues(alpha: 0.4),
-                      borderRadius: BorderRadius.circular(2),
+        builder: (sheetContext) => ProkatFlowScope.capture(
+          context,
+          SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.only(
+                bottom: 24,
+                top: 12,
+                left: 24,
+                right: 24,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Center(
+                    child: Container(
+                      width: 40,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant
+                            .withValues(alpha: 0.4),
+                        borderRadius: BorderRadius.circular(2),
+                      ),
                     ),
                   ),
-                ),
 
-                const SizedBox(height: 16),
+                  const SizedBox(height: 16),
 
-                Text(
-                  l10n.uploadProfileImage,
-                  style: Theme.of(context).textTheme.bodyLarge
-                      ?.copyWith(fontSize: 20, fontWeight: FontWeight.w500),
-                ),
-                const SizedBox(height: 16),
+                  Text(
+                    l10n.uploadProfileImage,
+                    style: Theme.of(context).textTheme.bodyLarge
+                        ?.copyWith(fontSize: 20, fontWeight: FontWeight.w500),
+                  ),
+                  const SizedBox(height: 16),
 
-                ListTile(
-                  leading: const Icon(Icons.photo_library),
-                  title: Text(l10n.photoGallery),
-                  onTap: () {
-                    Navigator.of(context).pop();
-                    unawaited(_pickAndCropImage(ImageSource.gallery));
-                  },
-                ),
-                ListTile(
-                  leading: const Icon(Icons.camera_alt),
-                  title: Text(l10n.camera),
-                  onTap: () {
-                    Navigator.of(context).pop();
-                    unawaited(_pickAndCropImage(ImageSource.camera));
-                  },
-                ),
-                if (_selectedImage != null ||
-                    (widget.initialImageUrl ?? '').isNotEmpty)
                   ListTile(
-                    leading: const Icon(LucideIcons.trash2),
-                    title: const Text('Удалить фото'),
+                    leading: const Icon(ProkatFlowIcons.gallery),
+                    title: Text(l10n.photoGallery),
                     onTap: () {
                       Navigator.of(context).pop();
-                      unawaited(_deleteImage());
+                      unawaited(_pickAndCropImage(ImageSource.gallery));
                     },
                   ),
-              ],
+                  ListTile(
+                    leading: const Icon(ProkatFlowIcons.camera),
+                    title: Text(l10n.camera),
+                    onTap: () {
+                      Navigator.of(context).pop();
+                      unawaited(_pickAndCropImage(ImageSource.camera));
+                    },
+                  ),
+                  if (_selectedImage != null ||
+                      (widget.initialImageUrl ?? '').isNotEmpty)
+                    ListTile(
+                      leading: const Icon(LucideIcons.trash2),
+                      title: Text(l10n.deletePhoto),
+                      onTap: () {
+                        Navigator.of(context).pop();
+                        unawaited(_deleteImage());
+                      },
+                    ),
+                ],
+              ),
             ),
           ),
         ),
@@ -270,7 +275,7 @@ class _ProfileImagePickerState extends ConsumerState<ProfileImagePicker> {
                 bottom: 8,
                 right: 8,
                 child: Container(
-                  padding: const EdgeInsets.all(10),
+                  padding: EdgeInsets.all(flow == null ? 10 : 7),
                   decoration: BoxDecoration(
                     color: flow?.filledPrimary ?? Colors.deepPurple,
                     shape: BoxShape.circle,
@@ -279,10 +284,10 @@ class _ProfileImagePickerState extends ConsumerState<ProfileImagePicker> {
                       width: 1,
                     ),
                   ),
-                  child: const Icon(
+                  child: Icon(
                     LucideIcons.pencil,
                     color: Colors.white,
-                    size: 22,
+                    size: flow == null ? 22 : 16,
                   ),
                 ),
               ),

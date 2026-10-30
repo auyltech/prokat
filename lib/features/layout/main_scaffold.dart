@@ -48,6 +48,30 @@ class MainScaffold extends StatelessWidget {
 
     final flow = ProkatFlowPalette.of(context);
     final useFlowTheme =
+        currentPath == AppRoutes.contactSupport ||
+        currentPath == AppRoutes.supportUs ||
+        currentPath == AppRoutes.about ||
+        currentPath == AppRoutes.main ||
+        currentPath == AppRoutes.clientPinAddress ||
+        currentPath == AppRoutes.ownerAddressMap ||
+        currentPath == AppRoutes.clientCreateAddress ||
+        currentPath == AppRoutes.ownerAddressCreate ||
+        currentPath == AppRoutes.favorites ||
+        currentPath == AppRoutes.clientNotifications ||
+        currentPath == AppRoutes.ownerNotifications ||
+        currentPath == AppRoutes.ownerCreateOffer ||
+        currentPath == AppRoutes.ownerPayment ||
+        currentPath == AppRoutes.ownerPaymentTopUp ||
+        currentPath == AppRoutes.ownerPaymentHistory ||
+        currentPath == AppRoutes.clientSettings ||
+        currentPath == AppRoutes.ownerSettings ||
+        currentPath == AppRoutes.clientDocuments ||
+        currentPath == AppRoutes.ownerDocuments ||
+        currentPath == AppRoutes.becomeOwner ||
+        currentPath == AppRoutes.ownerRegistration ||
+        currentPath == AppRoutes.clientBlockedUsers ||
+        currentPath == AppRoutes.ownerBlockedUsers ||
+        currentPath == AppRoutes.helpSupport ||
         currentPath == AppRoutes.searchList ||
         currentPath == AppRoutes.clientRequests ||
         currentPath == AppRoutes.clientRequestsCreate ||

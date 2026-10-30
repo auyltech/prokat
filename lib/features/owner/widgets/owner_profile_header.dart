@@ -108,7 +108,9 @@ class OwnerProfileHeader extends StatelessWidget {
                   const SizedBox(width: 4),
 
                   Text(
-                    (ownerProfile?.ratingAverage ?? 0).toStringAsFixed(1),
+                    (ownerProfile?.ratingAverage ?? 0) <= 0
+                        ? l10n.listingNoReviews
+                        : (ownerProfile?.ratingAverage ?? 0).toStringAsFixed(1),
                     style: const TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.w600,

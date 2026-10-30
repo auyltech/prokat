@@ -55,8 +55,10 @@ class BookingFlowCard extends StatelessWidget {
           const SizedBox(height: 16),
           if (booking.companyId != null)
             _BookingDetail(
-              label: 'Комментарий к заказу',
-              value: hasComment ? booking.comment! : 'Не указан',
+              label: l10n.bookingOrderCommentTitle,
+              value: hasComment
+                  ? booking.comment!
+                  : l10n.bookingOrderCommentEmpty,
               icon: LucideIcons.messageSquare,
             )
           else if (equipment != null)

@@ -44,6 +44,8 @@ class LegalDocumentsScreen extends ConsumerWidget {
                       ? LucideIcons.shieldCheck
                       : document.slug == 'consent'
                       ? LucideIcons.userRoundCheck
+                      : document.slug == 'user-agreement'
+                      ? LucideIcons.handshake
                       : LucideIcons.fileCheck,
                   iconColor: iconColor,
                   iconBgColor: iconBgColor,
@@ -52,6 +54,7 @@ class LegalDocumentsScreen extends ConsumerWidget {
                     'privacy-policy' => l10n.privacyPolicySubtitle,
                     'user-agreement' => l10n.userAgreementSubtitle,
                     'consent' => l10n.personalDataSharingSubtitle,
+                    'public-offer' => l10n.publicOfferSubtitle,
                     _ => l10n.legalDocumentsSubtitle,
                   },
                   onTap: () => Navigator.of(context, rootNavigator: true).push(

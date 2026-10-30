@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:prokat/core/theme/prokat_flow_scope.dart';
 import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:prokat/features/support/models/contact_inquiry_topic.dart';
 import 'package:prokat/features/support/state/support_provider.dart';
@@ -136,11 +138,15 @@ class _ContactSupportScreenState extends ConsumerState<ContactSupportScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final flow = ProkatFlowScope.maybeOf(context);
     final l10n = AppLocalizations.of(context)!;
     final isSubmitting = ref.watch(supportProvider).isSubmitting;
+    String fieldLabel(String label) =>
+        label.replaceFirst(RegExp(r'\s*\*$'), '');
 
     return Scaffold(
-      backgroundColor: theme.colorScheme.surfaceContainerLow,
+      backgroundColor:
+          flow?.background ?? theme.colorScheme.surfaceContainerLow,
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : SafeArea(
@@ -156,18 +162,36 @@ class _ContactSupportScreenState extends ConsumerState<ContactSupportScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      Center(
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(12),
-                          child: Image.asset(
-                            'assets/media/contact_support.png',
-                            height: 340,
-                            width: 340,
-                            fit: BoxFit.contain,
-                            excludeFromSemantics: true,
+                      if (flow != null)
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: Container(
+                            margin: const EdgeInsets.only(bottom: 20),
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: flow.primarySoft,
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Icon(
+                              LucideIcons.headset,
+                              size: 36,
+                              color: flow.primary,
+                            ),
+                          ),
+                        )
+                      else
+                        Center(
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(12),
+                            child: Image.asset(
+                              'assets/media/contact_support.png',
+                              height: 340,
+                              width: 340,
+                              fit: BoxFit.contain,
+                              excludeFromSemantics: true,
+                            ),
                           ),
                         ),
-                      ),
                       Text(
                         l10n.howCanWeHelp,
                         style: theme.textTheme.headlineSmall?.copyWith(
@@ -189,7 +213,9 @@ class _ContactSupportScreenState extends ConsumerState<ContactSupportScreen> {
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(AppDimens.r16$xl),
                           side: BorderSide(
-                            color: theme.colorScheme.outlineVariant,
+                            color:
+                                flow?.border ??
+                                theme.colorScheme.outlineVariant,
                           ),
                         ),
                         color: theme.colorScheme.surface,
@@ -201,15 +227,19 @@ class _ContactSupportScreenState extends ConsumerState<ContactSupportScreen> {
                               Row(
                                 children: [
                                   Icon(
-                                    Icons.person_outline,
+                                    LucideIcons.user,
                                     size: 20,
                                     color: theme.colorScheme.primary,
                                   ),
                                   const SizedBox(width: AppDimens.s08$sm),
-                                  Text(
-                                    l10n.contactInformation,
-                                    style: theme.textTheme.titleMedium
-                                        ?.copyWith(fontWeight: FontWeight.bold),
+                                  Expanded(
+                                    child: Text(
+                                      l10n.contactInformation,
+                                      style: theme.textTheme.titleMedium
+                                          ?.copyWith(
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                    ),
                                   ),
                                 ],
                               ),
@@ -217,12 +247,10 @@ class _ContactSupportScreenState extends ConsumerState<ContactSupportScreen> {
 
                               AppTextField(
                                 controller: _nameController,
-                                title: l10n.fullNameRequiredLabel,
-                                hint: l10n.fullNameRequiredLabel,
+                                title: fieldLabel(l10n.fullNameRequiredLabel),
+                                hint: fieldLabel(l10n.fullNameRequiredLabel),
                                 isRequired: true,
-                                prefix: const Icon(
-                                  Icons.account_circle_outlined,
-                                ),
+                                prefix: const Icon(LucideIcons.userRound),
                                 showError: _showErrors,
                                 errorText:
                                     _nameController.text.trim().length < 2
@@ -238,11 +266,15 @@ class _ContactSupportScreenState extends ConsumerState<ContactSupportScreen> {
 
                               AppTextField(
                                 controller: _emailController,
-                                title: l10n.emailAddressRequiredLabel,
-                                hint: l10n.emailAddressRequiredLabel,
+                                title: fieldLabel(
+                                  l10n.emailAddressRequiredLabel,
+                                ),
+                                hint: fieldLabel(
+                                  l10n.emailAddressRequiredLabel,
+                                ),
                                 isRequired: true,
                                 keyboardType: TextInputType.emailAddress,
-                                prefix: const Icon(Icons.email_outlined),
+                                prefix: const Icon(LucideIcons.mail),
                                 showError: _showErrors,
                                 errorText: _emailError(l10n),
                                 onChanged: (_) => _onFieldChanged(),
@@ -264,11 +296,13 @@ class _ContactSupportScreenState extends ConsumerState<ContactSupportScreen> {
 
                               AppTextField(
                                 controller: _phoneController,
-                                title: l10n.phoneNumberRequiredLabel,
-                                hint: l10n.phoneNumberRequiredLabel,
+                                title: fieldLabel(
+                                  l10n.phoneNumberRequiredLabel,
+                                ),
+                                hint: fieldLabel(l10n.phoneNumberRequiredLabel),
                                 isRequired: true,
                                 keyboardType: TextInputType.phone,
-                                prefix: const Icon(Icons.phone_outlined),
+                                prefix: const Icon(LucideIcons.phone),
                                 showError: _showErrors,
                                 errorText: _phoneController.text.trim().isEmpty
                                     ? l10n.phoneNumberRequired
@@ -285,15 +319,19 @@ class _ContactSupportScreenState extends ConsumerState<ContactSupportScreen> {
                               Row(
                                 children: [
                                   Icon(
-                                    Icons.chat_bubble_outline,
+                                    LucideIcons.messageCircle,
                                     size: 20,
                                     color: theme.colorScheme.primary,
                                   ),
                                   const SizedBox(width: AppDimens.s08$sm),
-                                  Text(
-                                    l10n.inquiryDetails,
-                                    style: theme.textTheme.titleMedium
-                                        ?.copyWith(fontWeight: FontWeight.bold),
+                                  Expanded(
+                                    child: Text(
+                                      l10n.inquiryDetails,
+                                      style: theme.textTheme.titleMedium
+                                          ?.copyWith(
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                    ),
                                   ),
                                 ],
                               ),
@@ -301,15 +339,19 @@ class _ContactSupportScreenState extends ConsumerState<ContactSupportScreen> {
 
                               AppTextField(
                                 controller: _topicController,
-                                title: l10n.inquiryTopicRequiredLabel,
-                                hint: l10n.inquiryTopicRequiredLabel,
+                                title: fieldLabel(
+                                  l10n.inquiryTopicRequiredLabel,
+                                ),
+                                hint: fieldLabel(
+                                  l10n.inquiryTopicRequiredLabel,
+                                ),
                                 isRequired: true,
                                 selectOnly: true,
                                 forceFocused: _topicPickerOpen,
                                 onTap: _pickTopic,
-                                prefix: const Icon(Icons.unfold_more_rounded),
+                                prefix: const Icon(LucideIcons.listFilter),
                                 suffix: Icon(
-                                  Icons.keyboard_arrow_down,
+                                  LucideIcons.chevronDown,
                                   color: context.colors.text.secondary,
                                 ),
                                 showError: _showErrors,
@@ -321,12 +363,13 @@ class _ContactSupportScreenState extends ConsumerState<ContactSupportScreen> {
 
                               AppTextArea(
                                 controller: _messageController,
-                                title: l10n.yourMessageRequiredLabel,
-                                hint: l10n.yourMessageRequiredLabel,
+                                title: fieldLabel(
+                                  l10n.yourMessageRequiredLabel,
+                                ),
+                                hint: fieldLabel(l10n.yourMessageRequiredLabel),
                                 isRequired: true,
                                 minLines: 5,
                                 maxLines: 5,
-                                prefix: const Icon(Icons.edit_note_rounded),
                                 showError: _showErrors,
                                 errorText:
                                     _messageController.text.trim().length < 10

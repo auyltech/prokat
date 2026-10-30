@@ -18,11 +18,13 @@ class ClientProfileHeader extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
     final flow = ProkatFlowScope.maybeOf(context);
     final rating = Text(
-      (userProfile?.ratingAverage ?? 0).toStringAsFixed(1),
+      (userProfile?.ratingAverage ?? 0) <= 0
+          ? l10n.listingNoReviews
+          : (userProfile?.ratingAverage ?? 0).toStringAsFixed(1),
       style: theme.textTheme.bodyMedium?.copyWith(color: Colors.white),
     );
     final orders = Text(
-      "- ${l10n.ordersCount(userProfile?.orderCount ?? 0)}",
+      "· ${l10n.ordersCount(userProfile?.orderCount ?? 0)}",
       style: theme.textTheme.labelMedium?.copyWith(
         fontWeight: FontWeight.w400,
         color: Colors.white.withValues(alpha: 0.8),

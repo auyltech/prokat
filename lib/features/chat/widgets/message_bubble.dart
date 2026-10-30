@@ -1,6 +1,9 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:prokat/features/chat/widgets/chat_photo_message.dart';
+import 'package:prokat/features/chat/widgets/compact_message_text.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
 import 'package:prokat/core/theme/prokat_flow_palette.dart';
 import 'package:prokat/core/theme/prokat_flow_scope.dart';
@@ -52,6 +55,9 @@ class _MessageBubbleState extends State<MessageBubble> {
     // };
 
     final service = widget.message.service;
+    if (widget.message.type == 'IMAGE') {
+      return ChatPhotoMessage(message: widget.message, isMe: widget.isMe);
+    }
 
     if (service == "REQUEST") {
       return RequestMessageBubble(
@@ -253,43 +259,36 @@ class _MessageBubbleState extends State<MessageBubble> {
                   bottomRight: Radius.circular(widget.isMe ? 5 : 18),
                 ),
               ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text(
-                    content,
-                    style: theme.textTheme.bodyMedium?.copyWith(
+              child: CompactMessageText(
+                text: content,
+                style: (theme.textTheme.bodyMedium ?? const TextStyle())
+                    .copyWith(
                       height: 1.4,
                       fontWeight: FontWeight.w400,
                       color: textColor,
                     ),
-                  ),
-                  if (timestamp != null || widget.isMe) ...[
-                    const SizedBox(height: 4),
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        if (timestamp != null)
-                          Text(
-                            DateFormat.Hm().format(timestamp),
-                            style: theme.textTheme.labelSmall?.copyWith(
-                              fontSize: 10,
-                              color: metadataColor,
-                            ),
-                          ),
-                        if (widget.isMe) ...[
-                          const SizedBox(width: 4),
-                          _SendStatusIndicator(
-                            isPending: widget.message.isPending,
-                            isFailed: widget.message.isFailed,
-                            color: metadataColor,
-                          ),
-                        ],
-                      ],
-                    ),
+                metadata: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (timestamp != null)
+                      Text(
+                        DateFormat.Hm().format(timestamp),
+                        style: theme.textTheme.labelSmall?.copyWith(
+                          fontSize: 10,
+                          color: metadataColor,
+                        ),
+                      ),
+                    if (widget.isMe) ...[
+                      const SizedBox(width: 4),
+                      _SendStatusIndicator(
+                        isPending: widget.message.isPending,
+                        isFailed: widget.message.isFailed,
+                        color: metadataColor,
+                        isRead: widget.message.readAt != null,
+                      ),
+                    ],
                   ],
-                ],
+                ),
               ),
             ),
             _TimestampRow(
@@ -311,11 +310,13 @@ class _SendStatusIndicator extends StatefulWidget {
   final bool isPending;
   final bool isFailed;
   final Color color;
+  final bool isRead;
 
   const _SendStatusIndicator({
     required this.isPending,
     required this.isFailed,
     required this.color,
+    this.isRead = false,
   });
 
   @override
@@ -407,7 +408,21 @@ class _SendStatusIndicatorState extends State<_SendStatusIndicator>
       return Icon(Icons.schedule_rounded, size: 16, color: widget.color);
     }
 
-    return Icon(Icons.check_rounded, size: 16, color: widget.color);
+    return Semantics(
+      label: widget.isRead
+          ? AppLocalizations.of(context)!.chatMessageRead
+          : AppLocalizations.of(context)!.chatMessageSent,
+      child: Icon(
+        widget.isRead ? Icons.done_all_rounded : Icons.check_rounded,
+        size: 16,
+        color: widget.isRead
+            ? ProkatFlowPalette.readReceiptOnPrimary
+            : widget.color,
+        shadows: widget.isRead
+            ? const [Shadow(color: Color(0x5580FFD1), blurRadius: 4)]
+            : null,
+      ),
+    );
   }
 }
 
