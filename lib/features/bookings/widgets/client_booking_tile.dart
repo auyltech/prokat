@@ -10,6 +10,8 @@ import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:prokat/core/widgets/info_tile.dart';
 import 'package:prokat/features/appstartup/app_mode_storage.dart';
 import 'package:prokat/features/bookings/models/booking_model.dart';
+import 'package:prokat/features/catalog/catalog_provider.dart';
+import 'package:prokat/features/catalog/tariff_unit_labels.dart';
 import 'package:prokat/features/bookings/models/booking_status.dart';
 import 'package:prokat/features/bookings/providers/booking_mutation_provider.dart';
 import 'package:prokat/features/bookings/widgets/booking_status_badge.dart';
@@ -31,6 +33,8 @@ class ClientBookingTile extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
+    final catalog = ref.watch(catalogProvider).valueOrNull;
+    final languageCode = Localizations.localeOf(context).languageCode;
 
     // Data parsing helpers inherited from your previous layout structure
     // final minutesLeft = getRemainingMinutes(booking.bookedAt);
@@ -56,6 +60,12 @@ class ClientBookingTile extends ConsumerWidget {
 
     if (ProkatFlowScope.maybeOf(context) != null) {
       return BookingFlowCard(
+        tariffUnitLabel: tariffUnitLabelForUi(
+          code: booking.priceRate.value,
+          languageCode: Localizations.localeOf(context).languageCode,
+          catalog: ref.watch(catalogProvider).valueOrNull,
+          l10n: l10n,
+        ),
         booking: booking,
         counterpart: UserInfoTile(user: booking.owner),
         priceLabel: l10n.offeredRate.toUpperCase(),
@@ -209,7 +219,13 @@ class ClientBookingTile extends ConsumerWidget {
                   const SizedBox(height: 2),
 
                   Text(
-                    "${formatPrice(booking.price)} ${getPriceRate(booking.priceRate, l10n: l10n)}",
+                    formatEquipmentPriceLine(
+                      price: booking.price,
+                      code: booking.priceRate.value,
+                      languageCode: languageCode,
+                      catalog: catalog,
+                      l10n: l10n,
+                    ),
                     style: theme.textTheme.titleMedium?.copyWith(
                       color: const Color(0xFF0D47A1),
                       fontWeight: FontWeight.w800,

@@ -1,7 +1,8 @@
 # Catalog
 
 - Channel: `GET /catalog` (bundle + ETag / 304). Facets: `GET /catalog/facets?categoryId=`. Do not refetch on locale change.
-- Bundle: `cities`, `categories`, `units`, `specs`, `specOptions`, `categorySpecs`. Links use **id**; filters use **slug**.
+- Bundle: `cities`, `categories`, `units`, `tariffUnits`, `specs`, `specOptions`, `categorySpecs`. Links use **id**; filters use **slug**.
+- `tariffUnits`: pricing units (`code` string + `names` ru/en/kk). Absent key ≠ empty list (`null` vs `[]`). Keep all locales in cache; pick label locally — do not refetch on locale change.
 - Category has `catalogGroup` (`MACHINERY` | `EQUIPMENT`). Absent/unknown → `MACHINERY`. Server ETag is bucket-scoped (`LEGACY:` / `TWO_GROUPS:`).
 - Category has localized `descriptions` (ru/en/kk) alongside `names`. Missing/empty → empty string; pick locally like names.
 - Disk cache: app support via `path_provider` (`catalog/catalog_bundle.json`). Not secure storage. First launch uses `assets/catalog/catalog_bundle.json`.

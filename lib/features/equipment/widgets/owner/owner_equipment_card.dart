@@ -1,3 +1,5 @@
+import 'package:prokat/features/catalog/models/catalog_bundle.dart';
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -8,9 +10,9 @@ import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/theme/prokat_flow_palette.dart';
 import 'package:prokat/core/theme/prokat_flow_scope.dart';
 import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
-import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/core/widgets/optimized_network_image.dart';
 import 'package:prokat/features/catalog/catalog_provider.dart';
+import 'package:prokat/features/catalog/tariff_unit_labels.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
 import 'package:prokat/features/equipment/providers/equipment_mutation_provider.dart';
 import 'package:prokat/features/equipment/utils/equipment_submit_readiness.dart';
@@ -61,6 +63,7 @@ class OwnerEquipmentCard extends ConsumerWidget {
       return _FlowOwnerEquipmentCard(
         equipment: equipment,
         locationText: locationText,
+        catalog: ref.watch(catalogProvider).valueOrNull,
         showShare: showShare,
         onOpen: () => _openEditor(context, ref),
       );
@@ -86,8 +89,16 @@ class OwnerEquipmentCard extends ConsumerWidget {
         .firstOrNull;
 
     final hasPrice = priceEntry != null;
+    final catalog = ref.watch(catalogProvider).valueOrNull;
+    final languageCode = Localizations.localeOf(context).languageCode;
     final priceDisplay = hasPrice
-        ? "${priceEntry.price} ${getPriceRate(priceEntry.priceRate, l10n: l10n)}"
+        ? formatEquipmentPriceLine(
+            price: priceEntry.price,
+            code: priceEntry.priceRate.value,
+            languageCode: languageCode,
+            catalog: catalog,
+            l10n: l10n,
+          )
         : l10n.noPriceSet;
 
     if (companyControls && !readOnly) {
@@ -449,12 +460,14 @@ class _ResponsiveOwnerHeader extends StatelessWidget {
 }
 
 class _FlowOwnerEquipmentCard extends StatelessWidget {
+  final CatalogBundle? catalog;
   final Equipment equipment;
   final String locationText;
   final bool showShare;
   final VoidCallback onOpen;
 
   const _FlowOwnerEquipmentCard({
+    this.catalog,
     required this.equipment,
     required this.locationText,
     required this.showShare,
@@ -470,10 +483,18 @@ class _FlowOwnerEquipmentCard extends StatelessWidget {
         .where((entry) => entry.price > 0)
         .firstOrNull;
     final hasPrice = price != null;
-    final tariff = price == null
+    final priceLine = price == null
         ? l10n.noPriceSet
-        : '${price.isStartingFrom ? '${l10n.priceFromPrefix} ' : ''}'
-              '${formatPrice(price.price)} ${getPriceRate(price.priceRate, l10n: l10n)}';
+        : formatEquipmentPriceLine(
+            price: price.price,
+            code: price.priceRate.value,
+            languageCode: Localizations.localeOf(context).languageCode,
+            catalog: catalog,
+            l10n: l10n,
+          );
+    final tariff = price?.isStartingFrom == true
+        ? '${l10n.priceFromPrefix} $priceLine'
+        : priceLine;
     final canShowVisibility =
         equipment.status == EquipmentStatus.available ||
         equipment.status == EquipmentStatus.accepted;

@@ -7,7 +7,11 @@ import 'package:go_router/go_router.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/widgets/optimized_network_image.dart';
 import 'package:prokat/features/bookings/providers/booking_mutation_provider.dart';
+import 'package:prokat/features/catalog/catalog_provider.dart';
+import 'package:prokat/features/catalog/models/catalog_bundle.dart';
+import 'package:prokat/features/catalog/tariff_unit_labels.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
+import 'package:prokat/features/equipment/models/price_entry_model.dart';
 import 'package:prokat/features/favorites/state/favorites_provider.dart';
 import 'package:prokat/features/locations/location_label.dart';
 import 'package:prokat/l10n/app_localizations.dart';
@@ -20,6 +24,8 @@ class EquipmentDetailsDrawer extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context)!;
+    final catalog = ref.watch(catalogProvider).valueOrNull;
+    final languageCode = Localizations.localeOf(context).languageCode;
     const bgColor = Color(0xFF121417);
     const cardColor = Color(0xFF1E2125);
     const accentColor = Color(0xFF4E73DF);
@@ -138,7 +144,14 @@ class EquipmentDetailsDrawer extends ConsumerWidget {
                           Wrap(
                             spacing: 10,
                             children: equipment.prices
-                                .map<Widget>((p) => _PriceTag(p: p))
+                                .map<Widget>(
+                                  (p) => _PriceTag(
+                                    price: p,
+                                    catalog: catalog,
+                                    languageCode: languageCode,
+                                    l10n: l10n,
+                                  ),
+                                )
                                 .toList(),
                           ),
 
@@ -258,11 +271,27 @@ class EquipmentDetailsDrawer extends ConsumerWidget {
 }
 
 class _PriceTag extends StatelessWidget {
-  final dynamic p;
-  const _PriceTag({required this.p});
+  final PriceEntry price;
+  final CatalogBundle? catalog;
+  final String languageCode;
+  final AppLocalizations l10n;
+
+  const _PriceTag({
+    required this.price,
+    required this.catalog,
+    required this.languageCode,
+    required this.l10n,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final line = formatEquipmentPriceLine(
+      price: price.price,
+      code: price.priceRate.value,
+      languageCode: languageCode,
+      catalog: catalog,
+      l10n: l10n,
+    );
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
@@ -270,22 +299,12 @@ class _PriceTag extends StatelessWidget {
         borderRadius: BorderRadius.circular(10),
         border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
       ),
-      child: RichText(
-        text: TextSpan(
-          children: [
-            TextSpan(
-              text: "\$${p.price}",
-              style: const TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-              ),
-            ),
-            TextSpan(
-              text: " / ${p.priceRate}",
-              style: const TextStyle(color: Colors.white38, fontSize: 12),
-            ),
-          ],
+      child: Text(
+        line,
+        style: const TextStyle(
+          color: Colors.white,
+          fontWeight: FontWeight.bold,
+          fontSize: 16,
         ),
       ),
     );

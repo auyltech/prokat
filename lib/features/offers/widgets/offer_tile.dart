@@ -14,7 +14,8 @@ import 'package:prokat/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/theme/legacy/app_theme.dart';
-import 'package:prokat/core/utils/format.dart';
+import 'package:prokat/features/catalog/catalog_provider.dart';
+import 'package:prokat/features/catalog/tariff_unit_labels.dart';
 import 'package:prokat/features/layout/reveal_client_orders_after_tender_accept.dart';
 import 'package:prokat/core/media/media_image_provider.dart';
 import 'package:prokat/core/theme/prokat_flow_scope.dart';
@@ -99,6 +100,12 @@ class OfferTile extends ConsumerWidget {
           .join()
           .toUpperCase();
       return OfferFlowCard(
+        tariffUnitLabel: tariffUnitLabelForUi(
+          code: offer.priceRate?.value,
+          languageCode: Localizations.localeOf(context).languageCode,
+          catalog: ref.watch(catalogProvider).valueOrNull,
+          l10n: l10n,
+        ),
         offer: offer,
         isBestPrice: isBestPrice,
         submitting: ref.watch(offerMutationProvider).isSubmitting,
@@ -134,6 +141,8 @@ class OfferTile extends ConsumerWidget {
         onReject: () => _handleReject(context, ref, l10n),
       );
     }
+    final catalog = ref.watch(catalogProvider).valueOrNull;
+    final languageCode = Localizations.localeOf(context).languageCode;
     final mutedText = colorScheme.onSurfaceVariant;
     final priceColor = AppTheme.brandTintFg(theme.brightness);
 
@@ -222,7 +231,13 @@ class OfferTile extends ConsumerWidget {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      "${formatPrice(offer.price)} ${getPriceRate(offer.priceRate, l10n: l10n)}",
+                      formatEquipmentPriceLine(
+                        price: offer.price,
+                        code: offer.priceRate?.value,
+                        languageCode: languageCode,
+                        catalog: catalog,
+                        l10n: l10n,
+                      ),
                       style: theme.textTheme.titleMedium?.copyWith(
                         color: priceColor,
                         fontWeight: FontWeight.w800,

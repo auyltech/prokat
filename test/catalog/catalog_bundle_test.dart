@@ -51,5 +51,7 @@ void main() {
     expect(restored.cities.single.label('ru'), 'Алматы');
     expect(restored.specs.single.type, CatalogSpecType.select);
     expect(restored.optionsForSpec('spec-1').single.slug, 'diesel');
+    expect(restored.tariffUnits, isNull);
+    expect(restored.toJson().containsKey('tariffUnits'), isFalse);
   });
 }

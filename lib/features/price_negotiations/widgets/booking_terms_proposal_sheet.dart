@@ -1,3 +1,6 @@
+import 'package:prokat/features/catalog/catalog_provider.dart';
+import 'package:prokat/features/catalog/tariff_unit_labels.dart';
+
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -7,7 +10,6 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:prokat/core/constants/price_rate_options.dart';
 import 'package:prokat/core/theme/prokat_flow_palette.dart';
 import 'package:prokat/core/theme/prokat_flow_scope.dart';
-import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/core/utils/max_int_input_formatter.dart';
 import 'package:prokat/core/widgets/job_schedule_section.dart';
 import 'package:prokat/core/widgets/ui_kit/flow/prokat_flow_actions.dart';
@@ -348,12 +350,27 @@ class _BookingTermsProposalSheetState
           sheetTitle: l10n.offerCompareUnit,
           enabled: !submitting,
           value: _rate,
-          selectedLabel: getPriceRate(_rate, l10n: l10n),
+          selectedLabel: tariffUnitLabelForUi(
+            code: _rate.value,
+            languageCode: Localizations.localeOf(context).languageCode,
+            catalog: ref.watch(catalogProvider).valueOrNull,
+            l10n: l10n,
+          ),
           options: [
-            for (final rate in priceRateOptions)
+            for (final rate in buildTariffUnitSelectOptions(
+              catalog: ref.watch(catalogProvider).valueOrNull,
+              languageCode: Localizations.localeOf(context).languageCode,
+              legacyLookup: legacyTariffUnitLookupFromL10n(l10n),
+              includeCode: _rate.value,
+            ))
               DropdownOption(
                 value: rate,
-                label: getPriceRate(rate, l10n: l10n),
+                label: tariffUnitLabelForUi(
+                  code: rate.value,
+                  languageCode: Localizations.localeOf(context).languageCode,
+                  catalog: ref.watch(catalogProvider).valueOrNull,
+                  l10n: l10n,
+                ),
               ),
           ],
           onChanged: (rate) => setState(() {

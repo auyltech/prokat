@@ -1,3 +1,5 @@
+import 'package:prokat/features/catalog/catalog_provider.dart';
+import 'package:prokat/features/catalog/tariff_unit_labels.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -264,7 +266,7 @@ class _InquiryContextCardState extends ConsumerState<InquiryContextCard> {
                             children: [
                               TextSpan(
                                 text:
-                                    ' ${getPriceRate(booking.priceRate, l10n: l10n)}',
+                                    ' ${tariffUnitLabelForUi(code: booking.priceRate.value, languageCode: Localizations.localeOf(context).languageCode, catalog: ref.watch(catalogProvider).valueOrNull, l10n: l10n)}',
                                 style: TextStyle(
                                   fontSize: 11,
                                   fontWeight: FontWeight.w500,

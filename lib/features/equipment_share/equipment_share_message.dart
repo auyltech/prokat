@@ -1,3 +1,4 @@
+import 'package:prokat/features/catalog/models/catalog_bundle.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
 import 'package:prokat/features/equipment/models/price_entry_model.dart';
 import 'package:prokat/features/equipment/utils/vacuum_tariffs.dart';
@@ -16,10 +17,16 @@ String? shareDescriptionOf(Equipment equipment) {
   return description;
 }
 
-String? sharePriceLine(Equipment equipment, AppLocalizations l10n) {
+String? sharePriceLine(
+  Equipment equipment,
+  AppLocalizations l10n, {
+  CatalogBundle? catalog,
+  String languageCode = 'ru',
+}) {
   final entry = firstSharePrice(equipment);
   if (entry == null) return null;
-  return TariffDraft.fromEntry(entry).collapsedSubtitle(l10n);
+  return TariffDraft.fromEntry(entry)
+      .collapsedSubtitle(l10n, catalog: catalog, languageCode: languageCode);
 }
 
 String equipmentShareMessage(

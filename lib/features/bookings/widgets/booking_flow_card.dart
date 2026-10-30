@@ -16,6 +16,7 @@ import 'package:prokat/l10n/app_localizations.dart';
 class BookingFlowCard extends StatelessWidget {
   const BookingFlowCard({
     super.key,
+    this.tariffUnitLabel,
     required this.booking,
     required this.counterpart,
     required this.priceLabel,
@@ -26,6 +27,8 @@ class BookingFlowCard extends StatelessWidget {
   final Widget counterpart;
   final String priceLabel;
   final List<Widget> actions;
+
+  final String? tariffUnitLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -155,7 +158,8 @@ class BookingFlowCard extends StatelessWidget {
               text: formatPrice(booking.price),
               children: [
                 TextSpan(
-                  text: ' ${getPriceRate(booking.priceRate, l10n: l10n)}',
+                  text:
+                      ' ${(tariffUnitLabel ?? getPriceRate(booking.priceRate, l10n: l10n))}',
                   style: AppFonts.body14SemiBold(context)
                       .copyWith(color: palette.secondary),
                 ),

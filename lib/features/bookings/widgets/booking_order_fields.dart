@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:prokat/core/theme/prokat_flow_icons.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/core/widgets/job_schedule_section.dart';
 import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:prokat/core/theme/prokat_flow_scope.dart';
+import 'package:prokat/features/catalog/catalog_provider.dart';
+import 'package:prokat/features/catalog/models/catalog_bundle.dart';
 import 'package:prokat/features/catalog/models/catalog_group.dart';
+import 'package:prokat/features/catalog/tariff_unit_labels.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
 import 'package:prokat/features/equipment/models/price_entry_model.dart';
 import 'package:prokat/features/equipment/utils/vacuum_tariffs.dart';
@@ -22,11 +24,36 @@ bool bookingIsEquipmentGroup(Equipment equipment) {
   return equipment.category?.catalogGroup == CatalogGroup.equipment;
 }
 
-String bookingTariffPriceLabel(PriceEntry entry, AppLocalizations l10n) =>
-    '${formatPrice(entry.price)} ${getPriceRate(entry.priceRate, l10n: l10n)}';
+String bookingTariffLabel(
+  PriceEntry entry,
+  AppLocalizations l10n, {
+  CatalogBundle? catalog,
+  String languageCode = 'ru',
+}) {
+  final priceText = bookingTariffPriceLabel(
+    entry,
+    l10n,
+    catalog: catalog,
+    languageCode: languageCode,
+  );
+  return priceText + _bookingTariffDescription(entry, l10n);
+}
 
-String bookingTariffLabel(PriceEntry entry, AppLocalizations l10n) {
-  final priceText = bookingTariffPriceLabel(entry, l10n);
+String bookingTariffPriceLabel(
+  PriceEntry entry,
+  AppLocalizations l10n, {
+  CatalogBundle? catalog,
+  String languageCode = 'ru',
+}) => formatEquipmentPriceLine(
+  price: entry.price,
+  code: entry.priceRate.value,
+  languageCode: languageCode,
+  catalog: catalog,
+  l10n: l10n,
+);
+
+String _bookingTariffDescription(PriceEntry entry, AppLocalizations l10n) {
+  const priceText = '';
   final serviceName = savedTariffTitle(entry, l10n);
   if (serviceName == null) return priceText;
   return '$priceText — $serviceName';
@@ -85,6 +112,8 @@ class BookingOrderFields extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context)!;
     final flow = ProkatFlowScope.maybeOf(context);
+    final catalog = ref.watch(catalogProvider).valueOrNull;
+    final languageCode = Localizations.localeOf(context).languageCode;
     final singleTariff = prices.length == 1;
     final tariffValue = singleTariff ? prices.first : selectedPrice;
     final tariffDescription = tariffValue == null
@@ -93,6 +122,12 @@ class BookingOrderFields extends ConsumerWidget {
     final addressLabel = address == null
         ? null
         : formatLocationModel(ref, context, address!);
+    String labelFor(PriceEntry entry) => bookingTariffLabel(
+      entry,
+      l10n,
+      catalog: catalog,
+      languageCode: languageCode,
+    );
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -131,14 +166,16 @@ class BookingOrderFields extends ConsumerWidget {
           selectedLabel: tariffValue == null
               ? null
               : flow == null
-              ? bookingTariffLabel(tariffValue, l10n)
-              : bookingTariffPriceLabel(tariffValue, l10n),
+              ? labelFor(tariffValue)
+              : bookingTariffPriceLabel(
+                  tariffValue,
+                  l10n,
+                  catalog: catalog,
+                  languageCode: languageCode,
+                ),
           options: [
             for (final entry in prices)
-              DropdownOption(
-                value: entry,
-                label: bookingTariffLabel(entry, l10n),
-              ),
+              DropdownOption(value: entry, label: labelFor(entry)),
           ],
           onChanged: onPriceChanged,
         ),

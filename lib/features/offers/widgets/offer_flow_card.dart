@@ -20,6 +20,7 @@ class OfferFlowCard extends StatelessWidget {
 
   const OfferFlowCard({
     super.key,
+    this.tariffUnitLabel,
     required this.offer,
     required this.avatar,
     this.isBestPrice = false,
@@ -29,6 +30,8 @@ class OfferFlowCard extends StatelessWidget {
     this.onAccept,
     this.onReject,
   });
+
+  final String? tariffUnitLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -130,7 +133,8 @@ class OfferFlowCard extends StatelessWidget {
               ),
               if (offer.priceRate != null)
                 Text(
-                  getPriceRate(offer.priceRate, l10n: l10n),
+                  (tariffUnitLabel ??
+                      getPriceRate(offer.priceRate, l10n: l10n)),
                   style: TextStyle(color: palette.secondary, fontSize: 14),
                 ),
               if (isBestPrice)

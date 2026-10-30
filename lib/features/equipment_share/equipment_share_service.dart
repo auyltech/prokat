@@ -12,6 +12,7 @@ import 'package:prokat/features/equipment/providers/owner_equipment_details_prov
 import 'package:prokat/features/equipment_share/equipment_share_events_api.dart';
 import 'package:prokat/features/equipment_share/equipment_share_gate.dart';
 import 'package:prokat/features/equipment_share/equipment_share_outbound.dart';
+import 'package:prokat/features/catalog/catalog_provider.dart';
 import 'package:prokat/features/equipment_share/equipment_share_message.dart';
 import 'package:prokat/features/equipment_share/equipment_share_renderer.dart';
 import 'package:prokat/l10n/app_localizations.dart';
@@ -49,7 +50,12 @@ class EquipmentShareService {
       }
       if (!isShareableNow(current)) return;
 
-      final priceLine = sharePriceLine(current, l10n);
+      final priceLine = sharePriceLine(
+        current,
+        l10n,
+        catalog: ref.read(catalogProvider).valueOrNull,
+        languageCode: Localizations.localeOf(context).languageCode,
+      );
       if (priceLine == null) return;
 
       image = await EquipmentShareRenderer.render(

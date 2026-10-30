@@ -1,13 +1,14 @@
+import 'package:prokat/features/catalog/models/catalog_bundle.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:prokat/core/media/media_image_provider.dart';
 import 'package:prokat/core/theme/app_fonts.dart';
 import 'package:prokat/core/theme/prokat_flow_palette.dart';
-import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/features/bookings/widgets/booking_order_fields.dart';
 import 'package:prokat/features/bookings/widgets/equipment_image_header.dart';
 import 'package:prokat/features/catalog/catalog_provider.dart';
+import 'package:prokat/features/catalog/tariff_unit_labels.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
 import 'package:prokat/features/equipment/models/price_entry_model.dart';
 import 'package:prokat/features/equipment/utils/vacuum_tariffs.dart';
@@ -188,6 +189,7 @@ class EquipmentListingContent extends ConsumerWidget {
                     children: [
                       for (final price in prices)
                         _TariffCard(
+                          catalog: catalog,
                           price: price,
                           selected:
                               price.id == selectedPrice?.id ||
@@ -387,10 +389,12 @@ class _ListingOwner extends ConsumerWidget {
 }
 
 class _TariffCard extends StatelessWidget {
+  final CatalogBundle? catalog;
   final PriceEntry price;
   final bool selected;
   final VoidCallback onTap;
   const _TariffCard({
+    this.catalog,
     required this.price,
     required this.selected,
     required this.onTap,
@@ -425,7 +429,7 @@ class _TariffCard extends StatelessWidget {
               ),
               const SizedBox(height: 5),
               Text(
-                '${price.isStartingFrom ? '${l10n.priceFromPrefix} ' : ''}${formatPrice(price.price)} ${getPriceRate(price.priceRate, l10n: l10n)}',
+                '${price.isStartingFrom ? '${l10n.priceFromPrefix} ' : ''}${formatEquipmentPriceLine(price: price.price, code: price.priceRate.value, languageCode: Localizations.localeOf(context).languageCode, catalog: catalog, l10n: l10n)}',
                 style: AppFonts.body16SemiBold(context)
                     .copyWith(color: selected ? p.primary : p.title),
               ),

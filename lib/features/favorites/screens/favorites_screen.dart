@@ -8,10 +8,11 @@ import 'package:prokat/core/theme/prokat_flow_scope.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/core/router/app_routes.dart';
-import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/core/widgets/empty_state_tile.dart';
 import 'package:prokat/core/widgets/optimized_network_image.dart';
 import 'package:prokat/features/bookings/providers/booking_mutation_provider.dart';
+import 'package:prokat/features/catalog/catalog_provider.dart';
+import 'package:prokat/features/catalog/tariff_unit_labels.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
 import 'package:prokat/features/favorites/state/favorites_provider.dart';
 import 'package:prokat/features/user/widgets/user_info_tile.dart';
@@ -110,24 +111,31 @@ class _FavoritesScreenState extends ConsumerState<FavoritesScreen> {
   }
 }
 
-class _FavoriteCard extends StatelessWidget {
+class _FavoriteCard extends ConsumerWidget {
   final Equipment equipment;
   final VoidCallback onTap;
 
   const _FavoriteCard({required this.equipment, required this.onTap});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final flow = ProkatFlowScope.maybeOf(context);
     final l10n = AppLocalizations.of(context)!;
+    final catalog = ref.watch(catalogProvider).valueOrNull;
+    final languageCode = Localizations.localeOf(context).languageCode;
     final priceEntry = equipment.prices.isNotEmpty
         ? equipment.prices.first
         : null;
     final priceLabel = priceEntry == null
         ? l10n.noPrice
-        : '${formatPrice(priceEntry.price)} ${getPriceRate(priceEntry.priceRate, l10n: l10n)}'
-              .trim();
+        : formatEquipmentPriceLine(
+            price: priceEntry.price,
+            code: priceEntry.priceRate.value,
+            languageCode: languageCode,
+            catalog: catalog,
+            l10n: l10n,
+          );
 
     return InkWell(
       onTap: onTap,

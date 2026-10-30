@@ -1,3 +1,6 @@
+import 'package:prokat/features/catalog/catalog_provider.dart';
+import 'package:prokat/features/catalog/tariff_unit_labels.dart';
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -146,6 +149,12 @@ class OwnerBookingTile extends ConsumerWidget {
 
     if (ProkatFlowScope.maybeOf(context) != null) {
       return BookingFlowCard(
+        tariffUnitLabel: tariffUnitLabelForUi(
+          code: booking.priceRate.value,
+          languageCode: Localizations.localeOf(context).languageCode,
+          catalog: ref.watch(catalogProvider).valueOrNull,
+          l10n: l10n,
+        ),
         booking: booking,
         counterpart: UserInfoTile(user: booking.client),
         priceLabel: l10n.price,

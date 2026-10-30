@@ -1,0 +1,1 @@
+Improved price and tariff displays with clearer labels such as “per hour,” “per day,” and “per trip.” Improved localization and consistency across the catalog, listing cards, and offers.

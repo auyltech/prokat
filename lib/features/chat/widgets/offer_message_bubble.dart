@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/features/appstartup/app_mode_storage.dart';
+import 'package:prokat/features/catalog/catalog_provider.dart';
+import 'package:prokat/features/catalog/tariff_unit_labels.dart';
 import 'package:prokat/features/chat/models/chat_message_model.dart';
 import 'package:prokat/features/chat/models/chat_model.dart';
 import 'package:prokat/features/equipment/widgets/equipment_info_tile.dart';
@@ -36,6 +37,8 @@ class _OfferMessageBubbleState extends ConsumerState<OfferMessageBubble> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
+    final catalog = ref.watch(catalogProvider).valueOrNull;
+    final languageCode = Localizations.localeOf(context).languageCode;
 
     final parsed = switch (widget.message.meta) {
       Map<String, dynamic> meta => OfferModel.fromJson(meta),
@@ -103,7 +106,13 @@ class _OfferMessageBubbleState extends ConsumerState<OfferMessageBubble> {
                 child: Row(
                   children: [
                     Text(
-                      "${formatPrice(offer.price)} ${getPriceRate(offer.priceRate, l10n: l10n)}",
+                      formatEquipmentPriceLine(
+                        price: offer.price,
+                        code: offer.priceRate?.value,
+                        languageCode: languageCode,
+                        catalog: catalog,
+                        l10n: l10n,
+                      ),
                       style: theme.textTheme.titleLarge?.copyWith(
                         color: theme.colorScheme.onSurface,
                         fontWeight: FontWeight.w800,

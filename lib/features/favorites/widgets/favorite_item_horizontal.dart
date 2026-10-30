@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/widgets/optimized_network_image.dart';
+import 'package:prokat/features/catalog/catalog_provider.dart';
 import 'package:prokat/features/catalog/models/localized_names.dart';
+import 'package:prokat/features/catalog/tariff_unit_labels.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
 import 'package:prokat/features/favorites/state/favorites_provider.dart';
 import 'package:prokat/features/locations/location_label.dart';
@@ -36,8 +38,16 @@ class FavoriteTile extends ConsumerWidget {
             names: equipment.location?.cityNames ?? const LocalizedNames(),
           );
 
+    final catalog = ref.watch(catalogProvider).valueOrNull;
+    final languageCode = Localizations.localeOf(context).languageCode;
     final price = equipment.prices.isNotEmpty
-        ? "${equipment.prices.first.price} ₸/${equipment.prices.first.priceRate}"
+        ? formatEquipmentPriceLine(
+            price: equipment.prices.first.price,
+            code: equipment.prices.first.priceRate.value,
+            languageCode: languageCode,
+            catalog: catalog,
+            l10n: l10n,
+          )
         : l10n.noPrice;
 
     return Padding(

@@ -1,3 +1,6 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/features/catalog/catalog_provider.dart';
+import 'package:prokat/features/catalog/tariff_unit_labels.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
@@ -7,7 +10,7 @@ import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/features/locations/models/location_model.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
-class BookingTermsSummary extends StatelessWidget {
+class BookingTermsSummary extends ConsumerWidget {
   final String title;
   final int price;
   final PriceRateOption? priceRate;
@@ -28,7 +31,7 @@ class BookingTermsSummary extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final palette = ProkatFlowPalette.of(context);
     final l10n = AppLocalizations.of(context)!;
     final date = bookedOn == null
@@ -69,7 +72,12 @@ class BookingTermsSummary extends StatelessWidget {
                 ),
               ),
               Text(
-                getPriceRate(priceRate, l10n: l10n),
+                tariffUnitLabelForUi(
+                  code: priceRate?.value,
+                  languageCode: Localizations.localeOf(context).languageCode,
+                  catalog: ref.watch(catalogProvider).valueOrNull,
+                  l10n: l10n,
+                ),
                 style: TextStyle(color: palette.secondary, fontSize: 13),
               ),
             ],
