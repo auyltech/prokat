@@ -1,5 +1,4 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:prokat/features/notifications/providers/foreground_notification_provider.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:prokat/core/providers/locale_provider.dart';
 import 'package:prokat/features/notifications/models/app_notification.dart';
@@ -39,10 +38,5 @@ final pushNotificationServiceProvider = Provider<PushNotificationService>((
     accepts: (notification) =>
         ref.read(notificationApiServiceProvider).accepts(notification),
     currentLocale: () => ref.read(localeProvider).languageCode,
-    presentForeground: ref.watch(foregroundNotificationProvider).present,
-    shouldSuppressDisplay: (id) => ref
-        .read(notificationProvider)
-        .items
-        .any((item) => item.id == id && item.isRead),
   );
 });

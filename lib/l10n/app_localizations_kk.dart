@@ -4261,4 +4261,7 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get historyChatAction => 'Чатқа';
+
+  @override
+  String get listingDescription => 'Сипаттама';
 }

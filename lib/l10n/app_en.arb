@@ -1517,5 +1517,6 @@
   "ownerRequestsAll": "All requests",
   "ownerRequestsMine": "My categories",
   "goToChat": "Open chat",
-  "historyChatAction": "Chat"
+  "historyChatAction": "Chat",
+  "listingDescription": "Description"
 }

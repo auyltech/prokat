@@ -503,7 +503,7 @@ class _GuestCreateBookingScreenState
           .read(postMutationCacheCoordinatorProvider)
           .refreshAffectedChats(chatId),
     );
-    context.go('${AppRoutes.clientChatList}/direct/$chatId');
+    await context.push('${AppRoutes.clientMain}/listing-chat/$chatId');
   }
 
   Future<void> _createOrder(Equipment equipment) async {

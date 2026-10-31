@@ -1,3 +1,5 @@
+import 'package:prokat/core/theme/prokat_flow_scope.dart';
+import 'package:prokat/features/offers/widgets/offer_flow_card.dart';
 import 'package:flutter/material.dart';
 import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -54,6 +56,52 @@ class _OfferMessageBubbleState extends ConsumerState<OfferMessageBubble> {
 
     if (offer == null) {
       return Text(l10n.offerCount(offers.length));
+    }
+
+    if (ProkatFlowScope.maybeOf(context) != null) {
+      final notifier = ref.read(offerMutationProvider.notifier);
+      final busy = ref.watch(offerMutationProvider).isSubmitting;
+      final pending =
+          offer.status == OfferStatus.created ||
+          offer.status == OfferStatus.viewed;
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+        child: OfferFlowCard(
+          offer: offer,
+          avatar: const SizedBox.shrink(),
+          submitting: busy,
+          onAccept: pending && widget.mode == AppMode.clientMode
+              ? () async {
+                  final navigation = TenderAcceptNavigation.capture(context);
+                  final result = await notifier.acceptOffer(
+                    offer.id,
+                    chatId: widget.message.chatId,
+                    requestId: offer.requestId,
+                  );
+                  if (result.success && context.mounted) {
+                    navigation.revealClientOrders(chatId: offer.chatId);
+                  }
+                }
+              : null,
+          onReject: pending
+              ? () async {
+                  if (widget.mode == AppMode.ownerMode) {
+                    await notifier.cancelOffer(
+                      offer.id,
+                      chatId: widget.message.chatId,
+                      requestId: offer.requestId,
+                    );
+                  } else {
+                    await notifier.rejectOffer(
+                      offer.id,
+                      chatId: widget.message.chatId,
+                      requestId: offer.requestId,
+                    );
+                  }
+                }
+              : null,
+        ),
+      );
     }
 
     return Align(

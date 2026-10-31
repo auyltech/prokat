@@ -21,12 +21,14 @@ class InquiryContextCard extends ConsumerStatefulWidget {
   final ChatModel chat;
   final VoidCallback? onSetTerms;
   final AppMode mode;
+  final bool hasSentMessages;
 
   const InquiryContextCard({
     super.key,
     required this.chat,
     this.onSetTerms,
     this.mode = AppMode.clientMode,
+    this.hasSentMessages = false,
   });
 
   @override
@@ -106,6 +108,15 @@ class _InquiryContextCardState extends ConsumerState<InquiryContextCard> {
         !_closing &&
         onSetTerms != null &&
         chat.status == ChatStatus.active;
+    final hasStarted =
+        widget.hasSentMessages ||
+        const ['TEXT', 'IMAGE', 'LOCATION'].contains(chat.lastMessage?.type) ||
+        chat.messages.any(
+          (message) =>
+              !message.isPending &&
+              !message.isFailed &&
+              const ['TEXT', 'IMAGE', 'LOCATION'].contains(message.type),
+        );
     final canViewTerms = chat.booking != null;
     final statusColor = chat.booking?.status == BookingStatus.confirmed
         ? palette.success
@@ -224,7 +235,9 @@ class _InquiryContextCardState extends ConsumerState<InquiryContextCard> {
                         IconButton(
                           key: const ValueKey('inquiry-close-button'),
                           tooltip: l10n.inquiryCloseAction,
-                          onPressed: _closing ? null : _closeDiscussion,
+                          onPressed: _closing || !hasStarted
+                              ? null
+                              : _closeDiscussion,
                           icon: _closing
                               ? SizedBox.square(
                                   dimension: 16,

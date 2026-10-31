@@ -27,10 +27,7 @@ class OwnerProfileHeader extends StatelessWidget {
   });
 
   String _ownerDisplayName(AppLocalizations l10n) {
-    final name = [ownerProfile?.firstName, ownerProfile?.lastName]
-        .map((part) => part?.trim() ?? '')
-        .where((part) => part.isNotEmpty)
-        .join(' ');
+    final name = ownerProfile?.firstName?.trim() ?? '';
     return name.isNotEmpty ? name : l10n.hello;
   }
 
@@ -46,16 +43,11 @@ class OwnerProfileHeader extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
       width: double.infinity,
       decoration: BoxDecoration(
-        color: flow?.filledPrimary ?? AppColors.teal800,
+        color: AppColors.teal800,
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: flow == null
-              ? gradientColors
-              : [
-                  Color.lerp(flow.filledPrimary, Colors.black, .25)!,
-                  flow.filledPrimary,
-                ],
+          colors: gradientColors,
         ),
         borderRadius: flow == null
             ? BorderRadius.circular(0)

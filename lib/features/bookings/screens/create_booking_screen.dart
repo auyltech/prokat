@@ -79,7 +79,7 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
           .read(postMutationCacheCoordinatorProvider)
           .refreshAffectedChats(chatId),
     );
-    context.go('${AppRoutes.clientChatList}/direct/$chatId');
+    await context.push('${AppRoutes.clientMain}/listing-chat/$chatId');
   }
 
   @override

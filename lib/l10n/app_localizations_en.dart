@@ -4254,4 +4254,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get historyChatAction => 'Chat';
+
+  @override
+  String get listingDescription => 'Description';
 }

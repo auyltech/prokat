@@ -4292,4 +4292,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get historyChatAction => 'В чат';
+
+  @override
+  String get listingDescription => 'Описание';
 }

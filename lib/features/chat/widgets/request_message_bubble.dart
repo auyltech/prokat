@@ -1,3 +1,5 @@
+import 'package:prokat/core/theme/prokat_flow_scope.dart';
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -40,6 +42,7 @@ class _RequestMessageBubbleState extends ConsumerState<RequestMessageBubble> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final flow = ProkatFlowScope.maybeOf(context);
     final l10n = AppLocalizations.of(context)!;
     final catalog = ref.watch(catalogProvider).valueOrNull;
     final languageCode = Localizations.localeOf(context).languageCode;
@@ -51,10 +54,10 @@ class _RequestMessageBubbleState extends ConsumerState<RequestMessageBubble> {
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: theme.cardColor,
+        color: flow?.surface ?? theme.cardColor,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: theme.dividerColor.withValues(alpha: 0.4),
+          color: (flow?.border ?? theme.dividerColor.withValues(alpha: 0.4)),
           width: 1,
         ),
       ),
@@ -115,7 +118,7 @@ class _RequestMessageBubbleState extends ConsumerState<RequestMessageBubble> {
                         if (hasVisibleRequestCapacity(request.capacity)) ...[
                           Icon(
                             Icons.propane_outlined,
-                            color: theme.colorScheme.onPrimary,
+                            color: flow?.primary ?? theme.colorScheme.onPrimary,
                           ),
                           const SizedBox(width: 4),
                           Text(
@@ -238,7 +241,7 @@ class _RequestMessageBubbleState extends ConsumerState<RequestMessageBubble> {
                             l10n: l10n,
                           ),
                     style: theme.textTheme.titleMedium?.copyWith(
-                      color: theme.colorScheme.onPrimary,
+                      color: flow?.primary ?? theme.colorScheme.onPrimary,
                       fontWeight: FontWeight.w800,
                     ),
                   ),

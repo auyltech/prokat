@@ -7941,6 +7941,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Chat'**
   String get historyChatAction;
+
+  /// No description provided for @listingDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Description'**
+  String get listingDescription;
 }
 
 class _AppLocalizationsDelegate

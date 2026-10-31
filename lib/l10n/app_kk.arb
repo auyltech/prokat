@@ -1512,5 +1512,6 @@
   "ownerRequestsAll": "Барлық сұраулар",
   "ownerRequestsMine": "Менің санаттарым",
   "goToChat": "Чатқа",
-  "historyChatAction": "Чатқа"
+  "historyChatAction": "Чатқа",
+  "listingDescription": "Сипаттама"
 }

@@ -1,3 +1,4 @@
+import 'package:prokat/features/offers/widgets/offer_equipment_picker.dart';
 import 'package:prokat/features/company_profile/company_scope.dart';
 
 import 'dart:async';
@@ -66,7 +67,15 @@ class _CreateOfferScreenState extends ConsumerState<CreateOfferScreen> {
     final equipmentAsync = ref.watch(ownerEquipmentProvider);
 
     final equipmentOptions = (equipmentAsync.valueOrNull?.items ?? [])
-        .map((item) => EquipmentSummaryModel.fromJson(item.toJson()))
+        .map(
+          (item) => EquipmentSummaryModel(
+            id: item.id,
+            name: item.name,
+            model: item.model,
+            plateNumber: item.plateNumber,
+            imageUrl: item.primaryImageUrl,
+          ),
+        )
         .toList();
 
     final canSubmit =
@@ -155,19 +164,9 @@ class _CreateOfferScreenState extends ConsumerState<CreateOfferScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               if (companyId == null)
-                AppDropdownField<EquipmentSummaryModel>(
-                  title: l10n.navEquipment,
-                  hint: l10n.selectEquipment,
-                  sheetTitle: l10n.selectEquipment,
+                OfferEquipmentPicker(
                   value: offersState.selectedEquipment,
-                  options: equipmentOptions
-                      .map(
-                        (e) => DropdownOption(
-                          value: e,
-                          label: '${e.name}-${e.plateNumber}',
-                        ),
-                      )
-                      .toList(),
+                  options: equipmentOptions,
                   onChanged: offersNotifier.selectEquipment,
                 ),
 

@@ -1,3 +1,5 @@
+import 'package:prokat/features/chat/widgets/offer_context_card.dart';
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -158,10 +160,24 @@ class _ClientChatScreenState extends ConsumerState<ClientChatScreen> {
             child: Column(
               children: [
                 if (currentChat != null &&
+                    currentChat.bookingId == null &&
+                    currentChat.getActiveOffer() != null)
+                  OfferContextCard(chat: currentChat, mode: AppMode.clientMode),
+                if (currentChat != null &&
                     (currentChat.inquiryEquipment != null ||
                         currentChat.booking?.equipment != null))
                   InquiryContextCard(
                     chat: currentChat,
+                    hasSentMessages: messages.any(
+                      (message) =>
+                          !message.isPending &&
+                          !message.isFailed &&
+                          const [
+                            'TEXT',
+                            'IMAGE',
+                            'LOCATION',
+                          ].contains(message.type),
+                    ),
                     onSetTerms:
                         currentChat.inquiryEquipment != null &&
                             currentChat.bookingId == null &&

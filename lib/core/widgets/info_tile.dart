@@ -1,3 +1,4 @@
+import 'package:prokat/core/theme/prokat_flow_scope.dart';
 import 'package:flutter/material.dart';
 
 enum InfoTileVariant { primary, secondary, ghost, destructive }
@@ -72,6 +73,7 @@ class InfoTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final flow = ProkatFlowScope.maybeOf(context);
 
     if (variant == InfoTileVariant.ghost) {
       return Column(
@@ -100,12 +102,13 @@ class InfoTile extends StatelessWidget {
         decoration: BoxDecoration(
           color: variant == InfoTileVariant.destructive
               ? Colors.red.shade50
-              : theme.dividerColor.withValues(alpha: 0.05),
+              : (flow?.background ??
+                    theme.dividerColor.withValues(alpha: 0.05)),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: variant == InfoTileVariant.destructive
                 ? Colors.red.shade200
-                : theme.dividerColor.withValues(alpha: 0.08),
+                : (flow?.border ?? theme.dividerColor.withValues(alpha: 0.08)),
             width: 1,
           ),
         ),
@@ -120,7 +123,7 @@ class InfoTile extends StatelessWidget {
                       if (icon != null) ...[
                         Icon(
                           icon,
-                          color: theme.colorScheme.onPrimary,
+                          color: (flow?.primary ?? theme.colorScheme.onPrimary),
                           size: 20,
                         ),
                         const SizedBox(width: 6),
@@ -130,7 +133,7 @@ class InfoTile extends StatelessWidget {
                         label ?? "",
                         style: TextStyle(
                           fontSize: 14,
-                          color: Colors.grey[600],
+                          color: flow?.secondary ?? Colors.grey[600],
                           fontWeight: FontWeight.w500,
                         ),
                       ),
@@ -160,7 +163,11 @@ class InfoTile extends StatelessWidget {
                 crossAxisAlignment: WrapCrossAlignment.center,
                 children: [
                   if (icon != null)
-                    Icon(icon, color: theme.colorScheme.onPrimary, size: 20),
+                    Icon(
+                      icon,
+                      color: (flow?.primary ?? theme.colorScheme.onPrimary),
+                      size: 20,
+                    ),
 
                   Text(
                     value,

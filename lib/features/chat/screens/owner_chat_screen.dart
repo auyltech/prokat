@@ -1,3 +1,4 @@
+import 'package:prokat/features/chat/widgets/offer_context_card.dart';
 import 'package:prokat/features/company_profile/company_scope.dart';
 
 import 'dart:async';
@@ -157,9 +158,26 @@ class _OwnerChatScreenState extends ConsumerState<OwnerChatScreen> {
           body: Column(
             children: [
               if (currentChat != null &&
+                  currentChat.bookingId == null &&
+                  currentChat.getActiveOffer() != null)
+                OfferContextCard(chat: currentChat, mode: AppMode.ownerMode),
+              if (currentChat != null &&
                   (currentChat.inquiryEquipment != null ||
                       currentChat.booking?.equipment != null))
-                InquiryContextCard(chat: currentChat, mode: AppMode.ownerMode),
+                InquiryContextCard(
+                  chat: currentChat,
+                  mode: AppMode.ownerMode,
+                  hasSentMessages: messages.any(
+                    (message) =>
+                        !message.isPending &&
+                        !message.isFailed &&
+                        const [
+                          'TEXT',
+                          'IMAGE',
+                          'LOCATION',
+                        ].contains(message.type),
+                  ),
+                ),
               if ((chatAsync.hasError || messagesAsync.hasError) &&
                   messages.isEmpty)
                 Expanded(

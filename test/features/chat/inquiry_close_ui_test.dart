@@ -29,9 +29,18 @@ void main() {
   });
   ChatModel discussion({
     String? bookingId,
+    bool started = true,
     ChatStatus status = ChatStatus.active,
   }) => ChatModel.fromJson({
     'id': 'chat-1',
+    if (started)
+      'lastMessage': {
+        'id': 'message-1',
+        'chatId': 'chat-1',
+        'type': 'TEXT',
+        'content': 'Hello',
+        'senderId': 'client',
+      },
     'inquiryEquipmentId': equipment.id,
     'inquiryEquipment': equipment.toJson(),
     'bookingId': bookingId,
@@ -55,6 +64,16 @@ void main() {
     );
     await tester.pumpAndSettle();
   }
+
+  testWidgets('empty discussion cannot be archived', (tester) async {
+    final service = _Service();
+    await showCard(tester, service, discussion(started: false));
+    final button = tester.widget<IconButton>(
+      find.byKey(const ValueKey('inquiry-close-button')),
+    );
+    expect(button.onPressed, isNull);
+    expect(service.calls, 0);
+  });
 
   testWidgets('declining the close confirmation never calls the server', (
     tester,

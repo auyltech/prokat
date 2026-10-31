@@ -1,8 +1,9 @@
+import 'package:prokat/features/bookings/screens/owner_bookings_history_screen.dart';
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:prokat/core/widgets/empty_state_tile.dart';
 import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:prokat/features/bookings/providers/owner_active_bookings_provider.dart';
@@ -10,15 +11,16 @@ import 'package:prokat/features/bookings/widgets/owner_booking_tile.dart';
 import 'package:prokat/features/requests/widgets.dart/owner_booking_skeleton.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
-class OwnerBookingsScreen extends ConsumerStatefulWidget {
-  const OwnerBookingsScreen({super.key});
+class _OwnerBookingsScreenActive extends ConsumerStatefulWidget {
+  const _OwnerBookingsScreenActive();
 
   @override
-  ConsumerState<OwnerBookingsScreen> createState() =>
-      _OwnerBookingsScreenState();
+  ConsumerState<_OwnerBookingsScreenActive> createState() =>
+      __OwnerBookingsScreenActiveState();
 }
 
-class _OwnerBookingsScreenState extends ConsumerState<OwnerBookingsScreen>
+class __OwnerBookingsScreenActiveState
+    extends ConsumerState<_OwnerBookingsScreenActive>
     with SingleTickerProviderStateMixin {
   late final ScrollController _scrollController;
 
@@ -70,7 +72,7 @@ class _OwnerBookingsScreenState extends ConsumerState<OwnerBookingsScreen>
             physics: const AlwaysScrollableScrollPhysics(),
             children: [
               Padding(
-                padding: const EdgeInsets.all(12),
+                padding: const EdgeInsets.all(16),
                 child: EmptyStateTile(
                   imageName: 'empty_error.png',
                   title: l10n.errorLoadingOrders,
@@ -93,21 +95,11 @@ class _OwnerBookingsScreenState extends ConsumerState<OwnerBookingsScreen>
               children: [
                 if (bookings.isEmpty)
                   Padding(
-                    padding: const EdgeInsets.all(12),
+                    padding: const EdgeInsets.all(16),
                     child: EmptyStateTile(
                       imageName: 'empty_bookings.png',
                       title: l10n.noBookingsFound,
                       subtitle: l10n.youHaveNoActiveOrders,
-                      actionButton: AppElevatedButton(
-                        title: l10n.refresh,
-                        isLoading: bookingsAsync.isRefreshing,
-                        prefix: const Icon(LucideIcons.refreshCw),
-                        onTap: () async {
-                          await ref
-                              .read(ownerActiveBookingsProvider.notifier)
-                              .refresh();
-                        },
-                      ),
                     ),
                   )
                 else
@@ -140,6 +132,21 @@ class _OwnerBookingsScreenState extends ConsumerState<OwnerBookingsScreen>
           },
         ),
       ),
+    );
+  }
+}
+
+class OwnerBookingsScreen extends StatelessWidget {
+  const OwnerBookingsScreen({super.key});
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return AppTabs(
+      titles: [l10n.chatsActiveTab, l10n.chatsArchiveTab],
+      children: const [
+        _OwnerBookingsScreenActive(),
+        OwnerBookingHistoryScreen(),
+      ],
     );
   }
 }
