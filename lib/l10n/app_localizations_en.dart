@@ -4053,7 +4053,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get inquiryStatus => 'Discussion';
 
   @override
-  String get inquiryCreateOrder => 'Set order terms';
+  String get inquiryCreateOrder => 'Confirm terms';
 
   @override
   String get requestTermsTitle => 'Request details';
@@ -4242,4 +4242,16 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get chatPhotoPreview => 'Photo';
+
+  @override
+  String get ownerRequestsAll => 'All requests';
+
+  @override
+  String get ownerRequestsMine => 'My categories';
+
+  @override
+  String get goToChat => 'Open chat';
+
+  @override
+  String get historyChatAction => 'Chat';
 }

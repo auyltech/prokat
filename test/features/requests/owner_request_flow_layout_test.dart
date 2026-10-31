@@ -242,7 +242,7 @@ void main() {
     final l10n = AppLocalizations.of(
       tester.element(find.byType(OwnerRequestFlowCard)),
     )!;
-    expect(budget.data, contains(l10n.perHour));
+    expect(budget.data, contains(l10n.ratePerHour));
     expect(tester.takeException(), isNull);
   });
 

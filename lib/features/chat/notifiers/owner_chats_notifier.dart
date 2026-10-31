@@ -1,3 +1,4 @@
+import 'package:prokat/features/chat/utils/chat_thread_utils.dart';
 import 'package:prokat/features/bookings/models/query_state.dart';
 import 'package:prokat/features/chat/providers/chat_dependencies.dart';
 import 'package:prokat/features/chat/models/chat_list_filter.dart';
@@ -208,6 +209,7 @@ class OwnerChatsNotifier
   }
 
   void upsert(ChatModel chat) {
+    if (isEmptyEquipmentDiscussion(chat)) return;
     if (!_canMutateCurrentScope) return;
     final current = state.value;
     if (current == null) return;

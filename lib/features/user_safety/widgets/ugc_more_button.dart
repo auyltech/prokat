@@ -15,6 +15,7 @@ class UgcMoreButton extends ConsumerWidget {
     required this.counterpartName,
     required this.reportTarget,
     this.chatId,
+    this.compact = false,
     this.isBlockedByMe = false,
     this.onBlocked,
     this.variant = AppIconButtonVariant.soft,
@@ -25,6 +26,7 @@ class UgcMoreButton extends ConsumerWidget {
   final String counterpartName;
   final ReportTarget reportTarget;
   final String? chatId;
+  final bool compact;
   final bool isBlockedByMe;
   final VoidCallback? onBlocked;
   final AppIconButtonVariant variant;
@@ -43,6 +45,29 @@ class UgcMoreButton extends ConsumerWidget {
     }
 
     final l10n = AppLocalizations.of(context)!;
+    void openActions() => UgcActionsSheet.show(
+      context,
+      ref,
+      counterpartUserId: targetId,
+      title: counterpartName.trim().isEmpty
+          ? l10n.reportAction
+          : counterpartName.trim(),
+      reportTarget: reportTarget,
+      chatId: chatId,
+      isBlockedByMe: isBlockedByMe,
+      onBlocked: onBlocked,
+    );
+    if (compact) {
+      return IconButton(
+        key: const ValueKey('ugc-more-button'),
+        tooltip: l10n.reportAction,
+        onPressed: openActions,
+        padding: EdgeInsets.zero,
+        constraints: const BoxConstraints.tightFor(width: 32, height: 28),
+        visualDensity: VisualDensity.compact,
+        icon: const Icon(LucideIcons.ellipsisVertical, size: 19),
+      );
+    }
     return AppIconButton(
       key: const ValueKey('ugc-more-button'),
       icon: LucideIcons.ellipsisVertical,

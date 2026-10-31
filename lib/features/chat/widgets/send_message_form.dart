@@ -55,10 +55,30 @@ class _SendMessageFormState extends ConsumerState<SendMessageForm> {
     if (_uploadingPhoto) return;
     _dismissKeyboard();
     final l10n = AppLocalizations.of(context)!;
+    final source = await AppBottomSheet.show<ImageSource>(
+      context,
+      title: l10n.chatPhoto,
+      contentBuilder: (sheetContext) => Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ListTile(
+            leading: const Icon(LucideIcons.images),
+            title: Text(l10n.photoGallery),
+            onTap: () => Navigator.of(sheetContext).pop(ImageSource.gallery),
+          ),
+          ListTile(
+            leading: const Icon(LucideIcons.camera),
+            title: Text(l10n.camera),
+            onTap: () => Navigator.of(sheetContext).pop(ImageSource.camera),
+          ),
+        ],
+      ),
+    );
+    if (source == null || !mounted) return;
     setState(() => _uploadingPhoto = true);
     try {
       final selected = await ImagePicker().pickImage(
-        source: ImageSource.gallery,
+        source: source,
         maxWidth: 1600,
         maxHeight: 1600,
         imageQuality: 82,
@@ -499,7 +519,17 @@ class _SendMessageFormState extends ConsumerState<SendMessageForm> {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                IconButton(
+                IconButton.filled(
+                  style: IconButton.styleFrom(
+                    backgroundColor:
+                        flow?.background ??
+                        theme.colorScheme.surfaceContainerHighest,
+                    disabledBackgroundColor:
+                        flow?.background ??
+                        theme.colorScheme.surfaceContainerHighest,
+                    fixedSize: const Size(48, 48),
+                    shape: const CircleBorder(),
+                  ),
                   tooltip: l10n.chatAttachPhoto,
                   onPressed: _uploadingPhoto ? null : _pickPhoto,
                   icon: _uploadingPhoto
@@ -515,6 +545,7 @@ class _SendMessageFormState extends ConsumerState<SendMessageForm> {
                               theme.colorScheme.onSurfaceVariant,
                         ),
                 ),
+                const SizedBox(width: 8),
                 Expanded(
                   child: TextField(
                     controller: _controller,

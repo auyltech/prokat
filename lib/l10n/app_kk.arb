@@ -1450,7 +1450,7 @@
   "sendBookingRequest": "Сұрау жіберу",
   "sendAgreedTerms": "Шарттарды жіберу",
   "inquiryStatus": "Талқылау",
-  "inquiryCreateOrder": "Тапсырыс шарттарын толтыру",
+  "inquiryCreateOrder": "Шарттарды бекіту",
   "requestTermsTitle": "Сұрау шарттары",
   "agreedTermsTitle": "Тапсырыс шарттары",
   "requestTermsHint": "Мекенжайды, уақытты және тарифті көрсетіңіз. Шарттарды иесіне растауға жіберіңіз.",
@@ -1508,5 +1508,9 @@
   "chatPhotoSendFailed": "Фото жіберілмеді. Байланысты тексеріп, қайталап көріңіз.",
   "chatMessageRead": "Оқылды",
   "chatMessageSent": "Жіберілді",
-  "chatPhotoPreview": "Фото"
+  "chatPhotoPreview": "Фото",
+  "ownerRequestsAll": "Барлық сұраулар",
+  "ownerRequestsMine": "Менің санаттарым",
+  "goToChat": "Чатқа",
+  "historyChatAction": "Чатқа"
 }

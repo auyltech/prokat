@@ -198,7 +198,9 @@ class _InquiryContextCardState extends ConsumerState<InquiryContextCard> {
                             ),
                             const SizedBox(height: 3),
                             Text(
-                              status,
+                              canSetTerms
+                                  ? '$status · ${l10n.inquiryCreateOrder}'
+                                  : status,
                               key: const ValueKey('inquiry-context-status'),
                               style: TextStyle(
                                 fontFamily: 'Manrope',
@@ -207,18 +209,6 @@ class _InquiryContextCardState extends ConsumerState<InquiryContextCard> {
                                 color: statusColor,
                               ),
                             ),
-                            if (canSetTerms) ...[
-                              const SizedBox(height: 3),
-                              Text(
-                                l10n.inquiryCreateOrder,
-                                style: TextStyle(
-                                  fontFamily: 'Manrope',
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w700,
-                                  color: palette.primary,
-                                ),
-                              ),
-                            ],
                           ],
                         ),
                       ),
@@ -244,7 +234,7 @@ class _InquiryContextCardState extends ConsumerState<InquiryContextCard> {
                                   ),
                                 )
                               : Icon(
-                                  LucideIcons.archive,
+                                  LucideIcons.x,
                                   color: palette.secondary,
                                   size: 19,
                                 ),

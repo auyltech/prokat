@@ -1,3 +1,5 @@
+import 'package:prokat/features/requests/models/owner_request_scope.dart';
+
 import 'dart:async';
 
 import 'package:dio/dio.dart';
@@ -6,7 +8,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:prokat/core/api/api_client.dart';
 import 'package:prokat/core/api/api_response.dart';
 import 'package:prokat/features/auth/providers/authenticated_session_scope.dart';
-import 'package:prokat/features/catalog/models/catalog_group.dart';
 import 'package:prokat/features/bookings/models/query_result.dart';
 import 'package:prokat/features/requests/models/request_model.dart';
 import 'package:prokat/features/requests/providers/owner_active_requests_provider.dart';
@@ -28,6 +29,7 @@ class Requests extends RequestService {
     required int itemsPerPage,
     required String status,
     String? catalogGroup,
+    String? categoryScope,
   }) async {
     final call = ++calls;
     if (call == 1) await gate.future;
@@ -56,7 +58,7 @@ void main() {
         ],
       );
       addTearDown(container.dispose);
-      final feed = ownerActiveRequestsProvider(CatalogGroup.machinery);
+      final feed = ownerActiveRequestsProvider(OwnerRequestScope.all);
       final initial = container.read(feed.future);
       final arrival = container.read(feed.notifier).refreshForNewRequest();
       api.gate.complete();

@@ -5,7 +5,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/widgets/empty_state_tile.dart';
-import 'package:prokat/core/widgets/empty_state_artwork.dart';
 import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:prokat/core/theme/prokat_flow_scope.dart';
 import 'package:prokat/core/widgets/ui_kit/flow/prokat_flow_actions.dart';
@@ -181,7 +180,7 @@ class _ClientRequestsScreenState extends ConsumerState<ClientRequestsScreen> {
                   ),
                 if (requests.isEmpty)
                   Padding(
-                    padding: const EdgeInsets.all(12),
+                    padding: const EdgeInsets.all(16),
                     child: flow != null
                         ? _FlowEmptyRequestsTile(
                             onCreate: () =>
@@ -268,39 +267,14 @@ class _FlowEmptyRequestsTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final flow = ProkatFlowScope.maybeOf(context)!;
     final l10n = AppLocalizations.of(context)!;
-    return Container(
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: flow.surface,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: flow.border),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          const Center(
-            child: EmptyStateArtwork(imageName: 'empty_requests.png'),
-          ),
-          const SizedBox(height: 20),
-          Text(
-            l10n.noRequestsAtMoment,
-            textAlign: TextAlign.center,
-            style: AppFonts.headingS(context).copyWith(color: flow.title),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            l10n.noActiveRequests,
-            textAlign: TextAlign.center,
-            style: AppFonts.body14(context).copyWith(color: flow.secondary),
-          ),
-          const SizedBox(height: 24),
-          ProkatFlowPrimaryButton(
-            title: l10n.createRequest,
-            onPressed: onCreate,
-          ),
-        ],
+    return EmptyStateTile(
+      imageName: 'empty_requests.png',
+      title: l10n.noRequestsAtMoment,
+      subtitle: l10n.noActiveRequests,
+      actionButton: ProkatFlowPrimaryButton(
+        title: l10n.createRequest,
+        onPressed: onCreate,
       ),
     );
   }

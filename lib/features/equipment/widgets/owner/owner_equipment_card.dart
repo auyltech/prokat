@@ -534,23 +534,16 @@ class _FlowOwnerEquipmentCard extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          ConstrainedBox(
-                            constraints: BoxConstraints(
-                              minHeight:
-                                  MediaQuery.textScalerOf(context).scale(16) *
-                                  2.8,
-                            ),
-                            child: Text(
-                              equipment.name,
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                fontFamily: 'Manrope',
-                                fontSize: 16,
-                                fontWeight: FontWeight.w700,
-                                height: 1.4,
-                                color: palette.title,
-                              ),
+                          Text(
+                            equipment.name,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontFamily: 'Manrope',
+                              fontSize: 16,
+                              fontWeight: FontWeight.w700,
+                              height: 1.3,
+                              color: palette.title,
                             ),
                           ),
                           const SizedBox(height: 4),
@@ -575,15 +568,15 @@ class _FlowOwnerEquipmentCard extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 8),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                crossAxisAlignment: WrapCrossAlignment.center,
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  EquipmentStatusBadge(status: equipment.status),
+                  Flexible(
+                    child: EquipmentStatusBadge(status: equipment.status),
+                  ),
+                  const SizedBox(width: 8),
                   if (!isDraft)
-                    ConstrainedBox(
-                      constraints: const BoxConstraints(maxWidth: 140),
+                    Flexible(
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [

@@ -6,9 +6,9 @@ import 'package:prokat/core/theme/prokat_flow_palette.dart';
 import 'package:prokat/core/theme/prokat_flow_scope.dart';
 import 'package:prokat/core/widgets/empty_state_tile.dart';
 import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
-import 'package:prokat/features/catalog/models/catalog_group.dart';
+import 'package:prokat/features/requests/models/owner_request_scope.dart';
+import 'package:prokat/features/layout/navigation_counts_provider.dart';
 import 'package:prokat/features/equipment/providers/owner_equipment_provider.dart';
-import 'package:prokat/features/equipment/providers/owner_fleet_groups_provider.dart';
 import 'package:prokat/features/offers/models/offer_model.dart';
 import 'package:prokat/features/offers/models/offer_query.dart';
 import 'package:prokat/features/offers/models/offer_status.dart';
@@ -33,7 +33,6 @@ class _OwnerRequestsScreenState extends ConsumerState<OwnerRequestsScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       unawaited(ref.read(ownerEquipmentProvider.notifier).refreshIfStale());
-      unawaited(ref.refresh(ownerFleetGroupsProvider.future));
       unawaited(
         ref
             .read(ownerOffersProvider(const OfferQuery.active()).notifier)
@@ -44,63 +43,33 @@ class _OwnerRequestsScreenState extends ConsumerState<OwnerRequestsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final fleet = ref.watch(ownerFleetGroupsProvider);
+    final counts = ref.watch(navigationCountsProvider).valueOrNull;
+    final l10n = AppLocalizations.of(context)!;
     final palette = ProkatFlowPalette.of(context);
 
     return ProkatFlowScope(
       palette: palette,
       child: Scaffold(
         backgroundColor: palette.background,
-        body: fleet.when(
-          loading: () => const _OwnerRequestsLoading(),
-          error: (error, _) => ListView(
-            physics: const AlwaysScrollableScrollPhysics(),
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(12),
-                child: EmptyStateTile(
-                  imageName: 'empty_error.png',
-                  title: AppLocalizations.of(context)!.errorLoadingRequests,
-                  subtitle: AppLocalizations.of(context)!.loadContentRetryHint,
-                ),
-              ),
-            ],
-          ),
-          data: (groups) {
-            final resolved = groups.isEmpty
-                ? const [CatalogGroup.machinery]
-                : groups;
-            if (resolved.length < 2) {
-              return _OwnerRequestsPane(group: resolved.first);
-            }
-            final l10n = AppLocalizations.of(context)!;
-            return AppTabs(
-              titles: [
-                for (final group in resolved) _requestTabTitle(l10n, group),
-              ],
-              children: [
-                for (final group in resolved)
-                  _OwnerRequestsPane(key: ValueKey(group), group: group),
-              ],
-            );
-          },
+        body: AppTabs(
+          titles: [
+            '${l10n.ownerRequestsAll}${(counts?.allPendingRequests ?? 0) > 0 ? ' · ${counts!.allPendingRequests}' : ''}',
+            '${l10n.ownerRequestsMine}${(counts?.pendingRequests ?? 0) > 0 ? ' · ${counts!.pendingRequests}' : ''}',
+          ],
+          children: const [
+            _OwnerRequestsPane(group: OwnerRequestScope.all),
+            _OwnerRequestsPane(group: OwnerRequestScope.mine),
+          ],
         ),
       ),
     );
   }
 }
 
-String _requestTabTitle(AppLocalizations l10n, CatalogGroup group) {
-  return switch (group) {
-    CatalogGroup.machinery => l10n.rentalRequestsMachineryTab,
-    CatalogGroup.equipment => l10n.rentalRequestsEquipmentTab,
-  };
-}
-
 class _OwnerRequestsPane extends ConsumerStatefulWidget {
-  const _OwnerRequestsPane({super.key, required this.group});
+  const _OwnerRequestsPane({required this.group});
 
-  final CatalogGroup group;
+  final OwnerRequestScope group;
 
   @override
   ConsumerState<_OwnerRequestsPane> createState() => _OwnerRequestsPaneState();
@@ -169,7 +138,6 @@ class _OwnerRequestsPaneState extends ConsumerState<_OwnerRequestsPane> {
               .read(ownerActiveRequestsProvider(widget.group).notifier)
               .refresh(),
           ref.read(ownerEquipmentProvider.notifier).refresh(),
-          ref.refresh(ownerFleetGroupsProvider.future),
           ref
               .read(ownerOffersProvider(const OfferQuery.active()).notifier)
               .refresh(),

@@ -4056,7 +4056,7 @@ class AppLocalizationsKk extends AppLocalizations {
   String get inquiryStatus => 'Талқылау';
 
   @override
-  String get inquiryCreateOrder => 'Тапсырыс шарттарын толтыру';
+  String get inquiryCreateOrder => 'Шарттарды бекіту';
 
   @override
   String get requestTermsTitle => 'Сұрау шарттары';
@@ -4249,4 +4249,16 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get chatPhotoPreview => 'Фото';
+
+  @override
+  String get ownerRequestsAll => 'Барлық сұраулар';
+
+  @override
+  String get ownerRequestsMine => 'Менің санаттарым';
+
+  @override
+  String get goToChat => 'Чатқа';
+
+  @override
+  String get historyChatAction => 'Чатқа';
 }

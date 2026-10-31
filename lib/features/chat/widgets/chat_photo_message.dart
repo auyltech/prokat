@@ -63,11 +63,10 @@ class ChatPhotoMessage extends ConsumerWidget {
         constraints: BoxConstraints(
           maxWidth: MediaQuery.sizeOf(context).width * .78,
         ),
-        padding: const EdgeInsets.all(5),
+        clipBehavior: Clip.antiAlias,
         decoration: BoxDecoration(
           color: isMe ? palette.filledPrimary : palette.surface,
           borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: palette.border.withValues(alpha: .6)),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.end,
@@ -77,7 +76,6 @@ class ChatPhotoMessage extends ConsumerWidget {
               label: l10n.chatPhoto,
               button: id != null,
               child: GestureDetector(
-                onLongPress: isMe ? null : report,
                 onTap: id == null
                     ? null
                     : () => Navigator.of(context, rootNavigator: true).push(
@@ -88,74 +86,84 @@ class ChatPhotoMessage extends ConsumerWidget {
                           ),
                         ),
                       ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(14),
-                  child: SizedBox(
-                    width: 260,
-                    height: 200,
-                    child: id == null
-                        ? Center(child: Text(l10n.chatPhotoUnavailable))
-                        : _PhotoImage(
-                            id: id,
-                            variant: 'thumb',
-                            fit: BoxFit.cover,
+                child: SizedBox(
+                  width: 260,
+                  height: 200,
+                  child: Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      if (id == null)
+                        Center(child: Text(l10n.chatPhotoUnavailable))
+                      else
+                        _PhotoImage(
+                          id: id,
+                          variant: 'thumb',
+                          fit: BoxFit.cover,
+                        ),
+                      PositionedDirectional(
+                        end: 7,
+                        bottom: 7,
+                        child: DecoratedBox(
+                          decoration: BoxDecoration(
+                            color: Colors.black.withValues(alpha: .48),
+                            borderRadius: BorderRadius.circular(20),
                           ),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 7,
+                              vertical: 3,
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                if (timestamp != null)
+                                  Text(
+                                    DateFormat.Hm().format(timestamp),
+                                    style: const TextStyle(
+                                      fontSize: 10,
+                                      height: 1.1,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                if (isMe) ...[
+                                  const SizedBox(width: 4),
+                                  Semantics(
+                                    label: message.readAt != null
+                                        ? l10n.chatMessageRead
+                                        : l10n.chatMessageSent,
+                                    child: Icon(
+                                      message.readAt != null
+                                          ? LucideIcons.checkCheck
+                                          : LucideIcons.check,
+                                      size: 13,
+                                      color: message.readAt != null
+                                          ? ProkatFlowPalette
+                                                .readReceiptOnPrimary
+                                          : Colors.white,
+                                    ),
+                                  ),
+                                ],
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),
             ),
             if (message.content.isNotEmpty)
               Padding(
-                padding: const EdgeInsets.fromLTRB(8, 6, 8, 2),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
                 child: Text(
                   message.content,
                   style: TextStyle(color: isMe ? Colors.white : palette.title),
                 ),
               ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(8, 4, 6, 2),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  if (timestamp != null)
-                    Text(
-                      DateFormat.Hm().format(timestamp),
-                      style: TextStyle(
-                        fontSize: 10,
-                        color: isMe ? Colors.white70 : palette.secondary,
-                      ),
-                    ),
-                  if (isMe) ...[
-                    const SizedBox(width: 4),
-                    Semantics(
-                      label: message.readAt != null
-                          ? l10n.chatMessageRead
-                          : l10n.chatMessageSent,
-                      child: Icon(
-                        message.readAt != null
-                            ? LucideIcons.checkCheck
-                            : LucideIcons.check,
-                        size: 15,
-                        color: message.readAt != null
-                            ? ProkatFlowPalette.readReceiptOnPrimary
-                            : Colors.white70,
-                      ),
-                    ),
-                  ],
-                  if (!isMe)
-                    IconButton(
-                      tooltip: l10n.reportAction,
-                      onPressed: report,
-                      visualDensity: VisualDensity.compact,
-                      icon: Icon(
-                        LucideIcons.ellipsis,
-                        size: 16,
-                        color: palette.secondary,
-                      ),
-                    ),
-                ],
-              ),
-            ),
           ],
         ),
       ),

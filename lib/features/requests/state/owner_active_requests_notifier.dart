@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:prokat/features/bookings/models/query_state.dart';
-import 'package:prokat/features/catalog/models/catalog_group.dart';
+import 'package:prokat/features/requests/models/owner_request_scope.dart';
 import 'package:prokat/features/requests/models/request_model.dart';
 import 'package:prokat/features/requests/state/request_provider.dart';
 import 'package:prokat/features/requests/state/request_service.dart';
@@ -12,7 +12,7 @@ import 'package:prokat/features/workflow/models/workflow_update.dart';
 import 'package:prokat/features/workflow/utils/workflow_cache_patch.dart';
 
 class OwnerActiveRequestsNotifier
-    extends FamilyAsyncNotifier<QueryState<RequestModel>, CatalogGroup> {
+    extends FamilyAsyncNotifier<QueryState<RequestModel>, OwnerRequestScope> {
   RequestService get api => ref.read(requestServiceProvider);
   Future<void>? _refreshing;
   int _requestEventRevision = 0;
@@ -20,7 +20,7 @@ class OwnerActiveRequestsNotifier
   AuthenticatedSessionScopeKey? _stateScope;
 
   @override
-  Future<QueryState<RequestModel>> build(CatalogGroup _) async {
+  Future<QueryState<RequestModel>> build(OwnerRequestScope _) async {
     final scope = ref.watch(authenticatedSessionScopeKeyProvider);
     _stateScope = null;
     if (scope == null) {
@@ -31,7 +31,7 @@ class OwnerActiveRequestsNotifier
     return next;
   }
 
-  String get _catalogGroupFilter => arg.apiValue;
+  String get _categoryScope => arg == OwnerRequestScope.mine ? 'MINE' : 'ALL';
 
   Future<QueryState<RequestModel>> _fetchPage(
     int page,
@@ -44,7 +44,7 @@ class OwnerActiveRequestsNotifier
       page: page,
       itemsPerPage: 10,
       status: "ACTIVE",
-      catalogGroup: _catalogGroupFilter,
+      categoryScope: _categoryScope,
     );
     if (!isAuthenticatedSessionScopeCurrent(ref, scope)) {
       throw const UnauthenticatedSessionScopeException();
@@ -182,7 +182,7 @@ class OwnerActiveRequestsNotifier
         page: nextPage,
         itemsPerPage: current.itemsPerPage,
         status: "ACTIVE",
-        catalogGroup: _catalogGroupFilter,
+        categoryScope: _categoryScope,
       );
       if (!isAuthenticatedSessionScopeCurrent(ref, scope)) return;
 

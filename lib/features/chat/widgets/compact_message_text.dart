@@ -16,12 +16,15 @@ class CompactMessageText extends StatelessWidget {
       children: [
         TextSpan(text: text),
         WidgetSpan(
-          alignment: PlaceholderAlignment.middle,
+          alignment: PlaceholderAlignment.bottom,
           child: MediaQuery.withNoTextScaling(
             child: IntrinsicWidth(
               child: Padding(
                 padding: const EdgeInsets.only(left: 8),
-                child: metadata,
+                child: Transform.translate(
+                  offset: const Offset(0, 2),
+                  child: metadata,
+                ),
               ),
             ),
           ),

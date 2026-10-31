@@ -31,6 +31,7 @@ void main() {
         priceRate: const PriceRateOption(value: 'PER_HOUR', label: 'час'),
       );
       var submits = 0;
+      PriceEntry? changedPrice;
       await tester.pumpWidget(
         ProviderScope(
           child: MaterialApp(
@@ -47,13 +48,14 @@ void main() {
                     child: Padding(
                       padding: const EdgeInsets.all(16),
                       child: BookingOrderFields(
+                        allowCustomPrice: true,
                         isEquipmentGroup: false,
                         address: null,
                         openAddressSheet: () async => null,
                         onAddressChanged: (_) {},
                         prices: [price],
                         selectedPrice: price,
-                        onPriceChanged: (_) {},
+                        onPriceChanged: (entry) => changedPrice = entry,
                         scheduleMode: JobScheduleMode.asap,
                         selectedDate: null,
                         selectedTime: null,
@@ -86,6 +88,15 @@ void main() {
       expect(selected.value, same(price));
       expect(selected.selectedLabel, contains('30 000'));
       expect(selected.selectedLabel, isNot(contains(description)));
+      final customPrice = find.byKey(
+        const ValueKey('inquiry-custom-price-qa-price'),
+      );
+      await tester.ensureVisible(customPrice);
+      await tester.enterText(customPrice, '25000');
+      expect(changedPrice?.price, 25000);
+      expect(changedPrice?.id, price.id);
+      expect(changedPrice?.priceRate.value, price.priceRate.value);
+      expect(price.price, 30000);
       expect(submits, 0);
       expect(tester.takeException(), isNull);
     });

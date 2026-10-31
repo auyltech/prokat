@@ -67,7 +67,7 @@ void main() {
     await tester.tap(find.text('Cancel'));
     await tester.pumpAndSettle();
     expect(service.calls, 0);
-    expect(find.text('Set order terms'), findsOneWidget);
+    expect(find.textContaining('Confirm terms'), findsOneWidget);
   });
 
   testWidgets(
@@ -76,7 +76,7 @@ void main() {
       final service = _Service();
       await showCard(tester, service, discussion(bookingId: 'booking-1'));
       expect(find.byKey(const ValueKey('inquiry-close-button')), findsNothing);
-      expect(find.text('Set order terms'), findsNothing);
+      expect(find.textContaining('Confirm terms'), findsNothing);
       await showCard(tester, service, discussion(status: ChatStatus.closed));
       expect(find.byKey(const ValueKey('inquiry-close-button')), findsNothing);
       expect(find.text('Discussion ended'), findsOneWidget);

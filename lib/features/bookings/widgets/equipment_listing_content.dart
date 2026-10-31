@@ -179,7 +179,7 @@ class EquipmentListingContent extends ConsumerWidget {
                 if (prices.isNotEmpty) ...[
                   const SizedBox(height: 24),
                   Text(
-                    l10n.tariffs,
+                    '${l10n.tariffs}:',
                     style: AppFonts.headingS(context).copyWith(color: p.title),
                   ),
                   const SizedBox(height: 12),
@@ -210,7 +210,7 @@ class EquipmentListingContent extends ConsumerWidget {
                 if (conditions.isNotEmpty) ...[
                   const SizedBox(height: 20),
                   Text(
-                    l10n.rentCondition,
+                    '${l10n.rentCondition}:',
                     style: AppFonts.headingS(context).copyWith(color: p.title),
                   ),
                   const SizedBox(height: 8),

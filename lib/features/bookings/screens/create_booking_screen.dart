@@ -329,9 +329,10 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
     final prices = equipment == null
         ? const <PriceEntry>[]
         : bookablePrices(equipment);
-    final selectedPrice = prices
-        .where((entry) => entry.id == bookingState.selectedPriceEntry?.id)
-        .firstOrNull;
+    final selectedPrice =
+        prices.any((entry) => entry.id == bookingState.selectedPriceEntry?.id)
+        ? bookingState.selectedPriceEntry
+        : null;
 
     final hasSchedule = _scheduleMode == JobScheduleMode.asap
         ? true
@@ -341,7 +342,9 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
 
     final canSubmit =
         bookingState.selectedEquipment != null &&
-        (selectedPrice != null || prices.length == 1) &&
+        (selectedPrice?.price ??
+                (prices.length == 1 ? prices.first.price : 0)) >
+            0 &&
         bookingState.selectedLocation != null &&
         hasSchedule;
 
@@ -503,6 +506,7 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
                             .copyWith(color: flow.secondary),
                       ),
                       BookingOrderFields(
+                        allowCustomPrice: widget.inquiryChatId != null,
                         isEquipmentGroup: bookingIsEquipmentGroup(equipment),
                         address:
                             selectedAddress ?? bookingState.selectedLocation,

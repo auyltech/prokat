@@ -1455,7 +1455,7 @@
   "sendBookingRequest": "Send request",
   "sendAgreedTerms": "Send terms",
   "inquiryStatus": "Discussion",
-  "inquiryCreateOrder": "Set order terms",
+  "inquiryCreateOrder": "Confirm terms",
   "requestTermsTitle": "Request details",
   "agreedTermsTitle": "Order terms",
   "requestTermsHint": "Add the address, time and rate. Send the terms to the owner for confirmation.",
@@ -1513,5 +1513,9 @@
   "chatPhotoSendFailed": "Could not send the photo. Check your connection and try again.",
   "chatMessageRead": "Read",
   "chatMessageSent": "Sent",
-  "chatPhotoPreview": "Photo"
+  "chatPhotoPreview": "Photo",
+  "ownerRequestsAll": "All requests",
+  "ownerRequestsMine": "My categories",
+  "goToChat": "Open chat",
+  "historyChatAction": "Chat"
 }

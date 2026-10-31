@@ -1,3 +1,4 @@
+import 'package:prokat/features/user_safety/widgets/report_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:prokat/core/theme/prokat_flow_palette.dart';
 import 'package:prokat/core/theme/prokat_flow_scope.dart';
@@ -61,6 +62,7 @@ class ClientEquipmentTile extends ConsumerWidget {
     if (flowPalette != null) {
       return _buildFlowCard(
         context,
+        ref: ref,
         palette: flowPalette,
         l10n: l10n,
         catalog: catalog,
@@ -312,6 +314,7 @@ class ClientEquipmentTile extends ConsumerWidget {
 
   Widget _buildFlowCard(
     BuildContext context, {
+    required WidgetRef ref,
     required ProkatFlowPalette palette,
     required AppLocalizations l10n,
     required CatalogBundle? catalog,
@@ -327,17 +330,6 @@ class ClientEquipmentTile extends ConsumerWidget {
       catalog: catalog,
     );
     final price = equipment.prices.isEmpty ? null : equipment.prices.first;
-    final specs =
-        (equipment.specs ?? [])
-            .where((spec) => spec.visibleToClient != false)
-            .where((spec) => spec.showInCard != false)
-            .where(
-              (spec) => spec
-                  .displayValue(languageCode: locale, catalog: catalog)
-                  .isNotEmpty,
-            )
-            .toList()
-          ..sort((a, b) => (a.sortIndex ?? 0).compareTo(b.sortIndex ?? 0));
     final rating = equipment.owner?.rating ?? 0;
 
     Widget actionSurface(Widget action) => DecoratedBox(
@@ -499,24 +491,56 @@ class ClientEquipmentTile extends ConsumerWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Text(
-                    equipment.name,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: AppFonts.headingS(context).copyWith(
-                      color: palette.title,
-                      fontWeight: FontWeight.w700,
-                    ),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          equipment.name,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: AppFonts.headingS(context).copyWith(
+                            color: palette.title,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                      if (isClient && companyCard)
+                        IconButton(
+                          tooltip: l10n.reportAction,
+                          padding: EdgeInsets.zero,
+                          constraints: const BoxConstraints.tightFor(
+                            width: 32,
+                            height: 28,
+                          ),
+                          visualDensity: VisualDensity.compact,
+                          icon: const Icon(
+                            LucideIcons.ellipsisVertical,
+                            size: 19,
+                          ),
+                          onPressed: () => ReportSheet.show(
+                            context,
+                            ref,
+                            target: ReportTarget(
+                              ReportTargetType.company,
+                              equipment.companyId ?? equipment.id,
+                            ),
+                            counterpartUserId: '',
+                            offerBlock: false,
+                          ),
+                        )
+                      else if (isClient)
+                        UgcMoreButton(
+                          counterpartUserId: equipment.owner?.id,
+                          counterpartName:
+                              equipment.owner?.displayNameOr('') ?? '',
+                          reportTarget: ReportTarget(
+                            ReportTargetType.equipment,
+                            equipment.id,
+                          ),
+                          compact: true,
+                        ),
+                    ],
                   ),
-                  if (companyCard &&
-                      (equipment.ownerComment ?? '').isNotEmpty) ...[
-                    const SizedBox(height: 6),
-                    Text(
-                      equipment.ownerComment!,
-                      style: AppFonts.body14(context)
-                          .copyWith(color: palette.secondary),
-                    ),
-                  ],
                   const SizedBox(height: 4),
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -554,44 +578,24 @@ class ClientEquipmentTile extends ConsumerWidget {
                               .copyWith(color: palette.secondary, fontSize: 13),
                         ),
                       ),
-                      if (isClient && !companyCard) ...[
-                        const SizedBox(width: 8),
-                        UgcMoreButton(
-                          counterpartUserId: equipment.owner?.id,
-                          counterpartName:
-                              equipment.owner?.displayNameOr('') ?? '',
-                          reportTarget: ReportTarget(
-                            ReportTargetType.equipment,
-                            equipment.id,
-                          ),
-                          variant: AppIconButtonVariant.plain,
-                        ),
-                      ],
                     ],
                   ),
-                  if (specs.isNotEmpty) ...[
+                  if ((equipment.rentCondition?.trim().isNotEmpty == true
+                              ? equipment.rentCondition
+                              : equipment.ownerComment)
+                          ?.trim()
+                          .isNotEmpty ==
+                      true) ...[
                     const SizedBox(height: 8),
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: [
-                        for (final spec in specs.take(3))
-                          _flowBadge(
-                            context,
-                            text:
-                                '${spec.displayName(locale)}: ${spec.boolValue == null
-                                    ? spec.displayValue(languageCode: locale, catalog: catalog)
-                                    : spec.boolValue!
-                                    ? l10n.yes
-                                    : l10n.no}',
-                            icon: _getScopedSpecIcon(
-                              spec.iconLibrary,
-                              spec.iconName,
-                            ),
-                            color: palette.secondary,
-                            background: palette.background,
-                          ),
-                      ],
+                    Text(
+                      (equipment.rentCondition?.trim().isNotEmpty == true
+                              ? equipment.rentCondition
+                              : equipment.ownerComment)!
+                          .trim(),
+                      maxLines: 3,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppFonts.body14(context)
+                          .copyWith(color: palette.secondary, height: 1.4),
                     ),
                   ],
                   const SizedBox(height: 12),
@@ -666,11 +670,6 @@ class ClientEquipmentTile extends ConsumerWidget {
       ),
     );
   }
-}
-
-IconData? _getScopedSpecIcon(String? library, String? name) {
-  final icon = _getIconData(library, name);
-  return icon == Icons.star_border || icon == LucideIcons.info ? null : icon;
 }
 
 IconData _getIconData(String? library, String? name) {

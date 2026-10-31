@@ -63,3 +63,12 @@ List<ChatModel> mergeChatPreview({
 
   return sortChats(current);
 }
+
+bool isEmptyEquipmentDiscussion(ChatModel chat) =>
+    chat.status == ChatStatus.active &&
+    chat.type == ChatType.direct &&
+    chat.inquiryEquipmentId != null &&
+    chat.bookingId == null &&
+    chat.requestId == null &&
+    chat.lastMessage == null &&
+    chat.messages.isEmpty;

@@ -1,3 +1,5 @@
+import 'request_comment_panel.dart';
+
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:prokat/core/theme/app_dimens.dart';
@@ -96,7 +98,7 @@ class OwnerRequestFlowCard extends StatelessWidget {
                   imageUrl: request.category?.imageUrl,
                   width: 72,
                   height: 72,
-                  fit: BoxFit.cover,
+                  fit: BoxFit.contain,
                   fallbackIcon: LucideIcons.image,
                   backgroundColor: palette.background,
                 ),
@@ -119,42 +121,45 @@ class OwnerRequestFlowCard extends StatelessWidget {
                             .copyWith(color: palette.secondary),
                       ),
                     ],
+                    const SizedBox(height: 4),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: stateColor.withValues(alpha: .1),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Text(
+                        getOwnerRequestStatus(requestState, l10n: l10n),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: AppFonts.body14SemiBold(context)
+                            .copyWith(color: stateColor, fontSize: 12),
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Row(
+                      children: [
+                        Icon(
+                          LucideIcons.clock,
+                          size: 14,
+                          color: palette.secondary,
+                        ),
+                        const SizedBox(width: 4),
+                        Expanded(
+                          child: Text(
+                            lifetimeLabel,
+                            style: AppFonts.caption(
+                              context,
+                            ).copyWith(color: palette.secondary, fontSize: 12),
+                          ),
+                        ),
+                      ],
+                    ),
                   ],
                 ),
-              ),
-            ],
-          ),
-          const SizedBox(height: AppDimens.s12$md),
-          Wrap(
-            spacing: AppDimens.s08$sm,
-            runSpacing: AppDimens.s08$sm,
-            crossAxisAlignment: WrapCrossAlignment.center,
-            children: [
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
-                decoration: BoxDecoration(
-                  color: stateColor.withValues(alpha: .1),
-                  borderRadius: BorderRadius.circular(AppDimens.r10$base),
-                ),
-                child: Text(
-                  getOwnerRequestStatus(requestState, l10n: l10n),
-                  style: AppFonts.body14SemiBold(context)
-                      .copyWith(color: stateColor, fontSize: 12),
-                ),
-              ),
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(LucideIcons.clock, size: 15, color: palette.secondary),
-                  const SizedBox(width: AppDimens.s04$xs),
-                  Flexible(
-                    child: Text(
-                      lifetimeLabel,
-                      style: AppFonts.caption(context)
-                          .copyWith(color: palette.secondary, fontSize: 12),
-                    ),
-                  ),
-                ],
               ),
             ],
           ),
@@ -191,19 +196,9 @@ class OwnerRequestFlowCard extends StatelessWidget {
               );
             },
           ),
-          if (request.comment?.isNotEmpty == true) ...[
-            const SizedBox(height: AppDimens.s12$md),
-            Text(
-              l10n.comments,
-              style: AppFonts.caption(context)
-                  .copyWith(color: palette.secondary),
-            ),
-            const SizedBox(height: AppDimens.s04$xs),
-            Text(
-              request.comment!,
-              style: AppFonts.body14(context)
-                  .copyWith(color: palette.title, height: 1.4),
-            ),
+          if (request.comment?.trim().isNotEmpty == true) ...[
+            const SizedBox(height: 12),
+            RequestCommentPanel(comment: request.comment!),
           ],
           const SizedBox(height: AppDimens.s16$base),
           Text(

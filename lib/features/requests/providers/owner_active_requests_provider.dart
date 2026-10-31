@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/features/bookings/models/query_state.dart';
-import 'package:prokat/features/catalog/models/catalog_group.dart';
+import 'package:prokat/features/requests/models/owner_request_scope.dart';
 import 'package:prokat/features/layout/navigation_counts_provider.dart';
 import 'package:prokat/features/notifications/models/notification_type.dart';
 import 'package:prokat/features/requests/models/request_model.dart';
@@ -12,13 +12,13 @@ final ownerActiveRequestsProvider =
     AsyncNotifierProvider.family<
       OwnerActiveRequestsNotifier,
       QueryState<RequestModel>,
-      CatalogGroup
+      OwnerRequestScope
     >(OwnerActiveRequestsNotifier.new);
 
-/// Feeds that a screen has already opened. Each catalog group is its own list.
+/// Feeds that a screen has already opened. All requests and matching fleet categories have independent pagination.
 List<OwnerActiveRequestsNotifier> loadedOwnerActiveRequestFeeds(Ref ref) {
   return [
-    for (final group in CatalogGroup.values)
+    for (final group in OwnerRequestScope.values)
       if (ref.exists(ownerActiveRequestsProvider(group)))
         ref.read(ownerActiveRequestsProvider(group).notifier),
   ];

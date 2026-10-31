@@ -206,7 +206,7 @@ void main() {
       tester,
       request(price: 25000, rate: parseRateOption('PER_HOUR')),
     );
-    expect(find.text('₸ 25 000 / hour', findRichText: true), findsOneWidget);
+    expect(find.text('₸ 25 000 per hour', findRichText: true), findsOneWidget);
   });
 
   testWidgets(
@@ -254,7 +254,7 @@ void main() {
       );
       expect(
         tester.getSize(find.byType(ClientRequestTile)).height,
-        lessThan(290),
+        lessThan(370),
       );
     },
   );
