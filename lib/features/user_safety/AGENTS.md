@@ -5,7 +5,7 @@
 ## API
 
 - `GET/POST /user-blocks`, `DELETE /user-blocks/:userId`. Блок направленный (`blockerId → blockedId`), проверка взаимодействия на сервере — в обе стороны.
-- `POST /reports` `{targetType, targetId, reason, comment?}`. `targetType`: `EQUIPMENT` / `REQUEST` / `CHAT` / `CHAT_MESSAGE`. `USER` клиент не шлёт. Повтор той же жалобы → 200 `duplicate: true`, для UI это тот же успех.
+- `POST /reports` `{targetType, targetId, reason, comment?}`. `targetType`: `COMPANY` / `EQUIPMENT` / `REQUEST` / `CHAT` / `CHAT_MESSAGE`. `USER` клиент не шлёт. Повтор той же жалобы → 200 `duplicate: true`, для UI это тот же успех.
 - Владельца контента, автора и снапшот сервер вычисляет сам. Клиент шлёт только id цели.
 - Ошибка взаимодействия: код `USER_BLOCKED` (HTTP 409 у брони/оффера, ack сокета у `chat:message:send`). Текст — `interactionUnavailableBody`, без «вас заблокировали».
 - Фильтр текста: код `CONTENT_NOT_ALLOWED` (`contentNotAllowedErrorCode`, текст `contentNotAllowed`). Сейчас только `Request.comment` и TEXT в direct-чате. Источник правил один: бэкенд `contentSafety.policy.ts`; на клиенте списков слов нет.
@@ -24,3 +24,5 @@
 - Чат: собеседник берётся из `chat.blockState.counterpartUserId` (только `GET /chats/id/:id`). `blockState == null` или `SUPPORT` → меню нет.
 - Экран `BlockedUsersScreen`: `AppRoutes.clientBlockedUsers` / `ownerBlockedUsers`, вход из настроек над удалением аккаунта.
 - Телефон заблокированного не показываем (`phoneNumber: null` в DTO).
+
+Компания: компактная кнопка на строке названия вызывает ReportSheet с COMPANY и companyId, без предложения заблокировать пользователя. Сервер вычисляет ответственного активного OWNER, снапшот компании и дедупликацию. ID компании никогда не передаётся как userId или equipmentId.

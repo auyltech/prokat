@@ -214,7 +214,10 @@ void main() {
               final l10n = AppLocalizations.of(
                 tester.element(find.byType(InquiryContextCard)),
               )!;
-              expectReadable(tester, find.text(l10n.inquiryCreateOrder));
+              expectReadable(
+                tester,
+                find.textContaining(l10n.inquiryCreateOrder),
+              );
             }
           }
         });
@@ -233,7 +236,7 @@ void main() {
       final node = tester.getSemantics(find.byKey(_contextKey));
       expect(node.getSemanticsData().flagsCollection.isButton, isTrue);
       expect(node.getSemanticsData().hasAction(SemanticsAction.tap), isTrue);
-      expect(node.label, contains('Set order terms'));
+      expect(node.label, contains('Confirm terms'));
       await tester.tap(find.byKey(_titleKey));
       await tester.pump();
       expect(calls, 1);
@@ -251,7 +254,7 @@ void main() {
     final semantics = tester.ensureSemantics();
     try {
       await pumpCard(tester, chat: _discussion(), mode: AppMode.ownerMode);
-      expect(find.text('Set order terms'), findsNothing);
+      expect(find.textContaining('Confirm terms'), findsNothing);
       final node = tester.getSemantics(find.byKey(_contextKey));
       expect(node.getSemanticsData().hasAction(SemanticsAction.tap), isFalse);
       await tester.tap(find.byKey(_titleKey));

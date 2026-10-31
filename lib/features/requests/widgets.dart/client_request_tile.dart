@@ -1,3 +1,5 @@
+import 'request_comment_panel.dart';
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -415,13 +417,8 @@ class _ClientRequestTileState extends ConsumerState<ClientRequestTile> {
             },
           ),
           if (request.comment?.trim().isNotEmpty == true) ...[
-            const SizedBox(height: 10),
-            Text(
-              request.comment!.trim(),
-              style: AppFonts.body14(
-                context,
-              ).copyWith(color: palette.secondary, fontSize: 13, height: 1.4),
-            ),
+            const SizedBox(height: 12),
+            RequestCommentPanel(comment: request.comment!),
           ],
           const SizedBox(height: 12),
           LayoutBuilder(

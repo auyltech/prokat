@@ -12,13 +12,8 @@ import 'package:prokat/l10n/app_localizations.dart';
 
 class SelectAddressSheet extends ConsumerWidget {
   final String from;
-  final ScrollController scrollController;
 
-  const SelectAddressSheet({
-    super.key,
-    required this.from,
-    required this.scrollController,
-  });
+  const SelectAddressSheet({super.key, required this.from});
 
   /// [onChooseOnMap] runs only after this sheet route is fully gone.
   /// Callers outside the shell (share booking `/e/:id`) must pass it and open
@@ -33,20 +28,20 @@ class SelectAddressSheet extends ConsumerWidget {
   }) async {
     final l10n = AppLocalizations.of(context)!;
 
-    final openMap = await AppBottomSheet.showScrollable<bool>(
+    final openMap = await AppBottomSheet.show<bool>(
       context,
-      minChildSize: 0.3,
-      maxChildSize: 0.4,
-      initialChildSize: 0.4,
       title: l10n.selectAddress,
-      headerBuilder: (_) => const SizedBox.shrink(),
-      scrollableListBuilder: (context, controller) =>
-          SelectAddressSheet(from: from, scrollController: controller),
-      footerBuilder: (sheetContext) => _SelectAddressFooter(
-        service: service,
-        from: from,
-        equipmentId: equipmentId,
-        onChooseOnMap: onChooseOnMap,
+      contentBuilder: (sheetContext) => Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          SelectAddressSheet(from: from),
+          _SelectAddressFooter(
+            service: service,
+            from: from,
+            equipmentId: equipmentId,
+            onChooseOnMap: onChooseOnMap,
+          ),
+        ],
       ),
     );
 
@@ -93,7 +88,8 @@ class SelectAddressSheet extends ConsumerWidget {
     final addresses = locationState.clientLocations;
 
     return ListView.builder(
-      controller: scrollController,
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
       padding: const EdgeInsets.symmetric(
         horizontal: AppDimens.sheetHorizontalPadding,
       ),

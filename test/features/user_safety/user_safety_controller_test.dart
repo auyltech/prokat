@@ -1,3 +1,4 @@
+import 'package:prokat/features/requests/models/owner_request_scope.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -66,13 +67,13 @@ void main() {
     final api = FakeUserSafetyApi();
     final container = makeContainer(api);
     await container.read(
-      ownerActiveRequestsProvider(CatalogGroup.machinery).future,
+      ownerActiveRequestsProvider(OwnerRequestScope.all).future,
     );
 
     await container.read(userSafetyControllerProvider).blockUser('client-b');
 
     final feed = container
-        .read(ownerActiveRequestsProvider(CatalogGroup.machinery))
+        .read(ownerActiveRequestsProvider(OwnerRequestScope.all))
         .requireValue;
     expect(feed.items.map((item) => item.id), ['req-a']);
   });
@@ -165,7 +166,7 @@ class _FakeClientEquipmentNotifier extends ClientEquipmentNotifier {
 
 class _FakeOwnerActiveRequestsNotifier extends OwnerActiveRequestsNotifier {
   @override
-  Future<QueryState<RequestModel>> build(CatalogGroup arg) async {
+  Future<QueryState<RequestModel>> build(OwnerRequestScope arg) async {
     return QueryState(
       items: [_request('req-a', 'client-a'), _request('req-b', 'client-b')],
       itemsPerPage: 20,

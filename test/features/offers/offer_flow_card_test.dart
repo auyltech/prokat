@@ -40,7 +40,7 @@ void main() {
     );
     await tester.tap(find.byTooltip('Chat'));
     await tester.tap(find.text('Accept'));
-    await tester.tap(find.text('Reject'));
+    await tester.tap(find.byTooltip('Reject'));
     expect([chat, accept, reject], [1, 1, 1]);
     expect(find.text('99+'), findsOneWidget);
   });
@@ -59,7 +59,7 @@ void main() {
         ),
       );
       await tester.tap(find.byTooltip('Chat'));
-      await tester.tap(find.text('Reject'));
+      await tester.tap(find.byTooltip('Reject'));
       expect(chat, 1);
       expect(mutations, 0);
       expect(find.byType(CircularProgressIndicator), findsOneWidget);
@@ -71,7 +71,7 @@ void main() {
   ) async {
     await _pump(tester, _card(status: OfferStatus.accepted, best: false));
     expect(find.text('Accept'), findsNothing);
-    expect(find.text('Reject'), findsNothing);
+    expect(find.byTooltip('Reject'), findsNothing);
     expect(find.byTooltip('Chat'), findsOneWidget);
   });
 }

@@ -1800,7 +1800,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get requestCancelled => 'Заявка отменена';
 
   @override
-  String get noChats => 'Переписок пока нет';
+  String get noChats => 'Чатов пока нет';
 
   @override
   String get chatsActiveTab => 'активные';
@@ -3102,8 +3102,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get couldNotLoadChats => 'Не удалось загрузить чаты';
 
   @override
-  String get youHaveNoChats =>
-      'Здесь появятся ваши переписки по технике и заказам.';
+  String get youHaveNoChats => 'Здесь появятся ваши чаты по технике и заказам.';
 
   @override
   String get error => 'Ошибка';
@@ -4089,7 +4088,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get inquiryStatus => 'Обсуждение';
 
   @override
-  String get inquiryCreateOrder => 'Оформить условия';
+  String get inquiryCreateOrder => 'Закрепить условия';
 
   @override
   String get requestTermsTitle => 'Условия запроса';
@@ -4128,7 +4127,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get inquiryCloseDescription =>
-      'Переписка сохранится в архиве чатов. Заказ создан не будет.';
+      'Чат сохранится в архиве чатов. Заказ создан не будет.';
 
   @override
   String get inquiryClosedStatus => 'Обсуждение завершено';
@@ -4146,8 +4145,7 @@ class AppLocalizationsRu extends AppLocalizations {
       'Обсудите задачу с клиентом. Заказ появится после отправки условий.';
 
   @override
-  String get inquiryReadOnlyHint =>
-      'Переписка сохранена. Доступен только просмотр.';
+  String get inquiryReadOnlyHint => 'Чат сохранён. Доступен только просмотр.';
 
   @override
   String get clearSearch => 'Очистить поиск';
@@ -4282,4 +4280,19 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get chatPhotoPreview => 'Фото';
+
+  @override
+  String get ownerRequestsAll => 'Все запросы';
+
+  @override
+  String get ownerRequestsMine => 'Мои категории';
+
+  @override
+  String get goToChat => 'В чат';
+
+  @override
+  String get historyChatAction => 'В чат';
+
+  @override
+  String get listingDescription => 'Описание';
 }

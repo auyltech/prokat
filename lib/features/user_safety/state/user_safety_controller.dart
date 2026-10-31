@@ -28,10 +28,9 @@ class UserSafetyController {
       if (_ref.exists(equipment)) {
         _ref.read(equipment.notifier).removeOwnerLocally(userId);
       }
-      final requests = ownerActiveRequestsProvider(group);
-      if (_ref.exists(requests)) {
-        _ref.read(requests.notifier).removeClientLocally(userId);
-      }
+    }
+    for (final feed in loadedOwnerActiveRequestFeeds(_ref)) {
+      feed.removeClientLocally(userId);
     }
     refreshNavigationCounts(_ref);
     _ref.invalidate(blockedUsersProvider);
@@ -53,10 +52,9 @@ class UserSafetyController {
       if (_ref.exists(equipment)) {
         unawaited(_ref.read(equipment.notifier).refresh());
       }
-      final requests = ownerActiveRequestsProvider(group);
-      if (_ref.exists(requests)) {
-        unawaited(_ref.read(requests.notifier).refresh());
-      }
+    }
+    for (final feed in loadedOwnerActiveRequestFeeds(_ref)) {
+      unawaited(feed.refresh());
     }
     _refreshChat(chatId);
     return response;

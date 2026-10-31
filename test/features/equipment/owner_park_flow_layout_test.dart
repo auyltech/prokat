@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:prokat/core/constants/price_rate_options.dart';
@@ -108,53 +107,16 @@ Future<void> _pump(
 
 void main() {
   testWidgets(
-    'Russian visibility label stays on one line at 390px and normal text',
-    (tester) async {
-      await _pump(
-        tester,
-        OwnerEquipmentCard(equipment: _equipment(EquipmentStatus.available)),
-        width: 390,
-        scale: 1,
-      );
-      final l10n = AppLocalizations.of(
-        tester.element(find.byType(OnlineToggle)),
-      )!;
-      final label = find.text(l10n.equipmentShown);
-      final paragraph = tester.renderObject<RenderParagraph>(label);
-      final boxes = paragraph.getBoxesForSelection(
-        TextSelection(baseOffset: 0, extentOffset: l10n.equipmentShown.length),
-      );
-      expect(boxes.map((box) => box.top).toSet(), hasLength(1));
-      expect(
-        tester.widget<OnlineToggle>(find.byType(OnlineToggle)).vertical,
-        isFalse,
-      );
-      expect(
-        tester
-            .getSize(
-              find.byKey(const ValueKey('owner-equipment-tariff-fleet-1')),
-            )
-            .width,
-        greaterThan(250),
-      );
-      expect(tester.takeException(), isNull);
-    },
-  );
-
-  testWidgets(
-    'full-width visibility row stays readable at 320px and double text',
+    'compact fleet visibility stays usable at narrow width and double text',
     (tester) async {
       await _pump(
         tester,
         OwnerEquipmentCard(equipment: _equipment(EquipmentStatus.available)),
       );
-      final l10n = AppLocalizations.of(
-        tester.element(find.byType(OnlineToggle)),
-      )!;
-      final label = find.text(l10n.equipmentShown);
-      final paragraph = tester.renderObject<RenderParagraph>(label);
-      expect(paragraph.didExceedMaxLines, isFalse);
-      expect(tester.widget<Text>(label).maxLines, isNull);
+      expect(
+        tester.widget<OnlineToggle>(find.byType(OnlineToggle)).compact,
+        isTrue,
+      );
       expect(tester.widget<Switch>(find.byType(Switch)).value, isTrue);
       expect(tester.takeException(), isNull);
     },
@@ -345,7 +307,7 @@ void main() {
       find.byKey(const ValueKey('owner-equipment-flow-fleet-1')),
       findsNothing,
     );
-    expect(find.textContaining('1250000'), findsOneWidget);
+    expect(find.textContaining('1 250 000'), findsOneWidget);
     expect(find.byType(OnlineToggle), findsNothing);
     expect(tester.takeException(), isNull);
   });

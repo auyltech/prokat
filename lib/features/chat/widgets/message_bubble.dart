@@ -274,7 +274,8 @@ class _MessageBubbleState extends State<MessageBubble> {
                       Text(
                         DateFormat.Hm().format(timestamp),
                         style: theme.textTheme.labelSmall?.copyWith(
-                          fontSize: 10,
+                          fontSize: 9,
+                          height: 1.1,
                           color: metadataColor,
                         ),
                       ),

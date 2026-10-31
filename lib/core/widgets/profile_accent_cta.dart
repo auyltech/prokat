@@ -6,7 +6,7 @@ import 'package:prokat/core/widgets/overlay_badge_icon.dart';
 /// Full-bleed profile CTA. All role-switch cards share this layout.
 class ProfileAccentCta extends StatelessWidget {
   static const double horizontalPadding = 20;
-  static const double verticalPadding = 60;
+  static const double verticalPadding = 24;
   static const double iconSize = 40;
   static const double inkRadius = 16;
 
@@ -32,7 +32,12 @@ class ProfileAccentCta extends StatelessWidget {
   });
 
   static Widget truck({Color color = AppTheme.white}) {
-    return Icon(LucideIcons.truck, color: color, size: iconSize);
+    return SizedBox.square(
+      dimension: iconSize + 4,
+      child: Center(
+        child: Icon(LucideIcons.truck, color: color, size: iconSize * .88),
+      ),
+    );
   }
 
   static Widget truckPlus({
@@ -70,6 +75,8 @@ class ProfileAccentCta extends StatelessWidget {
       onTap: isLoading ? null : onTap,
       borderRadius: BorderRadius.circular(inkRadius),
       child: Container(
+        height: 184 * MediaQuery.textScalerOf(context).scale(1).clamp(1, 2),
+        width: double.infinity,
         padding: const EdgeInsets.symmetric(
           horizontal: horizontalPadding,
           vertical: verticalPadding,
@@ -85,16 +92,30 @@ class ProfileAccentCta extends StatelessWidget {
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
                     title,
-                    style: Theme.of(context).textTheme.titleLarge
-                        ?.copyWith(color: contentColor),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontFamily: 'Manrope',
+                      fontSize: 18,
+                      height: 1.25,
+                      fontWeight: FontWeight.w700,
+                      color: contentColor,
+                    ),
                   ),
                   Text(
                     subtitle,
-                    style: Theme.of(context).textTheme.bodySmall
-                        ?.copyWith(color: mutedColor),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontFamily: 'Manrope',
+                      fontSize: 13,
+                      height: 1.35,
+                      color: mutedColor,
+                    ),
                   ),
                 ],
               ),

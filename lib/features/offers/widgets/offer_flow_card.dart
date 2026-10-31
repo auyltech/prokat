@@ -196,7 +196,7 @@ class OfferFlowCard extends StatelessWidget {
                   ),
                   const SizedBox(width: 10),
                 ],
-                if (pending)
+                if (pending && onAccept != null)
                   Expanded(
                     child: ProkatFlowPrimaryButton(
                       title: l10n.accept,
@@ -204,18 +204,17 @@ class OfferFlowCard extends StatelessWidget {
                       onPressed: submitting ? null : onAccept,
                     ),
                   ),
+                if (pending && onReject != null) ...[
+                  const SizedBox(width: 8),
+                  ProkatFlowIconButton(
+                    icon: LucideIcons.x,
+                    label: l10n.reject,
+                    onPressed: submitting ? null : onReject,
+                  ),
+                ],
               ],
             ),
           ],
-          if (pending)
-            Align(
-              alignment: Alignment.centerRight,
-              child: TextButton(
-                onPressed: submitting ? null : onReject,
-                style: TextButton.styleFrom(foregroundColor: palette.secondary),
-                child: Text(l10n.reject),
-              ),
-            ),
         ],
       ),
     );

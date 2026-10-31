@@ -21,12 +21,14 @@ class InquiryContextCard extends ConsumerStatefulWidget {
   final ChatModel chat;
   final VoidCallback? onSetTerms;
   final AppMode mode;
+  final bool hasSentMessages;
 
   const InquiryContextCard({
     super.key,
     required this.chat,
     this.onSetTerms,
     this.mode = AppMode.clientMode,
+    this.hasSentMessages = false,
   });
 
   @override
@@ -106,6 +108,15 @@ class _InquiryContextCardState extends ConsumerState<InquiryContextCard> {
         !_closing &&
         onSetTerms != null &&
         chat.status == ChatStatus.active;
+    final hasStarted =
+        widget.hasSentMessages ||
+        const ['TEXT', 'IMAGE', 'LOCATION'].contains(chat.lastMessage?.type) ||
+        chat.messages.any(
+          (message) =>
+              !message.isPending &&
+              !message.isFailed &&
+              const ['TEXT', 'IMAGE', 'LOCATION'].contains(message.type),
+        );
     final canViewTerms = chat.booking != null;
     final statusColor = chat.booking?.status == BookingStatus.confirmed
         ? palette.success
@@ -198,7 +209,9 @@ class _InquiryContextCardState extends ConsumerState<InquiryContextCard> {
                             ),
                             const SizedBox(height: 3),
                             Text(
-                              status,
+                              canSetTerms
+                                  ? '$status · ${l10n.inquiryCreateOrder}'
+                                  : status,
                               key: const ValueKey('inquiry-context-status'),
                               style: TextStyle(
                                 fontFamily: 'Manrope',
@@ -207,18 +220,6 @@ class _InquiryContextCardState extends ConsumerState<InquiryContextCard> {
                                 color: statusColor,
                               ),
                             ),
-                            if (canSetTerms) ...[
-                              const SizedBox(height: 3),
-                              Text(
-                                l10n.inquiryCreateOrder,
-                                style: TextStyle(
-                                  fontFamily: 'Manrope',
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w700,
-                                  color: palette.primary,
-                                ),
-                              ),
-                            ],
                           ],
                         ),
                       ),
@@ -234,7 +235,9 @@ class _InquiryContextCardState extends ConsumerState<InquiryContextCard> {
                         IconButton(
                           key: const ValueKey('inquiry-close-button'),
                           tooltip: l10n.inquiryCloseAction,
-                          onPressed: _closing ? null : _closeDiscussion,
+                          onPressed: _closing || !hasStarted
+                              ? null
+                              : _closeDiscussion,
                           icon: _closing
                               ? SizedBox.square(
                                   dimension: 16,
@@ -244,7 +247,7 @@ class _InquiryContextCardState extends ConsumerState<InquiryContextCard> {
                                   ),
                                 )
                               : Icon(
-                                  LucideIcons.archive,
+                                  LucideIcons.x,
                                   color: palette.secondary,
                                   size: 19,
                                 ),

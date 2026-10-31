@@ -79,6 +79,8 @@ class MainAppBar extends ConsumerWidget implements PreferredSizeWidget {
         : userVisibleCatalogGroups(searchCatalog.valueOrNull);
     final blendWithTabs =
         isChatListScreen ||
+        currentPath == AppRoutes.clientOrders ||
+        currentPath == AppRoutes.ownerBookings ||
         (requestGroups != null && requestGroups.length > 1) ||
         (ownerListGroups != null && ownerListGroups.length > 1) ||
         (searchCatalog != null &&
@@ -118,16 +120,6 @@ class MainAppBar extends ConsumerWidget implements PreferredSizeWidget {
       actions.add(const CityPickerTrigger());
     }
 
-    if (currentPath == AppRoutes.clientOrders) {
-      actions.add(
-        AppIconButton(
-          onTap: () => context.push(AppRoutes.clientOrdersHistory),
-          icon: Icons.history,
-          tooltip: l10n.orderHistory,
-        ),
-      );
-    }
-
     if (currentPath == AppRoutes.clientRequests) {
       actions.add(
         AppIconButton(
@@ -144,16 +136,6 @@ class MainAppBar extends ConsumerWidget implements PreferredSizeWidget {
           onTap: () => context.push(AppRoutes.ownerEquipmentCreate),
           icon: Icons.add,
           tooltip: l10n.addEquipment,
-        ),
-      );
-    }
-
-    if (currentPath == AppRoutes.ownerBookings) {
-      actions.add(
-        AppIconButton(
-          onTap: () => context.push(AppRoutes.ownerBookingsHistory),
-          icon: Icons.history_toggle_off_rounded,
-          tooltip: l10n.orderHistory,
         ),
       );
     }

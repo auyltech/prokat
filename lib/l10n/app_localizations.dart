@@ -7567,7 +7567,7 @@ abstract class AppLocalizations {
   /// No description provided for @inquiryCreateOrder.
   ///
   /// In en, this message translates to:
-  /// **'Set order terms'**
+  /// **'Confirm terms'**
   String get inquiryCreateOrder;
 
   /// No description provided for @requestTermsTitle.
@@ -7917,6 +7917,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Photo'**
   String get chatPhotoPreview;
+
+  /// No description provided for @ownerRequestsAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All requests'**
+  String get ownerRequestsAll;
+
+  /// No description provided for @ownerRequestsMine.
+  ///
+  /// In en, this message translates to:
+  /// **'My categories'**
+  String get ownerRequestsMine;
+
+  /// No description provided for @goToChat.
+  ///
+  /// In en, this message translates to:
+  /// **'Open chat'**
+  String get goToChat;
+
+  /// No description provided for @historyChatAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Chat'**
+  String get historyChatAction;
+
+  /// No description provided for @listingDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Description'**
+  String get listingDescription;
 }
 
 class _AppLocalizationsDelegate

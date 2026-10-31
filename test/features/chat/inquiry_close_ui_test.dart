@@ -29,9 +29,18 @@ void main() {
   });
   ChatModel discussion({
     String? bookingId,
+    bool started = true,
     ChatStatus status = ChatStatus.active,
   }) => ChatModel.fromJson({
     'id': 'chat-1',
+    if (started)
+      'lastMessage': {
+        'id': 'message-1',
+        'chatId': 'chat-1',
+        'type': 'TEXT',
+        'content': 'Hello',
+        'senderId': 'client',
+      },
     'inquiryEquipmentId': equipment.id,
     'inquiryEquipment': equipment.toJson(),
     'bookingId': bookingId,
@@ -56,6 +65,16 @@ void main() {
     await tester.pumpAndSettle();
   }
 
+  testWidgets('empty discussion cannot be archived', (tester) async {
+    final service = _Service();
+    await showCard(tester, service, discussion(started: false));
+    final button = tester.widget<IconButton>(
+      find.byKey(const ValueKey('inquiry-close-button')),
+    );
+    expect(button.onPressed, isNull);
+    expect(service.calls, 0);
+  });
+
   testWidgets('declining the close confirmation never calls the server', (
     tester,
   ) async {
@@ -67,7 +86,7 @@ void main() {
     await tester.tap(find.text('Cancel'));
     await tester.pumpAndSettle();
     expect(service.calls, 0);
-    expect(find.text('Set order terms'), findsOneWidget);
+    expect(find.textContaining('Confirm terms'), findsOneWidget);
   });
 
   testWidgets(
@@ -76,7 +95,7 @@ void main() {
       final service = _Service();
       await showCard(tester, service, discussion(bookingId: 'booking-1'));
       expect(find.byKey(const ValueKey('inquiry-close-button')), findsNothing);
-      expect(find.text('Set order terms'), findsNothing);
+      expect(find.textContaining('Confirm terms'), findsNothing);
       await showCard(tester, service, discussion(status: ChatStatus.closed));
       expect(find.byKey(const ValueKey('inquiry-close-button')), findsNothing);
       expect(find.text('Discussion ended'), findsOneWidget);

@@ -52,6 +52,7 @@ class UserModel {
   /// Given name, company name, or username. Phone is never a public label.
   String get displayName {
     final first = _publicLabel(firstName);
+    if (isOwner) return first ?? _publicLabel(companyName) ?? '';
     final last = _publicLabel(lastName);
     if (first != null || last != null) {
       return [first, last].whereType<String>().join(' ');

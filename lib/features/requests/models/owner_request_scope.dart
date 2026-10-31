@@ -1,0 +1,1 @@
+enum OwnerRequestScope { all, mine }

@@ -50,7 +50,6 @@ class EquipmentListingContent extends ConsumerWidget {
             )
             .toList()
           ..sort((a, b) => (a.sortIndex ?? 0).compareTo(b.sortIndex ?? 0));
-    final keySpecs = specs.where((s) => s.showInCard != false).take(3).toList();
     final description = equipment.ownerComment?.trim() ?? '';
     final conditions = equipment.rentCondition?.trim() ?? '';
     // Old listings sometimes contain the same text in both fields. Keep the
@@ -128,58 +127,10 @@ class EquipmentListingContent extends ConsumerWidget {
                 ],
                 const SizedBox(height: 20),
                 _ListingOwner(equipment: equipment),
-                if (keySpecs.isNotEmpty) ...[
-                  const SizedBox(height: 16),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      for (var i = 0; i < keySpecs.length; i++) ...[
-                        if (i > 0) const SizedBox(width: 8),
-                        Expanded(
-                          child: Container(
-                            padding: const EdgeInsets.all(12),
-                            decoration: BoxDecoration(
-                              border: Border.all(color: p.border),
-                              borderRadius: BorderRadius.circular(14),
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  keySpecs[i].displayName(l10n.localeName),
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: AppFonts.body14(
-                                    context,
-                                  ).copyWith(color: p.secondary, fontSize: 12),
-                                ),
-                                const SizedBox(height: 6),
-                                Text(
-                                  keySpecs[i].boolValue == null
-                                      ? keySpecs[i].displayValue(
-                                          languageCode: l10n.localeName,
-                                          catalog: catalog,
-                                        )
-                                      : keySpecs[i].boolValue!
-                                      ? l10n.yes
-                                      : l10n.no,
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: AppFonts.body16SemiBold(context)
-                                      .copyWith(color: p.title),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
-                ],
                 if (prices.isNotEmpty) ...[
                   const SizedBox(height: 24),
                   Text(
-                    l10n.tariffs,
+                    '${l10n.tariffs}:',
                     style: AppFonts.headingS(context).copyWith(color: p.title),
                   ),
                   const SizedBox(height: 12),
@@ -210,7 +161,7 @@ class EquipmentListingContent extends ConsumerWidget {
                 if (conditions.isNotEmpty) ...[
                   const SizedBox(height: 20),
                   Text(
-                    l10n.rentCondition,
+                    '${l10n.listingDescription}:',
                     style: AppFonts.headingS(context).copyWith(color: p.title),
                   ),
                   const SizedBox(height: 8),
@@ -220,13 +171,13 @@ class EquipmentListingContent extends ConsumerWidget {
                         .copyWith(color: p.secondary, height: 1.6),
                   ),
                 ],
-                if (specs.length > keySpecs.length) ...[
+                if (specs.isNotEmpty) ...[
                   const SizedBox(height: 16),
                   ExpansionTile(
                     tilePadding: EdgeInsets.zero,
                     childrenPadding: const EdgeInsets.only(bottom: 12),
                     title: Text(
-                      l10n.listingSpecifications,
+                      '${l10n.listingSpecifications}:',
                       style: AppFonts.body16SemiBold(context)
                           .copyWith(color: p.title),
                     ),

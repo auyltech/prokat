@@ -1,4 +1,5 @@
 enum ReportTargetType {
+  company('COMPANY'),
   equipment('EQUIPMENT'),
   request('REQUEST'),
   chat('CHAT'),

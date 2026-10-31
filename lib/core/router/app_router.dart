@@ -1,3 +1,4 @@
+import 'package:prokat/features/chat/screens/listing_chat_screen.dart';
 import 'package:prokat/features/company_profile/company_catalog_screen.dart';
 import 'package:prokat/features/company_profile/company_workspace.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -166,6 +167,12 @@ final routerProvider = Provider<GoRouter>((ref) {
     },
 
     routes: [
+      GoRoute(
+        path: '${AppRoutes.clientMain}/listing-chat/:chatId',
+        builder: (_, state) =>
+            ListingChatScreen(chatId: state.pathParameters['chatId']!),
+      ),
+
       GoRoute(
         path: '/company/:id',
         builder: (_, state) =>

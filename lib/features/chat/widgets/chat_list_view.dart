@@ -167,7 +167,7 @@ class _ChatListPane extends ConsumerWidget {
             return ListView(
               controller: scrollController,
               physics: const AlwaysScrollableScrollPhysics(),
-              padding: const EdgeInsets.all(12),
+              padding: const EdgeInsets.all(16),
               children: [
                 EmptyStateTile(
                   title: filter == ChatListFilter.archived

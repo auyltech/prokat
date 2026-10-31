@@ -1,3 +1,4 @@
+import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:prokat/core/theme/prokat_flow_icons.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -82,9 +83,11 @@ class BookingOrderFields extends ConsumerWidget {
   final bool submitting;
   final VoidCallback onSubmit;
   final bool showSubmitButton;
+  final bool allowCustomPrice;
 
   const BookingOrderFields({
     super.key,
+    this.allowCustomPrice = false,
     required this.isEquipmentGroup,
     required this.address,
     required this.openAddressSheet,
@@ -115,7 +118,7 @@ class BookingOrderFields extends ConsumerWidget {
     final catalog = ref.watch(catalogProvider).valueOrNull;
     final languageCode = Localizations.localeOf(context).languageCode;
     final singleTariff = prices.length == 1;
-    final tariffValue = singleTariff ? prices.first : selectedPrice;
+    final tariffValue = selectedPrice ?? (singleTariff ? prices.first : null);
     final tariffDescription = tariffValue == null
         ? null
         : savedTariffTitle(tariffValue, l10n);
@@ -179,6 +182,31 @@ class BookingOrderFields extends ConsumerWidget {
           ],
           onChanged: onPriceChanged,
         ),
+        if (allowCustomPrice && tariffValue != null) ...[
+          const SizedBox(height: 12),
+          TextFormField(
+            key: ValueKey('inquiry-custom-price-${tariffValue.id}'),
+            initialValue: tariffValue.price.toString(),
+            keyboardType: TextInputType.number,
+            inputFormatters: [
+              FilteringTextInputFormatter.digitsOnly,
+              LengthLimitingTextInputFormatter(7),
+            ],
+            decoration: InputDecoration(
+              labelText: l10n.offeredRate,
+              prefixText: '₸ ',
+              suffixText: tariffUnitLabelForUi(
+                code: tariffValue.priceRate.value,
+                languageCode: languageCode,
+                catalog: catalog,
+                l10n: l10n,
+              ),
+            ),
+            onChanged: (value) => onPriceChanged(
+              tariffValue.copyWith(price: int.tryParse(value) ?? 0),
+            ),
+          ),
+        ],
         if (flow != null && tariffDescription != null) ...[
           const SizedBox(height: AppDimens.s08$sm),
           Text(

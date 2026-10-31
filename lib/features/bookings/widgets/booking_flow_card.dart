@@ -1,3 +1,4 @@
+import 'package:prokat/features/bookings/models/booking_status.dart';
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:prokat/core/theme/app_dimens.dart';
@@ -17,12 +18,14 @@ class BookingFlowCard extends StatelessWidget {
   const BookingFlowCard({
     super.key,
     this.tariffUnitLabel,
+    this.onChat,
     required this.booking,
     required this.counterpart,
     required this.priceLabel,
     required this.actions,
   });
 
+  final VoidCallback? onChat;
   final BookingModel booking;
   final Widget counterpart;
   final String priceLabel;
@@ -153,24 +156,68 @@ class BookingFlowCard extends StatelessWidget {
             style: AppFonts.caption(context).copyWith(color: palette.secondary),
           ),
           const SizedBox(height: 4),
-          Text.rich(
-            TextSpan(
-              text: formatPrice(booking.price),
-              children: [
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final price = Text.rich(
                 TextSpan(
-                  text:
-                      ' ${(tariffUnitLabel ?? getPriceRate(booking.priceRate, l10n: l10n))}',
-                  style: AppFonts.body14SemiBold(context)
-                      .copyWith(color: palette.secondary),
+                  text: formatPrice(booking.price),
+                  children: [
+                    TextSpan(
+                      text:
+                          ' ${(tariffUnitLabel ?? getPriceRate(booking.priceRate, l10n: l10n))}',
+                      style: AppFonts.body14SemiBold(context)
+                          .copyWith(color: palette.secondary),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-            key: const ValueKey('booking-flow-price'),
-            style: AppFonts.price(context).copyWith(
-              fontSize: 20,
-              fontWeight: FontWeight.w800,
-              color: palette.primary,
-            ),
+                key: const ValueKey('booking-flow-price'),
+                style: AppFonts.price(context).copyWith(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w800,
+                  color: palette.primary,
+                ),
+              );
+              final showChat =
+                  onChat != null &&
+                  ![
+                    BookingStatus.created,
+                    BookingStatus.confirmed,
+                    BookingStatus.draft,
+                  ].contains(booking.status);
+              if (!showChat) return price;
+              final button = OutlinedButton.icon(
+                onPressed: onChat,
+                style: OutlinedButton.styleFrom(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                icon: const Icon(LucideIcons.messageCircle, size: 17),
+                label: Text(l10n.historyChatAction),
+              );
+              if (constraints.maxWidth < 300 ||
+                  MediaQuery.textScalerOf(context).scale(14) > 20) {
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    price,
+                    const SizedBox(height: 8),
+                    Align(
+                      alignment: AlignmentDirectional.centerEnd,
+                      child: button,
+                    ),
+                  ],
+                );
+              }
+              return Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Expanded(child: price),
+                  const SizedBox(width: 12),
+                  button,
+                ],
+              );
+            },
           ),
           if (actions.isNotEmpty) ...[
             const SizedBox(height: 12),

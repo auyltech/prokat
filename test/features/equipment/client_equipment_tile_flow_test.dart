@@ -69,16 +69,9 @@ void main() {
     expect(badges.right, lessThan(actions.left));
     expect(badges.bottom, lessThan(price.top));
     expect(photo.contains(price.bottomRight), isTrue);
-    expect(find.text('First spec: One'), findsOneWidget);
-    expect(find.text('Second spec: Two'), findsOneWidget);
-    expect(find.text('Third spec: Yes'), findsOneWidget);
-    expect(find.text('Fourth spec: Four'), findsNothing);
+    expect(find.text('First spec: One'), findsNothing);
     expect(find.text('Private spec: Secret'), findsNothing);
     expect(find.text('Hidden spec: Hidden'), findsNothing);
-    expect(
-      tester.getTopLeft(find.text('First spec: One')).dy,
-      lessThan(tester.getTopLeft(find.text('Second spec: Two')).dy),
-    );
     expect(find.byType(ProkatFlowPrimaryButton), findsOneWidget);
     expect(find.byType(AppElevatedButton), findsNothing);
   });

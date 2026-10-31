@@ -24,8 +24,14 @@ import 'package:prokat/features/offers/widgets/offer_flow_card.dart';
 class OfferTile extends ConsumerWidget {
   final OfferModel offer;
   final bool isBestPrice;
+  final bool showChatAction;
 
-  const OfferTile({super.key, required this.offer, this.isBestPrice = false});
+  const OfferTile({
+    super.key,
+    required this.offer,
+    this.isBestPrice = false,
+    this.showChatAction = true,
+  });
 
   Future<void> _handleAccept(
     BuildContext context,
@@ -132,7 +138,7 @@ class OfferTile extends ConsumerWidget {
                   ),
                 ),
         ),
-        onChat: offer.chatId.isEmpty
+        onChat: !showChatAction || offer.chatId.isEmpty
             ? null
             : () => context.push(
                 '${AppRoutes.clientChatList}/direct/${offer.chatId}',

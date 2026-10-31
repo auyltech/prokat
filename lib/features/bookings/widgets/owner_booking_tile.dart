@@ -149,6 +149,13 @@ class OwnerBookingTile extends ConsumerWidget {
 
     if (ProkatFlowScope.maybeOf(context) != null) {
       return BookingFlowCard(
+        onChat: booking.chatId?.isNotEmpty == true
+            ? () => unawaited(
+                context.push(
+                  '${AppRoutes.ownerChatList}/direct/${booking.chatId}',
+                ),
+              )
+            : null,
         tariffUnitLabel: tariffUnitLabelForUi(
           code: booking.priceRate.value,
           languageCode: Localizations.localeOf(context).languageCode,

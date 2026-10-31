@@ -56,9 +56,6 @@ final notificationBootstrapProvider = Provider<void>((ref) {
       if (notificationRefreshesOwnerOrderBadge(notification.type)) {
         refreshOwnerOrderBadge(ref);
       }
-      if (!foreground.present(notification)) {
-        unawaited(push?.presentIncoming(notification));
-      }
     });
   }
 
