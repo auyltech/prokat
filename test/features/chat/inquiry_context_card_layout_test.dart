@@ -214,7 +214,10 @@ void main() {
               final l10n = AppLocalizations.of(
                 tester.element(find.byType(InquiryContextCard)),
               )!;
-              expectReadable(tester, find.textContaining(l10n.inquiryCreateOrder));
+              expectReadable(
+                tester,
+                find.textContaining(l10n.inquiryCreateOrder),
+              );
             }
           }
         });

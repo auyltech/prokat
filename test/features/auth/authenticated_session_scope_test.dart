@@ -489,6 +489,10 @@ class _FakeChatSocketService implements ChatSocketService {
     };
   }
 
+  @override
+  void Function() onReadReceipt(void Function(Map<String, dynamic>) handler) =>
+      () {};
+
   void emit(ChatMessageModel message) => _handler?.call(message);
 
   Future<void> waitForJoinCalls(int count) async {

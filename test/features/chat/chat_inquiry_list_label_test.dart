@@ -212,9 +212,7 @@ void main() {
 
       expect(tester.takeException(), isNull);
       expect(
-        find.text(
-          mode == AppMode.clientMode ? 'Василиса Самойлова' : 'Марк Ванин',
-        ),
+        find.text(mode == AppMode.clientMode ? 'Василиса' : 'Марк Ванин'),
         findsNWidgets(2),
       );
       expect(find.text('Автокран · тест чата'), findsOneWidget);
@@ -250,7 +248,7 @@ void main() {
   testWidgets('tile omits a missing or blank equipment label', (tester) async {
     await pumpTiles(tester, [ChatModel.fromJson(_listJson(name: '  '))]);
 
-    expect(find.text('Василиса Самойлова'), findsOneWidget);
+    expect(find.text('Василиса'), findsOneWidget);
     expect(find.text('Автокран · тест чата'), findsNothing);
     expect(tester.takeException(), isNull);
   });

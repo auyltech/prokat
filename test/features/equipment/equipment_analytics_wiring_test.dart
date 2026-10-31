@@ -1,3 +1,5 @@
+import 'package:prokat/core/widgets/ui_kit/flow/prokat_flow_actions.dart';
+
 import 'dart:async';
 
 import 'package:dio/dio.dart';
@@ -266,7 +268,9 @@ Future<void> _completeCreateForm(
   await tester.ensureVisible(submit);
   await tester.pump();
   expect(
-    tester.widget<AppElevatedButton>(find.byType(AppElevatedButton)).onTap,
+    tester
+        .widget<ProkatFlowPrimaryButton>(find.byType(ProkatFlowPrimaryButton))
+        .onPressed,
     isNotNull,
   );
   await tester.tap(submit);

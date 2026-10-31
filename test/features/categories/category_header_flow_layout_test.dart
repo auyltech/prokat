@@ -226,7 +226,12 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(tester.takeException(), isNull);
-      expect(find.byType(ProkatFlowScope), findsNWidgets(2));
+      expect(
+        ProkatFlowScope.maybeOf(
+          tester.element(find.byType(DraggableScrollableSheet)),
+        ),
+        ProkatFlowPalette.light,
+      );
       expect(find.text('All categories'), findsNWidgets(2));
       await scrollPickerTo(_lateCategory.name, 160);
       final sheetCategory = find.descendant(

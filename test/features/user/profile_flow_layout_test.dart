@@ -112,7 +112,7 @@ void main() {
         final l10n = AppLocalizations.of(
           tester.element(find.byType(ClientProfileHeader)),
         )!;
-        readable(tester, '- ${l10n.ordersCount(128)}');
+        readable(tester, '· ${l10n.ordersCount(128)}');
       },
     );
 
