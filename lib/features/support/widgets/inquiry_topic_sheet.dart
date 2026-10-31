@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:prokat/core/theme/prokat_flow_scope.dart';
 import 'package:prokat/features/support/models/contact_inquiry_topic.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
@@ -22,7 +24,10 @@ class InquiryTopicSheet extends StatefulWidget {
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (sheetContext) {
-        return InquiryTopicSheet(selectedTopic: selectedTopic);
+        return ProkatFlowScope.capture(
+          context,
+          InquiryTopicSheet(selectedTopic: selectedTopic),
+        );
       },
     );
   }
@@ -135,18 +140,28 @@ class _TopicTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final flow = ProkatFlowScope.maybeOf(context);
     return ListTile(
-      contentPadding: EdgeInsets.zero,
+      contentPadding: flow == null
+          ? EdgeInsets.zero
+          : const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      tileColor: isSelected ? flow?.primarySoft : null,
       onTap: onTap,
       leading: CircleAvatar(
-        backgroundColor: isSelected
-            ? theme.colorScheme.primaryContainer
-            : theme.colorScheme.surfaceContainer,
+        backgroundColor:
+            flow?.primarySoft ??
+            (isSelected
+                ? theme.colorScheme.primaryContainer
+                : theme.colorScheme.surfaceContainer),
         child: Icon(
           icon,
-          color: isSelected
-              ? theme.colorScheme.onPrimaryContainer
-              : theme.colorScheme.onSurface,
+          size: 22,
+          color:
+              flow?.primary ??
+              (isSelected
+                  ? theme.colorScheme.onPrimaryContainer
+                  : theme.colorScheme.onSurface),
         ),
       ),
       title: Text(
@@ -156,7 +171,10 @@ class _TopicTile extends StatelessWidget {
         ),
       ),
       trailing: isSelected
-          ? Icon(Icons.check_circle, color: theme.colorScheme.primary)
+          ? Icon(
+              LucideIcons.circleCheck,
+              color: flow?.primary ?? theme.colorScheme.primary,
+            )
           : null,
     );
   }
@@ -164,17 +182,17 @@ class _TopicTile extends StatelessWidget {
 
 IconData _iconFor(ContactInquiryTopic topic) {
   return switch (topic) {
-    ContactInquiryTopic.general => Icons.chat_bubble_outline,
-    ContactInquiryTopic.support => Icons.support_agent_outlined,
-    ContactInquiryTopic.bugReport => Icons.bug_report_outlined,
-    ContactInquiryTopic.featureRequest => Icons.lightbulb_outline,
-    ContactInquiryTopic.sales => Icons.storefront_outlined,
-    ContactInquiryTopic.partnership => Icons.handshake_outlined,
-    ContactInquiryTopic.billing => Icons.receipt_long_outlined,
-    ContactInquiryTopic.callMe => Icons.phone_callback_outlined,
-    ContactInquiryTopic.accountDeletion => Icons.person_off_outlined,
-    ContactInquiryTopic.accountRecovery => Icons.lock_reset_outlined,
-    ContactInquiryTopic.accountIssue => Icons.manage_accounts_outlined,
-    ContactInquiryTopic.other => Icons.more_horiz,
+    ContactInquiryTopic.general => LucideIcons.messageCircle,
+    ContactInquiryTopic.support => LucideIcons.headset,
+    ContactInquiryTopic.bugReport => LucideIcons.bug,
+    ContactInquiryTopic.featureRequest => LucideIcons.lightbulb,
+    ContactInquiryTopic.sales => LucideIcons.store,
+    ContactInquiryTopic.partnership => LucideIcons.handshake,
+    ContactInquiryTopic.billing => LucideIcons.receiptText,
+    ContactInquiryTopic.callMe => LucideIcons.phoneIncoming,
+    ContactInquiryTopic.accountDeletion => LucideIcons.userX,
+    ContactInquiryTopic.accountRecovery => LucideIcons.keyRound,
+    ContactInquiryTopic.accountIssue => LucideIcons.userRoundCog,
+    ContactInquiryTopic.other => LucideIcons.ellipsis,
   };
 }

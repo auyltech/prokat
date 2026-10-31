@@ -10,6 +10,23 @@ class AppLocalizationsKk extends AppLocalizations {
   AppLocalizationsKk([String locale = 'kk']) : super(locale);
 
   @override
+  String get companiesTitle => 'Компаниялар';
+
+  @override
+  String get companiesEmptyCity => 'Бұл қалада әзірге компаниялар жоқ.';
+
+  @override
+  String get loadMoreItems => 'Тағы көрсету';
+
+  @override
+  String companyUnitCount(int count) {
+    return 'Барлығы: $count';
+  }
+
+  @override
+  String get bookingOrderCommentEmpty => 'Көрсетілмеген';
+
+  @override
   String machineryQuotaReached(int maximum) {
     return 'Техника лимитіне жеттіңіз: $maximum бірлік. Жаңа техника қосу үшін орын босатыңыз немесе әкімшілікке хабарласыңыз.';
   }
@@ -867,10 +884,12 @@ class AppLocalizationsKk extends AppLocalizations {
   String get pleaseSelectTime => 'Уақытты таңдаңыз';
 
   @override
-  String get noRequestHistory => 'Сұраулар тарихы әзірге бос';
+  String get noRequestHistory =>
+      'Жабылған және болдырылмаған сұраныстар осында сақталады.';
 
   @override
-  String get noOrderHistoryDescription => 'Тапсырыстар тарихы әзірге бос';
+  String get noOrderHistoryDescription =>
+      'Аяқталған және болдырылмаған тапсырыстар осында сақталады.';
 
   @override
   String get reviewSubmitted => 'Пікір жіберілді';
@@ -942,7 +961,8 @@ class AppLocalizationsKk extends AppLocalizations {
   String get initializingSystems => 'ЖҮЙЕ ІСКЕ ҚОСЫЛУДА...';
 
   @override
-  String get serverWarmingUp => 'Сервер іске қосылуда, күте тұрыңыз...';
+  String get serverWarmingUp =>
+      'Жүктеу әдеттегіден ұзағырақ жүріп жатыр. Сәл күте тұрыңыз.';
 
   @override
   String get save => 'Сақтау';
@@ -1020,7 +1040,7 @@ class AppLocalizationsKk extends AppLocalizations {
   String get crop => 'Қию';
 
   @override
-  String get somethingWentWrong => 'Бірдеңе дұрыс болмады!';
+  String get somethingWentWrong => 'Деректерді жүктеу мүмкін болмады';
 
   @override
   String get loading => 'Жүктелуде...';
@@ -1306,10 +1326,10 @@ class AppLocalizationsKk extends AppLocalizations {
   String get loadingOrders => 'Тапсырыстар жүктелуде...';
 
   @override
-  String get errorLoadingOrders => 'Тапсырыстарды жүктеу қатесі';
+  String get errorLoadingOrders => 'Тапсырыстарды жүктеу мүмкін болмады';
 
   @override
-  String get noBookingsFound => 'Брондаулар табылмады';
+  String get noBookingsFound => 'Тапсырыстар әзірге жоқ';
 
   @override
   String get updateWorkStatus => 'Жұмыс күйін жаңарту';
@@ -1685,14 +1705,15 @@ class AppLocalizationsKk extends AppLocalizations {
   String get loginToViewRequests => 'Сұраныстарды көру үшін кіріңіз';
 
   @override
-  String get errorLoadingRequests => 'Сұраныстарды жүктеу қатесі';
+  String get errorLoadingRequests => 'Сұраныстарды жүктеу мүмкін болмады';
 
   @override
-  String get noActiveRequests => 'Белсенді сұраныстарыңыз жоқ';
+  String get noActiveRequests =>
+      'Сұраныс жасаңыз: жұмысты, мекенжай мен уақытты көрсетіңіз — техника иелері ұсыныс жібереді.';
 
   @override
   String get ownerEmptyRequestsHint =>
-      'Клиенттердің өзекті өтінімдерін осында қараңыз';
+      'Клиенттердің сізге сәйкес сұраныстары осында пайда болады.';
 
   @override
   String get createNewRequest => 'Жаңа сұраныс жасау';
@@ -1766,7 +1787,7 @@ class AppLocalizationsKk extends AppLocalizations {
   String get requestCancelled => 'Сұраныс жойылды';
 
   @override
-  String get noChats => 'Чаттар жоқ';
+  String get noChats => 'Хат алмасу әзірге жоқ';
 
   @override
   String get chatsActiveTab => 'белсенді';
@@ -1775,11 +1796,11 @@ class AppLocalizationsKk extends AppLocalizations {
   String get chatsArchiveTab => 'мұрағаттағы';
 
   @override
-  String get noArchivedChats => 'Мұрағатталған чаттар жоқ';
+  String get noArchivedChats => 'Мұрағат әзірге бос';
 
   @override
   String get youHaveNoArchivedChats =>
-      'Аяқталған және болдырылмаған чаттар осында пайда болады.';
+      'Аяқталған талқылаулар мен жабылған тапсырыстар бойынша хат алмасулар осында сақталады.';
 
   @override
   String get deliverTo => 'ЖЕТКІЗУ ОРНЫ';
@@ -1864,7 +1885,7 @@ class AppLocalizationsKk extends AppLocalizations {
   String get preferences => 'ПАРАМЕТРЛЕР';
 
   @override
-  String get pushNotifications => 'Push-хабарландырулар';
+  String get pushNotifications => 'Осы құрылғыда';
 
   @override
   String get bookingAlerts => 'Жаңа брондаулар туралы хабарландырулар';
@@ -1975,11 +1996,11 @@ class AppLocalizationsKk extends AppLocalizations {
   String get cropProfilePicture => 'Профиль фотосын қию';
 
   @override
-  String get initializationError => 'ИНИЦИАЛИЗАЦИЯ ҚАТЕСІ';
+  String get initializationError => 'Қолданбаны ашу мүмкін болмады';
 
   @override
   String get initializationErrorMessage =>
-      'Сессия жүктелмеді немесе байланыс үзілді. Желіні тексеріп, қайталаңыз.';
+      'Интернет байланысын тексеріп, қайталап көріңіз.';
 
   @override
   String get retryConnection => 'ҚОСЫЛУДЫ ҚАЙТАЛАУ';
@@ -2096,6 +2117,26 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get ownerCommentHint => 'Толық емес жүктеме, кіру туралы жазбалар…';
+
+  @override
+  String get offerCommentHint =>
+      'Келу уақытын немесе жұмыс шарттарын нақтылаңыз';
+
+  @override
+  String get companyGoToProfile => 'Компания профиліне өту';
+
+  @override
+  String get companyOpenProfile => 'Компания профилін ашу';
+
+  @override
+  String get companyInvited => 'Сізді компанияға шақырады';
+
+  @override
+  String get companyPlaceServices =>
+      'Компанияңыздың қызметтерін осында орналастырыңыз';
+
+  @override
+  String get companyNewInvitation => 'Жаңа шақыру';
 
   @override
   String get prices => 'Бағалар';
@@ -2788,7 +2829,7 @@ class AppLocalizationsKk extends AppLocalizations {
   String get loginToAddFavorites => 'Таңдаулыларды қосу үшін кіріңіз';
 
   @override
-  String get noSavedMachinery => 'САҚТАЛҒАН ТЕХНИКА ЖОҚ';
+  String get noSavedMachinery => 'Таңдаулылар әзірге бос';
 
   @override
   String get exploreFleet => 'ТЕХНИКАНЫ ҚАРАУ';
@@ -2804,7 +2845,7 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get favoritesEmptyHint =>
-      'Таңдаулы деп белгілеген заттарыңыз осында пайда болады';
+      'Ұнаған техниканы сақтау үшін карточкадағы жүрекшені басыңыз.';
 
   @override
   String get frequentlyAskedQuestions => 'Жиі қойылатын сұрақтар';
@@ -3039,7 +3080,8 @@ class AppLocalizationsKk extends AppLocalizations {
   String get couldNotLoadChats => 'Чаттарды жүктеу мүмкін болмады';
 
   @override
-  String get youHaveNoChats => 'Сізде чаттар жоқ';
+  String get youHaveNoChats =>
+      'Техника мен тапсырыстарға қатысты хат алмасуларыңыз осында пайда болады.';
 
   @override
   String get error => 'Қате';
@@ -3083,7 +3125,7 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get noEquipmentMatchingCategory =>
-      'Бұл санат бойынша техника табылмады.';
+      'Басқа санатты таңдаңыз немесе сүзгілерді өзгертіңіз.';
 
   @override
   String get cancelOrderConfirmation =>
@@ -3091,7 +3133,7 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get loadEquipmentErrorHint =>
-      'Тізімді жүктеу кезінде қате орын алды. Қайталаңыз.';
+      'Интернет байланысын тексеріп, қайталап көріңіз.';
 
   @override
   String get createBooking => 'Брондау жасау';
@@ -3575,10 +3617,12 @@ class AppLocalizationsKk extends AppLocalizations {
   String get didntReceiveCodeResend => 'Код келмеді ме? Қайта жіберу';
 
   @override
-  String get youHaveNoActiveOrders => 'Белсенді тапсырыстарыңыз жоқ';
+  String get youHaveNoActiveOrders =>
+      'Ағымдағы тапсырыстарыңыз осында пайда болады.';
 
   @override
-  String get youHaveNoNotifications => 'Хабарландыруларыңыз жоқ';
+  String get youHaveNoNotifications =>
+      'Тапсырыстар, ұсыныстар және басқа маңызды оқиғалар туралы хабарлар осында пайда болады.';
 
   @override
   String get unitCubicMeters => 'м³';
@@ -3741,7 +3785,7 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get ownerOfflineChatOwnerBanner =>
-      'Жалғастыру үшін мәртебені «Онлайн» етіп ауыстырыңыз';
+      'Клиентке жауап беру үшін «Онлайн» күйін қосыңыз.';
 
   @override
   String get becomeOnline => '«Онлайн» болу';
@@ -3998,4 +4042,226 @@ class AppLocalizationsKk extends AppLocalizations {
   @override
   String get contentNotAllowed =>
       'Мәтінде жол берілмейтін мазмұн бар. Оны өзгертіп, қайтадан көріңіз.';
+
+  @override
+  String get discussEquipmentTooltip => 'Иесіне жазу';
+
+  @override
+  String get sendBookingRequest => 'Сұрау жіберу';
+
+  @override
+  String get sendAgreedTerms => 'Шарттарды жіберу';
+
+  @override
+  String get inquiryStatus => 'Талқылау';
+
+  @override
+  String get inquiryCreateOrder => 'Шарттарды бекіту';
+
+  @override
+  String get requestTermsTitle => 'Сұрау шарттары';
+
+  @override
+  String get agreedTermsTitle => 'Тапсырыс шарттары';
+
+  @override
+  String get requestTermsHint =>
+      'Мекенжайды, уақытты және тарифті көрсетіңіз. Шарттарды иесіне растауға жіберіңіз.';
+
+  @override
+  String get listingSpecifications => 'Барлық сипаттамалар';
+
+  @override
+  String get listingNoReviews => 'Әзірге бағалар жоқ';
+
+  @override
+  String get requestOwnerTitle => 'Иесіне сұрау';
+
+  @override
+  String get requestSentSuccess => 'Сұрау иесіне жіберілді';
+
+  @override
+  String get inquiryOwnerOffline =>
+      'Клиентке жауап беру үшін «Онлайн» режимін қосыңыз.';
+
+  @override
+  String get inquiryCloseAction => 'Талқылауды аяқтау';
+
+  @override
+  String get inquiryCloseConfirm => 'Аяқтау';
+
+  @override
+  String get inquiryCloseQuestion => 'Талқылауды тапсырыссыз аяқтайсыз ба?';
+
+  @override
+  String get inquiryCloseDescription =>
+      'Хат алмасу чаттар мұрағатында сақталады. Тапсырыс жасалмайды.';
+
+  @override
+  String get inquiryClosedStatus => 'Талқылау аяқталды';
+
+  @override
+  String get inquiryCloseFailed =>
+      'Талқылауды аяқтау мүмкін болмады. Чатты жаңартып, қайта көріңіз.';
+
+  @override
+  String get inquiryClientEmptyHint =>
+      'Қолжетімділік, баға немесе мәліметтер туралы сұраңыз. Тапсырыс әлі жасалған жоқ.';
+
+  @override
+  String get inquiryOwnerEmptyHint =>
+      'Клиентпен тапсырманы талқылаңыз. Шарттар жіберілгеннен кейін тапсырыс пайда болады.';
+
+  @override
+  String get inquiryReadOnlyHint => 'Хат алмасу сақталды. Тек қарауға болады.';
+
+  @override
+  String get clearSearch => 'Іздеуді тазарту';
+
+  @override
+  String get catalogNoResults => 'Хабарландырулар табылмады';
+
+  @override
+  String get catalogNoResultsHint =>
+      'Іздеу сұрауын, санатты немесе қаланы өзгертіп көріңіз.';
+
+  @override
+  String get requestClientBudget => 'Сіздің бюджетіңіз';
+
+  @override
+  String get requestsSubmitToOwners => 'Иелеріне жіберу';
+
+  @override
+  String get requestsSentToOwners => 'Өтінім иелеріне жіберілді';
+
+  @override
+  String get requestOwnerOffers => 'Иелердің ұсыныстары';
+
+  @override
+  String get offerPriceSortDefault => 'Бастапқы рет';
+
+  @override
+  String get offerPriceSortLow => 'Алдымен арзаны';
+
+  @override
+  String get offerPriceSortHigh => 'Алдымен қымбаты';
+
+  @override
+  String get offerBestPrice => 'Ең тиімді баға';
+
+  @override
+  String get offerCompareUnit => 'Есептеу бірлігі';
+
+  @override
+  String get offerCompareAllUnits => 'Барлық бірліктер';
+
+  @override
+  String get offerCompareUnitHint =>
+      'Бағаларды салыстыру үшін бір есептеу бірлігін таңдаңыз.';
+
+  @override
+  String get offerPricesPartialHint =>
+      'Бағаларды салыстыру үшін барлық ұсыныстарды жүктеңіз.';
+
+  @override
+  String get offerLoadAll => 'Барлық ұсыныстарды жүктеу';
+
+  @override
+  String get flowSchedulePick => 'Уақытты таңдау';
+
+  @override
+  String get proposeOrderTerms => 'Тапсырыс шарттарын ұсыну';
+
+  @override
+  String get orderTermsProposalHint =>
+      'Қажетті өрістерді өзгертіңіз. Жаңа шарттар екінші тарап растағаннан кейін ғана күшіне енеді.';
+
+  @override
+  String get sendOrderTermsProposal => 'Растауға жіберу';
+
+  @override
+  String get orderTermsUnchanged => 'Кемінде бір шартты өзгертіңіз.';
+
+  @override
+  String get orderTermsUnavailable =>
+      'Осы тапсырыстың шарттарын өзгерту үшін чатты жаңартыңыз.';
+
+  @override
+  String get orderTermsCurrentAddress => 'Ағымдағы сұраудың мекенжайы';
+
+  @override
+  String get orderTermsProposalTitle => 'Ұсынылған шарттар';
+
+  @override
+  String get currentOrderTerms => 'Ағымдағы шарттар';
+
+  @override
+  String get proposedOrderTerms => 'Жаңа шарттар';
+
+  @override
+  String get acceptOrderTerms => 'Шарттарды қабылдау';
+
+  @override
+  String get withdrawOrderTerms => 'Ұсынысты қайтарып алу';
+
+  @override
+  String get orderTermsUpdateRequired =>
+      'Осы шарттарды растау үшін қолданбаны жаңартыңыз.';
+
+  @override
+  String get orderTermsRefreshRequired =>
+      'Шарттар өзгерді. Чатты жаңартып, соңғы ұсынысты тексеріңіз.';
+
+  @override
+  String get loadContentRetryHint =>
+      'Интернет байланысын тексеріп, қайталап көріңіз.';
+
+  @override
+  String get publicOfferSubtitle =>
+      'Қызмет көрсету және тапсырыстарды рәсімдеу шарттары.';
+
+  @override
+  String get listingUnavailableHint =>
+      'Каталогқа оралып, басқа нұсқаны таңдаңыз.';
+
+  @override
+  String get chatPhoto => 'Фотосурет';
+
+  @override
+  String get chatAttachPhoto => 'Фото тіркеу';
+
+  @override
+  String get chatPhotoUnavailable => 'Фото қолжетімсіз';
+
+  @override
+  String get chatPhotoTooLarge =>
+      'Көлемі 10 МБ-тан аспайтын фотосуретті таңдаңыз.';
+
+  @override
+  String get chatPhotoSendFailed =>
+      'Фото жіберілмеді. Байланысты тексеріп, қайталап көріңіз.';
+
+  @override
+  String get chatMessageRead => 'Оқылды';
+
+  @override
+  String get chatMessageSent => 'Жіберілді';
+
+  @override
+  String get chatPhotoPreview => 'Фото';
+
+  @override
+  String get ownerRequestsAll => 'Барлық сұраулар';
+
+  @override
+  String get ownerRequestsMine => 'Менің санаттарым';
+
+  @override
+  String get goToChat => 'Чатқа';
+
+  @override
+  String get historyChatAction => 'Чатқа';
+
+  @override
+  String get listingDescription => 'Сипаттама';
 }

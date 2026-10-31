@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/l10n/app_localizations.dart';
+import 'package:prokat/core/widgets/empty_state_tile.dart';
 import 'package:prokat/features/appstartup/app_mode_storage.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
 import 'package:prokat/features/chat/models/chat_lookup.dart';
@@ -27,6 +29,7 @@ class _ClientSupportChatState extends ConsumerState<ClientSupportChat> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     final authState = ref.watch(authProvider);
     final currentUserId = authState.session?.user?.id ?? "";
     final resolvedChat = ref.watch(chatResolverProvider(_lookup));
@@ -42,11 +45,16 @@ class _ClientSupportChatState extends ConsumerState<ClientSupportChat> {
         body: SafeArea(
           child: resolvedChat.when(
             loading: () => _center(const CircularProgressIndicator.adaptive()),
-            error: (error, _) => _center(Text(error.toString())),
+            error: (_, _) => _center(
+              EmptyStateTile(
+                imageName: 'connection_error.png',
+                title: l10n.couldNotLoadChats,
+                subtitle: l10n.loadContentRetryHint,
+              ),
+            ),
             data: (resolved) {
               return Column(
                 children: [
-                  Text(resolvedChat.valueOrNull?.type.name ?? ""),
                   Expanded(
                     child: ChatMessageList(
                       chatId: resolved.id,

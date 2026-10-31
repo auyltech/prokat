@@ -99,7 +99,10 @@ List<ChatMessageModel> mergeMessages(
     // Preserve the clientTempId if one representation does not contain it.
     final clientTempId = tempIdOf(candidate) ?? tempIdOf(current);
 
-    return preferred.copyWith(clientTempId: clientTempId);
+    return preferred.copyWith(
+      clientTempId: clientTempId,
+      readAt: preferred.readAt ?? current.readAt ?? candidate.readAt,
+    );
   }
 
   final result = <ChatMessageModel>[];

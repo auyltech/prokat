@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:prokat/core/theme/app_dimens.dart';
 import 'package:prokat/core/theme/app_fonts.dart';
 import 'package:prokat/core/theme/extensions/app_theme_getter.dart';
+import 'package:prokat/core/theme/prokat_flow_scope.dart';
 
 enum AppOutlinedButtonStyle { primary, destructive }
 
@@ -38,6 +39,7 @@ class AppOutlinedButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final buttonTheme = context.colors.outlinedButton;
+    final flow = ProkatFlowScope.maybeOf(context);
     final enabled = onTap != null && !isLoading;
     final contentColor = !enabled
         ? buttonTheme.contentDisabled
@@ -52,7 +54,9 @@ class AppOutlinedButton extends StatelessWidget {
             AppOutlinedButtonStyle.primary => buttonTheme.border,
             AppOutlinedButtonStyle.destructive => buttonTheme.borderDestructive,
           };
-    final borderRadius = BorderRadius.circular(AppDimens.r12$lg);
+    final borderRadius = BorderRadius.circular(
+      flow == null ? AppDimens.r12$lg : AppDimens.r16$xl,
+    );
 
     return Opacity(
       opacity: onTap == null ? buttonTheme.disabledOpacity : 1,
@@ -64,8 +68,14 @@ class AppOutlinedButton extends StatelessWidget {
             backgroundColor: buttonTheme.background,
             disabledForegroundColor: contentColor,
             side: BorderSide(color: borderColor),
-            padding: const EdgeInsets.symmetric(horizontal: AppDimens.s16$base),
-            fixedSize: const Size.fromHeight(AppDimens.buttonHeight),
+            padding: EdgeInsets.symmetric(
+              horizontal: AppDimens.s16$base,
+              vertical: flow == null ? 0 : 12,
+            ),
+            fixedSize: flow == null
+                ? const Size.fromHeight(AppDimens.buttonHeight)
+                : null,
+            minimumSize: const Size(0, AppDimens.buttonHeight),
             shape: RoundedRectangleBorder(borderRadius: borderRadius),
             visualDensity: const VisualDensity(
               horizontal: VisualDensity.minimumDensity,
@@ -98,8 +108,10 @@ class AppOutlinedButton extends StatelessWidget {
                             title,
                             style: AppFonts.button(context)
                                 .copyWith(color: contentColor),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
+                            maxLines: flow == null ? 1 : null,
+                            overflow: flow == null
+                                ? TextOverflow.ellipsis
+                                : null,
                             textAlign: TextAlign.center,
                           ),
                         )

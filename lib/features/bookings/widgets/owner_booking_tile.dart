@@ -1,3 +1,6 @@
+import 'package:prokat/features/catalog/catalog_provider.dart';
+import 'package:prokat/features/catalog/tariff_unit_labels.dart';
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -5,6 +8,8 @@ import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/core/router/app_routes.dart';
+import 'package:prokat/core/theme/prokat_flow_scope.dart';
+import 'package:prokat/core/widgets/ui_kit/flow/prokat_flow_actions.dart';
 import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/core/widgets/info_tile.dart';
 import 'package:prokat/features/appstartup/app_mode_storage.dart';
@@ -12,6 +17,7 @@ import 'package:prokat/features/bookings/models/booking_model.dart';
 import 'package:prokat/features/bookings/models/booking_status.dart';
 import 'package:prokat/features/bookings/providers/booking_mutation_provider.dart';
 import 'package:prokat/features/bookings/widgets/booking_status_badge.dart';
+import 'package:prokat/features/bookings/widgets/booking_flow_card.dart';
 import 'package:prokat/features/bookings/widgets/cancel_booking_sheet.dart';
 import 'package:prokat/features/bookings/widgets/show_location_sheet.dart';
 import 'package:prokat/features/equipment/widgets/equipment_info_tile.dart';
@@ -141,6 +147,85 @@ class OwnerBookingTile extends ConsumerWidget {
         .watch(bookingMutationProvider)
         .isActionActive("booking:update:${booking.id}");
 
+    if (ProkatFlowScope.maybeOf(context) != null) {
+      return BookingFlowCard(
+        onChat: booking.chatId?.isNotEmpty == true
+            ? () => unawaited(
+                context.push(
+                  '${AppRoutes.ownerChatList}/direct/${booking.chatId}',
+                ),
+              )
+            : null,
+        tariffUnitLabel: tariffUnitLabelForUi(
+          code: booking.priceRate.value,
+          languageCode: Localizations.localeOf(context).languageCode,
+          catalog: ref.watch(catalogProvider).valueOrNull,
+          l10n: l10n,
+        ),
+        booking: booking,
+        counterpart: UserInfoTile(user: booking.client),
+        priceLabel: l10n.price,
+        actions: [
+          if (booking.status == BookingStatus.created ||
+              booking.status == BookingStatus.confirmed) ...[
+            AppIconButton(
+              icon: LucideIcons.x,
+              tooltip: booking.status == BookingStatus.created
+                  ? l10n.rejectOrder
+                  : l10n.cancelBooking,
+              tone: AppIconButtonTone.destructive,
+              variant: AppIconButtonVariant.outlined,
+              shape: AppIconButtonShape.rounded,
+              isLoading: isSubmittingCancel,
+              onTap: () => unawaited(
+                _handleCancel(
+                  context,
+                  ref,
+                  theme,
+                  booking.status == BookingStatus.created,
+                ),
+              ),
+            ),
+            AppIconButton(
+              icon: LucideIcons.messageCircle,
+              tooltip: l10n.chatSection,
+              tone: AppIconButtonTone.primary,
+              variant: AppIconButtonVariant.outlined,
+              shape: AppIconButtonShape.rounded,
+              onTap: () => unawaited(
+                context.push(
+                  '${AppRoutes.ownerChatList}/direct/${booking.chatId}',
+                ),
+              ),
+            ),
+          ],
+          if (booking.status == BookingStatus.created)
+            AppIconButton(
+              icon: LucideIcons.check,
+              tooltip: l10n.acceptOrder,
+              tone: AppIconButtonTone.success,
+              variant: AppIconButtonVariant.outlined,
+              shape: AppIconButtonShape.rounded,
+              onTap: ref.watch(bookingMutationProvider).isSubmitting
+                  ? null
+                  : () => unawaited(handleAccept(context, ref)),
+            )
+          else if (canReview)
+            ProkatFlowPrimaryButton(
+              title: l10n.submitReview,
+              onPressed: () async {
+                await ReviewSheet.show(
+                  context,
+                  bookingId: booking.id,
+                  revieweeId: booking.client?.id ?? '',
+                  mode: AppMode.ownerMode,
+                );
+              },
+            ),
+        ],
+      );
+    }
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       decoration: BoxDecoration(
@@ -165,10 +250,10 @@ class OwnerBookingTile extends ConsumerWidget {
 
           booking.companyId != null
               ? InfoTile(
-                  label: 'Комментарий к заказу',
+                  label: l10n.bookingOrderCommentTitle,
                   value: booking.comment?.isNotEmpty == true
                       ? booking.comment!
-                      : 'Не указан',
+                      : l10n.bookingOrderCommentEmpty,
                   icon: Icons.comment_outlined,
                 )
               : EquipmentInfoTile(equipment: booking.equipment),

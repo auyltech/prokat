@@ -1,6 +1,8 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:prokat/core/theme/prokat_flow_scope.dart';
+import 'package:prokat/l10n/app_localizations.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -26,6 +28,7 @@ class CompanyEntryTile extends ConsumerWidget {
   const CompanyEntryTile({super.key});
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     final data = ref.watch(companyAccessProvider).valueOrNull;
     final invited = (data?['invitations'] as List?)?.isNotEmpty ?? false;
     final membership = activeCompanyMembership(data);
@@ -36,15 +39,13 @@ class CompanyEntryTile extends ConsumerWidget {
       iconBgColor: approved
           ? Colors.white.withValues(alpha: .12)
           : const Color(0xff702d45).withValues(alpha: .15),
-      title: approved
-          ? 'Перейти в профиль компании'
-          : 'Открыть профиль компании',
+      title: approved ? l10n.companyGoToProfile : l10n.companyOpenProfile,
       subtitle: approved
           ? membership['company']['name'] as String
           : invited
-          ? 'Вас приглашают в компанию'
-          : 'Разместите услуги вашей компании здесь',
-      statusLine: invited ? 'Новое приглашение' : null,
+          ? l10n.companyInvited
+          : l10n.companyPlaceServices,
+      statusLine: invited ? l10n.companyNewInvitation : null,
       statusIcon: invited ? LucideIcons.circleAlert : null,
       statusColor: Colors.amber.shade700,
       onTap: () async {
@@ -56,7 +57,7 @@ class CompanyEntryTile extends ConsumerWidget {
       },
     );
     final theme = Theme.of(context);
-    return approved
+    return approved && ProkatFlowScope.maybeOf(context) == null
         ? _CompanyGlow(
             child: Theme(
               data: theme.copyWith(

@@ -72,7 +72,7 @@ class _OwnerBookingHistoryScreenState
                 child: EmptyStateTile(
                   imageName: 'empty_error.png',
                   title: l10n.errorLoadingOrders,
-                  subtitle: error.toString(),
+                  subtitle: l10n.loadContentRetryHint,
                 ),
               ),
             ],

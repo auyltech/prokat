@@ -9,10 +9,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:prokat/core/analytics/analytics_service.dart';
 import 'package:prokat/core/analytics/supply_analytics_rules.dart';
+import 'package:prokat/core/theme/prokat_flow_palette.dart';
+import 'package:prokat/core/theme/prokat_flow_scope.dart';
 import 'package:prokat/core/utils/kz_plate_mask.dart';
 import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
+import 'package:prokat/core/widgets/ui_kit/flow/prokat_flow_actions.dart';
 import 'package:prokat/features/catalog/catalog_provider.dart';
 import 'package:prokat/features/catalog/models/catalog_group.dart';
 import 'package:prokat/features/categories/models/category.dart';
@@ -265,6 +269,8 @@ class _CreateEquipmentScreenState extends ConsumerState<CreateEquipmentScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final palette = ProkatFlowPalette.of(context);
+    final isPrivate = ref.watch(equipmentServiceProvider).companyId == null;
     final l10n = AppLocalizations.of(context)!;
     final locale = l10n.localeName;
 
@@ -296,156 +302,181 @@ class _CreateEquipmentScreenState extends ConsumerState<CreateEquipmentScreen> {
             sanitizeKzPlate(_plateNumber.text).trim().isNotEmpty) &&
         !_loading;
 
-    return Scaffold(
-      backgroundColor: theme.scaffoldBackgroundColor,
-      body: RefreshIndicator(
-        onRefresh: () async {
-          await Future.wait([
-            ref.read(categoriesProvider.notifier).refresh(),
-            if (ref.read(equipmentServiceProvider).companyId == null)
-              ref.read(ownerProfileProvider.notifier).refresh(),
-          ]);
-          if (!mounted) return;
-          if (!_citySeeded) {
-            _seedCityIfNeeded();
-            setState(() {});
-          }
-        },
-        child: ListView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          padding: const EdgeInsets.all(16),
-          children: [
-            Form(
-              key: _formKey,
-              autovalidateMode: _autovalidateMode,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  CatalogGroupTabs(
-                    groups: groupTabs,
-                    selected: mutationGroup,
-                    onChanged: (group) {
-                      ref
-                          .read(mutationCatalogGroupProvider.notifier)
-                          .select(group);
-                      ref
-                          .read(equipmentMutationProvider.notifier)
-                          .clearCategory();
-                    },
-                  ),
-                  if (groupTabs.length > 1)
-                    const SizedBox(height: AppDimens.s12$md),
-                  AppDropdownField<Category>(
-                    title: mutationGroup == CatalogGroup.equipment
-                        ? l10n.equipmentCatalogCategoryLabel
-                        : l10n.equipmentCategoryLabel,
-                    hint: l10n.pleaseSelectCategory,
-                    isRequired: true,
-                    sheetTitle: l10n.selectCategory,
-                    value: category,
-                    selectedLabel: category?.localizedName(locale),
-                    openCustomSheet: _openCategorySheet,
-                    onChanged: (picked) {
-                      ref
-                          .read(equipmentMutationProvider.notifier)
-                          .selectCategory(picked);
-                    },
-                  ),
-                  const SizedBox(height: AppDimens.s16$base),
-                  if (ref.watch(equipmentServiceProvider).companyId == null)
-                    AppDropdownField<String>(
-                      title: l10n.city,
-                      hint: l10n.selectCity,
-                      isRequired: true,
-                      sheetTitle: l10n.selectCity,
-                      value: cityOk ? _city : null,
-                      selectedLabel: cityOk
-                          ? catalogCityLabelOf(ref, context, _city)
-                          : null,
-                      openCustomSheet: _openCitySheet,
-                      onChanged: (picked) {
-                        setState(() {
-                          _city = picked.trim();
-                          _citySeeded = true;
-                        });
-                      },
-                    ),
-                  const SizedBox(height: AppDimens.s16$base),
-                  AppTextField(
-                    title: mutationGroup == CatalogGroup.equipment
-                        ? l10n.equipmentCatalogNameLabel
-                        : l10n.equipmentNameLabel,
-                    isRequired: true,
-                    controller: _name,
-                    hint: mutationGroup == CatalogGroup.equipment
-                        ? l10n.equipmentCatalogNameHint
-                        : l10n.equipmentNameHint,
-                    maxLength: ownerEquipmentTextMaxLength,
-                    inputFormatters: [
-                      LengthLimitingTextInputFormatter(
-                        ownerEquipmentTextMaxLength,
+    return ProkatFlowScope(
+      palette: palette,
+      enabled: isPrivate,
+      child: Theme(
+        data: isPrivate ? palette.themeFor(theme) : theme,
+        child: Scaffold(
+          backgroundColor: isPrivate
+              ? palette.background
+              : theme.scaffoldBackgroundColor,
+          body: RefreshIndicator(
+            onRefresh: () async {
+              await Future.wait([
+                ref.read(categoriesProvider.notifier).refresh(),
+                if (ref.read(equipmentServiceProvider).companyId == null)
+                  ref.read(ownerProfileProvider.notifier).refresh(),
+              ]);
+              if (!mounted) return;
+              if (!_citySeeded) {
+                _seedCityIfNeeded();
+                setState(() {});
+              }
+            },
+            child: ListView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: const EdgeInsets.all(16),
+              children: [
+                Form(
+                  key: _formKey,
+                  autovalidateMode: _autovalidateMode,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      CatalogGroupTabs(
+                        groups: groupTabs,
+                        selected: mutationGroup,
+                        onChanged: (group) {
+                          ref
+                              .read(mutationCatalogGroupProvider.notifier)
+                              .select(group);
+                          ref
+                              .read(equipmentMutationProvider.notifier)
+                              .clearCategory();
+                        },
                       ),
-                    ],
-                    validator: (value) => (value ?? '').trim().isEmpty
-                        ? l10n.fieldRequired
-                        : null,
-                  ),
-                  const SizedBox(height: AppDimens.s16$base),
-                  AppTextField(
-                    title: l10n.modelLabel,
-                    isRequired: true,
-                    controller: _model,
-                    hint: mutationGroup == CatalogGroup.equipment
-                        ? l10n.equipmentCatalogModelHint
-                        : l10n.modelHint,
-                    maxLength: ownerEquipmentTextMaxLength,
-                    inputFormatters: [
-                      LengthLimitingTextInputFormatter(
-                        ownerEquipmentTextMaxLength,
+                      if (groupTabs.length > 1)
+                        const SizedBox(height: AppDimens.s12$md),
+                      AppDropdownField<Category>(
+                        title: mutationGroup == CatalogGroup.equipment
+                            ? l10n.equipmentCatalogCategoryLabel
+                            : l10n.equipmentCategoryLabel,
+                        hint: l10n.pleaseSelectCategory,
+                        isRequired: true,
+                        sheetTitle: l10n.selectCategory,
+                        value: category,
+                        selectedLabel: category?.localizedName(locale),
+                        openCustomSheet: _openCategorySheet,
+                        onChanged: (picked) {
+                          ref
+                              .read(equipmentMutationProvider.notifier)
+                              .selectCategory(picked);
+                        },
                       ),
-                    ],
-                    validator: (value) => (value ?? '').trim().isEmpty
-                        ? l10n.fieldRequired
-                        : null,
-                  ),
-                  AppReveal(
-                    visible: plateRequired,
-                    child: ExcludeFocus(
-                      excluding: !plateRequired,
-                      child: Padding(
-                        padding: const EdgeInsets.only(top: AppDimens.s16$base),
-                        child: AppTextField(
-                          title: l10n.plateNumberLabel,
+                      const SizedBox(height: AppDimens.s16$base),
+                      if (ref.watch(equipmentServiceProvider).companyId == null)
+                        AppDropdownField<String>(
+                          title: l10n.city,
+                          hint: l10n.selectCity,
                           isRequired: true,
-                          controller: _plateNumber,
-                          hint: l10n.plateNumberHint,
-                          textInputAction: TextInputAction.done,
-                          inputFormatters: const [KzPlateInputFormatter()],
-                          validator: (value) =>
-                              plateRequired &&
-                                  sanitizeKzPlate(value ?? '').isEmpty
-                              ? l10n.fieldRequired
+                          sheetTitle: l10n.selectCity,
+                          value: cityOk ? _city : null,
+                          selectedLabel: cityOk
+                              ? catalogCityLabelOf(ref, context, _city)
                               : null,
+                          openCustomSheet: _openCitySheet,
+                          onChanged: (picked) {
+                            setState(() {
+                              _city = picked.trim();
+                              _citySeeded = true;
+                            });
+                          },
+                        ),
+                      const SizedBox(height: AppDimens.s16$base),
+                      AppTextField(
+                        title: mutationGroup == CatalogGroup.equipment
+                            ? l10n.equipmentCatalogNameLabel
+                            : l10n.equipmentNameLabel,
+                        isRequired: true,
+                        controller: _name,
+                        hint: mutationGroup == CatalogGroup.equipment
+                            ? l10n.equipmentCatalogNameHint
+                            : l10n.equipmentNameHint,
+                        maxLength: ownerEquipmentTextMaxLength,
+                        inputFormatters: [
+                          LengthLimitingTextInputFormatter(
+                            ownerEquipmentTextMaxLength,
+                          ),
+                        ],
+                        validator: (value) => (value ?? '').trim().isEmpty
+                            ? l10n.fieldRequired
+                            : null,
+                      ),
+                      const SizedBox(height: AppDimens.s16$base),
+                      AppTextField(
+                        title: l10n.modelLabel,
+                        isRequired: true,
+                        controller: _model,
+                        hint: mutationGroup == CatalogGroup.equipment
+                            ? l10n.equipmentCatalogModelHint
+                            : l10n.modelHint,
+                        maxLength: ownerEquipmentTextMaxLength,
+                        inputFormatters: [
+                          LengthLimitingTextInputFormatter(
+                            ownerEquipmentTextMaxLength,
+                          ),
+                        ],
+                        validator: (value) => (value ?? '').trim().isEmpty
+                            ? l10n.fieldRequired
+                            : null,
+                      ),
+                      AppReveal(
+                        visible: plateRequired,
+                        child: ExcludeFocus(
+                          excluding: !plateRequired,
+                          child: Padding(
+                            padding: const EdgeInsets.only(
+                              top: AppDimens.s16$base,
+                            ),
+                            child: AppTextField(
+                              title: l10n.plateNumberLabel,
+                              isRequired: true,
+                              controller: _plateNumber,
+                              hint: l10n.plateNumberHint,
+                              textInputAction: TextInputAction.done,
+                              textStyle: isPrivate
+                                  ? AppFonts.technical(context).copyWith(
+                                      color: palette.title,
+                                      fontWeight: FontWeight.w700,
+                                      letterSpacing: 1.2,
+                                    )
+                                  : null,
+                              inputFormatters: const [KzPlateInputFormatter()],
+                              validator: (value) =>
+                                  plateRequired &&
+                                      sanitizeKzPlate(value ?? '').isEmpty
+                                  ? l10n.fieldRequired
+                                  : null,
+                            ),
+                          ),
                         ),
                       ),
-                    ),
+                      const SizedBox(height: AppDimens.s24$xl),
+                      if (ref.watch(equipmentServiceProvider).companyId == null)
+                        _DraftCreateInfo(
+                          title: l10n.draftWillBeCreated,
+                          body: l10n.draftNextStepsHint,
+                        ),
+                      const SizedBox(height: AppDimens.s16$base),
+                      if (isPrivate)
+                        ProkatFlowPrimaryButton(
+                          title: l10n.continueAction,
+                          loading: _loading,
+                          onPressed: canContinue ? () => onSubmit(l10n) : null,
+                        )
+                      else
+                        AppElevatedButton(
+                          title: l10n.continueAction,
+                          isLoading: _loading,
+                          onTap: canContinue ? () => onSubmit(l10n) : null,
+                        ),
+                    ],
                   ),
-                  const SizedBox(height: AppDimens.s24$xl),
-                  if (ref.watch(equipmentServiceProvider).companyId == null)
-                    _DraftCreateInfo(
-                      title: l10n.draftWillBeCreated,
-                      body: l10n.draftNextStepsHint,
-                    ),
-                  const SizedBox(height: AppDimens.s16$base),
-                  AppElevatedButton(
-                    title: l10n.continueAction,
-                    isLoading: _loading,
-                    onTap: canContinue ? () => onSubmit(l10n) : null,
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );
@@ -462,30 +493,47 @@ class _DraftCreateInfo extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final palette = ProkatFlowScope.maybeOf(context);
 
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(AppDimens.s16$base),
       decoration: BoxDecoration(
-        color: colorScheme.primary.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(AppDimens.s12$md),
-        border: Border.all(color: colorScheme.primary.withValues(alpha: 0.28)),
+        color:
+            palette?.primarySoft ?? colorScheme.primary.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(
+          palette == null ? AppDimens.r12$lg : AppDimens.r16$xl,
+        ),
+        border: Border.all(
+          color: palette?.border ?? colorScheme.primary.withValues(alpha: 0.28),
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            title,
-            style: theme.textTheme.titleSmall?.copyWith(
-              fontWeight: FontWeight.w700,
-              color: colorScheme.onSurface,
-            ),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (palette != null) ...[
+                Icon(LucideIcons.filePenLine, color: palette.primary, size: 20),
+                const SizedBox(width: AppDimens.s08$sm),
+              ],
+              Expanded(
+                child: Text(
+                  title,
+                  style: AppFonts.body16SemiBold(context)
+                      .copyWith(color: palette?.title ?? colorScheme.onSurface),
+                ),
+              ),
+            ],
           ),
           const SizedBox(height: AppDimens.s08$sm),
           Text(
             body,
-            style: theme.textTheme.bodySmall?.copyWith(
-              color: colorScheme.onSurface.withValues(alpha: 0.75),
+            style: AppFonts.body14(context).copyWith(
+              color:
+                  palette?.secondary ??
+                  colorScheme.onSurface.withValues(alpha: 0.75),
               height: 1.35,
             ),
           ),

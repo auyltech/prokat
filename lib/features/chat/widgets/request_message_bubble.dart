@@ -1,3 +1,5 @@
+import 'package:prokat/core/theme/prokat_flow_scope.dart';
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -40,6 +42,7 @@ class _RequestMessageBubbleState extends ConsumerState<RequestMessageBubble> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final flow = ProkatFlowScope.maybeOf(context);
     final l10n = AppLocalizations.of(context)!;
     final catalog = ref.watch(catalogProvider).valueOrNull;
     final languageCode = Localizations.localeOf(context).languageCode;
@@ -51,10 +54,10 @@ class _RequestMessageBubbleState extends ConsumerState<RequestMessageBubble> {
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: theme.cardColor,
+        color: flow?.surface ?? theme.cardColor,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: theme.dividerColor.withValues(alpha: 0.4),
+          color: (flow?.border ?? theme.dividerColor.withValues(alpha: 0.4)),
           width: 1,
         ),
       ),
@@ -62,14 +65,11 @@ class _RequestMessageBubbleState extends ConsumerState<RequestMessageBubble> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Request Label / Icon / Status
-          Row(
+          Wrap(
+            spacing: 12,
+            runSpacing: 8,
+            crossAxisAlignment: WrapCrossAlignment.center,
             children: [
-              Icon(
-                Icons.request_page_outlined,
-                color: theme.colorScheme.onPrimary,
-                size: 26,
-              ),
-              const SizedBox(width: 8),
               Text(
                 l10n.newRequest,
                 style: theme.textTheme.bodyLarge?.copyWith(
@@ -77,8 +77,6 @@ class _RequestMessageBubbleState extends ConsumerState<RequestMessageBubble> {
                   color: theme.colorScheme.onSurface,
                 ),
               ),
-              const Spacer(),
-
               RequestStatusBadge(status: request.status, mode: widget.mode),
             ],
           ),
@@ -120,7 +118,7 @@ class _RequestMessageBubbleState extends ConsumerState<RequestMessageBubble> {
                         if (hasVisibleRequestCapacity(request.capacity)) ...[
                           Icon(
                             Icons.propane_outlined,
-                            color: theme.colorScheme.onPrimary,
+                            color: flow?.primary ?? theme.colorScheme.onPrimary,
                           ),
                           const SizedBox(width: 4),
                           Text(
@@ -132,18 +130,6 @@ class _RequestMessageBubbleState extends ConsumerState<RequestMessageBubble> {
                           ),
                           const SizedBox(width: 8),
                         ],
-                        Icon(
-                          Icons.cable_outlined,
-                          color: theme.colorScheme.onPrimary,
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          '${10} ${l10n.unitMeters}',
-                          style: theme.textTheme.titleSmall?.copyWith(
-                            fontWeight: FontWeight.w800,
-                            letterSpacing: 0.5,
-                          ),
-                        ),
                       ],
                     ),
                   ],
@@ -184,8 +170,10 @@ class _RequestMessageBubbleState extends ConsumerState<RequestMessageBubble> {
                     if (request.requiredOn == null) return l10n.pending;
 
                     // 1. Format the date part cleanly (e.g., "02 Jun 2026")
-                    final dateStr = DateFormat('dd MMM yyyy')
-                        .format(request.requiredOn!.toLocal());
+                    final dateStr = DateFormat(
+                      'dd MMM yyyy',
+                      l10n.localeName,
+                    ).format(request.requiredOn!.toLocal());
 
                     // 3. Return just the date if no time was specified
                     return dateStr;
@@ -253,7 +241,7 @@ class _RequestMessageBubbleState extends ConsumerState<RequestMessageBubble> {
                             l10n: l10n,
                           ),
                     style: theme.textTheme.titleMedium?.copyWith(
-                      color: theme.colorScheme.onPrimary,
+                      color: flow?.primary ?? theme.colorScheme.onPrimary,
                       fontWeight: FontWeight.w800,
                     ),
                   ),

@@ -1,3 +1,5 @@
+import 'package:lucide_icons_flutter/lucide_icons.dart';
+
 import 'dart:async';
 
 import 'package:dio/dio.dart';
@@ -107,7 +109,7 @@ void main() {
     );
     await tester.pump();
 
-    await tester.tap(find.byIcon(Icons.arrow_back_ios_new_rounded));
+    await tester.tap(find.byIcon(LucideIcons.chevronLeft));
     await tester.pumpAndSettle();
 
     expect(find.text('Guest catalog'), findsOneWidget);

@@ -35,6 +35,9 @@ void main() {
           ),
         ],
         child: const MaterialApp(
+          locale: Locale('ru'),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
           home: MediaQuery(
             data: MediaQueryData(disableAnimations: true),
             child: Scaffold(body: CompanyEntryTile()),

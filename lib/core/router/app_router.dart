@@ -1,9 +1,11 @@
+import 'package:prokat/features/chat/screens/listing_chat_screen.dart';
 import 'package:prokat/features/company_profile/company_catalog_screen.dart';
 import 'package:prokat/features/company_profile/company_workspace.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/features/company_profile/company_access_screen.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/core/router/app_routes.dart';
+import 'package:prokat/core/theme/prokat_flow_scope.dart';
 import 'package:prokat/core/router/post_login_location.dart';
 import 'package:prokat/core/router/refresh_stream.dart';
 import 'package:prokat/features/appstartup/app_startup_provider.dart';
@@ -166,6 +168,12 @@ final routerProvider = Provider<GoRouter>((ref) {
 
     routes: [
       GoRoute(
+        path: '${AppRoutes.clientMain}/listing-chat/:chatId',
+        builder: (_, state) =>
+            ListingChatScreen(chatId: state.pathParameters['chatId']!),
+      ),
+
+      GoRoute(
         path: '/company/:id',
         builder: (_, state) =>
             CompanyWorkspace(companyId: state.pathParameters['id']!),
@@ -178,8 +186,22 @@ final routerProvider = Provider<GoRouter>((ref) {
       /// 🚀 PUBLIC
       /// Routes outside StatefulShellRoute are fully separate navigation trees.
       GoRoute(path: AppRoutes.launch, builder: (_, _) => const LaunchScreen()),
-      GoRoute(path: AppRoutes.error, builder: (_, _) => const ErrorScreen()),
-      GoRoute(path: AppRoutes.login, builder: (_, _) => const LoginScreen()),
+      GoRoute(
+        path: AppRoutes.error,
+        builder: (_, _) => ProkatFlowPage(builder: (_) => const ErrorScreen()),
+      ),
+      GoRoute(
+        path: AppRoutes.login,
+        builder: (_, _) => ProkatFlowPage(builder: (_) => const LoginScreen()),
+      ),
+      // Listing and request form sit above the tab shell, preserving its state.
+      GoRoute(
+        path: AppRoutes.createBooking,
+        builder: (context, state) => CreateBookingScreen(
+          equipmentId: state.pathParameters['id']!,
+          inquiryChatId: state.uri.queryParameters['inquiryChatId'],
+        ),
+      ),
       GoRoute(
         path: AppRoutes.equipmentShare,
         builder: (_, state) =>
@@ -199,8 +221,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: AppRoutes.equipmentDemand,
-        builder: (_, state) => EquipmentDemandScreen(
-          campaignId: state.pathParameters['campaignId']!,
+        builder: (_, state) => ProkatFlowPage(
+          builder: (_) => EquipmentDemandScreen(
+            campaignId: state.pathParameters['campaignId']!,
+          ),
         ),
       ),
 
@@ -277,14 +301,6 @@ final routerProvider = Provider<GoRouter>((ref) {
               GoRoute(
                 path: AppRoutes.searchMap,
                 builder: (_, _) => const MapClientEquipmentScreen(),
-              ),
-              // display equipment details in full screen
-              GoRoute(
-                path: AppRoutes.createBooking,
-                builder: (context, state) {
-                  final id = state.pathParameters['id']!;
-                  return CreateBookingScreen(equipmentId: id);
-                },
               ),
               GoRoute(
                 path: AppRoutes.clientAddresses,

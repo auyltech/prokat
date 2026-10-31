@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:prokat/core/theme/prokat_flow_scope.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
@@ -32,6 +33,35 @@ class EquipmentStatusBadge extends StatelessWidget {
         : status == EquipmentStatus.maintenance
         ? l10n.maintenance
         : '';
+
+    final flow = ProkatFlowScope.maybeOf(context);
+    if (flow != null) {
+      final color = switch (status) {
+        EquipmentStatus.available || EquipmentStatus.accepted => flow.success,
+        EquipmentStatus.created || EquipmentStatus.booked => flow.primary,
+        EquipmentStatus.rejected ||
+        EquipmentStatus.maintenance => Theme.of(context).colorScheme.error,
+        _ => flow.secondary,
+      };
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: .1),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Text(
+          statusString.toUpperCase(),
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontFamily: 'Manrope',
+            fontSize: 11,
+            fontWeight: FontWeight.w700,
+            height: 1.2,
+            color: color,
+          ),
+        ),
+      );
+    }
 
     return ConstrainedBox(
       constraints: const BoxConstraints(maxWidth: 120, minHeight: 24),

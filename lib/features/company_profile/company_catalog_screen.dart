@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/core/theme/prokat_flow_palette.dart';
+import 'package:prokat/core/theme/prokat_flow_scope.dart';
 import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:prokat/core/widgets/optimized_network_image.dart';
 import 'package:prokat/features/auth/models/user_model.dart';
@@ -20,6 +22,29 @@ import 'package:prokat/l10n/app_localizations.dart';
 
 import 'company_profile_api.dart';
 import 'company_information_screen.dart';
+
+/// Presentation only: company requests keep their separate API and navigation.
+class _CompanyCatalogScaffold extends StatelessWidget {
+  const _CompanyCatalogScaffold({required this.appBar, required this.body});
+  final PreferredSizeWidget appBar;
+  final Widget body;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = ProkatFlowPalette.of(context);
+    return ProkatFlowScope(
+      palette: palette,
+      child: Theme(
+        data: palette.themeFor(Theme.of(context)),
+        child: Scaffold(
+          backgroundColor: palette.background,
+          appBar: appBar,
+          body: body,
+        ),
+      ),
+    );
+  }
+}
 
 UserModel companyPublicUser(Map company) => UserModel(
   id: company['id'],
@@ -118,9 +143,9 @@ class _CompanyCatalogScreenState extends ConsumerState<CompanyCatalogScreen> {
   }
 
   @override
-  Widget build(BuildContext context) => Scaffold(
+  Widget build(BuildContext context) => _CompanyCatalogScaffold(
     appBar: ProkatAppBar(
-      title: const Text('Компании'),
+      title: Text(AppLocalizations.of(context)!.companiesTitle),
       onBack: () => Navigator.of(context).pop(),
     ),
     body: RefreshIndicator(
@@ -133,11 +158,13 @@ class _CompanyCatalogScreenState extends ConsumerState<CompanyCatalogScreen> {
             const Center(child: CircularProgressIndicator()),
           if (error != null)
             AppElevatedButton(
-              title: 'Повторить',
+              title: AppLocalizations.of(context)!.retry,
               onTap: () => load(reset: true),
             ),
           if (!loading && error == null && items.isEmpty)
-            const AppCard(child: Text('В этом городе пока нет компаний.')),
+            AppCard(
+              child: Text(AppLocalizations.of(context)!.companiesEmptyCity),
+            ),
           for (final company in items)
             Padding(
               padding: const EdgeInsets.only(bottom: 18),
@@ -147,7 +174,7 @@ class _CompanyCatalogScreenState extends ConsumerState<CompanyCatalogScreen> {
                 onShare: () => shareCompany(context, ref, {
                   'company': {...company, 'isVisible': true},
                 }),
-                onTap: () => Navigator.of(context).push(
+                onTap: () => Navigator.of(context, rootNavigator: true).push(
                   MaterialPageRoute(
                     builder: (_) =>
                         ClientCompanyDetailsScreen(companyId: company['id']),
@@ -157,7 +184,9 @@ class _CompanyCatalogScreenState extends ConsumerState<CompanyCatalogScreen> {
             ),
           if (items.length < count)
             AppElevatedButton(
-              title: loading ? 'Загрузка…' : 'Показать ещё',
+              title: loading
+                  ? AppLocalizations.of(context)!.loading
+                  : AppLocalizations.of(context)!.loadMoreItems,
               onTap: loading ? null : () => load(),
             ),
         ],
@@ -203,16 +232,19 @@ class _ClientCompanyDetailsScreenState
   }
 
   @override
-  Widget build(BuildContext context) => Scaffold(
+  Widget build(BuildContext context) => _CompanyCatalogScaffold(
     appBar: ProkatAppBar(
-      title: const Text('Создать заказ'),
+      title: Text(AppLocalizations.of(context)!.createOrder),
       onBack: () => Navigator.of(context).pop(),
     ),
     body: data == null
         ? Center(
             child: error == null
                 ? const CircularProgressIndicator()
-                : AppElevatedButton(title: 'Повторить', onTap: load),
+                : AppElevatedButton(
+                    title: AppLocalizations.of(context)!.retry,
+                    onTap: load,
+                  ),
           )
         : CreateBookingScreen(
             equipmentId: widget.companyId,
@@ -267,7 +299,12 @@ class _ClientCompanyDetailsScreenState
                                         .textTheme
                                         .titleMedium,
                                   ),
-                                  Text('Всего ${group['total']}'),
+                                  Text(
+                                    AppLocalizations.of(context)!
+                                        .companyUnitCount(
+                                          (group['total'] as num).toInt(),
+                                        ),
+                                  ),
                                 ],
                               ),
                             ),
@@ -310,7 +347,7 @@ class _ClientCompanyCategoryScreenState
   }
 
   @override
-  Widget build(BuildContext context) => Scaffold(
+  Widget build(BuildContext context) => _CompanyCatalogScaffold(
     appBar: ProkatAppBar(
       title: Text(
         ref
@@ -329,7 +366,7 @@ class _ClientCompanyCategoryScreenState
           return Center(
             child: snapshot.hasError
                 ? AppElevatedButton(
-                    title: 'Повторить',
+                    title: AppLocalizations.of(context)!.retry,
                     onTap: () => setState(() {
                       data = ref
                           .read(companyProfileApiProvider)
@@ -390,9 +427,9 @@ class _ClientCompanyUnitScreenState
       .read(companyProfileApiProvider)
       .request('/catalog/${widget.companyId}/equipment/${widget.equipmentId}');
   @override
-  Widget build(BuildContext context) => Scaffold(
+  Widget build(BuildContext context) => _CompanyCatalogScaffold(
     appBar: ProkatAppBar(
-      title: const Text('Детали техники'),
+      title: Text(AppLocalizations.of(context)!.equipmentDetails),
       onBack: () => Navigator.of(context).pop(),
     ),
     body: FutureBuilder(
@@ -402,7 +439,7 @@ class _ClientCompanyUnitScreenState
           return Center(
             child: snapshot.hasError
                 ? AppElevatedButton(
-                    title: 'Повторить',
+                    title: AppLocalizations.of(context)!.retry,
                     onTap: () => setState(() => data = load()),
                   )
                 : const CircularProgressIndicator(),

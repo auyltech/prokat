@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:prokat/core/theme/prokat_flow_scope.dart';
 import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/features/billing/models/time_breakdown.dart';
@@ -13,6 +15,7 @@ class OwnerPaymentTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final flow = ProkatFlowScope.maybeOf(context);
     final l10n = AppLocalizations.of(context)!;
 
     final isTopUp = transaction.type == TransactionType.topup;
@@ -21,10 +24,12 @@ class OwnerPaymentTile extends StatelessWidget {
 
     return Card(
       elevation: 0,
-      color: theme.cardColor,
+      color: flow?.surface ?? theme.cardColor,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
-        side: BorderSide(color: theme.dividerColor.withValues(alpha: 0.2)),
+        side: BorderSide(
+          color: flow?.border ?? theme.dividerColor.withValues(alpha: 0.2),
+        ),
       ),
       child: ListTile(
         leading: Container(
@@ -41,12 +46,12 @@ class OwnerPaymentTile extends StatelessWidget {
           ),
           child: Icon(
             isTopUp
-                ? Icons.account_balance_wallet_outlined
+                ? LucideIcons.wallet
                 : isConsumption
-                ? Icons.receipt_long_outlined
+                ? LucideIcons.receiptText
                 : isGift
-                ? Icons.card_giftcard_outlined
-                : Icons.payment_outlined,
+                ? LucideIcons.gift
+                : LucideIcons.creditCard,
             size: 24,
             color: isTopUp
                 ? Colors.green[800]

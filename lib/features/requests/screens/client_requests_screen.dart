@@ -6,6 +6,8 @@ import 'package:go_router/go_router.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/widgets/empty_state_tile.dart';
 import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
+import 'package:prokat/core/theme/prokat_flow_scope.dart';
+import 'package:prokat/core/widgets/ui_kit/flow/prokat_flow_actions.dart';
 import 'package:prokat/features/offers/models/offer_status.dart';
 import 'package:prokat/features/offers/models/offer_query.dart';
 import 'package:prokat/features/offers/state/offers_provider.dart';
@@ -25,6 +27,30 @@ class ClientRequestsScreen extends ConsumerStatefulWidget {
 
 class _ClientRequestsScreenState extends ConsumerState<ClientRequestsScreen> {
   late final ScrollController _scrollController;
+  bool _loadingAllOffers = false;
+
+  Future<void> _loadAllOffers() async {
+    if (_loadingAllOffers) return;
+    setState(() => _loadingAllOffers = true);
+    final provider = clientOffersProvider(const OfferQuery.active());
+    try {
+      while (mounted) {
+        final before = ref.read(provider).valueOrNull;
+        if (before == null ||
+            !before.hasMore ||
+            before.isLoadingMore ||
+            before.isRefreshing) {
+          break;
+        }
+        await ref.read(provider.notifier).loadMore();
+        if (!mounted) break;
+        final after = ref.read(provider).valueOrNull;
+        if (after == null || after.page <= before.page) break;
+      }
+    } finally {
+      if (mounted) setState(() => _loadingAllOffers = false);
+    }
+  }
 
   @override
   void initState() {
@@ -69,11 +95,13 @@ class _ClientRequestsScreenState extends ConsumerState<ClientRequestsScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
+    final flow = ProkatFlowScope.maybeOf(context);
 
     final requestsAsync = ref.watch(clientActiveRequestsProvider);
     final offersAsync = ref.watch(
       clientOffersProvider(const OfferQuery.active()),
     );
+    final offersState = offersAsync.valueOrNull;
 
     final offers = (offersAsync.valueOrNull?.items ?? const []).where(
       (r) => [OfferStatus.created, OfferStatus.viewed].contains(r.status),
@@ -111,7 +139,7 @@ class _ClientRequestsScreenState extends ConsumerState<ClientRequestsScreen> {
               EmptyStateTile(
                 imageName: 'empty_error.png',
                 title: l10n.errorLoadingRequests,
-                subtitle: error.toString(),
+                subtitle: l10n.loadContentRetryHint,
               ),
             ],
           ),
@@ -122,39 +150,93 @@ class _ClientRequestsScreenState extends ConsumerState<ClientRequestsScreen> {
             return ListView(
               controller: _scrollController,
               physics: const AlwaysScrollableScrollPhysics(),
+              padding: flow == null ? null : const EdgeInsets.all(16),
               children: [
+                if (flow != null &&
+                    (offersAsync.hasError || offersState?.refreshError != null))
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 16),
+                    child: Column(
+                      children: [
+                        Text(
+                          l10n.somethingWentWrong,
+                          style: AppFonts.body14(context)
+                              .copyWith(color: flow.secondary),
+                        ),
+                        TextButton(
+                          onPressed: () => unawaited(
+                            ref
+                                .read(
+                                  clientOffersProvider(
+                                    const OfferQuery.active(),
+                                  ).notifier,
+                                )
+                                .refresh(),
+                          ),
+                          child: Text(l10n.retry),
+                        ),
+                      ],
+                    ),
+                  ),
                 if (requests.isEmpty)
                   Padding(
-                    padding: const EdgeInsets.all(12),
-                    child: EmptyStateTile(
-                      imageName: 'empty_requests.png',
-                      title: l10n.noRequestsAtMoment,
-                      subtitle: l10n.noActiveRequests,
-                      actionButton: AppElevatedButton(
-                        title: l10n.createRequest,
-                        onTap: () =>
-                            context.push(AppRoutes.clientRequestsCreate),
-                      ),
-                    ),
+                    padding: const EdgeInsets.all(16),
+                    child: flow != null
+                        ? _FlowEmptyRequestsTile(
+                            onCreate: () =>
+                                context.push(AppRoutes.clientRequestsCreate),
+                          )
+                        : EmptyStateTile(
+                            imageName: 'empty_requests.png',
+                            title: l10n.noRequestsAtMoment,
+                            subtitle: l10n.noActiveRequests,
+                            actionButton: flow != null
+                                ? ProkatFlowPrimaryButton(
+                                    title: l10n.createRequest,
+                                    onPressed: () => context.push(
+                                      AppRoutes.clientRequestsCreate,
+                                    ),
+                                  )
+                                : AppElevatedButton(
+                                    title: l10n.createRequest,
+                                    onTap: () => context.push(
+                                      AppRoutes.clientRequestsCreate,
+                                    ),
+                                  ),
+                          ),
                   )
                 else
                   ListView.separated(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
                     itemCount: requests.length,
-                    separatorBuilder: (context, index) => Divider(
-                      height: 1,
-                      thickness: 0.5,
-                      indent: 16,
-                      endIndent: 16,
-                      color: theme.dividerColor.withValues(alpha: 0.7),
-                    ),
+                    separatorBuilder: (context, index) => flow != null
+                        ? const SizedBox(height: 24)
+                        : Divider(
+                            height: 1,
+                            thickness: 0.5,
+                            indent: 16,
+                            endIndent: 16,
+                            color: theme.dividerColor.withValues(alpha: 0.7),
+                          ),
                     itemBuilder: (context, index) {
                       final r = requests[index];
                       final requestOffers = offersByRequest[r.id] ?? [];
                       return RequestWithOffers(
+                        key: ValueKey(r.id),
                         request: r,
                         offers: requestOffers,
+                        offersLoaded: offersState != null,
+                        offersComplete:
+                            offersState != null &&
+                            !offersState.hasMore &&
+                            !offersState.isLoadingMore &&
+                            !offersState.isRefreshing &&
+                            offersState.refreshError == null,
+                        offersLoading:
+                            _loadingAllOffers ||
+                            (offersState?.isLoadingMore ?? false),
+                        onLoadAllOffers: () => unawaited(_loadAllOffers()),
                         onCancel: () => ref
                             .read(requestMutationProvider.notifier)
                             .cancelRequest(r.id),
@@ -174,6 +256,25 @@ class _ClientRequestsScreenState extends ConsumerState<ClientRequestsScreen> {
             );
           },
         ),
+      ),
+    );
+  }
+}
+
+class _FlowEmptyRequestsTile extends StatelessWidget {
+  const _FlowEmptyRequestsTile({required this.onCreate});
+  final VoidCallback onCreate;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return EmptyStateTile(
+      imageName: 'empty_requests.png',
+      title: l10n.noRequestsAtMoment,
+      subtitle: l10n.noActiveRequests,
+      actionButton: ProkatFlowPrimaryButton(
+        title: l10n.createRequest,
+        onPressed: onCreate,
       ),
     );
   }

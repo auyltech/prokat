@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:prokat/core/utils/kz_plate_mask.dart';
 import 'package:prokat/features/equipment/utils/equipment_limits.dart';
 import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
+import 'package:prokat/core/theme/prokat_flow_scope.dart';
 import 'package:prokat/features/equipment/models/equipment_model.dart';
 import 'package:prokat/features/catalog/models/catalog_group.dart';
 import 'package:prokat/features/equipment/providers/equipment_mutation_provider.dart';
@@ -14,6 +15,7 @@ import 'package:prokat/features/equipment/providers/owner_equipment_editor_provi
 import 'package:prokat/features/equipment/state/owner_equipment_editor_notifier.dart';
 import 'package:prokat/features/equipment/state/owner_equipment_editor_state.dart';
 import 'package:prokat/features/equipment/widgets/owner/equipment_editor_section.dart';
+import 'package:prokat/features/equipment/widgets/owner/equipment_plate_badge.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
 class RegistrationSection extends ConsumerStatefulWidget {
@@ -246,6 +248,7 @@ class _RegistrationSectionState extends ConsumerState<RegistrationSection> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     _bind();
+    final flow = ProkatFlowScope.maybeOf(context);
 
     final view = ref
         .watch(ownerEquipmentEditorProvider(widget.equipment.id))
@@ -266,6 +269,7 @@ class _RegistrationSectionState extends ConsumerState<RegistrationSection> {
       },
       saveLabel: l10n.save,
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         spacing: AppDimens.s16$base,
         children: [
           AppTextField(
@@ -284,7 +288,22 @@ class _RegistrationSectionState extends ConsumerState<RegistrationSection> {
               LengthLimitingTextInputFormatter(ownerEquipmentTextMaxLength),
             ],
           ),
-          if (!isEquipmentGroup)
+          if (!isEquipmentGroup &&
+              flow != null &&
+              !_canEdit &&
+              _plateController.text.trim().isNotEmpty)
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  l10n.plateNumberLabel,
+                  style: AppFonts.headingS(context).copyWith(color: flow.title),
+                ),
+                const SizedBox(height: AppDimens.s08$sm),
+                EquipmentPlateBadge(plateNumber: _plateController.text),
+              ],
+            )
+          else if (!isEquipmentGroup)
             AppTextField(
               title: l10n.plateNumberLabel,
               isRequired: true,
@@ -296,6 +315,13 @@ class _RegistrationSectionState extends ConsumerState<RegistrationSection> {
               readOnly: !_canEdit,
               errorText: _plateError == null ? null : l10n.cannotBeEmpty,
               inputFormatters: const [KzPlateInputFormatter()],
+              textStyle: flow == null
+                  ? null
+                  : AppFonts.technical(context).copyWith(
+                      color: flow.title,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: .5,
+                    ),
             ),
         ],
       ),

@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:prokat/core/theme/legacy/app_theme.dart';
+import 'package:prokat/core/theme/prokat_flow_scope.dart';
+import 'package:prokat/core/widgets/ui_kit/flow/prokat_flow_actions.dart';
 import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:prokat/features/equipment/state/owner_equipment_editor_state.dart';
 
@@ -40,15 +43,16 @@ class EquipmentEditorSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final flow = ProkatFlowScope.maybeOf(context);
     final headerRadius = expanded ? _headerExpandedRadius : _cardRadius;
 
     return Padding(
       padding: const EdgeInsets.only(bottom: AppDimens.s16$base),
       child: Material(
-        color: colorScheme.surface,
+        color: flow?.surface ?? colorScheme.surface,
         shape: RoundedRectangleBorder(
           borderRadius: _cardRadius,
-          side: BorderSide(color: colorScheme.outlineVariant),
+          side: BorderSide(color: flow?.border ?? colorScheme.outlineVariant),
         ),
         clipBehavior: Clip.antiAlias,
         child: Column(
@@ -71,16 +75,25 @@ class EquipmentEditorSection extends StatelessWidget {
                     Expanded(
                       child: Text(
                         title,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: AppFonts.headingM(context),
+                        maxLines: flow == null ? 1 : null,
+                        overflow: flow == null
+                            ? TextOverflow.ellipsis
+                            : TextOverflow.visible,
+                        style: flow == null
+                            ? AppFonts.headingM(context)
+                            : AppFonts.headingS(context)
+                                  .copyWith(color: flow.title),
                       ),
                     ),
                     Icon(
-                      expanded
+                      flow != null
+                          ? expanded
+                                ? LucideIcons.chevronUp
+                                : LucideIcons.chevronDown
+                          : expanded
                           ? Icons.expand_less_rounded
                           : Icons.expand_more_rounded,
-                      color: colorScheme.onSurfaceVariant,
+                      color: flow?.secondary ?? colorScheme.onSurfaceVariant,
                     ),
                   ],
                 ),
@@ -104,13 +117,22 @@ class EquipmentEditorSection extends StatelessWidget {
                           child,
                           if (showSave) ...[
                             const SizedBox(height: AppDimens.s16$base),
-                            AppElevatedButton(
-                              title: saveLabel,
-                              onTap: saveEnabled && !saveLoading
-                                  ? onSave
-                                  : null,
-                              isLoading: saveLoading,
-                            ),
+                            if (flow != null)
+                              ProkatFlowPrimaryButton(
+                                title: saveLabel,
+                                onPressed: saveEnabled && !saveLoading
+                                    ? onSave
+                                    : null,
+                                loading: saveLoading,
+                              )
+                            else
+                              AppElevatedButton(
+                                title: saveLabel,
+                                onTap: saveEnabled && !saveLoading
+                                    ? onSave
+                                    : null,
+                                isLoading: saveLoading,
+                              ),
                           ],
                         ],
                       ),
@@ -133,6 +155,7 @@ class _IndicatorDot extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.colors;
     final theme = Theme.of(context);
+    final flow = ProkatFlowScope.maybeOf(context);
 
     late final Color fill;
     late final Color border;
@@ -140,16 +163,16 @@ class _IndicatorDot extends StatelessWidget {
 
     switch (indicator) {
       case BlockIndicator.valid:
-        fill = AppTheme.validBlockIndicator(theme.brightness);
+        fill = flow?.success ?? AppTheme.validBlockIndicator(theme.brightness);
         border = fill;
-        icon = Icons.check_rounded;
+        icon = flow == null ? Icons.check_rounded : LucideIcons.check;
       case BlockIndicator.invalid:
         fill = colors.borders.error;
         border = fill;
         icon = Icons.priority_high_rounded;
       case BlockIndicator.empty:
         fill = Colors.transparent;
-        border = colors.text.tertiary;
+        border = flow?.secondary ?? colors.text.tertiary;
     }
 
     return Container(
@@ -161,7 +184,17 @@ class _IndicatorDot extends StatelessWidget {
         border: Border.all(color: border, width: AppDimens.inputBorderWidth),
       ),
       alignment: Alignment.center,
-      child: icon == null
+      child: flow != null && indicator == BlockIndicator.invalid
+          ? const Text(
+              '!',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: AppDimens.s12$md,
+                height: 1,
+                fontWeight: FontWeight.w700,
+              ),
+            )
+          : icon == null
           ? null
           : Icon(icon, size: AppDimens.s12$md, color: colors.text.white),
     );

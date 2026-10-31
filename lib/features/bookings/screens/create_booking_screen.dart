@@ -4,8 +4,12 @@ import 'package:prokat/features/company_profile/company_catalog_screen.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
+import 'package:prokat/core/theme/prokat_flow_palette.dart';
+import 'package:prokat/core/theme/prokat_flow_scope.dart';
+import 'package:prokat/core/widgets/ui_kit/flow/prokat_flow_actions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/widgets/empty_state_tile.dart';
@@ -15,7 +19,9 @@ import 'package:prokat/features/equipment/models/price_entry_model.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
 import 'package:prokat/features/bookings/booking_create_error_message.dart';
 import 'package:prokat/features/bookings/providers/booking_mutation_provider.dart';
-import 'package:prokat/features/bookings/widgets/equipment_image_header.dart';
+import 'package:prokat/features/bookings/widgets/equipment_listing_content.dart';
+import 'package:prokat/features/chat/providers/chat_dependencies.dart';
+import 'package:prokat/features/chat/state/post_mutation_cache_coordinator.dart';
 import 'package:prokat/features/equipment_share/widgets/share_equipment_button.dart';
 import 'package:prokat/features/favorites/state/favorites_provider.dart';
 import 'package:prokat/features/locations/state/location_provider.dart';
@@ -23,7 +29,6 @@ import 'package:prokat/features/locations/models/location_model.dart';
 import 'package:prokat/features/locations/widgets/select_address_sheet.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prokat/features/user/state/client_profile_provider.dart';
-import 'package:prokat/features/user/widgets/user_info_tile.dart';
 import 'package:prokat/features/user_safety/models/report_target.dart';
 import 'package:prokat/features/user_safety/widgets/ugc_more_button.dart';
 import 'package:prokat/l10n/app_localizations.dart';
@@ -31,12 +36,14 @@ import 'package:prokat/l10n/app_localizations.dart';
 class CreateBookingScreen extends ConsumerStatefulWidget {
   final String equipmentId;
   final String? companyId;
+  final String? inquiryChatId;
   final Widget? beforeOrderFields;
 
   const CreateBookingScreen({
     super.key,
     required this.equipmentId,
     this.companyId,
+    this.inquiryChatId,
     this.beforeOrderFields,
   });
 
@@ -48,10 +55,37 @@ class CreateBookingScreen extends ConsumerStatefulWidget {
 class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
   JobScheduleMode _scheduleMode = JobScheduleMode.none;
   final _commentController = TextEditingController();
+  bool _openingInquiry = false;
+  bool _showRequestForm = false;
+
+  Future<void> _openInquiry() async {
+    if (_openingInquiry || widget.companyId != null) return;
+    setState(() => _openingInquiry = true);
+    final result = await ref
+        .read(chatServiceProvider)
+        .startEquipmentInquiry(widget.equipmentId);
+    if (!mounted) return;
+    setState(() => _openingInquiry = false);
+    final chatId = result.data;
+    if (!result.success || chatId == null || chatId.isEmpty) {
+      AppToast.show(
+        message: AppLocalizations.of(context)!.somethingWentWrongTryAgain,
+        type: AppToastType.error,
+      );
+      return;
+    }
+    unawaited(
+      ref
+          .read(postMutationCacheCoordinatorProvider)
+          .refreshAffectedChats(chatId),
+    );
+    await context.push('${AppRoutes.clientMain}/listing-chat/$chatId');
+  }
 
   @override
   void initState() {
     super.initState();
+    _showRequestForm = widget.inquiryChatId != null || widget.companyId != null;
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final address = await ref
@@ -210,11 +244,16 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
 
     final result = await ref
         .read(bookingMutationProvider.notifier)
-        .createBooking(companyId: widget.companyId);
+        .createBooking(
+          companyId: widget.companyId,
+          inquiryChatId: widget.inquiryChatId,
+        );
+
+    if (!mounted) return;
 
     AppToast.show(
       message: result.success
-          ? l10n.orderCreated
+          ? l10n.requestSentSuccess
           : bookingCreateErrorMessage(
               l10n: l10n,
               errorCode: result.errorCode,
@@ -224,13 +263,38 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
     );
 
     if (result.success && mounted) {
-      unawaited(context.push(AppRoutes.clientOrders));
+      final chatId = result.chatId;
+      if (chatId != null && chatId.isNotEmpty) {
+        context.go('${AppRoutes.clientChatList}/direct/$chatId');
+      } else {
+        unawaited(context.push(AppRoutes.clientOrders));
+      }
+    }
+  }
+
+  void _back() {
+    FocusManager.instance.primaryFocus?.unfocus();
+    final inquiryChatId = widget.inquiryChatId;
+    if (inquiryChatId != null) {
+      if (context.canPop()) {
+        context.pop();
+      } else {
+        context.go('${AppRoutes.clientChatList}/direct/$inquiryChatId');
+      }
+      return;
+    }
+    if (_showRequestForm && widget.companyId == null) {
+      setState(() => _showRequestForm = false);
+    } else if (context.canPop()) {
+      context.pop();
+    } else {
+      context.go(AppRoutes.searchList);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final flow = ProkatFlowPalette.of(context);
     final l10n = AppLocalizations.of(context)!;
 
     final authSession = ref.watch(authProvider).session;
@@ -262,16 +326,13 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
         ) ??
         false;
 
-    final ownerComment = equipment?.ownerComment?.trim() ?? '';
-
-    final imageUrls = equipment?.displayImageUrls ?? const <String>[];
-
     final prices = equipment == null
         ? const <PriceEntry>[]
         : bookablePrices(equipment);
-    final selectedPrice = prices
-        .where((entry) => entry.id == bookingState.selectedPriceEntry?.id)
-        .firstOrNull;
+    final selectedPrice =
+        prices.any((entry) => entry.id == bookingState.selectedPriceEntry?.id)
+        ? bookingState.selectedPriceEntry
+        : null;
 
     final hasSchedule = _scheduleMode == JobScheduleMode.asap
         ? true
@@ -281,7 +342,9 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
 
     final canSubmit =
         bookingState.selectedEquipment != null &&
-        (selectedPrice != null || prices.length == 1) &&
+        (selectedPrice?.price ??
+                (prices.length == 1 ? prices.first.price : 0)) >
+            0 &&
         bookingState.selectedLocation != null &&
         hasSchedule;
 
@@ -289,108 +352,161 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
         .watch(bookingMutationProvider)
         .isActionActive("booking:create");
 
-    return Scaffold(
-      backgroundColor: theme.colorScheme.surface,
-      body: ListView(
-        children: [
-          if (equipment == null)
-            EmptyStateTile(
-              imageName: 'empty_equipment.png',
-              title: l10n.notFound,
-              subtitle: l10n.equipmentNotFound,
-            )
-          else
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                /// 1. ASSET HEADER CARD
-                EquipmentImageHeader(imageUrls: imageUrls),
-
-                Padding(
-                  padding: const EdgeInsets.all(AppDimens.s16$base),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  equipment.name,
-                                  style: AppFonts.headingM(context),
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                                Text(
-                                  equipment.model,
-                                  style: AppFonts.caption(context),
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ],
-                            ),
+    return ProkatFlowScope(
+      palette: flow,
+      child: AnnotatedRegion<SystemUiOverlayStyle>(
+        value: _showRequestForm
+            ? SystemUiOverlayStyle.dark
+            : SystemUiOverlayStyle.light,
+        child: PopScope(
+          canPop:
+              widget.inquiryChatId != null ||
+              !_showRequestForm ||
+              widget.companyId != null,
+          onPopInvokedWithResult: (didPop, result) {
+            if (!didPop) _back();
+          },
+          child: Scaffold(
+            backgroundColor: flow.surface,
+            appBar: _showRequestForm && widget.companyId == null
+                ? AppBar(
+                    backgroundColor: flow.surface,
+                    foregroundColor: flow.title,
+                    elevation: 0,
+                    surfaceTintColor: Colors.transparent,
+                    leading: IconButton(
+                      icon: const Icon(LucideIcons.chevronLeft),
+                      onPressed: _back,
+                      tooltip: l10n.back,
+                    ),
+                    title: Text(
+                      widget.inquiryChatId == null
+                          ? l10n.requestOwnerTitle
+                          : l10n.agreedTermsTitle,
+                      style: AppFonts.headingM(context)
+                          .copyWith(color: flow.title),
+                    ),
+                  )
+                : null,
+            body: equipment == null
+                ? EmptyStateTile(
+                    imageName: 'empty_equipment.png',
+                    title: l10n.equipmentNotFound,
+                    subtitle: l10n.listingUnavailableHint,
+                  )
+                : !_showRequestForm
+                ? EquipmentListingContent(
+                    equipment: equipment,
+                    selectedPrice: selectedPrice,
+                    onPriceChanged: bookingNotifier.selectPriceEntry,
+                    onBack: _back,
+                    additionalDetails: widget.beforeOrderFields,
+                    heroActions: [
+                      if (isClient && widget.companyId == null)
+                        UgcMoreButton(
+                          counterpartUserId: equipment.owner?.id,
+                          counterpartName:
+                              equipment.owner?.displayNameOr('') ?? '',
+                          reportTarget: ReportTarget(
+                            ReportTargetType.equipment,
+                            equipment.id,
                           ),
-                          if (isClient && widget.companyId == null) ...[
-                            const SizedBox(width: AppDimens.s08$sm),
-                            UgcMoreButton(
-                              counterpartUserId: equipment.owner?.id,
-                              counterpartName:
-                                  equipment.owner?.displayNameOr('') ?? '',
-                              reportTarget: ReportTarget(
-                                ReportTargetType.equipment,
-                                equipment.id,
-                              ),
-                              variant: AppIconButtonVariant.plain,
-                              onBlocked: () {
-                                if (context.mounted && context.canPop()) {
-                                  context.pop();
-                                }
-                              },
-                            ),
-                          ],
-                          const SizedBox(width: AppDimens.s08$sm),
-                          if (widget.companyId == null)
-                            ShareEquipmentButton(equipment: equipment)
-                          else
-                            AppIconButton(
-                              icon: LucideIcons.share2,
-                              variant: AppIconButtonVariant.soft,
-                              onTap: () => shareCompany(context, ref, {
-                                'company': companyForShare(equipment),
-                              }),
-                            ),
-                          const SizedBox(width: AppDimens.s08$sm),
+                          variant: AppIconButtonVariant.filled,
+                          tone: AppIconButtonTone.inverse,
+                          onBlocked: _back,
+                        ),
+                      if (widget.companyId == null)
+                        _heroAction(
+                          ShareEquipmentButton(
+                            equipment: equipment,
+                            variant: AppIconButtonVariant.filled,
+                            tone: AppIconButtonTone.inverse,
+                          ),
+                        )
+                      else
+                        _heroAction(
                           AppIconButton(
-                            icon: isFavorite
-                                ? Icons.favorite
-                                : Icons.favorite_border,
-                            tone: AppIconButtonTone.destructive,
-                            onTap: isClient
-                                ? () async {
-                                    await ref
-                                        .read(favoritesProvider.notifier)
-                                        .toggleFavorite(
-                                          equipment.id,
-                                          companyId: widget.companyId,
-                                        );
-                                  }
-                                : null,
+                            icon: LucideIcons.share2,
+                            variant: AppIconButtonVariant.filled,
+                            tone: AppIconButtonTone.inverse,
+                            onTap: () => shareCompany(context, ref, {
+                              'company': companyForShare(equipment),
+                            }),
                           ),
-                        ],
+                        ),
+                      IconButton.filled(
+                        tooltip: l10n.navFavorites,
+                        style: IconButton.styleFrom(
+                          backgroundColor: Colors.white,
+                          foregroundColor: const Color(0xFFE54B56),
+                          fixedSize: const Size(44, 44),
+                        ),
+                        icon: Icon(
+                          isFavorite
+                              ? Icons.favorite_rounded
+                              : LucideIcons.heart,
+                          size: 23,
+                        ),
+                        onPressed: isClient
+                            ? () async {
+                                await ref
+                                    .read(favoritesProvider.notifier)
+                                    .toggleFavorite(
+                                      equipment.id,
+                                      companyId: widget.companyId,
+                                    );
+                              }
+                            : null,
                       ),
-                      const SizedBox(height: AppDimens.s12$md),
-                      UserInfoTile(user: equipment.owner, showPresence: true),
-                      if (ownerComment.isNotEmpty) ...[
-                        const SizedBox(height: AppDimens.s12$md),
-                        Text(ownerComment, style: AppFonts.body14(context)),
-                      ],
-                      const SizedBox(height: AppDimens.s16$base),
+                    ],
+                  )
+                : ListView(
+                    padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: flow.background,
+                          borderRadius: BorderRadius.circular(18),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              equipment.name,
+                              style: AppFonts.body16SemiBold(context)
+                                  .copyWith(color: flow.title),
+                            ),
+                            if (equipment.model.trim().isNotEmpty) ...[
+                              const SizedBox(height: 4),
+                              Text(
+                                equipment.model,
+                                style: AppFonts.body14(context)
+                                    .copyWith(color: flow.secondary),
+                              ),
+                            ],
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 20),
                       if (widget.beforeOrderFields != null)
                         widget.beforeOrderFields!,
+                      if (widget.companyId != null)
+                        Text(
+                          widget.inquiryChatId == null
+                              ? l10n.requestTermsTitle
+                              : l10n.agreedTermsTitle,
+                          style: AppFonts.headingS(context)
+                              .copyWith(color: flow.title),
+                        ),
+                      const SizedBox(height: 4),
+                      Text(
+                        l10n.requestTermsHint,
+                        style: AppFonts.body14(context)
+                            .copyWith(color: flow.secondary),
+                      ),
                       BookingOrderFields(
+                        allowCustomPrice: widget.inquiryChatId != null,
                         isEquipmentGroup: bookingIsEquipmentGroup(equipment),
                         address:
                             selectedAddress ?? bookingState.selectedLocation,
@@ -420,14 +536,66 @@ class _CreateBookingScreenState extends ConsumerState<CreateBookingScreen> {
                         canSubmit: canSubmit,
                         submitting: isSubmitting,
                         onSubmit: () => unawaited(onSubmit()),
+                        showSubmitButton: false,
                       ),
                     ],
                   ),
-                ),
-              ],
-            ),
-        ],
+            bottomNavigationBar: equipment == null
+                ? null
+                : SafeArea(
+                    top: false,
+                    child: Container(
+                      padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+                      decoration: BoxDecoration(
+                        color: flow.surface,
+                        border: Border(top: BorderSide(color: flow.border)),
+                      ),
+                      child: Row(
+                        children: [
+                          if (!_showRequestForm &&
+                              widget.companyId == null) ...[
+                            ProkatFlowIconButton(
+                              icon: LucideIcons.messageCircle,
+                              label: l10n.discussEquipmentTooltip,
+                              loading: _openingInquiry,
+                              onPressed: isSubmitting ? null : _openInquiry,
+                            ),
+                            const SizedBox(width: 12),
+                          ],
+                          Expanded(
+                            child: ProkatFlowPrimaryButton(
+                              title: widget.inquiryChatId == null
+                                  ? l10n.sendBookingRequest
+                                  : l10n.sendAgreedTerms,
+                              onPressed: isSubmitting || _openingInquiry
+                                  ? null
+                                  : !_showRequestForm
+                                  ? () =>
+                                        setState(() => _showRequestForm = true)
+                                  : canSubmit
+                                  ? () => unawaited(onSubmit())
+                                  : null,
+                              loading: isSubmitting,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+          ),
+        ),
       ),
     );
   }
+
+  Widget _heroAction(Widget child) => Container(
+    width: 44,
+    height: 44,
+    alignment: Alignment.center,
+    decoration: const BoxDecoration(
+      color: Colors.white,
+      shape: BoxShape.circle,
+    ),
+    child: child,
+  );
 }

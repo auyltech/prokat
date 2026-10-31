@@ -3,6 +3,7 @@
 - Guest catalog is a demo of at most 10 items. `loadMore` is a no-op; `count` is the page length so `hasMore` is false.
 - Client search is `clientEquipmentProvider(CatalogGroup)`, one list per group, paginated with `page` + `itemsPerPage`. Prefer backend `count` for `hasMore`. Category and query changes reload only that group. A catalog tab switch does not call `search` or `GET /favorites`.
 - Search order comes from the API: owner `ONLINE` first, then listing recency. Do not re-sort locally. Card corner badge is the **owner account** online/offline status, not equipment `AVAILABLE`.
+- Enabled `ProkatFlowScope` gives ClientEquipmentTile the refreshed catalog card. Its `Подробнее` action and body open the same listing/company callback; do not create a booking from that label. Share/favorite/companyId and UGC callbacks remain separate. Display the real tariff's starting-from flag, real rating or no-reviews label, and at most3 visible showInCard specs ordered by sortIndex; full specs remain in details. Unknown spec icons are omitted in this view, rather than replaced by rating stars. Legacy cards remain outside scope.
 - Empty `query` / `city` / `categoryId` (`""` or whitespace) is unset. Search/map init must not refetch when filters already match; map uses `refreshIfStale`. Do not `loadMore` while `isRefreshing`.
 - First catalog page uses `locationProvider.city`. Do not load every city when the header already has one (cold start and guest→auth).
 - Search screen favorites sit in `FavoritesOverlay` above the nav, not in the catalog list.

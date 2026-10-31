@@ -125,7 +125,10 @@ class MainNavigationBar extends ConsumerWidget {
     }
 
     final currentIndex = navigationItems.indexWhere(
-      (item) => routerState.uri.path.startsWith(item.basePath),
+      (item) =>
+          routerState.uri.path.startsWith(item.basePath) ||
+          (routerState.uri.path == AppRoutes.favorites &&
+              item.path == AppRoutes.searchList),
     );
     final l10n = AppLocalizations.of(context)!;
     final counts = ref.watch(navigationCountsProvider).valueOrNull;

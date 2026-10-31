@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -225,14 +226,16 @@ class BalanceSummaryCard extends StatelessWidget {
               const Spacer(),
               if (_showHistoryButton && onHistory != null) ...[
                 _ActionButton(
-                  icon: Icons.history_rounded,
+                  icon: LucideIcons.history,
+                  tooltip: l10n.operationHistory,
                   filled: false,
                   onTap: onHistory!,
                 ),
                 const SizedBox(width: 8),
               ],
               _ActionButton(
-                icon: Icons.add_rounded,
+                icon: LucideIcons.plus,
+                tooltip: l10n.topUpBalance,
                 filled: true,
                 onTap: onTopUp,
               ),
@@ -306,11 +309,13 @@ class BalanceSummaryCard extends StatelessWidget {
 
 class _ActionButton extends StatelessWidget {
   final IconData icon;
+  final String tooltip;
   final bool filled;
   final VoidCallback onTap;
 
   const _ActionButton({
     required this.icon,
+    required this.tooltip,
     required this.filled,
     required this.onTap,
   });
@@ -319,6 +324,7 @@ class _ActionButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return AppIconButton(
       icon: icon,
+      tooltip: tooltip,
       onTap: onTap,
       variant: filled
           ? AppIconButtonVariant.filled

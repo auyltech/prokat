@@ -4,6 +4,15 @@ import 'package:prokat/features/auth/models/user_model.dart';
 import 'package:prokat/features/owner/models/owner_status.dart';
 
 void main() {
+  test('owner public label never exposes family name', () {
+    final owner = UserModel.fromJson({
+      'firstName': 'Test',
+      'lastName': 'Private',
+      'role': 'OWNER',
+    });
+    expect(owner.displayName, 'Test');
+  });
+
   test('AuthSession round-trip preserves user rating from persisted json', () {
     const session = AuthSession(
       sessionToken: 'session-token',

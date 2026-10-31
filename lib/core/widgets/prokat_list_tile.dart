@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:prokat/core/theme/prokat_flow_scope.dart';
 
 class ProkatListTile extends StatelessWidget {
   final IconData icon;
@@ -57,8 +58,9 @@ class ProkatListTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final flow = ProkatFlowScope.maybeOf(context);
     final statusText = statusLine?.trim();
-    return InkWell(
+    final tile = InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(16),
       child: Row(
@@ -67,10 +69,10 @@ class ProkatListTile extends StatelessWidget {
             width: 50,
             height: 50,
             decoration: BoxDecoration(
-              color: iconBgColor,
+              color: flow?.primarySoft ?? iconBgColor,
               borderRadius: BorderRadius.circular(10),
             ),
-            child: Icon(icon, color: iconColor, size: 25),
+            child: Icon(icon, color: flow?.primary ?? iconColor, size: 23),
           ),
 
           const SizedBox(width: 12),
@@ -83,11 +85,14 @@ class ProkatListTile extends StatelessWidget {
                   title,
                   style: variant == "secondary"
                       ? theme.textTheme.labelSmall?.copyWith(
-                          color: theme.colorScheme.onSurface.withValues(
-                            alpha: 0.45,
-                          ),
+                          color:
+                              flow?.secondary ??
+                              theme.colorScheme.onSurface.withValues(
+                                alpha: 0.45,
+                              ),
                         )
                       : theme.textTheme.bodyMedium?.copyWith(
+                          color: flow?.title,
                           fontWeight: FontWeight.w500,
                         ),
                 ),
@@ -96,12 +101,15 @@ class ProkatListTile extends StatelessWidget {
                   subtitle,
                   style: variant == "secondary"
                       ? theme.textTheme.bodyMedium?.copyWith(
+                          color: flow?.title,
                           fontWeight: FontWeight.w500,
                         )
                       : theme.textTheme.labelSmall?.copyWith(
-                          color: theme.colorScheme.onSurface.withValues(
-                            alpha: 0.45,
-                          ),
+                          color:
+                              flow?.secondary ??
+                              theme.colorScheme.onSurface.withValues(
+                                alpha: 0.45,
+                              ),
                         ),
                 ),
                 if (statusText != null && statusText.isNotEmpty) ...[
@@ -134,11 +142,21 @@ class ProkatListTile extends StatelessWidget {
           ),
           Icon(
             LucideIcons.chevronRight,
-            color: theme.colorScheme.onSurfaceVariant,
+            color: flow?.secondary ?? theme.colorScheme.onSurfaceVariant,
             size: 22,
           ),
         ],
       ),
+    );
+    if (flow == null) return tile;
+    return Material(
+      color: flow.surface,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(color: flow.border),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Padding(padding: const EdgeInsets.all(14), child: tile),
     );
   }
 }

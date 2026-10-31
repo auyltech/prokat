@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/api/api_client.dart';
+import 'package:prokat/core/config/env.dart';
 import 'package:prokat/core/constants/price_rate_options.dart';
 import 'package:prokat/features/bookings/providers/booking_mutation_provider.dart';
 import 'package:prokat/features/bookings/state/booking_service.dart';
@@ -113,6 +114,38 @@ void main() {
         .withEquipmentId('equipment-1'),
     via: ShareOpenVia.appLink,
     firstShareBootstrapRun: false,
+  );
+
+  test(
+    'discussion booking preserves its chat and respects share isolation',
+    () async {
+      final storage = _ShareStorage((
+        open: accepted,
+        receivedAt: DateTime.now().toUtc(),
+      ));
+      final requests = <Object?>[];
+      final container = _container(
+        storage: storage,
+        response: {
+          'success': true,
+          'data': {'bookingId': 'booking-1', 'chatId': 'inquiry-1'},
+        },
+        requestBodies: requests,
+      );
+      addTearDown(container.dispose);
+      _selectRequired(container);
+
+      final result = await container
+          .read(bookingMutationProvider.notifier)
+          .createBooking(inquiryChatId: 'inquiry-1');
+
+      expect(result.success, isTrue);
+      expect(result.chatId, 'inquiry-1');
+      final body = requests.single as Map;
+      expect(body['inquiryChatId'], 'inquiry-1');
+      expect(body.containsKey('shareId'), Env.shareAnalyticsEnabled);
+      if (Env.shareAnalyticsEnabled) expect(body['shareId'], shareId);
+    },
   );
 
   test(

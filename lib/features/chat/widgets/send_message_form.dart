@@ -1,8 +1,11 @@
 import 'dart:async';
 
+import 'package:image_picker/image_picker.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
+import 'package:prokat/core/theme/prokat_flow_scope.dart';
 import 'package:prokat/features/appstartup/app_mode_storage.dart';
 import 'package:prokat/features/chat/widgets/booking_actions/chat_action_bar.dart';
 import 'package:prokat/features/chat/providers/chat_providers.dart';
@@ -46,6 +49,104 @@ class _SendMessageFormState extends ConsumerState<SendMessageForm> {
   bool _goingOnline = false;
 
   bool _unblocking = false;
+  bool _uploadingPhoto = false;
+
+  Future<void> _pickPhoto() async {
+    if (_uploadingPhoto) return;
+    _dismissKeyboard();
+    final l10n = AppLocalizations.of(context)!;
+    final source = await AppBottomSheet.show<ImageSource>(
+      context,
+      title: l10n.chatPhoto,
+      contentBuilder: (sheetContext) => Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ListTile(
+            leading: const Icon(LucideIcons.images),
+            title: Text(l10n.photoGallery),
+            onTap: () => Navigator.of(sheetContext).pop(ImageSource.gallery),
+          ),
+          ListTile(
+            leading: const Icon(LucideIcons.camera),
+            title: Text(l10n.camera),
+            onTap: () => Navigator.of(sheetContext).pop(ImageSource.camera),
+          ),
+        ],
+      ),
+    );
+    if (source == null || !mounted) return;
+    setState(() => _uploadingPhoto = true);
+    try {
+      final selected = await ImagePicker().pickImage(
+        source: source,
+        maxWidth: 1600,
+        maxHeight: 1600,
+        imageQuality: 82,
+        requestFullMetadata: false,
+      );
+      if (selected == null || !mounted) return;
+      if (await selected.length() > 10 * 1024 * 1024) {
+        AppToast.show(
+          message: l10n.chatPhotoTooLarge,
+          type: AppToastType.error,
+        );
+        return;
+      }
+      final bytes = await selected.readAsBytes();
+      if (!mounted) return;
+      final caption = _controller.text.trim();
+      final confirmed = await AppBottomSheet.show<bool>(
+        context,
+        title: l10n.chatPhoto,
+        contentBuilder: (sheetContext) => Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(16),
+              child: Image.memory(bytes, height: 260, fit: BoxFit.contain),
+            ),
+            if (caption.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                child: Text(
+                  caption,
+                  maxLines: 5,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            const SizedBox(height: 16),
+            AppElevatedButton(
+              title: l10n.send,
+              onTap: () => Navigator.of(sheetContext).pop(true),
+            ),
+          ],
+        ),
+      );
+      if (confirmed != true || !mounted) return;
+      final sent = await ref
+          .read(chatMessagesProvider(widget.chatId).notifier)
+          .sendPhoto(bytes, caption: caption);
+      if (!mounted) return;
+      if (sent) {
+        _controller.clear();
+      } else {
+        AppToast.show(
+          message: l10n.chatPhotoSendFailed,
+          type: AppToastType.error,
+        );
+      }
+    } catch (_) {
+      if (mounted) {
+        AppToast.show(
+          message: l10n.chatPhotoSendFailed,
+          type: AppToastType.error,
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _uploadingPhoto = false);
+    }
+  }
 
   bool _isLockedFor(SendMessageForm target) {
     return isChatInputLocked(
@@ -104,6 +205,7 @@ class _SendMessageFormState extends ConsumerState<SendMessageForm> {
   }
 
   void _sendMessage() {
+    if (_uploadingPhoto) return;
     final text = _controller.text.trim();
     if (text.isEmpty) {
       return;
@@ -220,26 +322,29 @@ class _SendMessageFormState extends ConsumerState<SendMessageForm> {
 
   Widget _roundedPanel({required Widget child}) {
     final theme = Theme.of(context);
+    final flow = ProkatFlowScope.maybeOf(context);
     return Container(
       decoration: BoxDecoration(
-        color: theme.cardColor.withValues(alpha: 0.80),
+        color: flow?.surface ?? theme.cardColor.withValues(alpha: 0.80),
         borderRadius: const BorderRadius.only(
           topLeft: Radius.circular(24),
           topRight: Radius.circular(24),
         ),
         border: Border(
           top: BorderSide(
-            color: theme.dividerColor.withValues(alpha: 0.4),
+            color: flow?.border ?? theme.dividerColor.withValues(alpha: 0.4),
             width: 1,
           ),
         ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.06),
-            blurRadius: 20,
-            offset: const Offset(0, -4),
-          ),
-        ],
+        boxShadow: flow != null
+            ? const []
+            : [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.06),
+                  blurRadius: 20,
+                  offset: const Offset(0, -4),
+                ),
+              ],
       ),
       child: SafeArea(
         top: false,
@@ -292,6 +397,7 @@ class _SendMessageFormState extends ConsumerState<SendMessageForm> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
+    final flow = ProkatFlowScope.maybeOf(context);
 
     if (widget.mode == AppMode.ownerMode) {
       ref.watch(
@@ -335,7 +441,10 @@ class _SendMessageFormState extends ConsumerState<SendMessageForm> {
               const SizedBox(width: 8),
               Flexible(
                 child: Text(
-                  l10n.chatLocked,
+                  widget.currentChat?.inquiryEquipmentId != null &&
+                          widget.currentChat?.bookingId == null
+                      ? l10n.inquiryReadOnlyHint
+                      : l10n.chatLocked,
                   textAlign: TextAlign.center,
                   style: theme.textTheme.labelMedium?.copyWith(
                     color: theme.colorScheme.onSurfaceVariant,
@@ -410,6 +519,33 @@ class _SendMessageFormState extends ConsumerState<SendMessageForm> {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
+                IconButton.filled(
+                  style: IconButton.styleFrom(
+                    backgroundColor:
+                        flow?.background ??
+                        theme.colorScheme.surfaceContainerHighest,
+                    disabledBackgroundColor:
+                        flow?.background ??
+                        theme.colorScheme.surfaceContainerHighest,
+                    fixedSize: const Size(48, 48),
+                    shape: const CircleBorder(),
+                  ),
+                  tooltip: l10n.chatAttachPhoto,
+                  onPressed: _uploadingPhoto ? null : _pickPhoto,
+                  icon: _uploadingPhoto
+                      ? const SizedBox.square(
+                          dimension: 20,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : Icon(
+                          LucideIcons.paperclip,
+                          size: 23,
+                          color:
+                              flow?.secondary ??
+                              theme.colorScheme.onSurfaceVariant,
+                        ),
+                ),
+                const SizedBox(width: 8),
                 Expanded(
                   child: TextField(
                     controller: _controller,
@@ -418,20 +554,22 @@ class _SendMessageFormState extends ConsumerState<SendMessageForm> {
                     maxLines: 5,
                     textCapitalization: TextCapitalization.sentences,
                     style: TextStyle(
-                      color: theme.colorScheme.onPrimary,
+                      color: flow?.title ?? theme.colorScheme.onPrimary,
                       fontSize: 16,
                       fontWeight: FontWeight.w500,
                     ),
                     decoration: InputDecoration(
                       hintText: l10n.typeMessageHint,
-                      hintStyle: const TextStyle(
-                        color: Color.fromARGB(255, 126, 126, 126),
+                      hintStyle: TextStyle(
+                        color:
+                            flow?.secondary ??
+                            const Color.fromARGB(255, 126, 126, 126),
                         fontWeight: FontWeight.w400,
                       ),
                       filled: true,
-                      fillColor: theme.scaffoldBackgroundColor.withValues(
-                        alpha: 0.85,
-                      ),
+                      fillColor:
+                          flow?.background ??
+                          theme.scaffoldBackgroundColor.withValues(alpha: 0.85),
                       contentPadding: const EdgeInsets.symmetric(
                         horizontal: 20,
                         vertical: 12,
@@ -439,21 +577,25 @@ class _SendMessageFormState extends ConsumerState<SendMessageForm> {
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(24),
                         borderSide: BorderSide(
-                          color: theme.dividerColor.withValues(alpha: 0.4),
+                          color:
+                              flow?.border ??
+                              theme.dividerColor.withValues(alpha: 0.4),
                         ),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(24),
                         borderSide: BorderSide(
-                          color: theme.dividerColor.withValues(alpha: 0.4),
+                          color:
+                              flow?.border ??
+                              theme.dividerColor.withValues(alpha: 0.4),
                         ),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(24),
                         borderSide: BorderSide(
-                          color: theme.colorScheme.primary.withValues(
-                            alpha: 0.4,
-                          ),
+                          color:
+                              flow?.primary ??
+                              theme.colorScheme.primary.withValues(alpha: 0.4),
                           width: 1.5,
                         ),
                       ),
@@ -464,12 +606,32 @@ class _SendMessageFormState extends ConsumerState<SendMessageForm> {
                 Stack(
                   clipBehavior: Clip.none,
                   children: [
-                    AppIconButton(
-                      icon: Icons.send_rounded,
-                      onTap: _sendMessage,
-                      variant: AppIconButtonVariant.floating,
-                      tone: AppIconButtonTone.primary,
-                    ),
+                    if (flow == null)
+                      AppIconButton(
+                        icon: Icons.send_rounded,
+                        onTap: _sendMessage,
+                        variant: AppIconButtonVariant.floating,
+                        tone: AppIconButtonTone.primary,
+                      )
+                    else
+                      ValueListenableBuilder<TextEditingValue>(
+                        valueListenable: _controller,
+                        builder: (context, value, _) => IconButton.filled(
+                          tooltip: l10n.send,
+                          style: IconButton.styleFrom(
+                            backgroundColor: flow.filledPrimary,
+                            foregroundColor: Colors.white,
+                            disabledBackgroundColor: flow.primarySoft,
+                            disabledForegroundColor: flow.secondary,
+                            fixedSize: const Size(48, 48),
+                          ),
+                          onPressed:
+                              value.text.trim().isEmpty || _uploadingPhoto
+                              ? null
+                              : _sendMessage,
+                          icon: const Icon(LucideIcons.send, size: 23),
+                        ),
+                      ),
                     if (isSendingAny)
                       const Positioned(
                         right: -2,

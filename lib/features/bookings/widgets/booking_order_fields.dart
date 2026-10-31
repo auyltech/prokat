@@ -1,7 +1,10 @@
+import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
+import 'package:prokat/core/theme/prokat_flow_icons.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/widgets/job_schedule_section.dart';
 import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
+import 'package:prokat/core/theme/prokat_flow_scope.dart';
 import 'package:prokat/features/catalog/catalog_provider.dart';
 import 'package:prokat/features/catalog/models/catalog_bundle.dart';
 import 'package:prokat/features/catalog/models/catalog_group.dart';
@@ -28,13 +31,30 @@ String bookingTariffLabel(
   CatalogBundle? catalog,
   String languageCode = 'ru',
 }) {
-  final priceText = formatEquipmentPriceLine(
-    price: entry.price,
-    code: entry.priceRate.value,
-    languageCode: languageCode,
+  final priceText = bookingTariffPriceLabel(
+    entry,
+    l10n,
     catalog: catalog,
-    l10n: l10n,
+    languageCode: languageCode,
   );
+  return priceText + _bookingTariffDescription(entry, l10n);
+}
+
+String bookingTariffPriceLabel(
+  PriceEntry entry,
+  AppLocalizations l10n, {
+  CatalogBundle? catalog,
+  String languageCode = 'ru',
+}) => formatEquipmentPriceLine(
+  price: entry.price,
+  code: entry.priceRate.value,
+  languageCode: languageCode,
+  catalog: catalog,
+  l10n: l10n,
+);
+
+String _bookingTariffDescription(PriceEntry entry, AppLocalizations l10n) {
+  const priceText = '';
   final serviceName = savedTariffTitle(entry, l10n);
   if (serviceName == null) return priceText;
   return '$priceText — $serviceName';
@@ -62,9 +82,12 @@ class BookingOrderFields extends ConsumerWidget {
   final bool canSubmit;
   final bool submitting;
   final VoidCallback onSubmit;
+  final bool showSubmitButton;
+  final bool allowCustomPrice;
 
   const BookingOrderFields({
     super.key,
+    this.allowCustomPrice = false,
     required this.isEquipmentGroup,
     required this.address,
     required this.openAddressSheet,
@@ -85,15 +108,20 @@ class BookingOrderFields extends ConsumerWidget {
     required this.canSubmit,
     required this.submitting,
     required this.onSubmit,
+    this.showSubmitButton = true,
   });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context)!;
+    final flow = ProkatFlowScope.maybeOf(context);
     final catalog = ref.watch(catalogProvider).valueOrNull;
     final languageCode = Localizations.localeOf(context).languageCode;
     final singleTariff = prices.length == 1;
-    final tariffValue = singleTariff ? prices.first : selectedPrice;
+    final tariffValue = selectedPrice ?? (singleTariff ? prices.first : null);
+    final tariffDescription = tariffValue == null
+        ? null
+        : savedTariffTitle(tariffValue, l10n);
     final addressLabel = address == null
         ? null
         : formatLocationModel(ref, context, address!);
@@ -109,14 +137,19 @@ class BookingOrderFields extends ConsumerWidget {
       children: [
         const SizedBox(height: AppDimens.s12$md),
         AppDropdownField<LocationModel>(
-          title: l10n.bookingDestinationTitle,
-          hint: isEquipmentGroup
+          title: flow == null ? l10n.bookingDestinationTitle : l10n.address,
+          hint: flow != null
+              ? l10n.selectAddress
+              : isEquipmentGroup
               ? l10n.bookingDestinationEquipmentHint
               : l10n.bookingDestinationMachineryHint,
           isRequired: true,
           sheetTitle: l10n.selectAddress,
           value: address,
           selectedLabel: addressLabel,
+          prefix: flow == null
+              ? null
+              : Icon(ProkatFlowIcons.address, color: flow.primary, size: 20),
           openCustomSheet: openAddressSheet,
           onChanged: onAddressChanged,
         ),
@@ -130,13 +163,57 @@ class BookingOrderFields extends ConsumerWidget {
           enabled: !singleTariff,
           sheetTitle: l10n.bookingTariffSelectTitle,
           value: tariffValue,
-          selectedLabel: tariffValue == null ? null : labelFor(tariffValue),
+          prefix: flow == null
+              ? null
+              : Icon(ProkatFlowIcons.price, color: flow.primary, size: 20),
+          selectedLabel: tariffValue == null
+              ? null
+              : flow == null
+              ? labelFor(tariffValue)
+              : bookingTariffPriceLabel(
+                  tariffValue,
+                  l10n,
+                  catalog: catalog,
+                  languageCode: languageCode,
+                ),
           options: [
             for (final entry in prices)
               DropdownOption(value: entry, label: labelFor(entry)),
           ],
           onChanged: onPriceChanged,
         ),
+        if (allowCustomPrice && tariffValue != null) ...[
+          const SizedBox(height: 12),
+          TextFormField(
+            key: ValueKey('inquiry-custom-price-${tariffValue.id}'),
+            initialValue: tariffValue.price.toString(),
+            keyboardType: TextInputType.number,
+            inputFormatters: [
+              FilteringTextInputFormatter.digitsOnly,
+              LengthLimitingTextInputFormatter(7),
+            ],
+            decoration: InputDecoration(
+              labelText: l10n.offeredRate,
+              prefixText: '₸ ',
+              suffixText: tariffUnitLabelForUi(
+                code: tariffValue.priceRate.value,
+                languageCode: languageCode,
+                catalog: catalog,
+                l10n: l10n,
+              ),
+            ),
+            onChanged: (value) => onPriceChanged(
+              tariffValue.copyWith(price: int.tryParse(value) ?? 0),
+            ),
+          ),
+        ],
+        if (flow != null && tariffDescription != null) ...[
+          const SizedBox(height: AppDimens.s08$sm),
+          Text(
+            tariffDescription,
+            style: AppFonts.body14(context).copyWith(color: flow.secondary),
+          ),
+        ],
         const SizedBox(height: AppDimens.s20$lg),
         JobScheduleSection(
           mode: scheduleMode,
@@ -158,12 +235,14 @@ class BookingOrderFields extends ConsumerWidget {
           maxLines: 4,
           onChanged: onCommentChanged,
         ),
-        const SizedBox(height: AppDimens.s32$xxl),
-        AppElevatedButton(
-          title: l10n.createOrder,
-          onTap: (!canSubmit || submitting) ? null : onSubmit,
-          isLoading: submitting,
-        ),
+        if (showSubmitButton) ...[
+          const SizedBox(height: AppDimens.s32$xxl),
+          AppElevatedButton(
+            title: l10n.sendBookingRequest,
+            onTap: (!canSubmit || submitting) ? null : onSubmit,
+            isLoading: submitting,
+          ),
+        ],
       ],
     );
   }

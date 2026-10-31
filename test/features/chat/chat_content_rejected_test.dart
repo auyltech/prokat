@@ -100,6 +100,10 @@ class _RejectingChatSocketService implements ChatSocketService {
   final List<String> sent = [];
 
   @override
+  void Function() onReadReceipt(void Function(Map<String, dynamic>) handler) =>
+      () {};
+
+  @override
   Future<void> joinChat(String chatId) async {}
 
   @override

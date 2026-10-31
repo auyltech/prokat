@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:prokat/core/theme/prokat_flow_palette.dart';
 import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/features/catalog/catalog_provider.dart';
 import 'package:prokat/features/catalog/tariff_unit_labels.dart';
@@ -9,18 +10,23 @@ import 'package:prokat/features/chat/models/chat_message_model.dart';
 import 'package:prokat/features/price_negotiations/models/price_negotiation_model.dart';
 import 'package:prokat/features/price_negotiations/models/price_negotiation_status.dart';
 import 'package:prokat/features/price_negotiations/models/price_negotiation_query.dart';
+import 'package:prokat/features/price_negotiations/models/price_negotiation_page.dart';
 import 'package:prokat/features/price_negotiations/state/price_negotiation_provider.dart';
 import 'package:prokat/features/price_negotiations/widgets/price_negotiation_status_badge.dart';
+import 'package:prokat/features/price_negotiations/widgets/booking_terms_proposal_card.dart';
 import 'package:prokat/l10n/app_localizations.dart';
+import 'package:prokat/features/appstartup/app_mode_storage.dart';
 
 class NegotiationMessageBubble extends ConsumerStatefulWidget {
   final ChatMessageModel message;
   final bool isMe;
+  final AppMode mode;
 
   const NegotiationMessageBubble({
     super.key,
     required this.message,
     required this.isMe,
+    this.mode = AppMode.clientMode,
   });
 
   @override
@@ -49,21 +55,86 @@ class _NegotiationMessageBubbleState
       return Text(l10n.failedToLoadNegotiation);
     }
 
-    final query = priceNegotiationQueryFor(
+    // A decision event records the outcome. Keep the full comparison on the
+    // original proposal message, whose actions follow the canonical row.
+    if (parsed.requiresTermsAcknowledgement &&
+        const {
+          PriceNegotiationStatus.accepted,
+          PriceNegotiationStatus.rejected,
+          PriceNegotiationStatus.cancelled,
+          PriceNegotiationStatus.closed,
+          PriceNegotiationStatus.expired,
+        }.contains(parsed.status)) {
+      final palette = ProkatFlowPalette.of(context);
+      final accepted = parsed.status == PriceNegotiationStatus.accepted;
+      return Align(
+        alignment: Alignment.center,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 480),
+          child: Container(
+            key: const ValueKey('terms-decision-event'),
+            padding: const EdgeInsets.all(12),
+            margin: const EdgeInsets.symmetric(vertical: 6),
+            decoration: BoxDecoration(
+              color: accepted
+                  ? palette.success.withValues(alpha: .08)
+                  : palette.surface,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: palette.border),
+            ),
+            child: Wrap(
+              alignment: WrapAlignment.center,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              spacing: 8,
+              runSpacing: 6,
+              children: [
+                Icon(
+                  accepted ? LucideIcons.check : LucideIcons.undo2,
+                  size: 18,
+                  color: accepted ? palette.success : palette.secondary,
+                ),
+                Text(
+                  l10n.orderTermsProposalTitle,
+                  style: AppFonts.captionMedium(context)
+                      .copyWith(color: palette.secondary),
+                ),
+                PriceNegotiationStatusBadge(status: parsed.status),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
+    final subject = priceNegotiationQueryFor(
       bookingId: parsed.bookingId,
       offerId: parsed.offerId,
     );
+    final query = subject == null
+        ? null
+        : PriceNegotiationQuery(
+            bookingId: subject.bookingId,
+            offerId: subject.offerId,
+          );
     final priceNegotiationState = query == null
         ? const <PriceNegotiation>[]
         : ref.watch(priceNegotiationsProvider(query)).valueOrNull?.items ??
               const <PriceNegotiation>[];
     final mutationState = ref.watch(priceNegotiationMutationProvider);
 
-    final priceNegotiation =
-        priceNegotiationState
-            .where((item) => item.id == parsed.id)
-            .firstOrNull ??
-        parsed;
+    final priceNegotiation = resolveMessageNegotiation(
+      widget.message.meta!,
+      priceNegotiationState,
+    );
+
+    if (priceNegotiation.requiresTermsAcknowledgement) {
+      return BookingTermsProposalCard(
+        proposal: priceNegotiation,
+        isMe: widget.isMe,
+        chatId: widget.message.chatId,
+        mode: widget.mode,
+      );
+    }
 
     return Align(
       alignment: widget.isMe ? Alignment.centerRight : Alignment.centerLeft,
@@ -91,7 +162,7 @@ class _NegotiationMessageBubbleState
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Icon(
-                    LucideIcons.coins,
+                    LucideIcons.filePenLine,
                     color: theme.colorScheme.onSurface,
                     size: 26,
                   ),

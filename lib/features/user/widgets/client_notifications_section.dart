@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:prokat/core/config/env.dart';
 import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:prokat/core/widgets/settings_switch_tile.dart';
@@ -200,8 +201,8 @@ class _ClientNotificationsSectionState extends State<ClientNotificationsSection>
 
         SettingsSwitchTile(
           onTap: _loadingPermission ? null : _manageNotificationPermission,
-          icon: Icons.notifications_outlined,
-          title: l10n.notifications,
+          icon: LucideIcons.bell,
+          title: l10n.pushNotifications,
           subtitle: _permissionTitle(l10n),
           value: _pushEnabled,
           onChanged: (_) {
@@ -213,7 +214,7 @@ class _ClientNotificationsSectionState extends State<ClientNotificationsSection>
         if (showDetailedNotificationPreferences) ...[
           const SizedBox(height: 16),
           SettingsSwitchTile(
-            icon: Icons.notifications_outlined,
+            icon: LucideIcons.bell,
             title: l10n.notifRentalRequestsAndOffers,
             subtitle: l10n.notifRentalRequestsAndOffersSubtitle,
             value: _preferences.requestsAndOffers,
@@ -226,7 +227,7 @@ class _ClientNotificationsSectionState extends State<ClientNotificationsSection>
 
           const SizedBox(height: 16),
           SettingsSwitchTile(
-            icon: Icons.notifications_outlined,
+            icon: LucideIcons.bell,
             title: l10n.notifOrderUpdates,
             subtitle: l10n.notifOrderUpdatesSubtitle,
             value: _preferences.orderUpdates,
@@ -240,7 +241,7 @@ class _ClientNotificationsSectionState extends State<ClientNotificationsSection>
           const SizedBox(height: 16),
 
           SettingsSwitchTile(
-            icon: Icons.notifications_outlined,
+            icon: LucideIcons.bell,
             title: l10n.notifWorkProgress,
             subtitle: l10n.notifWorkProgressSubtitle,
             value: _preferences.workProgress,
@@ -253,7 +254,7 @@ class _ClientNotificationsSectionState extends State<ClientNotificationsSection>
 
           const SizedBox(height: 16),
           SettingsSwitchTile(
-            icon: Icons.notifications_outlined,
+            icon: LucideIcons.bell,
             title: l10n.messages,
             subtitle: l10n.notifMessagesSubtitle,
             value: _preferences.messages,
@@ -267,7 +268,7 @@ class _ClientNotificationsSectionState extends State<ClientNotificationsSection>
           const SizedBox(height: 16),
 
           SettingsSwitchTile(
-            icon: Icons.notifications_outlined,
+            icon: LucideIcons.bell,
             title: l10n.notifRemindersAndReviews,
             subtitle: l10n.notifRemindersAndReviewsSubtitle,
             value: _preferences.remindersAndReviews,

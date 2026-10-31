@@ -1,4 +1,7 @@
 import 'package:dio/dio.dart';
+
+import 'dart:typed_data';
+
 import 'package:prokat/core/api/api_client.dart';
 import 'package:prokat/core/api/api_helper.dart';
 import 'package:prokat/core/api/api_response.dart';
@@ -16,6 +19,71 @@ class ChatService {
   String get prefix => companyId == null ? '' : '/company-profile/$companyId';
 
   Dio get _dio => apiClient.dio;
+
+  Future<ChatMessageModel> sendPhoto({
+    required String chatId,
+    required Uint8List bytes,
+    required String clientTempId,
+    String caption = '',
+  }) async {
+    final response = await _dio.post(
+      '/chats/id/$chatId/photos',
+      data: FormData.fromMap({
+        'photo': MultipartFile.fromBytes(bytes, filename: 'photo.jpg'),
+        'clientTempId': clientTempId,
+        'caption': caption,
+      }),
+      options: Options(
+        sendTimeout: const Duration(seconds: 60),
+        receiveTimeout: const Duration(seconds: 60),
+      ),
+    );
+    return ChatMessageModel.fromJson(
+      Map<String, dynamic>.from(response.data['data'] as Map),
+    );
+  }
+
+  Future<ApiResponse<bool>> closeEquipmentInquiry(String chatId) async {
+    try {
+      final response = await _dio.post('/chats/id/$chatId/inquiry/close');
+      return handleApiResponse<bool>(response: response, parser: (_) => true);
+    } on DioException catch (error) {
+      final exception = ApiException.fromDio(error);
+      return ApiResponse.failure(
+        message: exception.message,
+        error: (exception.data ?? error).toString(),
+        statusCode: exception.statusCode,
+      );
+    } catch (error) {
+      return ApiResponse.failure(message: 'Unexpected error', error: '$error');
+    }
+  }
+
+  Future<ApiResponse<String>> startEquipmentInquiry(String equipmentId) async {
+    try {
+      final response = await _dio.post(
+        '/chats/inquiries/equipment',
+        data: {'equipmentId': equipmentId},
+      );
+      return handleApiResponse<String>(
+        response: response,
+        parser: (body) {
+          final chatId = body['data']?['chatId']?.toString() ?? '';
+          if (chatId.isEmpty) throw const FormatException('Missing chatId');
+          return chatId;
+        },
+      );
+    } on DioException catch (error) {
+      final exception = ApiException.fromDio(error);
+      return ApiResponse.failure(
+        message: exception.message,
+        error: (exception.data ?? error).toString(),
+        statusCode: exception.statusCode,
+      );
+    } catch (error) {
+      return ApiResponse.failure(message: 'Unexpected error', error: '$error');
+    }
+  }
 
   // Get Chats
   // Fetch list of chat threads for owner/user
@@ -309,7 +377,7 @@ class ChatService {
     try {
       final response = await _dio.post(
         '$prefix/chats/id/$chatId/read',
-        data: {'upToMessageId': messageId},
+        data: {'messageId': messageId},
       );
 
       return handleEmptyApiResponse(

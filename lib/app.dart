@@ -11,6 +11,8 @@ import 'package:prokat/l10n/app_localizations.dart';
 import 'package:prokat/core/providers/locale_provider.dart';
 import 'package:prokat/core/router/app_router.dart';
 import 'package:prokat/features/appstartup/app_startup_provider.dart';
+import 'package:prokat/features/appstartup/widgets/startup_presentation.dart';
+import 'package:prokat/features/appstatic/screens/launch_screen.dart';
 import 'package:prokat/core/theme/legacy/app_theme.dart';
 import 'package:prokat/core/theme/theme_provider.dart';
 import 'package:prokat/features/chat/providers/chat_sidebar_bootstrap_provider.dart';
@@ -85,7 +87,11 @@ class _MyAppState extends ConsumerState<MyApp> {
             forcedVersions: emergencyConfig.forcedVersions,
             locale: locale,
             enabled: updatePromptEnabled,
-            child: child ?? const SizedBox.shrink(),
+            child: StartupPresentation(
+              loading: startup == AppStartupRouteState.loading,
+              splash: const LaunchScreen(),
+              child: child ?? const SizedBox.shrink(),
+            ),
           ),
         ),
       ),

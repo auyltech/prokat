@@ -98,7 +98,7 @@ class OfferModel {
 
         /// SAFE INT PARSING
         price: parseNullableInt(json['price']) ?? 0,
-        priceRate: parseRateOption(json['priceRate']),
+        priceRate: parseKnownRateOption(json['priceRate']),
 
         createdAt: json['createdAt'] != null
             ? DateTime.parse(json['createdAt'])

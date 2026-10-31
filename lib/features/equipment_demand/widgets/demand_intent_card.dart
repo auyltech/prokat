@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:prokat/core/theme/prokat_flow_scope.dart';
+import 'package:prokat/core/theme/prokat_flow_icons.dart';
 import 'package:prokat/core/widgets/optimized_network_image.dart';
 import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:prokat/features/equipment_demand/equipment_demand_models.dart';
@@ -19,15 +21,16 @@ class DemandIntentCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
+    final flow = ProkatFlowScope.maybeOf(context);
     final l10n = AppLocalizations.of(context)!;
 
     return Material(
-      color: colors.background.elevated,
+      color: flow?.surface ?? colors.background.elevated,
       borderRadius: BorderRadius.circular(AppDimens.r16$xl),
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(AppDimens.r16$xl),
-          border: Border.all(color: colors.borders.main),
+          border: Border.all(color: flow?.border ?? colors.borders.main),
         ),
         padding: const EdgeInsets.fromLTRB(
           AppDimens.s20$lg,
@@ -49,7 +52,7 @@ class DemandIntentCard extends StatelessWidget {
                       fit: BoxFit.contain,
                     )
                   : Icon(
-                      Icons.agriculture_outlined,
+                      ProkatFlowIcons.machinery,
                       size: 100,
                       color: colors.text.secondary,
                     ),

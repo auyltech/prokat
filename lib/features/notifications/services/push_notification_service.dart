@@ -29,6 +29,7 @@ class PushNotificationService {
   final bool Function(String id)? shouldSuppressDisplay;
   final String Function()? currentLocale;
   final bool Function(AppNotification)? accepts;
+  final bool Function(AppNotification)? presentForeground;
 
   StreamSubscription<RemoteMessage>? _onMessageSub;
   StreamSubscription<RemoteMessage>? _onMessageOpenedSub;
@@ -63,6 +64,7 @@ class PushNotificationService {
     this.shouldSuppressDisplay,
     this.currentLocale,
     this.accepts,
+    this.presentForeground,
   });
 
   Future<void> initialize({required AuthSession session}) async {
@@ -312,7 +314,9 @@ class PushNotificationService {
     try {
       final data = Map<String, dynamic>.from(message.data);
 
-      final id = (data['id'] ?? message.messageId ?? '').toString();
+      final id =
+          (data['id'] ?? data['notificationId'] ?? message.messageId ?? '')
+              .toString();
       if (id.trim().isEmpty) return null;
 
       final title =
@@ -342,8 +346,7 @@ class PushNotificationService {
     }
   }
 
-  /// Heads-up banner while the app is open. FCM does not draw a system tray
-  /// notification in the foreground, so socket events must use the same path.
+  /// Publish a received foreground FCM event to the operating system tray.
   Future<void> presentIncoming(AppNotification notification) async {
     if (!(accepts?.call(notification) ?? true)) return;
     if (kIsWeb) return;
@@ -397,6 +400,8 @@ class PushNotificationService {
         'Notifications',
         description: 'Prokat notifications',
         importance: Importance.max,
+        playSound: true,
+        enableVibration: true,
       );
 
       final androidPlugin = localNotifications

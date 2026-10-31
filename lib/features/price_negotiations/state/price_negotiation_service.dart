@@ -5,6 +5,7 @@ import 'package:prokat/core/api/api_response.dart';
 import 'package:prokat/core/errors/api_exception.dart';
 import 'package:prokat/features/price_negotiations/models/price_negotiation_model.dart';
 import 'package:prokat/features/price_negotiations/models/price_negotiation_query.dart';
+import 'package:prokat/features/price_negotiations/models/price_negotiation_page.dart';
 import 'package:prokat/features/bookings/models/query_result.dart';
 
 class PriceNegotiationService {
@@ -38,33 +39,8 @@ class PriceNegotiationService {
 
       return handleApiResponse<QueryResult<PriceNegotiation>>(
         response: response,
-        parser: (data) {
-          final payload = data is Map<String, dynamic> && data['data'] is Map
-              ? Map<String, dynamic>.from(data['data'] as Map)
-              : Map<String, dynamic>.from(data as Map);
-          final itemsJson = payload['items'] ?? payload['data'];
-
-          if (itemsJson is! List) {
-            throw const FormatException("Expected price negotiation list");
-          }
-
-          final items = itemsJson.map((item) {
-            if (item is! Map<String, dynamic>) {
-              throw const FormatException("Invalid price negotiation item");
-            }
-
-            return PriceNegotiation.fromJson(item);
-          }).toList();
-
-          return QueryResult(
-            items: items,
-            page: (payload['page'] as num?)?.toInt() ?? page,
-            itemsPerPage:
-                (payload['itemsPerPage'] as num?)?.toInt() ??
-                query.itemsPerPage,
-            count: (payload['count'] as num?)?.toInt() ?? items.length,
-          );
-        },
+        parser: (data) =>
+            parsePriceNegotiationPage(data, query: query, page: page),
         fallbackMessage: "Failed to load price negotiations",
       );
     } on DioException catch (error) {
@@ -91,6 +67,7 @@ class PriceNegotiationService {
     required int price,
     String? priceRate,
     String? comment,
+    Map<String, dynamic>? terms,
     String? type,
   }) async {
     final hasBooking = (bookingId ?? '').trim().isNotEmpty;
@@ -112,6 +89,7 @@ class PriceNegotiationService {
           'price': price,
           'priceRate': priceRate,
           if ((comment ?? '').trim().isNotEmpty) 'comment': comment,
+          'terms': ?terms,
         },
       );
 
@@ -140,6 +118,8 @@ class PriceNegotiationService {
   Future<ApiResponse<void>> respondToPriceNegotiation({
     required String negotiationId,
     required PriceNegotiationResponse decision,
+    int? acceptedTermsVersion,
+    DateTime? expectedNegotiationUpdatedAt,
   }) async {
     try {
       final response = await _dio.post(
@@ -148,6 +128,11 @@ class PriceNegotiationService {
           'action': decision == PriceNegotiationResponse.accept
               ? "ACCEPT"
               : "REJECT",
+          'acceptedTermsVersion': ?acceptedTermsVersion,
+          if (expectedNegotiationUpdatedAt != null)
+            'expectedNegotiationUpdatedAt': expectedNegotiationUpdatedAt
+                .toUtc()
+                .toIso8601String(),
         },
       );
 

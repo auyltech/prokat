@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:prokat/core/theme/prokat_flow_palette.dart';
+import 'package:prokat/core/theme/prokat_flow_scope.dart';
 import 'package:prokat/core/widgets/optimized_network_image.dart';
 import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:prokat/features/catalog/models/catalog_group.dart';
@@ -29,6 +32,7 @@ class CategoryPickerSheet {
     bool includeAllOption = true,
   }) {
     final l10n = AppLocalizations.of(context)!;
+    final flow = ProkatFlowScope.maybeOf(context);
 
     return AppBottomSheet.showScrollable<CategoryPickerResult>(
       context,
@@ -39,13 +43,17 @@ class CategoryPickerSheet {
       headerBuilder: (_) => const SizedBox.shrink(),
       footerBuilder: (_) => const SizedBox.shrink(),
       scrollableListBuilder: (context, scrollController) {
-        return _CategoryPickerList(
+        final list = _CategoryPickerList(
           categories: categories,
           group: group,
           selectedId: selectedId,
           includeAllOption: includeAllOption,
           scrollController: scrollController,
         );
+        // The root navigator's sheet route is outside a screen's flow scope.
+        return flow == null
+            ? list
+            : ProkatFlowScope(palette: flow, child: list);
       },
     );
   }
@@ -77,6 +85,37 @@ class _CategoryPickerList extends StatelessWidget {
         : l10n.allCategoriesMachineryDescription;
     final allImage = group.stdImage;
     final allOffset = includeAllOption ? 1 : 0;
+    final flow = ProkatFlowScope.maybeOf(context);
+
+    if (flow != null) {
+      return ListView.separated(
+        controller: scrollController,
+        padding: EdgeInsets.fromLTRB(
+          16,
+          0,
+          16,
+          16 + MediaQuery.paddingOf(context).bottom,
+        ),
+        itemCount: categories.length + allOffset,
+        separatorBuilder: (_, _) => const SizedBox(height: 8),
+        itemBuilder: (context, index) {
+          final isAll = includeAllOption && index == 0;
+          final category = isAll ? null : categories[index - allOffset];
+          return _FlowCategoryPickerTile(
+            title: category?.localizedName(languageCode) ?? l10n.allCategories,
+            imageUrl: category?.imageUrl,
+            group: group,
+            selected: isAll ? selectedId == null : selectedId == category!.id,
+            palette: flow,
+            onTap: () => Navigator.of(context).pop(
+              isAll
+                  ? const CategoryPickerResult.all()
+                  : CategoryPickerResult.category(category!),
+            ),
+          );
+        },
+      );
+    }
 
     return ListView.builder(
       controller: scrollController,
@@ -124,6 +163,94 @@ class _CategoryPickerList extends StatelessWidget {
       );
     }
     return const Icon(Icons.image_not_supported, size: 32);
+  }
+}
+
+class _FlowCategoryPickerTile extends StatelessWidget {
+  final String title;
+  final String? imageUrl;
+  final CatalogGroup group;
+  final bool selected;
+  final ProkatFlowPalette palette;
+  final VoidCallback onTap;
+
+  const _FlowCategoryPickerTile({
+    required this.title,
+    required this.imageUrl,
+    required this.group,
+    required this.selected,
+    required this.palette,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      button: true,
+      selected: selected,
+      label: title,
+      excludeSemantics: true,
+      onTap: onTap,
+      child: Material(
+        color: selected ? palette.primarySoft : palette.surface,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: BorderSide(color: selected ? palette.primary : palette.border),
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: Row(
+              children: [
+                SizedBox(
+                  width: 72,
+                  child: AspectRatio(
+                    aspectRatio: 4 / 3,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(10),
+                      child: ColoredBox(
+                        color: palette.background,
+                        child: imageUrl != null && imageUrl!.isNotEmpty
+                            ? OptimizedNetworkImage(
+                                imageUrl: imageUrl,
+                                fit: BoxFit.contain,
+                                backgroundColor: palette.background,
+                              )
+                            : group.stdImage(size: 72, fit: BoxFit.contain),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    title,
+                    style: AppFonts.headingS(context).copyWith(
+                      color: palette.title,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                SizedBox.square(
+                  dimension: 20,
+                  child: selected
+                      ? Icon(
+                          LucideIcons.check,
+                          size: 20,
+                          color: palette.primary,
+                        )
+                      : null,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }
 

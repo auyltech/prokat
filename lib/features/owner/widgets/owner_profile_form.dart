@@ -3,6 +3,7 @@ import 'package:prokat/core/widgets/profile_read_only_row.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:prokat/core/theme/prokat_flow_icons.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/utils/format.dart';
@@ -382,11 +383,9 @@ class _OwnerProfileFormState extends ConsumerState<OwnerProfileForm> {
               onTap: _pickCity,
               showError: _showFieldErrors,
               errorText: hasCity ? null : l10n.cannotBeEmpty,
-              prefix: Icon(
-                hasCity ? Icons.location_on : Icons.location_on_outlined,
-              ),
+              prefix: const Icon(ProkatFlowIcons.address),
               suffix: Icon(
-                Icons.expand_more_rounded,
+                ProkatFlowIcons.expand,
                 size: AppDimens.s24$xl,
                 color: context.colors.text.secondary,
               ),

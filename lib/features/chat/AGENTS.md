@@ -1,6 +1,10 @@
 # Chat
 
-Тред сделки, не каталог. Список vs открытый чат: `lib/features/workflow/AGENTS.md`.
+Тред обсуждения объявления или сделки. Список vs открытый чат: `lib/features/workflow/AGENTS.md`.
+
+Прямое обсуждение частного объявления: `inquiryEquipmentId` + безопасный `inquiryEquipment` (тарифы, обложка, публичные поля), `bookingId == null`; parser нормализует пустые bookingId в null. `InquiryContextCard` показывает также Booking.equipment для прямого запроса. Условия открывает только клиент и только ACTIVE без заказа. После отправки условий тот же чат получает Booking CREATED. Иконка завершения вызывает POST /chats/id/:id/inquiry/close после подтверждения: без Booking/request/company, обе стороны, история сохранена, статус CLOSED, текущий ввод и ленты обновляются через existing workflow. OFFLINE/block закрытию не мешают. Автоматический TTL не реализован.
+
+Новый вид opt-in через ProkatFlowScope в ClientChatScreen/OwnerChatScreen: pale background, white/blue bubbles, компактная Booking card и composer; Support вне scope сохраняет старый вид. FilledPrimary общий для белого текста в обеих темах. Header availability — OwnerProfile onlineStatus, не время посещения.
 
 ## Сообщения
 
@@ -11,6 +15,8 @@ HTTP `GET /chats/id/:id/messages` не ждёт handshake сокета. `chat:jo
 Корень: `AppTabs` сразу под аппбаром. Подписи «активные» / «архивные» продолжают заголовок «Чаты». Свайп между лентами остаётся.
 
 Тайл: имя/аватар **клиента** из `UserProfile`, **владельца** из `OwnerProfile` (как карточка техники), иначе простой профиль. Не собирать ФИО на клиенте из двух таблиц.
+
+Название объявления: полное `inquiryEquipment.name`, иначе безопасная строка списка `inquiryEquipmentName`. Не создавать неполный Equipment из list DTO. Частичные sidebar/workflow/detail обновления сохраняют прежнюю строку, если поле пропущено.
 
 ## Статус треда
 
@@ -30,7 +36,7 @@ HTTP `GET /chats/id/:id/messages` не ждёт handshake сокета. `chat:jo
 
 `isChatInputLocked` в `get_chat_status.dart`. Композер скрыт при `Chat.status` closed/archived и для `workcompleted`, `leaveReview`, `bookingcancelled`, `bookingreviewed`, `requestcancelled`, `offernotselected`. На `leaveReview` остаётся панель Review без поля ввода; клавиатура закрывается.
 
-Дополнительно: для прямой заявки `booking.status == created` и владельце оффлайн композер заменяется баннером (`owner_offline_chat_lock.dart`). Owner читает `ownerProfileProvider`; client — только явный `chat.owner.onlineStatus == offline` (`null` не лочит). Live-разлок клиента: `catalog:visibility` патчит `currentChat.owner` только для tracked open chat id (`openChatRegistrationProvider`). Тендерные и confirmed/terminal чаты этим локом не затрагиваются.
+Дополнительно: для прямого обсуждения без заказа и прямой заявки `booking.status == created` у владельца OFFLINE композер заменяется баннером (`owner_offline_chat_lock.dart`). Клиент может написать владельцу OFFLINE; владелец отвечает после перехода ONLINE. Подтверждённые и тендерные чаты этим локом не затрагиваются.
 
 Сервер режет `chat:message:send`, если `Chat.status` не `ACTIVE`. `SUPPORT` не блокируется.
 

@@ -10,17 +10,17 @@ final faqs = [
       FaqTranslation(
         locale: 'en',
         question: 'How do I find the right equipment?',
-        answer: 'Open Equipment, choose a suitable machine, and send a request to the owner. If needed, discuss the details in chat first.',
+        answer: 'Open Catalog, choose a suitable machine, and send a request to the owner. If needed, discuss the details in chat first.',
       ),
       FaqTranslation(
         locale: 'ru',
         question: 'Как найти нужную технику?',
-        answer: 'Откройте раздел «Техника», выберите подходящую машину и отправьте запрос владельцу. При необходимости сначала обсудите детали в чате.',
+        answer: 'Откройте раздел «Каталог», выберите подходящую машину и отправьте запрос владельцу. При необходимости сначала обсудите детали в чате.',
       ),
       FaqTranslation(
         locale: 'kk',
         question: 'Қажетті техниканы қалай табуға болады?',
-        answer: '«Техника» бөлімін ашып, қолайлы машинаны таңдап, иесіне сұраныс жіберіңіз. Қажет болса, алдымен чатта мәліметтерді талқылаңыз.',
+        answer: '«Каталог» бөлімін ашып, қолайлы машинаны таңдап, иесіне сұраныс жіберіңіз. Қажет болса, алдымен чатта мәліметтерді талқылаңыз.',
       ),
     ],
   ),
@@ -38,12 +38,12 @@ final faqs = [
       FaqTranslation(
         locale: 'ru',
         question: 'Что делать, если подходящей техники нет?',
-        answer: 'Создайте заявку в разделе «Заявки». Владельцы увидят её и смогут предложить подходящие варианты.',
+        answer: 'Создайте заявку в разделе «Запросы». Владельцы увидят её и смогут предложить подходящие варианты.',
       ),
       FaqTranslation(
         locale: 'kk',
         question: 'Қажетті техника жоқ болса не істеу керек?',
-        answer: '«Өтінімдер» бөлімінде өтінім жасаңыз. Иелер оны көріп, қолайлы нұсқаларды ұсына алады.',
+        answer: '«Сұраныстар» бөлімінде өтінім жасаңыз. Иелер оны көріп, қолайлы нұсқаларды ұсына алады.',
       ),
     ],
   ),
@@ -56,17 +56,17 @@ final faqs = [
       FaqTranslation(
         locale: 'en',
         question: 'How do I contact the owner?',
-        answer: 'Open chat after sending a request or receiving an offer. There you can discuss price, time, address, and other details.',
+        answer: 'Open a private listing and tap the chat icon to discuss details before booking. Chat alone does not create an order. You can also open chat from an offer or an existing order.',
       ),
       FaqTranslation(
         locale: 'ru',
         question: 'Как связаться с владельцем?',
-        answer: 'Перейдите в чат после отправки запроса или получения предложения. Там можно обсудить цену, время, адрес и другие детали.',
+        answer: 'Откройте частное объявление и нажмите значок чата, чтобы обсудить детали до бронирования. Переписка сама по себе не создаёт заказ. Чат также доступен из предложения или уже созданного заказа.',
       ),
       FaqTranslation(
         locale: 'kk',
         question: 'Иесімен қалай байланысуға болады?',
-        answer: 'Сұраныс жібергеннен немесе ұсыныс алғаннан кейін чатқа өтіңіз. Онда баға, уақыт, мекенжай және басқа мәліметтерді талқылауға болады.',
+        answer: 'Брондауға дейін мәліметтерді талқылау үшін жеке иенің хабарландыруын ашып, чат белгішесін басыңыз. Хат алмасу тапсырысты автоматты түрде жасамайды. Чатты ұсыныстан немесе жасалған тапсырыстан да ашуға болады.',
       ),
     ],
   ),

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:prokat/core/router/app_routes.dart';
+import 'package:prokat/core/theme/prokat_flow_scope.dart';
 import 'package:prokat/core/utils/format.dart';
 import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:prokat/core/widgets/info_tile.dart';
@@ -14,6 +15,7 @@ import 'package:prokat/features/catalog/tariff_unit_labels.dart';
 import 'package:prokat/features/bookings/models/booking_status.dart';
 import 'package:prokat/features/bookings/providers/booking_mutation_provider.dart';
 import 'package:prokat/features/bookings/widgets/booking_status_badge.dart';
+import 'package:prokat/features/bookings/widgets/booking_flow_card.dart';
 import 'package:prokat/features/bookings/widgets/cancel_booking_sheet.dart';
 import 'package:prokat/features/bookings/widgets/show_location_sheet.dart';
 import 'package:prokat/features/equipment/widgets/equipment_info_tile.dart';
@@ -56,6 +58,76 @@ class ClientBookingTile extends ConsumerWidget {
         .watch(bookingMutationProvider)
         .isActionActive(actionId);
 
+    if (ProkatFlowScope.maybeOf(context) != null) {
+      return BookingFlowCard(
+        onChat: booking.chatId?.isNotEmpty == true
+            ? () => unawaited(
+                context.push(
+                  '${AppRoutes.clientChatList}/direct/${booking.chatId}',
+                ),
+              )
+            : null,
+        tariffUnitLabel: tariffUnitLabelForUi(
+          code: booking.priceRate.value,
+          languageCode: Localizations.localeOf(context).languageCode,
+          catalog: ref.watch(catalogProvider).valueOrNull,
+          l10n: l10n,
+        ),
+        booking: booking,
+        counterpart: UserInfoTile(user: booking.owner),
+        priceLabel: l10n.offeredRate.toUpperCase(),
+        actions: [
+          if ([
+            BookingStatus.created,
+            BookingStatus.confirmed,
+          ].contains(booking.status)) ...[
+            AppIconButton(
+              icon: LucideIcons.x,
+              tooltip: l10n.cancelBooking,
+              tone: AppIconButtonTone.destructive,
+              variant: AppIconButtonVariant.outlined,
+              shape: AppIconButtonShape.rounded,
+              isLoading: ref
+                  .watch(bookingMutationProvider)
+                  .isActionActive(
+                    'booking:${booking.id}:update:${BookingStatus.cancelled}',
+                  ),
+              onTap: isSubmittingCancel
+                  ? null
+                  : () => unawaited(_handleCancel(context, ref, booking, l10n)),
+            ),
+            AppIconButton(
+              icon: LucideIcons.messageCircle,
+              tooltip: l10n.chatSection,
+              tone: AppIconButtonTone.primary,
+              variant: AppIconButtonVariant.outlined,
+              shape: AppIconButtonShape.rounded,
+              onTap: () => unawaited(
+                context.push(
+                  '${AppRoutes.clientChatList}/direct/${booking.chatId}',
+                ),
+              ),
+            ),
+          ] else if (canReview)
+            AppIconButton(
+              icon: LucideIcons.star,
+              tooltip: l10n.submitReview,
+              tone: AppIconButtonTone.primary,
+              variant: AppIconButtonVariant.outlined,
+              shape: AppIconButtonShape.rounded,
+              onTap: () async {
+                await ReviewSheet.show(
+                  context,
+                  bookingId: booking.id,
+                  revieweeId: booking.client?.id ?? '',
+                  mode: AppMode.clientMode,
+                );
+              },
+            ),
+        ],
+      );
+    }
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
@@ -77,10 +149,10 @@ class ClientBookingTile extends ConsumerWidget {
 
           booking.companyId != null
               ? InfoTile(
-                  label: 'Комментарий к заказу',
+                  label: l10n.bookingOrderCommentTitle,
                   value: booking.comment?.isNotEmpty == true
                       ? booking.comment!
-                      : 'Не указан',
+                      : l10n.bookingOrderCommentEmpty,
                   icon: Icons.comment_outlined,
                 )
               : EquipmentInfoTile(equipment: booking.equipment),

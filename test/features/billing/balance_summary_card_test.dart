@@ -38,7 +38,7 @@ void main() {
       expect(find.text('Баланс компании'), findsOneWidget);
       expect(find.text('10000'), findsOneWidget);
       expect(tester.takeException(), isNull);
-      await tester.tap(find.byIcon(Icons.add_rounded));
+      await tester.tap(find.byTooltip('Пополнить баланс'));
       expect(topups, 1);
     },
   );

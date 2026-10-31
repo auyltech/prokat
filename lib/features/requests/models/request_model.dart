@@ -89,7 +89,7 @@ class RequestModel {
       comment: json['comment']?.toString() ?? '',
 
       offeredPrice: parseNullableInt(json['offeredPrice']) ?? 0,
-      offeredPriceRate: parseRateOption(json['offeredPriceRate']),
+      offeredPriceRate: parseKnownRateOption(json['offeredPriceRate']),
 
       requiredOn: parseLocalDateTime(json['requiredOn']),
       requiredAt: parseLocalDateTime(json['requiredAt']),

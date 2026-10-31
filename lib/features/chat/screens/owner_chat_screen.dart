@@ -1,9 +1,12 @@
+import 'package:prokat/features/chat/widgets/offer_context_card.dart';
 import 'package:prokat/features/company_profile/company_scope.dart';
 
 import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/core/theme/prokat_flow_palette.dart';
+import 'package:prokat/core/theme/prokat_flow_scope.dart';
 import 'package:prokat/core/utils/logger.dart';
 import 'package:prokat/features/appstartup/app_mode_storage.dart';
 import 'package:prokat/features/auth/providers/auth_provider.dart';
@@ -14,6 +17,7 @@ import 'package:prokat/features/chat/utils/get_chat_status.dart';
 import 'package:prokat/features/chat/widgets/chat_message_list.dart';
 import 'package:prokat/features/chat/widgets/chat_thread_load_error.dart';
 import 'package:prokat/features/chat/widgets/send_message_form.dart';
+import 'package:prokat/features/chat/widgets/inquiry_context_card.dart';
 import 'package:prokat/features/offers/state/offers_provider.dart';
 import 'package:prokat/features/offers/models/offer_query.dart';
 import 'package:prokat/features/price_negotiations/state/price_negotiation_provider.dart';
@@ -63,6 +67,7 @@ class _OwnerChatScreenState extends ConsumerState<OwnerChatScreen> {
   Widget build(BuildContext context) {
     ref.watch(openChatRegistrationProvider(widget.chatId));
     final theme = Theme.of(context);
+    final flow = ProkatFlowPalette.of(context);
     final l10n = AppLocalizations.of(context)!;
 
     final authState = ref.watch(authProvider);
@@ -138,51 +143,77 @@ class _OwnerChatScreenState extends ConsumerState<OwnerChatScreen> {
       mode: AppMode.ownerMode,
     );
 
-    return Theme(
-      data: theme.copyWith(
-        bottomNavigationBarTheme: theme.bottomNavigationBarTheme.copyWith(
-          backgroundColor: theme.colorScheme.surface,
-        ),
-      ),
-      child: Scaffold(
-        backgroundColor: theme.colorScheme.surface,
-        body: Column(
-          children: [
-            if ((chatAsync.hasError || messagesAsync.hasError) &&
-                messages.isEmpty)
-              Expanded(
-                child: ChatThreadLoadError(
-                  error: chatAsync.error ?? messagesAsync.error ?? '',
-                  onRetry: () async {
-                    await ref
-                        .read(currentChatProvider(widget.chatId).notifier)
-                        .refresh();
-                    await ref
-                        .read(chatMessagesProvider(widget.chatId).notifier)
-                        .refresh();
-                  },
-                ),
-              )
-            else
-              Expanded(
-                child: Container(
-                  color: theme.colorScheme.surface,
-                  child: ChatMessageList(
-                    chatId: widget.chatId,
-                    currentUserId: currentUserId,
-                    mode: AppMode.ownerMode,
-                    currentChat: currentChat,
+    return ProkatFlowScope(
+      palette: flow,
+      child: Theme(
+        data: flow
+            .themeFor(theme)
+            .copyWith(
+              bottomNavigationBarTheme: theme.bottomNavigationBarTheme.copyWith(
+                backgroundColor: theme.colorScheme.surface,
+              ),
+            ),
+        child: Scaffold(
+          backgroundColor: flow.background,
+          body: Column(
+            children: [
+              if (currentChat != null &&
+                  currentChat.bookingId == null &&
+                  currentChat.getActiveOffer() != null)
+                OfferContextCard(chat: currentChat, mode: AppMode.ownerMode),
+              if (currentChat != null &&
+                  (currentChat.inquiryEquipment != null ||
+                      currentChat.booking?.equipment != null))
+                InquiryContextCard(
+                  chat: currentChat,
+                  mode: AppMode.ownerMode,
+                  hasSentMessages: messages.any(
+                    (message) =>
+                        !message.isPending &&
+                        !message.isFailed &&
+                        const [
+                          'TEXT',
+                          'IMAGE',
+                          'LOCATION',
+                        ].contains(message.type),
                   ),
                 ),
-              ),
-          ],
-        ),
-        bottomNavigationBar: SendMessageForm(
-          chatId: widget.chatId,
-          chatStatus: chatConfig.status,
-          mode: AppMode.ownerMode,
-          currentChat: currentChat,
-          actionBarTitle: chatConfig.actionBartitle,
+              if ((chatAsync.hasError || messagesAsync.hasError) &&
+                  messages.isEmpty)
+                Expanded(
+                  child: ChatThreadLoadError(
+                    error: chatAsync.error ?? messagesAsync.error ?? '',
+                    onRetry: () async {
+                      await ref
+                          .read(currentChatProvider(widget.chatId).notifier)
+                          .refresh();
+                      await ref
+                          .read(chatMessagesProvider(widget.chatId).notifier)
+                          .refresh();
+                    },
+                  ),
+                )
+              else
+                Expanded(
+                  child: Container(
+                    color: flow.background,
+                    child: ChatMessageList(
+                      chatId: widget.chatId,
+                      currentUserId: currentUserId,
+                      mode: AppMode.ownerMode,
+                      currentChat: currentChat,
+                    ),
+                  ),
+                ),
+            ],
+          ),
+          bottomNavigationBar: SendMessageForm(
+            chatId: widget.chatId,
+            chatStatus: chatConfig.status,
+            mode: AppMode.ownerMode,
+            currentChat: currentChat,
+            actionBarTitle: chatConfig.actionBartitle,
+          ),
         ),
       ),
     );

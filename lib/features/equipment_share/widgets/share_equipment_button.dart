@@ -13,12 +13,14 @@ class ShareEquipmentButton extends ConsumerStatefulWidget {
   final Equipment equipment;
   final bool refreshOwnerDetails;
   final AppIconButtonVariant variant;
+  final AppIconButtonTone tone;
 
   const ShareEquipmentButton({
     super.key,
     required this.equipment,
     this.refreshOwnerDetails = false,
     this.variant = AppIconButtonVariant.soft,
+    this.tone = AppIconButtonTone.neutral,
   });
 
   @override
@@ -54,6 +56,7 @@ class _ShareEquipmentButtonState extends ConsumerState<ShareEquipmentButton> {
       tooltip: l10n.shareEquipment,
       semanticLabel: l10n.shareEquipment,
       variant: widget.variant,
+      tone: widget.tone,
       isLoading: _busy,
       onTap: () => unawaited(_share()),
     );

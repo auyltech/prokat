@@ -31,11 +31,13 @@ void main() {
   });
 
   test('variable-length pickers use scrollable AppBottomSheet', () {
-    const paths = [
-      'lib/features/locations/widgets/select_address_sheet.dart',
-      'lib/features/user/widgets/city_picker_sheet.dart',
-    ];
+    const paths = ['lib/features/user/widgets/city_picker_sheet.dart'];
 
+    final address = File(
+      'lib/features/locations/widgets/select_address_sheet.dart',
+    ).readAsStringSync();
+    expect(address.contains('AppBottomSheet.show<'), isTrue);
+    expect(address.contains('ListView'), isTrue);
     for (final path in paths) {
       final source = File(path).readAsStringSync();
       expect(

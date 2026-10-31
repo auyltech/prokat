@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
+import 'package:prokat/core/theme/prokat_flow_scope.dart';
 
 class RequiredFieldLabel extends StatelessWidget {
   const RequiredFieldLabel({
@@ -21,7 +22,10 @@ class RequiredFieldLabel extends StatelessWidget {
     return Text.rich(
       TextSpan(
         text: title,
-        style: AppFonts.headingS(context),
+        style: AppFonts.headingS(context).copyWith(
+          color: ProkatFlowScope.maybeOf(context)?.title,
+          fontSize: ProkatFlowScope.maybeOf(context) == null ? null : 16,
+        ),
         children: [
           if (showRequired)
             TextSpan(
@@ -57,6 +61,7 @@ class ChoicePair extends StatelessWidget {
   Widget build(BuildContext context) {
     return AppSegmentedButton<int>(
       isExpanded: true,
+      equalWidth: true,
       value: leftSelected
           ? 0
           : rightSelected
@@ -157,7 +162,11 @@ class _OutlinePickerFieldState extends State<OutlinePickerField> {
       selectOnly: true,
       forceFocused: _pickerOpen,
       onTap: _open,
-      prefix: Icon(widget.icon, size: AppDimens.s20$lg, color: field.hint),
+      prefix: Icon(
+        widget.icon,
+        size: AppDimens.s20$lg,
+        color: ProkatFlowScope.maybeOf(context)?.primary ?? field.hint,
+      ),
     );
   }
 }

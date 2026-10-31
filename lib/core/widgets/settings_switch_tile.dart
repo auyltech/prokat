@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:prokat/core/theme/prokat_flow_scope.dart';
 
 class SettingsSwitchTile extends StatelessWidget {
   final IconData icon;
@@ -27,8 +28,9 @@ class SettingsSwitchTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final flow = ProkatFlowScope.maybeOf(context);
 
-    return GestureDetector(
+    final tile = GestureDetector(
       onTap: onTap,
       child: Row(
         children: [
@@ -37,14 +39,15 @@ class SettingsSwitchTile extends StatelessWidget {
             height: 50,
             decoration: BoxDecoration(
               color:
+                  flow?.primarySoft ??
                   iconBgColor ??
                   theme.colorScheme.primaryContainer.withValues(alpha: 0.4),
               borderRadius: BorderRadius.circular(10),
             ),
             child: Icon(
               icon,
-              size: 32,
-              color: iconColor ?? theme.colorScheme.onPrimary,
+              size: flow == null ? 32 : 23,
+              color: flow?.primary ?? iconColor ?? theme.colorScheme.onPrimary,
             ),
           ),
 
@@ -82,10 +85,25 @@ class SettingsSwitchTile extends StatelessWidget {
               : Switch(
                   value: value,
                   onChanged: onChanged,
-                  activeThumbColor: const Color(0xFF4E73DF),
+                  activeThumbColor: flow == null
+                      ? const Color(0xFF4E73DF)
+                      : Colors.white,
+                  activeTrackColor: flow?.primary,
+                  inactiveThumbColor: flow == null ? null : Colors.white,
+                  inactiveTrackColor: flow?.secondary,
                 ),
         ],
       ),
+    );
+    if (flow == null) return tile;
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: flow.surface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: flow.border),
+      ),
+      child: tile,
     );
   }
 }

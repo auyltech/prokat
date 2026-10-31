@@ -10,6 +10,23 @@ class AppLocalizationsRu extends AppLocalizations {
   AppLocalizationsRu([String locale = 'ru']) : super(locale);
 
   @override
+  String get companiesTitle => 'Компании';
+
+  @override
+  String get companiesEmptyCity => 'В этом городе пока нет компаний.';
+
+  @override
+  String get loadMoreItems => 'Показать ещё';
+
+  @override
+  String companyUnitCount(int count) {
+    return 'Всего: $count';
+  }
+
+  @override
+  String get bookingOrderCommentEmpty => 'Не указан';
+
+  @override
   String machineryQuotaReached(int maximum) {
     return 'Достигнут лимит техники: $maximum единиц. Чтобы добавить новую технику, освободите место или обратитесь к администрации.';
   }
@@ -884,10 +901,11 @@ class AppLocalizationsRu extends AppLocalizations {
   String get pleaseSelectTime => 'Выберите время';
 
   @override
-  String get noRequestHistory => 'В истории пока нет запросов';
+  String get noRequestHistory => 'Здесь будут закрытые и отменённые запросы.';
 
   @override
-  String get noOrderHistoryDescription => 'В истории пока нет заказов';
+  String get noOrderHistoryDescription =>
+      'Завершённые и отменённые заказы будут храниться здесь.';
 
   @override
   String get reviewSubmitted => 'Отзыв отправлен';
@@ -959,7 +977,8 @@ class AppLocalizationsRu extends AppLocalizations {
   String get initializingSystems => 'ИНИЦИАЛИЗАЦИЯ...';
 
   @override
-  String get serverWarmingUp => 'Сервер запускается, пожалуйста подождите...';
+  String get serverWarmingUp =>
+      'Загрузка занимает чуть больше времени. Пожалуйста, подождите.';
 
   @override
   String get save => 'Сохранить';
@@ -1037,7 +1056,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get crop => 'Обрезать';
 
   @override
-  String get somethingWentWrong => 'Что-то пошло не так!';
+  String get somethingWentWrong => 'Не удалось загрузить данные';
 
   @override
   String get loading => 'Загрузка...';
@@ -1322,10 +1341,10 @@ class AppLocalizationsRu extends AppLocalizations {
   String get loadingOrders => 'Загрузка заказов...';
 
   @override
-  String get errorLoadingOrders => 'Ошибка загрузки заказов';
+  String get errorLoadingOrders => 'Не удалось загрузить заказы';
 
   @override
-  String get noBookingsFound => 'Заказы не найдены';
+  String get noBookingsFound => 'Заказов пока нет';
 
   @override
   String get updateWorkStatus => 'Обновить статус работы';
@@ -1696,20 +1715,21 @@ class AppLocalizationsRu extends AppLocalizations {
   String get myRequests => 'Мои запросы';
 
   @override
-  String get createRequest => 'Создать заявку';
+  String get createRequest => 'Создать запрос';
 
   @override
   String get loginToViewRequests => 'Войдите для просмотра заявок';
 
   @override
-  String get errorLoadingRequests => 'Ошибка загрузки заявок';
+  String get errorLoadingRequests => 'Не удалось загрузить запросы';
 
   @override
-  String get noActiveRequests => 'У вас нет активных заявок';
+  String get noActiveRequests =>
+      'Создайте запрос: укажите задачу, место и время — владельцы предложат варианты.';
 
   @override
   String get ownerEmptyRequestsHint =>
-      'смотрите актуальные заявки клиентов здесь';
+      'Здесь появятся подходящие запросы клиентов.';
 
   @override
   String get createNewRequest => 'Создать новую заявку';
@@ -1780,7 +1800,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get requestCancelled => 'Заявка отменена';
 
   @override
-  String get noChats => 'Нет чатов';
+  String get noChats => 'Чатов пока нет';
 
   @override
   String get chatsActiveTab => 'активные';
@@ -1789,11 +1809,11 @@ class AppLocalizationsRu extends AppLocalizations {
   String get chatsArchiveTab => 'архивные';
 
   @override
-  String get noArchivedChats => 'Нет архивных чатов';
+  String get noArchivedChats => 'Архив пока пуст';
 
   @override
   String get youHaveNoArchivedChats =>
-      'Здесь появятся завершённые и отменённые чаты.';
+      'Завершённые обсуждения и переписки по закрытым заказам сохраняются здесь.';
 
   @override
   String get deliverTo => 'ДОСТАВИТЬ К';
@@ -1878,7 +1898,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get preferences => 'НАСТРОЙКИ';
 
   @override
-  String get pushNotifications => 'Push-уведомления';
+  String get pushNotifications => 'На этом устройстве';
 
   @override
   String get bookingAlerts => 'Уведомления о заказах и заявках';
@@ -1989,11 +2009,11 @@ class AppLocalizationsRu extends AppLocalizations {
   String get cropProfilePicture => 'Обрезать фото профиля';
 
   @override
-  String get initializationError => 'ОШИБКА ИНИЦИАЛИЗАЦИИ';
+  String get initializationError => 'Не удалось открыть приложение';
 
   @override
   String get initializationErrorMessage =>
-      'Не удалось загрузить сессию или соединение потеряно. Проверьте подключение и повторите попытку.';
+      'Проверьте подключение к интернету и попробуйте снова.';
 
   @override
   String get retryConnection => 'ПОВТОРИТЬ ПОДКЛЮЧЕНИЕ';
@@ -2111,6 +2131,24 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get ownerCommentHint =>
       'Возможна неполная загрузка, заметки по доступу…';
+
+  @override
+  String get offerCommentHint => 'Уточните время подачи или условия работы';
+
+  @override
+  String get companyGoToProfile => 'Перейти в профиль компании';
+
+  @override
+  String get companyOpenProfile => 'Открыть профиль компании';
+
+  @override
+  String get companyInvited => 'Вас приглашают в компанию';
+
+  @override
+  String get companyPlaceServices => 'Разместите услуги вашей компании здесь';
+
+  @override
+  String get companyNewInvitation => 'Новое приглашение';
 
   @override
   String get prices => 'Цены';
@@ -2812,7 +2850,7 @@ class AppLocalizationsRu extends AppLocalizations {
       'Войдите, чтобы добавлять и просматривать избранное';
 
   @override
-  String get noSavedMachinery => 'НЕТ СОХРАНЁННОЙ ТЕХНИКИ';
+  String get noSavedMachinery => 'В избранном пока пусто';
 
   @override
   String get exploreFleet => 'ПРОСМОТРЕТЬ ТЕХНИКУ';
@@ -2827,7 +2865,8 @@ class AppLocalizationsRu extends AppLocalizations {
   String get myFavorites => 'Мои избранные';
 
   @override
-  String get favoritesEmptyHint => 'Здесь появятся отмеченные вами объекты';
+  String get favoritesEmptyHint =>
+      'Нажмите на сердечко в карточке, чтобы сохранить понравившуюся технику.';
 
   @override
   String get frequentlyAskedQuestions => 'Часто задаваемые вопросы';
@@ -3063,7 +3102,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get couldNotLoadChats => 'Не удалось загрузить чаты';
 
   @override
-  String get youHaveNoChats => 'У вас нет чатов';
+  String get youHaveNoChats => 'Здесь появятся ваши чаты по технике и заказам.';
 
   @override
   String get error => 'Ошибка';
@@ -3107,7 +3146,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get noEquipmentMatchingCategory =>
-      'По данной категории техника не найдена.';
+      'Попробуйте другую категорию или измените фильтры.';
 
   @override
   String get cancelOrderConfirmation =>
@@ -3115,7 +3154,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get loadEquipmentErrorHint =>
-      'Произошла ошибка при загрузке списка. Попробуйте снова.';
+      'Проверьте подключение к интернету и попробуйте ещё раз.';
 
   @override
   String get createBooking => 'Создать бронирование';
@@ -3599,10 +3638,11 @@ class AppLocalizationsRu extends AppLocalizations {
   String get didntReceiveCodeResend => 'Не получили код? Отправить снова';
 
   @override
-  String get youHaveNoActiveOrders => 'У вас нет активных заказов';
+  String get youHaveNoActiveOrders => 'Здесь появятся ваши текущие заказы.';
 
   @override
-  String get youHaveNoNotifications => 'У вас нет уведомлений';
+  String get youHaveNoNotifications =>
+      'Здесь будут сообщения о заказах, предложениях и других важных событиях.';
 
   @override
   String get unitCubicMeters => 'м³';
@@ -3773,7 +3813,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get ownerOfflineChatOwnerBanner =>
-      'Чтобы продолжить переключить статус на «Онлайн»';
+      'Чтобы ответить клиенту, включите статус «Онлайн».';
 
   @override
   String get becomeOnline => 'Стать «Онлайн»';
@@ -4034,4 +4074,225 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get contentNotAllowed =>
       'Текст содержит недопустимое содержимое. Измените его и попробуйте снова.';
+
+  @override
+  String get discussEquipmentTooltip => 'Написать владельцу';
+
+  @override
+  String get sendBookingRequest => 'Отправить запрос';
+
+  @override
+  String get sendAgreedTerms => 'Отправить условия';
+
+  @override
+  String get inquiryStatus => 'Обсуждение';
+
+  @override
+  String get inquiryCreateOrder => 'Закрепить условия';
+
+  @override
+  String get requestTermsTitle => 'Условия запроса';
+
+  @override
+  String get agreedTermsTitle => 'Условия заказа';
+
+  @override
+  String get requestTermsHint =>
+      'Укажите адрес, время и тариф. Отправьте условия владельцу на подтверждение.';
+
+  @override
+  String get listingSpecifications => 'Все характеристики';
+
+  @override
+  String get listingNoReviews => 'Пока без оценок';
+
+  @override
+  String get requestOwnerTitle => 'Запрос владельцу';
+
+  @override
+  String get requestSentSuccess => 'Запрос отправлен владельцу';
+
+  @override
+  String get inquiryOwnerOffline =>
+      'Включите «Онлайн», чтобы ответить клиенту.';
+
+  @override
+  String get inquiryCloseAction => 'Завершить обсуждение';
+
+  @override
+  String get inquiryCloseConfirm => 'Завершить';
+
+  @override
+  String get inquiryCloseQuestion => 'Завершить обсуждение без заказа?';
+
+  @override
+  String get inquiryCloseDescription =>
+      'Чат сохранится в архиве чатов. Заказ создан не будет.';
+
+  @override
+  String get inquiryClosedStatus => 'Обсуждение завершено';
+
+  @override
+  String get inquiryCloseFailed =>
+      'Не удалось завершить обсуждение. Обновите чат и попробуйте снова.';
+
+  @override
+  String get inquiryClientEmptyHint =>
+      'Спросите о доступности, цене или деталях. Заказ пока не создан.';
+
+  @override
+  String get inquiryOwnerEmptyHint =>
+      'Обсудите задачу с клиентом. Заказ появится после отправки условий.';
+
+  @override
+  String get inquiryReadOnlyHint => 'Чат сохранён. Доступен только просмотр.';
+
+  @override
+  String get clearSearch => 'Очистить поиск';
+
+  @override
+  String get catalogNoResults => 'Объявления не найдены';
+
+  @override
+  String get catalogNoResultsHint =>
+      'Попробуйте другой запрос, категорию или город.';
+
+  @override
+  String get requestClientBudget => 'Ваш бюджет';
+
+  @override
+  String get requestsSubmitToOwners => 'Отправить владельцам';
+
+  @override
+  String get requestsSentToOwners => 'Заявка отправлена владельцам';
+
+  @override
+  String get requestOwnerOffers => 'Предложения владельцев';
+
+  @override
+  String get offerPriceSortDefault => 'По порядку';
+
+  @override
+  String get offerPriceSortLow => 'Дешевле сначала';
+
+  @override
+  String get offerPriceSortHigh => 'Дороже сначала';
+
+  @override
+  String get offerBestPrice => 'Лучшая цена';
+
+  @override
+  String get offerCompareUnit => 'Единица расчёта';
+
+  @override
+  String get offerCompareAllUnits => 'Все единицы';
+
+  @override
+  String get offerCompareUnitHint =>
+      'Для сравнения цен выберите одну единицу расчёта.';
+
+  @override
+  String get offerPricesPartialHint =>
+      'Для сравнения цен загрузите все предложения.';
+
+  @override
+  String get offerLoadAll => 'Загрузить все предложения';
+
+  @override
+  String get flowSchedulePick => 'Выбрать время';
+
+  @override
+  String get proposeOrderTerms => 'Предложить условия';
+
+  @override
+  String get orderTermsProposalHint =>
+      'Измените нужные поля. Новые условия вступят в силу только после подтверждения собеседником.';
+
+  @override
+  String get sendOrderTermsProposal => 'Отправить на подтверждение';
+
+  @override
+  String get orderTermsUnchanged => 'Измените хотя бы одно условие.';
+
+  @override
+  String get orderTermsUnavailable =>
+      'Обновите чат, чтобы изменить условия этого заказа.';
+
+  @override
+  String get orderTermsCurrentAddress => 'Адрес текущего запроса';
+
+  @override
+  String get orderTermsProposalTitle => 'Предложение условий';
+
+  @override
+  String get currentOrderTerms => 'Текущие условия';
+
+  @override
+  String get proposedOrderTerms => 'Новые условия';
+
+  @override
+  String get acceptOrderTerms => 'Принять условия';
+
+  @override
+  String get withdrawOrderTerms => 'Отозвать предложение';
+
+  @override
+  String get orderTermsUpdateRequired =>
+      'Для подтверждения этих условий обновите приложение.';
+
+  @override
+  String get orderTermsRefreshRequired =>
+      'Условия изменились. Обновите чат и проверьте новое предложение.';
+
+  @override
+  String get loadContentRetryHint =>
+      'Проверьте подключение к интернету и попробуйте ещё раз.';
+
+  @override
+  String get publicOfferSubtitle =>
+      'Условия оказания услуг и оформления заказов.';
+
+  @override
+  String get listingUnavailableHint =>
+      'Вернитесь в каталог и выберите другой вариант.';
+
+  @override
+  String get chatPhoto => 'Фотография';
+
+  @override
+  String get chatAttachPhoto => 'Прикрепить фото';
+
+  @override
+  String get chatPhotoUnavailable => 'Фото недоступно';
+
+  @override
+  String get chatPhotoTooLarge => 'Выберите фотографию размером до 10 МБ.';
+
+  @override
+  String get chatPhotoSendFailed =>
+      'Не удалось отправить фото. Проверьте соединение и попробуйте ещё раз.';
+
+  @override
+  String get chatMessageRead => 'Прочитано';
+
+  @override
+  String get chatMessageSent => 'Отправлено';
+
+  @override
+  String get chatPhotoPreview => 'Фото';
+
+  @override
+  String get ownerRequestsAll => 'Все запросы';
+
+  @override
+  String get ownerRequestsMine => 'Мои категории';
+
+  @override
+  String get goToChat => 'В чат';
+
+  @override
+  String get historyChatAction => 'В чат';
+
+  @override
+  String get listingDescription => 'Описание';
 }

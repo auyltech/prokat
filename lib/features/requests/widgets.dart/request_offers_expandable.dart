@@ -1,20 +1,46 @@
 import 'package:flutter/material.dart';
 import 'package:prokat/features/offers/models/offer_model.dart';
 import 'package:prokat/features/offers/widgets/offer_tile.dart';
+import 'package:prokat/core/theme/prokat_flow_scope.dart';
 
 class RequestOffersExpandable extends StatelessWidget {
   final Animation<double> animation;
   final List<OfferModel> offers;
+  final Set<String> bestOfferIds;
 
   const RequestOffersExpandable({
     super.key,
     required this.animation,
     required this.offers,
+    this.bestOfferIds = const {},
   });
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    if (ProkatFlowScope.maybeOf(context) != null) {
+      return AnimatedBuilder(
+        animation: animation,
+        builder: (context, child) =>
+            IgnorePointer(ignoring: animation.value == 0, child: child),
+        child: SizeTransition(
+          sizeFactor: animation,
+          alignment: Alignment.topCenter,
+          child: Column(
+            children: [
+              for (var index = 0; index < offers.length; index++) ...[
+                if (index > 0) const SizedBox(height: 12),
+                OfferTile(
+                  key: ValueKey(offers[index].id),
+                  offer: offers[index],
+                  isBestPrice: bestOfferIds.contains(offers[index].id),
+                ),
+              ],
+            ],
+          ),
+        ),
+      );
+    }
     final shadowColor = theme.colorScheme.shadow.withValues(alpha: 0.18);
 
     return AnimatedBuilder(

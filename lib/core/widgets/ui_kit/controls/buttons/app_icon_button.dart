@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:prokat/core/theme/app_dimens.dart';
 import 'package:prokat/core/theme/colors/component_themes/app_button_tone_theme.dart';
 import 'package:prokat/core/theme/extensions/app_theme_getter.dart';
+import 'package:prokat/core/theme/prokat_flow_palette.dart';
+import 'package:prokat/core/theme/prokat_flow_scope.dart';
 import 'package:prokat/core/widgets/ui_kit/app_icon.dart';
 
 enum AppIconButtonVariant { plain, soft, outlined, filled, floating }
@@ -62,7 +64,7 @@ class AppIconButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final buttonTheme = context.colors.iconButton;
-    final toneTheme = switch (tone) {
+    final legacyToneTheme = switch (tone) {
       AppIconButtonTone.neutral => buttonTheme.neutral,
       AppIconButtonTone.primary => buttonTheme.primary,
       AppIconButtonTone.success => buttonTheme.success,
@@ -70,6 +72,33 @@ class AppIconButton extends StatelessWidget {
       AppIconButtonTone.destructive => buttonTheme.destructive,
       AppIconButtonTone.inverse => buttonTheme.inverse,
     };
+    final flow = ProkatFlowScope.maybeOf(context);
+    final toneTheme = flow == null
+        ? legacyToneTheme
+        : switch (tone) {
+            AppIconButtonTone.primary => AppButtonToneTheme(
+              content: flow.primary,
+              contentOnFill: Colors.white,
+              fill: flow.filledPrimary,
+              softFill: flow.primarySoft,
+              border: flow.primary,
+            ),
+            AppIconButtonTone.neutral => AppButtonToneTheme(
+              content: flow.secondary,
+              contentOnFill: flow.title,
+              fill: flow.surface,
+              softFill: flow.background,
+              border: flow.border,
+            ),
+            AppIconButtonTone.success => AppButtonToneTheme(
+              content: flow.success,
+              contentOnFill: Colors.white,
+              fill: ProkatFlowPalette.light.success,
+              softFill: flow.success.withValues(alpha: .1),
+              border: flow.success,
+            ),
+            _ => legacyToneTheme,
+          };
     final enabled = onTap != null && !isLoading;
     final visuallyDisabled = onTap == null && !isLoading;
     final dimension = switch (size) {

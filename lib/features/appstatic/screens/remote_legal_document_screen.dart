@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:prokat/core/theme/prokat_flow_scope.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/providers/locale_provider.dart';
@@ -28,71 +29,76 @@ class RemoteLegalDocumentScreen extends ConsumerWidget {
     final currentTitle = titles != null && titles.isNotEmpty
         ? titles.first
         : title;
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(currentTitle),
-        actions: [
-          AppLabelButton(
-            title: LocaleNotifier.displayCode(locale),
-            onTap: () => LanguageSheet.show(context),
-            variant: AppLabelButtonVariant.soft,
-          ),
-        ],
-        actionsPadding: const EdgeInsets.only(right: 8),
-      ),
-      body: SafeArea(
-        child: documents.when(
-          loading: () => const Center(child: CircularProgressIndicator()),
-          error: (_, _) => Center(
-            child: TextButton(
-              onPressed: () => ref.invalidate(legalDocumentsProvider(code)),
-              child: Text(AppLocalizations.of(context)!.legalDocumentLoadError),
+    return ProkatFlowPage(
+      builder: (context) => Scaffold(
+        appBar: AppBar(
+          title: Text(currentTitle),
+          actions: [
+            AppLabelButton(
+              title: LocaleNotifier.displayCode(locale),
+              onTap: () => LanguageSheet.show(context),
+              variant: AppLabelButtonVariant.soft,
             ),
-          ),
-          data: (items) {
-            final matches = items.where((item) => item.slug == slug);
-            if (matches.isEmpty) {
-              return Center(
+          ],
+          actionsPadding: const EdgeInsets.only(right: 8),
+        ),
+        body: SafeArea(
+          child: documents.when(
+            loading: () => const Center(child: CircularProgressIndicator()),
+            error: (_, _) => Center(
+              child: TextButton(
+                onPressed: () => ref.invalidate(legalDocumentsProvider(code)),
                 child: Text(
                   AppLocalizations.of(context)!.legalDocumentLoadError,
                 ),
-              );
-            }
-            final document = matches.first;
-            return Markdown(
-              data: '# ${document.title}\n\n${document.body}',
-              onTapLink: (text, href, _) async {
-                final uri = Uri.tryParse(href ?? '');
-                if (uri == null) return;
-                final internal =
-                    !uri.hasScheme ||
-                    (uri.scheme == 'https' && uri.host == 'prokat.auyltech.kz');
-                if (internal &&
-                    uri.pathSegments.length == 2 &&
-                    uri.pathSegments.first == 'legal-documents') {
-                  final targetSlug = uri.pathSegments.last;
-                  if (targetSlug == slug) return;
-                  await Navigator.of(context, rootNavigator: true).push(
-                    MaterialPageRoute<void>(
-                      builder: (_) => RemoteLegalDocumentScreen(
-                        slug: targetSlug,
-                        title: text,
-                      ),
-                    ),
-                  );
-                } else if (uri.scheme == 'https' || uri.scheme == 'mailto') {
-                  await launchUrl(uri, mode: LaunchMode.externalApplication);
-                }
-              },
-              selectable: true,
-              padding: const EdgeInsets.all(20),
-              styleSheet: MarkdownStyleSheet.fromTheme(Theme.of(context))
-                  .copyWith(
-                    p: Theme.of(context).textTheme.bodyMedium
-                        ?.copyWith(height: 1.6),
+              ),
+            ),
+            data: (items) {
+              final matches = items.where((item) => item.slug == slug);
+              if (matches.isEmpty) {
+                return Center(
+                  child: Text(
+                    AppLocalizations.of(context)!.legalDocumentLoadError,
                   ),
-            );
-          },
+                );
+              }
+              final document = matches.first;
+              return Markdown(
+                data: '# ${document.title}\n\n${document.body}',
+                onTapLink: (text, href, _) async {
+                  final uri = Uri.tryParse(href ?? '');
+                  if (uri == null) return;
+                  final internal =
+                      !uri.hasScheme ||
+                      (uri.scheme == 'https' &&
+                          uri.host == 'prokat.auyltech.kz');
+                  if (internal &&
+                      uri.pathSegments.length == 2 &&
+                      uri.pathSegments.first == 'legal-documents') {
+                    final targetSlug = uri.pathSegments.last;
+                    if (targetSlug == slug) return;
+                    await Navigator.of(context, rootNavigator: true).push(
+                      MaterialPageRoute<void>(
+                        builder: (_) => RemoteLegalDocumentScreen(
+                          slug: targetSlug,
+                          title: text,
+                        ),
+                      ),
+                    );
+                  } else if (uri.scheme == 'https' || uri.scheme == 'mailto') {
+                    await launchUrl(uri, mode: LaunchMode.externalApplication);
+                  }
+                },
+                selectable: true,
+                padding: const EdgeInsets.all(20),
+                styleSheet: MarkdownStyleSheet.fromTheme(Theme.of(context))
+                    .copyWith(
+                      p: Theme.of(context).textTheme.bodyMedium
+                          ?.copyWith(height: 1.6),
+                    ),
+              );
+            },
+          ),
         ),
       ),
     );

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:prokat/core/theme/app_dimens.dart';
 import 'package:prokat/core/theme/app_fonts.dart';
 import 'package:prokat/core/theme/extensions/app_theme_getter.dart';
+import 'package:prokat/core/theme/prokat_flow_scope.dart';
 
 /// Tab strip plus swipeable pages.
 ///
@@ -87,16 +88,20 @@ class _AppTabsState extends State<AppTabs> with SingleTickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     final appBar = context.colors.appBar;
-    final tabStyle = AppFonts.headingM(context);
-    const stripHeight =
-        AppDimens.appTabsHeight +
-        AppDimens.appTabsIndicatorWeight +
-        AppDimens.cardBorderWidth;
+    final flow = ProkatFlowScope.maybeOf(context);
+    final tabStyle = flow == null
+        ? AppFonts.headingM(context)
+        : AppFonts.body14SemiBold(context);
+    final indicatorWeight = flow == null
+        ? AppDimens.appTabsIndicatorWeight
+        : 3.0;
+    final stripHeight =
+        AppDimens.appTabsHeight + indicatorWeight + AppDimens.cardBorderWidth;
 
     return Stack(
       children: [
         Padding(
-          padding: const EdgeInsets.only(top: stripHeight),
+          padding: EdgeInsets.only(top: stripHeight),
           child: TabBarView(controller: _controller, children: widget.children),
         ),
         Positioned(
@@ -104,33 +109,43 @@ class _AppTabsState extends State<AppTabs> with SingleTickerProviderStateMixin {
           left: 0,
           right: 0,
           child: Material(
-            color: appBar.background,
-            surfaceTintColor: appBar.background,
+            color: flow?.surface ?? appBar.background,
+            surfaceTintColor: flow?.surface ?? appBar.background,
             shadowColor: appBar.shadow,
-            elevation: AppDimens.appBarElevation,
+            elevation: flow == null ? AppDimens.appBarElevation : 0,
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 TabBar(
                   controller: _controller,
                   indicatorSize: TabBarIndicatorSize.tab,
-                  indicatorWeight: AppDimens.appTabsIndicatorWeight,
+                  indicatorWeight: indicatorWeight,
                   indicator: UnderlineTabIndicator(
                     borderRadius: BorderRadius.zero,
                     borderSide: BorderSide(
-                      width: AppDimens.appTabsIndicatorWeight,
-                      color: context.colors.icons.primary,
+                      width: indicatorWeight,
+                      color: flow?.primary ?? context.colors.icons.primary,
                     ),
                   ),
                   dividerHeight: 0,
                   overlayColor: context.colors.ripple.overlay,
                   labelStyle: tabStyle,
                   unselectedLabelStyle: tabStyle,
-                  labelColor: appBar.content,
-                  unselectedLabelColor: context.colors.text.disabled,
+                  labelColor: flow?.primary ?? appBar.content,
+                  unselectedLabelColor:
+                      flow?.secondary ?? context.colors.text.disabled,
                   tabs: [
                     for (final title in widget.titles)
-                      Tab(text: title, height: AppDimens.appTabsHeight),
+                      flow == null
+                          ? Tab(text: title, height: AppDimens.appTabsHeight)
+                          : Tab(
+                              height: AppDimens.appTabsHeight,
+                              child: Text(
+                                title,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
                   ],
                 ),
               ],

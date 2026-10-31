@@ -6,7 +6,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:prokat/features/appstartup/app_startup_provider.dart';
-import 'package:prokat/features/appstatic/widgets/background_glow.dart';
+import 'package:prokat/core/theme/app_fonts.dart';
+import 'package:prokat/core/theme/prokat_flow_palette.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
 String _formatLaunchVersion(PackageInfo packageInfo) {
@@ -41,6 +42,7 @@ class _LaunchScreenState extends ConsumerState<LaunchScreen>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
   late final Animation<double> _fadeAnimation;
+  late final Animation<double> _scaleAnimation;
   bool _showWarmupMessage = false;
   Timer? _warmupTimer;
   String _appVersionLabel = '';
@@ -57,8 +59,7 @@ class _LaunchScreenState extends ConsumerState<LaunchScreen>
       const SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
         systemNavigationBarColor: Colors.transparent,
-        statusBarIconBrightness:
-            Brightness.dark, // Use light if using a dark theme
+        statusBarIconBrightness: Brightness.light,
       ),
     );
 
@@ -66,13 +67,17 @@ class _LaunchScreenState extends ConsumerState<LaunchScreen>
 
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 1200),
+      duration: const Duration(milliseconds: 1100),
     );
 
     _fadeAnimation = CurvedAnimation(
       parent: _controller,
-      curve: const Interval(0.0, 0.8, curve: Curves.easeIn),
+      curve: const Interval(0.0, 0.7, curve: Curves.easeOut),
     );
+    _scaleAnimation = Tween<double>(
+      begin: .92,
+      end: 1,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic));
 
     unawaited(_controller.forward());
   }
@@ -102,161 +107,183 @@ class _LaunchScreenState extends ConsumerState<LaunchScreen>
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    const accentColor = Color(0xFF00489B);
-    final textTheme = theme.textTheme;
-
+    final l10n = AppLocalizations.of(context)!;
     final startup = ref.watch(appStartupProvider);
-    const showDetails = !kReleaseMode;
+    const palette = ProkatFlowPalette.light;
+    const showDetails = kDebugMode;
     final progress = startup.progress.clamp(0.0, 1.0);
-    final percentText = '${(progress * 100).round()}%';
-
-    return Scaffold(
-      extendBody: true,
-      backgroundColor: theme.cardColor,
-      body: Stack(
-        alignment: Alignment.center,
-        children: [
-          /// 1. Subtle Industrial Grid Pattern (Fills the "Empty" space)
-          Opacity(
-            opacity: 0.06,
-            child: CustomPaint(
-              size: Size.infinite,
-              painter: _GridPainter(accentColor),
-            ),
-          ),
-
-          /// 2. Layered Background Glows
-          Positioned(
-            top: -150,
-            right: -150,
-            child: BackgroundGlow(
-              color: accentColor.withValues(alpha: 0.2),
-              size: 600,
-            ),
-          ),
-
-          /// 3. Main Content
-          Center(
-            child: FadeTransition(
-              opacity: _fadeAnimation,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // Icon with "Glass" effect
-                  Image.asset(
-                    'assets/icons/app_icon.png',
-                    width: 150,
-                    height: 150,
-                    fit: BoxFit.contain,
-                  ),
-                  const SizedBox(height: 40),
-
-                  // Branding
-                  RichText(
-                    text: TextSpan(
-                      style: textTheme.displayLarge?.copyWith(
-                        fontWeight: FontWeight.w900,
-                        color: theme.colorScheme.onSurface,
-                        fontFamily: 'Oswald',
-                        letterSpacing: 6,
-                      ),
-                      children: const [
-                        TextSpan(text: 'PRO'),
-                        TextSpan(
-                          text: 'KAT',
-                          style: TextStyle(color: accentColor),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  // Subtle divider line to break the "emptiness"
-                  Container(
-                    margin: const EdgeInsets.only(bottom: 16),
-                    width: 40,
-                    height: 3,
-                    decoration: BoxDecoration(
-                      color: accentColor,
-                      borderRadius: BorderRadius.circular(2),
-                    ),
-                  ),
-
-                  Text(
-                    AppLocalizations.of(context)!.heavyEquipmentRentals,
-                    style: textTheme.bodySmall?.copyWith(
-                      fontWeight: FontWeight.w800,
-                      letterSpacing: 3,
-                      color: theme.colorScheme.onSurface.withValues(alpha: 0.4),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-
-          /// 4. Bottom "Status" Area
-          Positioned(
-            bottom: 60,
-            left: 40,
-            right: 40,
-            child: Column(
-              children: [
-                // Linear progress feels more "industrial" than circular
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: LinearProgressIndicator(
-                    value: showDetails ? progress : null,
-                    valueColor: const AlwaysStoppedAnimation<Color>(
-                      accentColor,
-                    ),
-                    backgroundColor: accentColor.withValues(alpha: 0.1),
-                    minHeight: 4,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      showDetails
-                          ? _startupStepLabel(
-                              startup.step,
-                              AppLocalizations.of(context)!,
-                            ).toUpperCase()
-                          : AppLocalizations.of(context)!.initializingSystems,
-                      style: textTheme.labelSmall?.copyWith(
-                        letterSpacing: 1.5,
-                        color: theme.colorScheme.onSurface.withValues(
-                          alpha: 0.5,
-                        ),
-                      ),
-                    ),
-                    Text(
-                      showDetails ? percentText : _appVersionLabel,
-                      style: textTheme.labelMedium?.copyWith(
-                        color: theme.colorScheme.onSurface.withValues(
-                          alpha: 0.4,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                if (_showWarmupMessage) ...[
-                  const SizedBox(height: 12),
-                  Text(
-                    AppLocalizations.of(context)!.serverWarmingUp,
-                    textAlign: TextAlign.center,
-                    style: textTheme.labelSmall?.copyWith(
-                      color: accentColor.withValues(alpha: 0.7),
-                      letterSpacing: 0.5,
-                    ),
-                  ),
-                ],
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: const SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: Brightness.light,
+        statusBarBrightness: Brightness.dark,
+        systemNavigationBarColor: Colors.transparent,
+        systemNavigationBarIconBrightness: Brightness.light,
+      ),
+      child: Scaffold(
+        backgroundColor: ProkatFlowPalette.brandNavy,
+        body: DecoratedBox(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                ProkatFlowPalette.brandNavy,
+                palette.filledPrimary.withValues(alpha: .35),
               ],
             ),
           ),
-        ],
+          child: Stack(
+            children: [
+              Positioned.fill(
+                child: IgnorePointer(
+                  child: CustomPaint(
+                    painter: _GridPainter(Colors.white.withValues(alpha: .04)),
+                  ),
+                ),
+              ),
+              SafeArea(
+                child: LayoutBuilder(
+                  builder: (context, constraints) => SingleChildScrollView(
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(
+                        minHeight: constraints.maxHeight,
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(28),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const SizedBox(height: 16),
+                            FadeTransition(
+                              opacity: MediaQuery.disableAnimationsOf(context)
+                                  ? const AlwaysStoppedAnimation(1)
+                                  : _fadeAnimation,
+                              child: ScaleTransition(
+                                scale: MediaQuery.disableAnimationsOf(context)
+                                    ? const AlwaysStoppedAnimation(1)
+                                    : _scaleAnimation,
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    ClipRRect(
+                                      borderRadius: BorderRadius.circular(24),
+                                      child: Image.asset(
+                                        'assets/icons/app_icon.png',
+                                        width: 88,
+                                        height: 88,
+                                        cacheWidth: 256,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 24),
+                                    Text.rich(
+                                      TextSpan(
+                                        children: [
+                                          const TextSpan(text: 'PRO'),
+                                          TextSpan(
+                                            text: 'KAT',
+                                            style: TextStyle(
+                                              color: palette.primary,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      style: const TextStyle(
+                                        fontFamily: AppFonts.manropeFamily,
+                                        fontSize: 38,
+                                        fontWeight: FontWeight.w800,
+                                        letterSpacing: 2,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 12),
+                                    Text(
+                                      l10n.heavyEquipmentRentals,
+                                      textAlign: TextAlign.center,
+                                      style: const TextStyle(
+                                        fontFamily: AppFonts.manropeFamily,
+                                        fontSize: 16,
+                                        height: 1.4,
+                                        color: Color(0xFFB9CBF3),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(top: 36),
+                              child: Column(
+                                children: [
+                                  ClipRRect(
+                                    borderRadius: BorderRadius.circular(8),
+                                    child: LinearProgressIndicator(
+                                      value: showDetails ? progress : null,
+                                      minHeight: 4,
+                                      color: palette.primary,
+                                      backgroundColor: Colors.white.withValues(
+                                        alpha: .12,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 14),
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: Text(
+                                          showDetails
+                                              ? _startupStepLabel(
+                                                  startup.step,
+                                                  l10n,
+                                                )
+                                              : l10n.loading,
+                                          style: const TextStyle(
+                                            fontFamily: AppFonts.manropeFamily,
+                                            fontSize: 12,
+                                            height: 1.4,
+                                            color: Color(0xFFB9CBF3),
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 12),
+                                      Text(
+                                        showDetails
+                                            ? '${(progress * 100).round()}%'
+                                            : _appVersionLabel,
+                                        style: const TextStyle(
+                                          fontFamily: AppFonts.manropeFamily,
+                                          fontSize: 12,
+                                          color: Color(0xFFB9CBF3),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  if (_showWarmupMessage) ...[
+                                    const SizedBox(height: 12),
+                                    Text(
+                                      l10n.serverWarmingUp,
+                                      textAlign: TextAlign.center,
+                                      style: const TextStyle(
+                                        fontFamily: AppFonts.manropeFamily,
+                                        fontSize: 12,
+                                        height: 1.4,
+                                        color: Color(0xFFB9CBF3),
+                                      ),
+                                    ),
+                                  ],
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

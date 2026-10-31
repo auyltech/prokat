@@ -46,6 +46,12 @@ class PriceNegotiationMutationNotifier
 
   Future<void> _syncQueries(PriceNegotiationQuery query) async {
     final updates = <Future<void>>[];
+    final all = priceNegotiationsProvider(
+      PriceNegotiationQuery(bookingId: query.bookingId, offerId: query.offerId),
+    );
+    if (ref.exists(all)) {
+      updates.add(ref.read(all.notifier).refresh());
+    }
     final active = priceNegotiationsProvider(query);
     if (ref.exists(active)) {
       updates.add(ref.read(active.notifier).refresh());
@@ -103,6 +109,7 @@ class PriceNegotiationMutationNotifier
     String? comment,
     required String type,
     String? chatId,
+    Map<String, dynamic>? terms,
   }) async {
     const actionId = 'price:create';
     final query = _queryFor(bookingId: bookingId, offerId: offerId);
@@ -118,6 +125,7 @@ class PriceNegotiationMutationNotifier
         priceRate: priceRate,
         comment: comment,
         type: type,
+        terms: terms,
       );
       finishAction(
         actionId,
@@ -141,6 +149,8 @@ class PriceNegotiationMutationNotifier
     String? bookingId,
     String? offerId,
     String? chatId,
+    int? acceptedTermsVersion,
+    DateTime? expectedNegotiationUpdatedAt,
   }) async {
     final actionId = response == PriceNegotiationResponse.accept
         ? 'price:accept'
@@ -150,6 +160,8 @@ class PriceNegotiationMutationNotifier
       final result = await service.respondToPriceNegotiation(
         negotiationId: negotiationId,
         decision: response,
+        acceptedTermsVersion: acceptedTermsVersion,
+        expectedNegotiationUpdatedAt: expectedNegotiationUpdatedAt,
       );
       finishAction(
         actionId,

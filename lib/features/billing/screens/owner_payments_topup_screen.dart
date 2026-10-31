@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:prokat/core/theme/prokat_flow_scope.dart';
 import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -50,6 +51,7 @@ class _OwnerPaymentsTopupScreenState
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final flow = ProkatFlowScope.maybeOf(context);
     final l10n = AppLocalizations.of(context)!;
     final billingState = ref.watch(billingProvider);
     final priceTiers = sortedTopUpPackages(billingState.pricingTiers);
@@ -84,9 +86,11 @@ class _OwnerPaymentsTopupScreenState
               width: double.infinity,
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: theme.cardColor,
+                color: flow?.surface ?? theme.cardColor,
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: theme.colorScheme.outlineVariant),
+                border: Border.all(
+                  color: flow?.border ?? theme.colorScheme.outlineVariant,
+                ),
               ),
               child: Column(
                 children: [
@@ -102,7 +106,7 @@ class _OwnerPaymentsTopupScreenState
                     textAlign: TextAlign.center,
                     style: theme.textTheme.displaySmall?.copyWith(
                       fontWeight: FontWeight.bold,
-                      color: legacy_colors.AppColors.teal800,
+                      color: flow?.primary ?? legacy_colors.AppColors.teal800,
                     ),
                   ),
                   const SizedBox(height: 8),
@@ -138,10 +142,18 @@ class _OwnerPaymentsTopupScreenState
               GridView.builder(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount:
+                      flow != null &&
+                          (MediaQuery.sizeOf(context).width < 360 ||
+                              MediaQuery.textScalerOf(context).scale(1) > 1.3)
+                      ? 1
+                      : 2,
                   mainAxisSpacing: 12,
                   crossAxisSpacing: 12,
+                  mainAxisExtent: flow == null
+                      ? null
+                      : 120 * MediaQuery.textScalerOf(context).scale(1),
                   childAspectRatio: 1.35,
                 ),
                 itemCount: priceTiers.length,
@@ -182,7 +194,7 @@ class _OwnerPaymentsTopupScreenState
                 ),
                 Badge(
                   label: Text(l10n.save15Percent),
-                  backgroundColor: Colors.green,
+                  backgroundColor: flow?.success ?? Colors.green,
                   textColor: Colors.white,
                   padding: const EdgeInsets.symmetric(
                     horizontal: 12,
@@ -210,10 +222,12 @@ class _OwnerPaymentsTopupScreenState
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  l10n.operationHistory,
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
+                Expanded(
+                  child: Text(
+                    l10n.operationHistory,
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
                 AppLabelButton(

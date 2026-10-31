@@ -1,3 +1,6 @@
+import 'package:prokat/features/bookings/screens/client_bookings_history_screen.dart';
+import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -10,15 +13,16 @@ import 'package:prokat/features/requests/widgets.dart/owner_booking_skeleton.dar
 import 'package:prokat/features/bookings/widgets/client_booking_tile.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
-class ClientBookingsScreen extends ConsumerStatefulWidget {
-  const ClientBookingsScreen({super.key});
+class _ClientBookingsScreenActive extends ConsumerStatefulWidget {
+  const _ClientBookingsScreenActive();
 
   @override
-  ConsumerState<ClientBookingsScreen> createState() =>
-      ClientBookingsScreenState();
+  ConsumerState<_ClientBookingsScreenActive> createState() =>
+      _ClientBookingsScreenActiveState();
 }
 
-class ClientBookingsScreenState extends ConsumerState<ClientBookingsScreen>
+class _ClientBookingsScreenActiveState
+    extends ConsumerState<_ClientBookingsScreenActive>
     with SingleTickerProviderStateMixin {
   late final ScrollController _scrollController;
 
@@ -72,7 +76,7 @@ class ClientBookingsScreenState extends ConsumerState<ClientBookingsScreen>
               EmptyStateTile(
                 imageName: 'empty_error.png',
                 title: l10n.errorLoadingOrders,
-                subtitle: error.toString(),
+                subtitle: l10n.loadContentRetryHint,
               ),
             ],
           ),
@@ -129,6 +133,21 @@ class ClientBookingsScreenState extends ConsumerState<ClientBookingsScreen>
           },
         ),
       ),
+    );
+  }
+}
+
+class ClientBookingsScreen extends StatelessWidget {
+  const ClientBookingsScreen({super.key});
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return AppTabs(
+      titles: [l10n.chatsActiveTab, l10n.chatsArchiveTab],
+      children: const [
+        _ClientBookingsScreenActive(),
+        ClientBookingsHistoryScreen(),
+      ],
     );
   }
 }

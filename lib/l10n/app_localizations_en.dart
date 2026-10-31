@@ -10,6 +10,23 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
+  String get companiesTitle => 'Companies';
+
+  @override
+  String get companiesEmptyCity => 'There are no companies in this city yet.';
+
+  @override
+  String get loadMoreItems => 'Show more';
+
+  @override
+  String companyUnitCount(int count) {
+    return 'Total: $count';
+  }
+
+  @override
+  String get bookingOrderCommentEmpty => 'Not specified';
+
+  @override
   String machineryQuotaReached(int maximum) {
     return 'Machinery limit reached: $maximum units. To add more, free up space or contact the administration.';
   }
@@ -877,11 +894,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get pleaseSelectTime => 'Please select time';
 
   @override
-  String get noRequestHistory => 'You don\'t have any requests in your history';
+  String get noRequestHistory =>
+      'Closed and cancelled requests will be kept here.';
 
   @override
   String get noOrderHistoryDescription =>
-      'You don\'t have any orders in your history';
+      'Completed and cancelled orders will be kept here.';
 
   @override
   String get reviewSubmitted => 'Review Submitted';
@@ -953,7 +971,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get initializingSystems => 'INITIALIZING SYSTEMS...';
 
   @override
-  String get serverWarmingUp => 'Server is warming up, please wait...';
+  String get serverWarmingUp =>
+      'Loading is taking a little longer. Please wait.';
 
   @override
   String get save => 'Save';
@@ -1031,7 +1050,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get crop => 'Crop';
 
   @override
-  String get somethingWentWrong => 'Something went wrong!';
+  String get somethingWentWrong => 'Could not load the information';
 
   @override
   String get loading => 'Loading...';
@@ -1317,10 +1336,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get loadingOrders => 'Loading Orders...';
 
   @override
-  String get errorLoadingOrders => 'Error Loading Orders';
+  String get errorLoadingOrders => 'Could not load orders';
 
   @override
-  String get noBookingsFound => 'No bookings found';
+  String get noBookingsFound => 'No orders yet';
 
   @override
   String get updateWorkStatus => 'Update Work Status';
@@ -1691,19 +1710,21 @@ class AppLocalizationsEn extends AppLocalizations {
   String get myRequests => 'My Requests';
 
   @override
-  String get createRequest => 'Create Request';
+  String get createRequest => 'Create request';
 
   @override
   String get loginToViewRequests => 'Login to create and view requests';
 
   @override
-  String get errorLoadingRequests => 'Error loading requests';
+  String get errorLoadingRequests => 'Could not load requests';
 
   @override
-  String get noActiveRequests => 'You don\'t have any active requests';
+  String get noActiveRequests =>
+      'Create a request with the task, location and time — owners will send you offers.';
 
   @override
-  String get ownerEmptyRequestsHint => 'See current client requests here';
+  String get ownerEmptyRequestsHint =>
+      'Client requests matching your equipment will appear here.';
 
   @override
   String get createNewRequest => 'Create a new request';
@@ -1775,7 +1796,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get requestCancelled => 'Request cancelled';
 
   @override
-  String get noChats => 'No Chats';
+  String get noChats => 'No conversations yet';
 
   @override
   String get chatsActiveTab => 'active';
@@ -1784,11 +1805,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get chatsArchiveTab => 'archived';
 
   @override
-  String get noArchivedChats => 'No archived chats';
+  String get noArchivedChats => 'Your archive is empty';
 
   @override
   String get youHaveNoArchivedChats =>
-      'Completed and cancelled chats will appear here.';
+      'Finished discussions and conversations about closed orders are kept here.';
 
   @override
   String get deliverTo => 'DELIVER TO';
@@ -1873,7 +1894,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get preferences => 'PREFERENCES';
 
   @override
-  String get pushNotifications => 'Push Notifications';
+  String get pushNotifications => 'On this device';
 
   @override
   String get bookingAlerts => 'Alerts for new bookings & requests';
@@ -1984,11 +2005,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get cropProfilePicture => 'Crop Profile Picture';
 
   @override
-  String get initializationError => 'INITIALIZATION ERROR';
+  String get initializationError => 'Could not open the app';
 
   @override
   String get initializationErrorMessage =>
-      'We couldn\'t load your session or connection was lost. Please check your network and try again.';
+      'Check your internet connection and try again.';
 
   @override
   String get retryConnection => 'RETRY CONNECTION';
@@ -2105,6 +2126,24 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get ownerCommentHint => 'Part load possible, access notes…';
+
+  @override
+  String get offerCommentHint => 'Clarify the arrival time or rental terms';
+
+  @override
+  String get companyGoToProfile => 'Go to company profile';
+
+  @override
+  String get companyOpenProfile => 'Create company profile';
+
+  @override
+  String get companyInvited => 'You have a company invitation';
+
+  @override
+  String get companyPlaceServices => 'List your company\'s services here';
+
+  @override
+  String get companyNewInvitation => 'New invitation';
 
   @override
   String get prices => 'Prices';
@@ -2794,7 +2833,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get loginToAddFavorites => 'Login to add and view favorites';
 
   @override
-  String get noSavedMachinery => 'NO SAVED MACHINERY';
+  String get noSavedMachinery => 'No favorites yet';
 
   @override
   String get exploreFleet => 'EXPLORE FLEET';
@@ -2809,7 +2848,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get myFavorites => 'My Favorites';
 
   @override
-  String get favoritesEmptyHint => 'Items you favorite will appear here';
+  String get favoritesEmptyHint =>
+      'Tap the heart on a listing to save equipment you like.';
 
   @override
   String get frequentlyAskedQuestions => 'Frequently Asked Questions';
@@ -3043,7 +3083,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get couldNotLoadChats => 'Could not load chats';
 
   @override
-  String get youHaveNoChats => 'You don\'t have any chats';
+  String get youHaveNoChats =>
+      'Your conversations about equipment and orders will appear here.';
 
   @override
   String get error => 'Error';
@@ -3087,7 +3128,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get noEquipmentMatchingCategory =>
-      'We couldn\'t find any items matching this category at the moment.';
+      'Try another category or adjust your filters.';
 
   @override
   String get cancelOrderConfirmation =>
@@ -3095,7 +3136,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get loadEquipmentErrorHint =>
-      'We ran into an issue loading the list. Please try again.';
+      'Check your internet connection and try again.';
 
   @override
   String get createBooking => 'Create Booking';
@@ -3573,10 +3614,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get didntReceiveCodeResend => 'Didn\'t receive the code? Resend Now';
 
   @override
-  String get youHaveNoActiveOrders => 'You don\'t have any active orders';
+  String get youHaveNoActiveOrders => 'Your current orders will appear here.';
 
   @override
-  String get youHaveNoNotifications => 'You don\'t have any notifications';
+  String get youHaveNoNotifications =>
+      'Updates about orders, offers and other important events will appear here.';
 
   @override
   String get unitCubicMeters => 'M3';
@@ -3738,8 +3780,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'The equipment owner is offline right now, but they received your request';
 
   @override
-  String get ownerOfflineChatOwnerBanner =>
-      'To continue, switch your status to Online';
+  String get ownerOfflineChatOwnerBanner => 'Go Online to reply to the client.';
 
   @override
   String get becomeOnline => 'Go Online';
@@ -3998,4 +4039,222 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get contentNotAllowed =>
       'The text contains content that is not allowed. Please edit it and try again.';
+
+  @override
+  String get discussEquipmentTooltip => 'Message owner';
+
+  @override
+  String get sendBookingRequest => 'Send request';
+
+  @override
+  String get sendAgreedTerms => 'Send terms';
+
+  @override
+  String get inquiryStatus => 'Discussion';
+
+  @override
+  String get inquiryCreateOrder => 'Confirm terms';
+
+  @override
+  String get requestTermsTitle => 'Request details';
+
+  @override
+  String get agreedTermsTitle => 'Order terms';
+
+  @override
+  String get requestTermsHint =>
+      'Add the address, time and rate. Send the terms to the owner for confirmation.';
+
+  @override
+  String get listingSpecifications => 'All specifications';
+
+  @override
+  String get listingNoReviews => 'No ratings yet';
+
+  @override
+  String get requestOwnerTitle => 'Request to owner';
+
+  @override
+  String get requestSentSuccess => 'Request sent to owner';
+
+  @override
+  String get inquiryOwnerOffline => 'Go online to reply to the client.';
+
+  @override
+  String get inquiryCloseAction => 'End discussion';
+
+  @override
+  String get inquiryCloseConfirm => 'Finish';
+
+  @override
+  String get inquiryCloseQuestion => 'End this discussion without an order?';
+
+  @override
+  String get inquiryCloseDescription =>
+      'The conversation will stay in archived chats. No order will be created.';
+
+  @override
+  String get inquiryClosedStatus => 'Discussion ended';
+
+  @override
+  String get inquiryCloseFailed =>
+      'Could not end the discussion. Refresh the chat and try again.';
+
+  @override
+  String get inquiryClientEmptyHint =>
+      'Ask about availability, prices or details. No order has been created yet.';
+
+  @override
+  String get inquiryOwnerEmptyHint =>
+      'Discuss the task with the client. An order will appear after the terms are submitted.';
+
+  @override
+  String get inquiryReadOnlyHint =>
+      'The conversation is saved. You can view it here.';
+
+  @override
+  String get clearSearch => 'Clear search';
+
+  @override
+  String get catalogNoResults => 'No listings found';
+
+  @override
+  String get catalogNoResultsHint => 'Try another search, category or city.';
+
+  @override
+  String get requestClientBudget => 'Your budget';
+
+  @override
+  String get requestsSubmitToOwners => 'Send to owners';
+
+  @override
+  String get requestsSentToOwners => 'Request sent to owners';
+
+  @override
+  String get requestOwnerOffers => 'Owner offers';
+
+  @override
+  String get offerPriceSortDefault => 'Original order';
+
+  @override
+  String get offerPriceSortLow => 'Lowest price first';
+
+  @override
+  String get offerPriceSortHigh => 'Highest price first';
+
+  @override
+  String get offerBestPrice => 'Best price';
+
+  @override
+  String get offerCompareUnit => 'Price unit';
+
+  @override
+  String get offerCompareAllUnits => 'All units';
+
+  @override
+  String get offerCompareUnitHint =>
+      'Choose a single price unit to compare offers.';
+
+  @override
+  String get offerPricesPartialHint => 'Load all offers to compare prices.';
+
+  @override
+  String get offerLoadAll => 'Load all offers';
+
+  @override
+  String get flowSchedulePick => 'Choose time';
+
+  @override
+  String get proposeOrderTerms => 'Propose order terms';
+
+  @override
+  String get orderTermsProposalHint =>
+      'Change the fields you need. The new terms take effect only after the other party confirms.';
+
+  @override
+  String get sendOrderTermsProposal => 'Send for confirmation';
+
+  @override
+  String get orderTermsUnchanged => 'Change at least one term.';
+
+  @override
+  String get orderTermsUnavailable =>
+      'Refresh the chat to change this order’s terms.';
+
+  @override
+  String get orderTermsCurrentAddress => 'Current request address';
+
+  @override
+  String get orderTermsProposalTitle => 'Proposed terms';
+
+  @override
+  String get currentOrderTerms => 'Current terms';
+
+  @override
+  String get proposedOrderTerms => 'New terms';
+
+  @override
+  String get acceptOrderTerms => 'Accept terms';
+
+  @override
+  String get withdrawOrderTerms => 'Withdraw proposal';
+
+  @override
+  String get orderTermsUpdateRequired =>
+      'Update the app to confirm these terms.';
+
+  @override
+  String get orderTermsRefreshRequired =>
+      'The terms have changed. Refresh the chat and review the latest proposal.';
+
+  @override
+  String get loadContentRetryHint =>
+      'Check your internet connection and try again.';
+
+  @override
+  String get publicOfferSubtitle => 'Terms for services and placing orders.';
+
+  @override
+  String get listingUnavailableHint =>
+      'Return to the catalog and choose another listing.';
+
+  @override
+  String get chatPhoto => 'Photo';
+
+  @override
+  String get chatAttachPhoto => 'Attach photo';
+
+  @override
+  String get chatPhotoUnavailable => 'Photo unavailable';
+
+  @override
+  String get chatPhotoTooLarge => 'Choose a photo up to 10 MB.';
+
+  @override
+  String get chatPhotoSendFailed =>
+      'Could not send the photo. Check your connection and try again.';
+
+  @override
+  String get chatMessageRead => 'Read';
+
+  @override
+  String get chatMessageSent => 'Sent';
+
+  @override
+  String get chatPhotoPreview => 'Photo';
+
+  @override
+  String get ownerRequestsAll => 'All requests';
+
+  @override
+  String get ownerRequestsMine => 'My categories';
+
+  @override
+  String get goToChat => 'Open chat';
+
+  @override
+  String get historyChatAction => 'Chat';
+
+  @override
+  String get listingDescription => 'Description';
 }

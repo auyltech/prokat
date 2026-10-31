@@ -779,6 +779,8 @@ void main() {
     if (!Platform.isWindows) return;
     final result = Process.runSync('powershell', [
       '-NoProfile',
+      '-ExecutionPolicy',
+      'Bypass',
       '-Command',
       ". ./tool/release/prokat-release.ps1; "
           "function Invoke-ProkatRelease { param(\$Platform,\$Channel,[switch]\$DryRun) "
@@ -830,6 +832,8 @@ void main() {
     ]) {
       final result = Process.runSync('powershell', [
         '-NoProfile',
+        '-ExecutionPolicy',
+        'Bypass',
         '-Command',
         "$setup; try { . ./tool/release/prokat-release.ps1; exit 9 } catch { 'COLLISION BLOCKED' }",
       ]);
@@ -838,6 +842,8 @@ void main() {
     }
     final result = Process.runSync('powershell', [
       '-NoProfile',
+      '-ExecutionPolicy',
+      'Bypass',
       '-Command',
       ". ./tool/release/prokat-release.ps1; . ./tool/release/prokat-release.ps1; "
           "function Invoke-ProkatRelease { throw 'MUST NOT RUN' }; "
@@ -876,6 +882,8 @@ void main() {
         powershell,
         [
           '-NoProfile',
+          '-ExecutionPolicy',
+          'Bypass',
           '-Command',
           ". ./tool/release/prokat-release.ps1; $command",
         ],

@@ -38,9 +38,5 @@ final pushNotificationServiceProvider = Provider<PushNotificationService>((
     accepts: (notification) =>
         ref.read(notificationApiServiceProvider).accepts(notification),
     currentLocale: () => ref.read(localeProvider).languageCode,
-    shouldSuppressDisplay: (id) => ref
-        .read(notificationProvider)
-        .items
-        .any((item) => item.id == id && item.isRead),
   );
 });

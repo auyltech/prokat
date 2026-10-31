@@ -106,7 +106,10 @@ class BookingMutationNotifier extends MutationNotifier<BookingMutationState> {
     state = state.copyWith(comment: comment);
   }
 
-  Future<MutationResponse> createBooking({String? companyId}) async {
+  Future<MutationResponse> createBooking({
+    String? companyId,
+    String? inquiryChatId,
+  }) async {
     const actionId = "booking:create";
 
     try {
@@ -153,6 +156,7 @@ class BookingMutationNotifier extends MutationNotifier<BookingMutationState> {
         "bookedAt": state.selectedTime!.toUtc().toIso8601String(),
         "comment": state.comment,
         "shareId": ?(Env.shareAnalyticsEnabled ? shareId : null),
+        "inquiryChatId": ?inquiryChatId,
       });
 
       finishAction(
@@ -197,6 +201,7 @@ class BookingMutationNotifier extends MutationNotifier<BookingMutationState> {
         success: result.success,
         message: result.success ? "Order created" : result.message,
         errorCode: result.success ? null : result.errorCode,
+        chatId: result.success ? result.data : null,
       );
     } catch (error) {
       finishAction(

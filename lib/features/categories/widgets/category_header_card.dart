@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:prokat/core/theme/prokat_flow_palette.dart';
+import 'package:prokat/core/theme/prokat_flow_scope.dart';
 import 'package:prokat/core/widgets/app_category_info.dart';
 import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:prokat/features/catalog/models/catalog_group.dart';
@@ -14,10 +16,9 @@ import 'package:prokat/features/categories/widgets/category_picker_sheet.dart';
 import 'package:prokat/features/equipment/providers/equipment_provider.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
-/// Expandable category header: image + title/description + search.
+/// Category selection and search, with quick category chips in the new flow.
 ///
 /// Search UI is per catalog-group session (lazy + sticky across tabs).
-/// Filter modal is a stub until catalog filters ship.
 class CategoryHeaderCard extends ConsumerStatefulWidget {
   const CategoryHeaderCard({super.key, this.group});
 
@@ -36,6 +37,9 @@ class _CategoryHeaderCardState extends ConsumerState<CategoryHeaderCard>
   late final TextEditingController _searchController;
   late final FocusNode _searchFocus;
   late final AnimationController _searchReveal;
+  final _quickCategoriesScroll = ScrollController(
+    debugLabel: 'categoryHeaderQuickCategories',
+  );
   Timer? _debounce;
   ProviderSubscription<CatalogGroup>? _groupSub;
 
@@ -93,6 +97,7 @@ class _CategoryHeaderCardState extends ConsumerState<CategoryHeaderCard>
     _debounce?.cancel();
     _groupSub?.close();
     _searchReveal.dispose();
+    _quickCategoriesScroll.dispose();
     _searchFocus.dispose();
     _searchController.dispose();
     super.dispose();
@@ -125,6 +130,22 @@ class _CategoryHeaderCardState extends ConsumerState<CategoryHeaderCard>
       if (!mounted) return;
       _syncSearchProvider(value);
     });
+  }
+
+  void _submitQuery(String value) {
+    _usePinnedGroup();
+    _debounce?.cancel();
+    ref.read(browseGroupSessionsProvider.notifier).setQuery(value);
+    _syncSearchProvider(value);
+    _clearSearchFocus();
+  }
+
+  void _clearQuery() {
+    _usePinnedGroup();
+    _debounce?.cancel();
+    _searchController.clear();
+    ref.read(browseGroupSessionsProvider.notifier).clearSearch();
+    _syncSearchProvider('');
   }
 
   void _collapseSearch({required bool clearQuery}) {
@@ -173,16 +194,21 @@ class _CategoryHeaderCardState extends ConsumerState<CategoryHeaderCard>
     );
     if (!mounted || selected == null) return;
 
+    _selectCategory(selected.isAll ? null : selected.category);
+  }
+
+  void _selectCategory(Category? category) {
     _usePinnedGroup();
     _collapseSearch(clearQuery: true);
-
-    if (selected.isAll) {
+    if (category == null) {
       ref.read(selectedBrowseCategoryProvider.notifier).clear();
     } else {
-      ref
-          .read(selectedBrowseCategoryProvider.notifier)
-          .select(selected.category);
+      ref.read(selectedBrowseCategoryProvider.notifier).select(category);
     }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || !_quickCategoriesScroll.hasClients) return;
+      _quickCategoriesScroll.jumpTo(0);
+    });
   }
 
   Category? _selectedForPinnedGroup(CatalogGroup group) {
@@ -221,6 +247,72 @@ class _CategoryHeaderCardState extends ConsumerState<CategoryHeaderCard>
         : selected.localizedDescription(languageCode);
     final imageUrl = selected?.imageUrl;
     final searchExpanded = session.searchExpanded;
+    final flow = ProkatFlowScope.maybeOf(context);
+
+    if (flow != null) {
+      final quickCategories = categories
+          .take(6)
+          .where((category) => category.id != selected?.id)
+          .toList();
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: _FlowCategorySearch(
+                  controller: _searchController,
+                  focusNode: _searchFocus,
+                  palette: flow,
+                  onChanged: _setQuery,
+                  onSubmitted: _submitQuery,
+                  onClear: _clearQuery,
+                  onTapOutside: _clearSearchFocus,
+                ),
+              ),
+              const SizedBox(width: 10),
+              _FlowCategoryPickerButton(
+                label: '${l10n.selectCategory}: $title',
+                palette: flow,
+                onTap: () => unawaited(
+                  _openCategoryPicker(categories: categories, group: group),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          SingleChildScrollView(
+            controller: _quickCategoriesScroll,
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              spacing: 8,
+              children: [
+                if (selected != null)
+                  _FlowCategoryChip(
+                    title: selected.localizedName(languageCode),
+                    selected: true,
+                    palette: flow,
+                    onTap: () => _selectCategory(null),
+                  ),
+                _FlowCategoryChip(
+                  title: l10n.allCategories,
+                  selected: selected == null,
+                  palette: flow,
+                  onTap: () => _selectCategory(null),
+                ),
+                for (final category in quickCategories)
+                  _FlowCategoryChip(
+                    title: category.localizedName(languageCode),
+                    selected: false,
+                    palette: flow,
+                    onTap: () => _selectCategory(category),
+                  ),
+              ],
+            ),
+          ),
+        ],
+      );
+    }
 
     return AppCard(
       onTap: () =>
@@ -281,14 +373,7 @@ class _CategoryHeaderCardState extends ConsumerState<CategoryHeaderCard>
                             hint: l10n.searchEquipment,
                             textInputAction: TextInputAction.search,
                             onChanged: _setQuery,
-                            onSubmitted: (value) {
-                              _debounce?.cancel();
-                              ref
-                                  .read(browseGroupSessionsProvider.notifier)
-                                  .setQuery(value);
-                              _syncSearchProvider(value);
-                              _clearSearchFocus();
-                            },
+                            onSubmitted: _submitQuery,
                           ),
                         ),
                       );
@@ -311,6 +396,177 @@ class _CategoryHeaderCardState extends ConsumerState<CategoryHeaderCard>
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _FlowCategoryPickerButton extends StatelessWidget {
+  final String label;
+  final ProkatFlowPalette palette;
+  final VoidCallback onTap;
+
+  const _FlowCategoryPickerButton({
+    required this.label,
+    required this.palette,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      button: true,
+      label: label,
+      excludeSemantics: true,
+      onTap: onTap,
+      child: Tooltip(
+        message: label,
+        child: Material(
+          color: palette.filledPrimary,
+          borderRadius: BorderRadius.circular(16),
+          clipBehavior: Clip.antiAlias,
+          child: InkWell(
+            onTap: onTap,
+            child: const SizedBox.square(
+              dimension: 56,
+              child: Icon(
+                LucideIcons.slidersHorizontal,
+                size: 22,
+                color: Colors.white,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _FlowCategoryChip extends StatelessWidget {
+  final String title;
+  final bool selected;
+  final ProkatFlowPalette palette;
+  final VoidCallback onTap;
+
+  const _FlowCategoryChip({
+    required this.title,
+    required this.selected,
+    required this.palette,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      button: true,
+      selected: selected,
+      label: title,
+      excludeSemantics: true,
+      onTap: onTap,
+      child: Material(
+        color: selected ? palette.filledPrimary : palette.surface,
+        shape: StadiumBorder(
+          side: BorderSide(
+            color: selected ? palette.filledPrimary : palette.border,
+          ),
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: onTap,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(minHeight: 44),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              child: Text(
+                title,
+                maxLines: 1,
+                softWrap: false,
+                style: AppFonts.body14(context).copyWith(
+                  color: selected ? Colors.white : palette.title,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _FlowCategorySearch extends StatelessWidget {
+  final TextEditingController controller;
+  final FocusNode focusNode;
+  final ProkatFlowPalette palette;
+  final ValueChanged<String> onChanged;
+  final ValueChanged<String> onSubmitted;
+  final VoidCallback onClear;
+  final VoidCallback onTapOutside;
+
+  const _FlowCategorySearch({
+    required this.controller,
+    required this.focusNode,
+    required this.palette,
+    required this.onChanged,
+    required this.onSubmitted,
+    required this.onClear,
+    required this.onTapOutside,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return AnimatedBuilder(
+      animation: Listenable.merge([controller, focusNode]),
+      builder: (context, _) => DecoratedBox(
+        decoration: BoxDecoration(
+          color: palette.surface,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: focusNode.hasFocus ? palette.primary : palette.border,
+          ),
+        ),
+        child: TextField(
+          controller: controller,
+          focusNode: focusNode,
+          textInputAction: TextInputAction.search,
+          onChanged: onChanged,
+          onSubmitted: onSubmitted,
+          onTapOutside: (_) => onTapOutside(),
+          cursorColor: palette.primary,
+          style: AppFonts.body16(context).copyWith(color: palette.title),
+          decoration: InputDecoration(
+            hintText: l10n.search,
+            hintStyle: AppFonts.body16(context)
+                .copyWith(color: palette.secondary),
+            border: InputBorder.none,
+            enabledBorder: InputBorder.none,
+            focusedBorder: InputBorder.none,
+            contentPadding: const EdgeInsets.symmetric(vertical: 16),
+            constraints: const BoxConstraints(minHeight: 56),
+            prefixIcon: Icon(
+              LucideIcons.search,
+              size: 20,
+              color: palette.secondary,
+            ),
+            prefixIconConstraints: const BoxConstraints(minWidth: 48),
+            suffixIcon: controller.text.isEmpty
+                ? null
+                : IconButton(
+                    tooltip: l10n.clearSearch,
+                    onPressed: onClear,
+                    icon: Icon(
+                      LucideIcons.x,
+                      size: 20,
+                      color: palette.secondary,
+                    ),
+                  ),
+            suffixIconConstraints: const BoxConstraints(
+              minWidth: 48,
+              minHeight: 48,
+            ),
+          ),
+        ),
       ),
     );
   }

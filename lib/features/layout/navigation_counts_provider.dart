@@ -5,9 +5,14 @@ import 'package:prokat/core/api/api_provider.dart';
 import 'package:prokat/features/auth/providers/authenticated_session_scope.dart';
 
 class NavigationCounts {
-  final int pendingRequests, pendingOrders, clientUnread, ownerUnread;
+  final int pendingRequests,
+      pendingOrders,
+      clientUnread,
+      ownerUnread,
+      allPendingRequests;
   const NavigationCounts({
     this.pendingRequests = 0,
+    this.allPendingRequests = 0,
     this.pendingOrders = 0,
     this.clientUnread = 0,
     this.ownerUnread = 0,
@@ -23,6 +28,9 @@ class NavigationCounts {
 
     return NavigationCounts(
       pendingRequests: count('pendingRequests'),
+      allPendingRequests: json.containsKey('allPendingRequests')
+          ? count('allPendingRequests')
+          : count('pendingRequests'),
       pendingOrders: count('pendingOrders'),
       clientUnread: count('clientUnread'),
       ownerUnread: count('ownerUnread'),

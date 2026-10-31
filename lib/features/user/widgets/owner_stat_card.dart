@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
+import 'package:prokat/core/theme/prokat_flow_scope.dart';
 
 class OwnerStatCard extends StatelessWidget {
   final IconData icon;
@@ -24,6 +25,81 @@ class OwnerStatCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
+    final flow = ProkatFlowScope.maybeOf(context);
+    if (flow != null) {
+      Widget metric(String label, String value) => Wrap(
+        alignment: WrapAlignment.spaceBetween,
+        crossAxisAlignment: WrapCrossAlignment.center,
+        spacing: AppDimens.s08$sm,
+        runSpacing: AppDimens.s04$xs,
+        children: [
+          Text(
+            label,
+            style: AppFonts.body14(context).copyWith(color: flow.secondary),
+          ),
+          Text(
+            value,
+            style: AppFonts.body16SemiBold(context).copyWith(color: flow.title),
+          ),
+        ],
+      );
+      return Material(
+        color: flow.surface,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppDimens.r20$xxl),
+          side: BorderSide(color: flow.border),
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.all(AppDimens.s12$md),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(
+                  title,
+                  style: AppFonts.body14SemiBold(context)
+                      .copyWith(color: flow.title),
+                ),
+                const SizedBox(height: AppDimens.s08$sm),
+                IntrinsicHeight(
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Container(
+                        width: 36,
+                        decoration: BoxDecoration(
+                          color: flow.primarySoft,
+                          border: Border.all(color: flow.border),
+                          borderRadius: BorderRadius.circular(
+                            AppDimens.r10$base,
+                          ),
+                        ),
+                        child: Icon(icon, size: 22, color: flow.primary),
+                      ),
+                      const SizedBox(width: AppDimens.s08$sm),
+                      Expanded(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            metric(firstLabel, firstValue),
+                            const SizedBox(height: AppDimens.s04$xs),
+                            metric(secondLabel, secondValue),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
 
     return AppCard(
       padding: const EdgeInsets.all(AppDimens.s12$md),

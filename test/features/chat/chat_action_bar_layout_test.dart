@@ -53,7 +53,7 @@ void main() {
 
     expect(barSize.height, lessThan(160));
     expect(bodySize.height, greaterThan(400));
-    expect(find.text('Submit Review'), findsOneWidget);
+    expect(find.text('Submit Review'), findsNothing);
     expect(find.text('Leave a review'), findsOneWidget);
     expect(find.byType(AppLabelButton), findsOneWidget);
   });

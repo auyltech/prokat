@@ -100,6 +100,36 @@ abstract class AppLocalizations {
     Locale('ru'),
   ];
 
+  /// No description provided for @companiesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Companies'**
+  String get companiesTitle;
+
+  /// No description provided for @companiesEmptyCity.
+  ///
+  /// In en, this message translates to:
+  /// **'There are no companies in this city yet.'**
+  String get companiesEmptyCity;
+
+  /// No description provided for @loadMoreItems.
+  ///
+  /// In en, this message translates to:
+  /// **'Show more'**
+  String get loadMoreItems;
+
+  /// No description provided for @companyUnitCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Total: {count}'**
+  String companyUnitCount(int count);
+
+  /// No description provided for @bookingOrderCommentEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Not specified'**
+  String get bookingOrderCommentEmpty;
+
   /// No description provided for @machineryQuotaReached.
   ///
   /// In en, this message translates to:
@@ -1669,13 +1699,13 @@ abstract class AppLocalizations {
   /// No description provided for @noRequestHistory.
   ///
   /// In en, this message translates to:
-  /// **'You don\'t have any requests in your history'**
+  /// **'Closed and cancelled requests will be kept here.'**
   String get noRequestHistory;
 
   /// No description provided for @noOrderHistoryDescription.
   ///
   /// In en, this message translates to:
-  /// **'You don\'t have any orders in your history'**
+  /// **'Completed and cancelled orders will be kept here.'**
   String get noOrderHistoryDescription;
 
   /// No description provided for @reviewSubmitted.
@@ -1819,7 +1849,7 @@ abstract class AppLocalizations {
   /// No description provided for @serverWarmingUp.
   ///
   /// In en, this message translates to:
-  /// **'Server is warming up, please wait...'**
+  /// **'Loading is taking a little longer. Please wait.'**
   String get serverWarmingUp;
 
   /// No description provided for @save.
@@ -1975,7 +2005,7 @@ abstract class AppLocalizations {
   /// No description provided for @somethingWentWrong.
   ///
   /// In en, this message translates to:
-  /// **'Something went wrong!'**
+  /// **'Could not load the information'**
   String get somethingWentWrong;
 
   /// No description provided for @loading.
@@ -2533,13 +2563,13 @@ abstract class AppLocalizations {
   /// No description provided for @errorLoadingOrders.
   ///
   /// In en, this message translates to:
-  /// **'Error Loading Orders'**
+  /// **'Could not load orders'**
   String get errorLoadingOrders;
 
   /// No description provided for @noBookingsFound.
   ///
   /// In en, this message translates to:
-  /// **'No bookings found'**
+  /// **'No orders yet'**
   String get noBookingsFound;
 
   /// No description provided for @updateWorkStatus.
@@ -3253,7 +3283,7 @@ abstract class AppLocalizations {
   /// No description provided for @createRequest.
   ///
   /// In en, this message translates to:
-  /// **'Create Request'**
+  /// **'Create request'**
   String get createRequest;
 
   /// No description provided for @loginToViewRequests.
@@ -3265,19 +3295,19 @@ abstract class AppLocalizations {
   /// No description provided for @errorLoadingRequests.
   ///
   /// In en, this message translates to:
-  /// **'Error loading requests'**
+  /// **'Could not load requests'**
   String get errorLoadingRequests;
 
   /// No description provided for @noActiveRequests.
   ///
   /// In en, this message translates to:
-  /// **'You don\'t have any active requests'**
+  /// **'Create a request with the task, location and time — owners will send you offers.'**
   String get noActiveRequests;
 
   /// No description provided for @ownerEmptyRequestsHint.
   ///
   /// In en, this message translates to:
-  /// **'See current client requests here'**
+  /// **'Client requests matching your equipment will appear here.'**
   String get ownerEmptyRequestsHint;
 
   /// No description provided for @createNewRequest.
@@ -3415,7 +3445,7 @@ abstract class AppLocalizations {
   /// No description provided for @noChats.
   ///
   /// In en, this message translates to:
-  /// **'No Chats'**
+  /// **'No conversations yet'**
   String get noChats;
 
   /// No description provided for @chatsActiveTab.
@@ -3433,13 +3463,13 @@ abstract class AppLocalizations {
   /// No description provided for @noArchivedChats.
   ///
   /// In en, this message translates to:
-  /// **'No archived chats'**
+  /// **'Your archive is empty'**
   String get noArchivedChats;
 
   /// No description provided for @youHaveNoArchivedChats.
   ///
   /// In en, this message translates to:
-  /// **'Completed and cancelled chats will appear here.'**
+  /// **'Finished discussions and conversations about closed orders are kept here.'**
   String get youHaveNoArchivedChats;
 
   /// No description provided for @deliverTo.
@@ -3607,7 +3637,7 @@ abstract class AppLocalizations {
   /// No description provided for @pushNotifications.
   ///
   /// In en, this message translates to:
-  /// **'Push Notifications'**
+  /// **'On this device'**
   String get pushNotifications;
 
   /// No description provided for @bookingAlerts.
@@ -3829,13 +3859,13 @@ abstract class AppLocalizations {
   /// No description provided for @initializationError.
   ///
   /// In en, this message translates to:
-  /// **'INITIALIZATION ERROR'**
+  /// **'Could not open the app'**
   String get initializationError;
 
   /// No description provided for @initializationErrorMessage.
   ///
   /// In en, this message translates to:
-  /// **'We couldn\'t load your session or connection was lost. Please check your network and try again.'**
+  /// **'Check your internet connection and try again.'**
   String get initializationErrorMessage;
 
   /// No description provided for @retryConnection.
@@ -4065,6 +4095,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Part load possible, access notes…'**
   String get ownerCommentHint;
+
+  /// No description provided for @offerCommentHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Clarify the arrival time or rental terms'**
+  String get offerCommentHint;
+
+  /// No description provided for @companyGoToProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Go to company profile'**
+  String get companyGoToProfile;
+
+  /// No description provided for @companyOpenProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Create company profile'**
+  String get companyOpenProfile;
+
+  /// No description provided for @companyInvited.
+  ///
+  /// In en, this message translates to:
+  /// **'You have a company invitation'**
+  String get companyInvited;
+
+  /// No description provided for @companyPlaceServices.
+  ///
+  /// In en, this message translates to:
+  /// **'List your company\'s services here'**
+  String get companyPlaceServices;
+
+  /// No description provided for @companyNewInvitation.
+  ///
+  /// In en, this message translates to:
+  /// **'New invitation'**
+  String get companyNewInvitation;
 
   /// No description provided for @prices.
   ///
@@ -5335,7 +5401,7 @@ abstract class AppLocalizations {
   /// No description provided for @noSavedMachinery.
   ///
   /// In en, this message translates to:
-  /// **'NO SAVED MACHINERY'**
+  /// **'No favorites yet'**
   String get noSavedMachinery;
 
   /// No description provided for @exploreFleet.
@@ -5365,7 +5431,7 @@ abstract class AppLocalizations {
   /// No description provided for @favoritesEmptyHint.
   ///
   /// In en, this message translates to:
-  /// **'Items you favorite will appear here'**
+  /// **'Tap the heart on a listing to save equipment you like.'**
   String get favoritesEmptyHint;
 
   /// No description provided for @frequentlyAskedQuestions.
@@ -5791,7 +5857,7 @@ abstract class AppLocalizations {
   /// No description provided for @youHaveNoChats.
   ///
   /// In en, this message translates to:
-  /// **'You don\'t have any chats'**
+  /// **'Your conversations about equipment and orders will appear here.'**
   String get youHaveNoChats;
 
   /// No description provided for @error.
@@ -5875,7 +5941,7 @@ abstract class AppLocalizations {
   /// No description provided for @noEquipmentMatchingCategory.
   ///
   /// In en, this message translates to:
-  /// **'We couldn\'t find any items matching this category at the moment.'**
+  /// **'Try another category or adjust your filters.'**
   String get noEquipmentMatchingCategory;
 
   /// No description provided for @cancelOrderConfirmation.
@@ -5887,7 +5953,7 @@ abstract class AppLocalizations {
   /// No description provided for @loadEquipmentErrorHint.
   ///
   /// In en, this message translates to:
-  /// **'We ran into an issue loading the list. Please try again.'**
+  /// **'Check your internet connection and try again.'**
   String get loadEquipmentErrorHint;
 
   /// No description provided for @createBooking.
@@ -6775,13 +6841,13 @@ abstract class AppLocalizations {
   /// No description provided for @youHaveNoActiveOrders.
   ///
   /// In en, this message translates to:
-  /// **'You don\'t have any active orders'**
+  /// **'Your current orders will appear here.'**
   String get youHaveNoActiveOrders;
 
   /// No description provided for @youHaveNoNotifications.
   ///
   /// In en, this message translates to:
-  /// **'You don\'t have any notifications'**
+  /// **'Updates about orders, offers and other important events will appear here.'**
   String get youHaveNoNotifications;
 
   /// No description provided for @unitCubicMeters.
@@ -7015,7 +7081,7 @@ abstract class AppLocalizations {
   /// No description provided for @ownerOfflineChatOwnerBanner.
   ///
   /// In en, this message translates to:
-  /// **'To continue, switch your status to Online'**
+  /// **'Go Online to reply to the client.'**
   String get ownerOfflineChatOwnerBanner;
 
   /// No description provided for @becomeOnline.
@@ -7473,6 +7539,414 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The text contains content that is not allowed. Please edit it and try again.'**
   String get contentNotAllowed;
+
+  /// No description provided for @discussEquipmentTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Message owner'**
+  String get discussEquipmentTooltip;
+
+  /// No description provided for @sendBookingRequest.
+  ///
+  /// In en, this message translates to:
+  /// **'Send request'**
+  String get sendBookingRequest;
+
+  /// No description provided for @sendAgreedTerms.
+  ///
+  /// In en, this message translates to:
+  /// **'Send terms'**
+  String get sendAgreedTerms;
+
+  /// No description provided for @inquiryStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Discussion'**
+  String get inquiryStatus;
+
+  /// No description provided for @inquiryCreateOrder.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm terms'**
+  String get inquiryCreateOrder;
+
+  /// No description provided for @requestTermsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Request details'**
+  String get requestTermsTitle;
+
+  /// No description provided for @agreedTermsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Order terms'**
+  String get agreedTermsTitle;
+
+  /// No description provided for @requestTermsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Add the address, time and rate. Send the terms to the owner for confirmation.'**
+  String get requestTermsHint;
+
+  /// No description provided for @listingSpecifications.
+  ///
+  /// In en, this message translates to:
+  /// **'All specifications'**
+  String get listingSpecifications;
+
+  /// No description provided for @listingNoReviews.
+  ///
+  /// In en, this message translates to:
+  /// **'No ratings yet'**
+  String get listingNoReviews;
+
+  /// No description provided for @requestOwnerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Request to owner'**
+  String get requestOwnerTitle;
+
+  /// No description provided for @requestSentSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Request sent to owner'**
+  String get requestSentSuccess;
+
+  /// No description provided for @inquiryOwnerOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'Go online to reply to the client.'**
+  String get inquiryOwnerOffline;
+
+  /// No description provided for @inquiryCloseAction.
+  ///
+  /// In en, this message translates to:
+  /// **'End discussion'**
+  String get inquiryCloseAction;
+
+  /// No description provided for @inquiryCloseConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Finish'**
+  String get inquiryCloseConfirm;
+
+  /// No description provided for @inquiryCloseQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'End this discussion without an order?'**
+  String get inquiryCloseQuestion;
+
+  /// No description provided for @inquiryCloseDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'The conversation will stay in archived chats. No order will be created.'**
+  String get inquiryCloseDescription;
+
+  /// No description provided for @inquiryClosedStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Discussion ended'**
+  String get inquiryClosedStatus;
+
+  /// No description provided for @inquiryCloseFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not end the discussion. Refresh the chat and try again.'**
+  String get inquiryCloseFailed;
+
+  /// No description provided for @inquiryClientEmptyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask about availability, prices or details. No order has been created yet.'**
+  String get inquiryClientEmptyHint;
+
+  /// No description provided for @inquiryOwnerEmptyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Discuss the task with the client. An order will appear after the terms are submitted.'**
+  String get inquiryOwnerEmptyHint;
+
+  /// No description provided for @inquiryReadOnlyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'The conversation is saved. You can view it here.'**
+  String get inquiryReadOnlyHint;
+
+  /// No description provided for @clearSearch.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear search'**
+  String get clearSearch;
+
+  /// No description provided for @catalogNoResults.
+  ///
+  /// In en, this message translates to:
+  /// **'No listings found'**
+  String get catalogNoResults;
+
+  /// No description provided for @catalogNoResultsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Try another search, category or city.'**
+  String get catalogNoResultsHint;
+
+  /// No description provided for @requestClientBudget.
+  ///
+  /// In en, this message translates to:
+  /// **'Your budget'**
+  String get requestClientBudget;
+
+  /// No description provided for @requestsSubmitToOwners.
+  ///
+  /// In en, this message translates to:
+  /// **'Send to owners'**
+  String get requestsSubmitToOwners;
+
+  /// No description provided for @requestsSentToOwners.
+  ///
+  /// In en, this message translates to:
+  /// **'Request sent to owners'**
+  String get requestsSentToOwners;
+
+  /// No description provided for @requestOwnerOffers.
+  ///
+  /// In en, this message translates to:
+  /// **'Owner offers'**
+  String get requestOwnerOffers;
+
+  /// No description provided for @offerPriceSortDefault.
+  ///
+  /// In en, this message translates to:
+  /// **'Original order'**
+  String get offerPriceSortDefault;
+
+  /// No description provided for @offerPriceSortLow.
+  ///
+  /// In en, this message translates to:
+  /// **'Lowest price first'**
+  String get offerPriceSortLow;
+
+  /// No description provided for @offerPriceSortHigh.
+  ///
+  /// In en, this message translates to:
+  /// **'Highest price first'**
+  String get offerPriceSortHigh;
+
+  /// No description provided for @offerBestPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Best price'**
+  String get offerBestPrice;
+
+  /// No description provided for @offerCompareUnit.
+  ///
+  /// In en, this message translates to:
+  /// **'Price unit'**
+  String get offerCompareUnit;
+
+  /// No description provided for @offerCompareAllUnits.
+  ///
+  /// In en, this message translates to:
+  /// **'All units'**
+  String get offerCompareAllUnits;
+
+  /// No description provided for @offerCompareUnitHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a single price unit to compare offers.'**
+  String get offerCompareUnitHint;
+
+  /// No description provided for @offerPricesPartialHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Load all offers to compare prices.'**
+  String get offerPricesPartialHint;
+
+  /// No description provided for @offerLoadAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Load all offers'**
+  String get offerLoadAll;
+
+  /// No description provided for @flowSchedulePick.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose time'**
+  String get flowSchedulePick;
+
+  /// No description provided for @proposeOrderTerms.
+  ///
+  /// In en, this message translates to:
+  /// **'Propose order terms'**
+  String get proposeOrderTerms;
+
+  /// No description provided for @orderTermsProposalHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Change the fields you need. The new terms take effect only after the other party confirms.'**
+  String get orderTermsProposalHint;
+
+  /// No description provided for @sendOrderTermsProposal.
+  ///
+  /// In en, this message translates to:
+  /// **'Send for confirmation'**
+  String get sendOrderTermsProposal;
+
+  /// No description provided for @orderTermsUnchanged.
+  ///
+  /// In en, this message translates to:
+  /// **'Change at least one term.'**
+  String get orderTermsUnchanged;
+
+  /// No description provided for @orderTermsUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh the chat to change this order’s terms.'**
+  String get orderTermsUnavailable;
+
+  /// No description provided for @orderTermsCurrentAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'Current request address'**
+  String get orderTermsCurrentAddress;
+
+  /// No description provided for @orderTermsProposalTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Proposed terms'**
+  String get orderTermsProposalTitle;
+
+  /// No description provided for @currentOrderTerms.
+  ///
+  /// In en, this message translates to:
+  /// **'Current terms'**
+  String get currentOrderTerms;
+
+  /// No description provided for @proposedOrderTerms.
+  ///
+  /// In en, this message translates to:
+  /// **'New terms'**
+  String get proposedOrderTerms;
+
+  /// No description provided for @acceptOrderTerms.
+  ///
+  /// In en, this message translates to:
+  /// **'Accept terms'**
+  String get acceptOrderTerms;
+
+  /// No description provided for @withdrawOrderTerms.
+  ///
+  /// In en, this message translates to:
+  /// **'Withdraw proposal'**
+  String get withdrawOrderTerms;
+
+  /// No description provided for @orderTermsUpdateRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Update the app to confirm these terms.'**
+  String get orderTermsUpdateRequired;
+
+  /// No description provided for @orderTermsRefreshRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'The terms have changed. Refresh the chat and review the latest proposal.'**
+  String get orderTermsRefreshRequired;
+
+  /// No description provided for @loadContentRetryHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Check your internet connection and try again.'**
+  String get loadContentRetryHint;
+
+  /// No description provided for @publicOfferSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Terms for services and placing orders.'**
+  String get publicOfferSubtitle;
+
+  /// No description provided for @listingUnavailableHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Return to the catalog and choose another listing.'**
+  String get listingUnavailableHint;
+
+  /// No description provided for @chatPhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Photo'**
+  String get chatPhoto;
+
+  /// No description provided for @chatAttachPhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Attach photo'**
+  String get chatAttachPhoto;
+
+  /// No description provided for @chatPhotoUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Photo unavailable'**
+  String get chatPhotoUnavailable;
+
+  /// No description provided for @chatPhotoTooLarge.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a photo up to 10 MB.'**
+  String get chatPhotoTooLarge;
+
+  /// No description provided for @chatPhotoSendFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not send the photo. Check your connection and try again.'**
+  String get chatPhotoSendFailed;
+
+  /// No description provided for @chatMessageRead.
+  ///
+  /// In en, this message translates to:
+  /// **'Read'**
+  String get chatMessageRead;
+
+  /// No description provided for @chatMessageSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent'**
+  String get chatMessageSent;
+
+  /// No description provided for @chatPhotoPreview.
+  ///
+  /// In en, this message translates to:
+  /// **'Photo'**
+  String get chatPhotoPreview;
+
+  /// No description provided for @ownerRequestsAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All requests'**
+  String get ownerRequestsAll;
+
+  /// No description provided for @ownerRequestsMine.
+  ///
+  /// In en, this message translates to:
+  /// **'My categories'**
+  String get ownerRequestsMine;
+
+  /// No description provided for @goToChat.
+  ///
+  /// In en, this message translates to:
+  /// **'Open chat'**
+  String get goToChat;
+
+  /// No description provided for @historyChatAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Chat'**
+  String get historyChatAction;
+
+  /// No description provided for @listingDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Description'**
+  String get listingDescription;
 }
 
 class _AppLocalizationsDelegate

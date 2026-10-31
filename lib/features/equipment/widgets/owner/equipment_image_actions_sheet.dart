@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:prokat/core/theme/prokat_flow_icons.dart';
 import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:prokat/l10n/app_localizations.dart';
 
@@ -63,7 +64,7 @@ class EquipmentImageActionsSheet extends StatelessWidget {
           ListTile(
             contentPadding: EdgeInsets.zero,
             leading: Icon(
-              Icons.photo_library,
+              ProkatFlowIcons.gallery,
               color: canPick ? null : disabledColor,
             ),
             title: Text(
@@ -78,7 +79,7 @@ class EquipmentImageActionsSheet extends StatelessWidget {
           ListTile(
             contentPadding: EdgeInsets.zero,
             leading: Icon(
-              Icons.camera_alt,
+              ProkatFlowIcons.camera,
               color: canPick ? null : disabledColor,
             ),
             title: Text(
@@ -93,7 +94,7 @@ class EquipmentImageActionsSheet extends StatelessWidget {
             ListTile(
               contentPadding: EdgeInsets.zero,
               leading: Icon(
-                Icons.star_outline,
+                ProkatFlowIcons.cover,
                 color: isBusy ? disabledColor : null,
               ),
               title: Text(
@@ -109,7 +110,7 @@ class EquipmentImageActionsSheet extends StatelessWidget {
             ListTile(
               contentPadding: EdgeInsets.zero,
               leading: Icon(
-                Icons.delete_outline,
+                ProkatFlowIcons.delete,
                 color: isBusy ? disabledColor : colorScheme.error,
               ),
               title: Text(

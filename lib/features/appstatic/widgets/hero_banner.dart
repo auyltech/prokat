@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:prokat/core/theme/prokat_flow_icons.dart';
 import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/router/app_routes.dart';
@@ -53,8 +54,8 @@ class HeroBanner extends ConsumerWidget {
               context: context,
               service: CitySelectorService.guestcategory,
             ),
-            prefix: const Icon(Icons.location_on_outlined),
-            postfix: const Icon(Icons.keyboard_arrow_down),
+            prefix: const Icon(ProkatFlowIcons.address),
+            postfix: const Icon(ProkatFlowIcons.expand),
             variant: AppLabelButtonVariant.soft,
             tone: AppLabelButtonTone.inverse,
           ),

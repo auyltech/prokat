@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:prokat/core/constants/app_colors.dart';
+import 'package:prokat/core/theme/prokat_flow_palette.dart';
 import 'package:prokat/core/router/app_routes.dart';
 import 'package:prokat/core/widgets/prokat_list_tile.dart';
 import 'package:prokat/features/auth/widgets/logout_button.dart';
@@ -58,6 +58,7 @@ class _OwnerProfileScreenState extends ConsumerState<OwnerProfileScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final palette = ProkatFlowPalette.of(context);
 
     final ownerProfile = ref.watch(ownerProfileProvider).valueOrNull;
     final equipmentItems =
@@ -90,6 +91,7 @@ class _OwnerProfileScreenState extends ConsumerState<OwnerProfileScreen> {
     );
 
     return Scaffold(
+      backgroundColor: palette.background,
       body: RefreshIndicator(
         onRefresh: () async {
           await Future.wait([
@@ -104,24 +106,28 @@ class _OwnerProfileScreenState extends ConsumerState<OwnerProfileScreen> {
         child: CustomScrollView(
           slivers: [
             // Owner Profile
-            SliverAppBar(
-              expandedHeight: 320,
-              pinned: false,
-              elevation: 0,
-              backgroundColor: const Color.fromARGB(255, 240, 240, 240),
-              automaticallyImplyLeading: false,
-              actions: const [
-                NotificationBadge(color: Colors.white),
-                SizedBox(width: 8),
-              ],
-              flexibleSpace: FlexibleSpaceBar(
-                background: OwnerProfileHeader(ownerProfile: ownerProfile),
+            SliverToBoxAdapter(
+              child: Stack(
+                children: [
+                  if (ownerProfile == null)
+                    Container(height: 84, color: palette.filledPrimary)
+                  else
+                    OwnerProfileHeader(ownerProfile: ownerProfile),
+                  const Positioned(
+                    top: 8,
+                    right: 16,
+                    child: SafeArea(
+                      bottom: false,
+                      child: NotificationBadge(color: Colors.white),
+                    ),
+                  ),
+                ],
               ),
             ),
 
             SliverToBoxAdapter(
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 20, 16, 40),
+                padding: const EdgeInsets.fromLTRB(16, 20, 16, 24),
                 child: Column(
                   children: [
                     if (fleetCards.length == 1)
@@ -132,11 +138,11 @@ class _OwnerProfileScreenState extends ConsumerState<OwnerProfileScreen> {
                       ordersCard,
                     ],
 
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 16),
 
                     const BalanceTile(),
 
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 16),
 
                     const OwnerBusinessPreferencesSection(),
                   ],
@@ -148,7 +154,7 @@ class _OwnerProfileScreenState extends ConsumerState<OwnerProfileScreen> {
 
             SliverToBoxAdapter(
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 40, 16, 40),
+                padding: const EdgeInsets.fromLTRB(16, 24, 16, 24),
                 child: Column(
                   children: [
                     // TODO(Vadim): hided
@@ -164,23 +170,23 @@ class _OwnerProfileScreenState extends ConsumerState<OwnerProfileScreen> {
 
                     ProkatListTile(
                       icon: LucideIcons.fileText,
-                      iconBgColor: AppColors.teal800.withValues(alpha: 0.15),
-                      iconColor: AppColors.teal800,
+                      iconBgColor: palette.primarySoft,
+                      iconColor: palette.primary,
                       title: l10n.legalDocuments,
                       subtitle: l10n.legalDocumentsSubtitle,
                       onTap: () => context.push(AppRoutes.ownerDocuments),
                     ),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 16),
 
                     ProkatListTile(
                       icon: LucideIcons.settings,
-                      iconBgColor: AppColors.teal800.withValues(alpha: 0.15),
-                      iconColor: AppColors.teal800,
+                      iconBgColor: palette.primarySoft,
+                      iconColor: palette.primary,
                       title: l10n.appSettings,
                       subtitle: l10n.appSettingsSubtitle,
                       onTap: () => context.push(AppRoutes.ownerSettings),
                     ),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 16),
 
                     ProkatListTile(
                       icon: LucideIcons.headset,
@@ -200,8 +206,8 @@ class _OwnerProfileScreenState extends ConsumerState<OwnerProfileScreen> {
               fillOverscroll: true,
               child: Padding(
                 padding: EdgeInsets.only(
-                  top: 40,
-                  bottom: 60,
+                  top: 24,
+                  bottom: 32,
                   left: 16,
                   right: 16,
                 ),

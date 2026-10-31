@@ -33,7 +33,7 @@ class TenderAcceptNavigation {
   /// After a successful accept from **Мои заявки**, switch to **Мои заказы**.
   ///
   /// Chat opened from that list stays on top; Back then lands on orders.
-  void revealClientOrders() {
+  void revealClientOrders({String? chatId}) {
     if (!_isClientRequestsPath(_backgroundPath) &&
         !_isClientRequestsPath(_topPath)) {
       return;
@@ -47,6 +47,13 @@ class TenderAcceptNavigation {
     }
 
     _router.go(AppRoutes.clientOrders);
+    if (chatId != null && chatId.trim().isNotEmpty) {
+      unawaited(
+        _router.push(
+          '${AppRoutes.clientChatList}/direct/${Uri.encodeComponent(chatId)}',
+        ),
+      );
+    }
   }
 }
 

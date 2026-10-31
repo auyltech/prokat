@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:prokat/core/theme/prokat_flow_scope.dart';
 import 'package:intl/intl.dart';
 import 'package:prokat/core/media/media_image_provider.dart';
 import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
@@ -29,6 +31,7 @@ class NotificationTile extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final flow = ProkatFlowScope.maybeOf(context);
     final l10n = AppLocalizations.of(context)!;
 
     final languageCode = Localizations.localeOf(context).languageCode;
@@ -43,57 +46,67 @@ class NotificationTile extends ConsumerWidget {
         ? l10n.newMessageFrom(resolvedName)
         : (title.isNotEmpty ? title : l10n.notification);
 
-    return ListTile(
-      onTap: onTap,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-      leading: chatStyle
-          ? _SenderAvatar(
-              name: resolvedName,
-              imageUrl: senderImageUrl,
-              isUnread: isUnread,
-            )
-          : CircleAvatar(
-              backgroundColor: isUnread
-                  ? theme.colorScheme.primary.withValues(alpha: 0.12)
-                  : theme.colorScheme.surfaceContainerHighest,
-              foregroundColor: isUnread
-                  ? theme.colorScheme.primary
-                  : theme.colorScheme.onSurface,
-              child: Icon(
-                isUnread ? Icons.notifications_active : Icons.notifications,
+    return Padding(
+      padding: flow == null
+          ? EdgeInsets.zero
+          : const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      child: ListTile(
+        tileColor: flow?.surface,
+        shape: flow == null
+            ? null
+            : RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+                side: BorderSide(color: flow.border),
               ),
-            ),
-      title: Text(
-        titleText,
-        maxLines: 2,
-        overflow: TextOverflow.ellipsis,
-        style: theme.textTheme.titleSmall?.copyWith(
-          fontWeight: isUnread ? FontWeight.w700 : FontWeight.w600,
+        onTap: onTap,
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+        leading: chatStyle
+            ? _SenderAvatar(
+                name: resolvedName,
+                imageUrl: senderImageUrl,
+                isUnread: isUnread,
+              )
+            : CircleAvatar(
+                backgroundColor: isUnread
+                    ? theme.colorScheme.primary.withValues(alpha: 0.12)
+                    : theme.colorScheme.surfaceContainerHighest,
+                foregroundColor: isUnread
+                    ? theme.colorScheme.primary
+                    : theme.colorScheme.onSurface,
+                child: Icon(isUnread ? LucideIcons.bellRing : LucideIcons.bell),
+              ),
+        title: Text(
+          titleText,
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
+          style: theme.textTheme.titleSmall?.copyWith(
+            fontWeight: isUnread ? FontWeight.w700 : FontWeight.w600,
+          ),
         ),
-      ),
-      subtitle: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const SizedBox(height: 4),
-          Text(body, maxLines: 2, overflow: TextOverflow.ellipsis),
-          if (notification.createdAt != null) ...[
-            const SizedBox(height: 6),
-            Text(
-              DateFormat(
-                'd MMM, HH:mm',
-                languageCode,
-              ).format(notification.createdAt!.toLocal()),
-              style: theme.textTheme.labelSmall?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
+        subtitle: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(height: 4),
+            Text(body, maxLines: 2, overflow: TextOverflow.ellipsis),
+            if (notification.createdAt != null) ...[
+              const SizedBox(height: 6),
+              Text(
+                DateFormat(
+                  'd MMM, HH:mm',
+                  languageCode,
+                ).format(notification.createdAt!.toLocal()),
+                style: theme.textTheme.labelSmall?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
               ),
-            ),
+            ],
           ],
-        ],
-      ),
-      trailing: _Trailing(
-        messageCount: chatStyle ? messageCount : 0,
-        onDelete: onDelete,
-        deleteTooltip: l10n.delete,
+        ),
+        trailing: _Trailing(
+          messageCount: chatStyle ? messageCount : 0,
+          onDelete: onDelete,
+          deleteTooltip: l10n.delete,
+        ),
       ),
     );
   }
@@ -131,7 +144,7 @@ class _SenderAvatar extends ConsumerWidget {
       child: provider != null
           ? null
           : initial.isEmpty
-          ? const Icon(Icons.person_outline)
+          ? const Icon(LucideIcons.userRound)
           : Text(
               initial,
               style: theme.textTheme.titleMedium?.copyWith(
@@ -183,7 +196,7 @@ class _Trailing extends StatelessWidget {
         if (onDelete != null)
           AppIconButton(
             onTap: onDelete,
-            icon: Icons.delete_outline,
+            icon: LucideIcons.trash2,
             tone: AppIconButtonTone.destructive,
             tooltip: deleteTooltip,
           ),

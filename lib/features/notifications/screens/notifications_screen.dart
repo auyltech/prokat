@@ -67,7 +67,13 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
               if ((state.error ?? '').isNotEmpty) {
                 return ListView(
                   padding: const EdgeInsets.all(12),
-                  children: [EmptyStateTile(title: state.error ?? l10n.error)],
+                  children: [
+                    EmptyStateTile(
+                      title: l10n.somethingWentWrong,
+                      subtitle: l10n.loadContentRetryHint,
+                      imageName: 'empty_error.png',
+                    ),
+                  ],
                 );
               }
 

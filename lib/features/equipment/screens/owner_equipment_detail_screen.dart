@@ -4,9 +4,12 @@ import 'package:prokat/features/equipment/providers/equipment_dependencies.dart'
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prokat/core/theme/prokat_flow_palette.dart';
+import 'package:prokat/core/theme/prokat_flow_scope.dart';
 import 'package:prokat/core/analytics/analytics_service.dart';
 import 'package:prokat/core/analytics/supply_analytics_rules.dart';
 import 'package:prokat/core/widgets/ui_kit/ui_kit.dart';
+import 'package:prokat/core/widgets/ui_kit/flow/prokat_flow_actions.dart';
 import 'package:prokat/core/widgets/empty_state_tile.dart';
 import 'package:prokat/features/catalog/models/catalog_group.dart';
 import 'package:prokat/features/categories/state/category_provider.dart';
@@ -175,6 +178,8 @@ class _OwnerEquipmentDetailScreenState
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
+    final palette = ProkatFlowPalette.of(context);
+    final useFlow = ref.watch(equipmentServiceProvider).companyId == null;
 
     final equipmentAsync = ref.watch(
       ownerEquipmentDetailsProvider(widget.equipmentId),
@@ -182,9 +187,11 @@ class _OwnerEquipmentDetailScreenState
 
     final bool isErrorState = equipmentAsync.hasError;
 
-    return Scaffold(
+    final page = Scaffold(
       backgroundColor: isErrorState
           ? theme.colorScheme.errorContainer
+          : useFlow
+          ? palette.background
           : theme.colorScheme.surface,
       body: GestureDetector(
         onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
@@ -213,6 +220,22 @@ class _OwnerEquipmentDetailScreenState
               final isEquipmentGroup =
                   ref.watch(ownerEquipmentCatalogGroupProvider(equipment.id)) ==
                   CatalogGroup.equipment;
+              final VoidCallback? onReview = _submitting
+                  ? null
+                  : () async {
+                      if (reviewUi.showResubmit) {
+                        final confirmed = await _confirmResubmit(
+                          equipment,
+                          l10n,
+                        );
+                        if (!confirmed || !mounted) return;
+                      }
+                      await _submitForReview(
+                        equipment,
+                        l10n,
+                        saveDirtyFirst: editor.anyDirty,
+                      );
+                    };
 
               return ListView(
                 physics: const AlwaysScrollableScrollPhysics(),
@@ -270,31 +293,27 @@ class _OwnerEquipmentDetailScreenState
                             isEquipmentGroup
                                 ? l10n.equipmentCatalogSubmitPhotoHint
                                 : l10n.equipmentSubmitPhotoHint,
-                            style: AppFonts.caption(context),
+                            style: AppFonts.caption(context).copyWith(
+                              color: useFlow ? palette.secondary : null,
+                            ),
                           ),
                           const SizedBox(height: AppDimens.s12$md),
-                          AppElevatedButton(
-                            title: reviewUi.showSubmitForReview
-                                ? l10n.submitForReview
-                                : l10n.resubmit,
-                            onTap: _submitting
-                                ? null
-                                : () async {
-                                    if (reviewUi.showResubmit) {
-                                      final confirmed = await _confirmResubmit(
-                                        equipment,
-                                        l10n,
-                                      );
-                                      if (!confirmed || !mounted) return;
-                                    }
-                                    await _submitForReview(
-                                      equipment,
-                                      l10n,
-                                      saveDirtyFirst: editor.anyDirty,
-                                    );
-                                  },
-                            isLoading: _submitting,
-                          ),
+                          if (useFlow)
+                            ProkatFlowPrimaryButton(
+                              title: reviewUi.showSubmitForReview
+                                  ? l10n.submitForReview
+                                  : l10n.resubmit,
+                              onPressed: onReview,
+                              loading: _submitting,
+                            )
+                          else
+                            AppElevatedButton(
+                              title: reviewUi.showSubmitForReview
+                                  ? l10n.submitForReview
+                                  : l10n.resubmit,
+                              onTap: onReview,
+                              isLoading: _submitting,
+                            ),
                         ],
                         if (equipment.status != EquipmentStatus.booked) ...[
                           const SizedBox(height: AppDimens.s20$lg),
@@ -308,6 +327,14 @@ class _OwnerEquipmentDetailScreenState
             },
           ),
         ),
+      ),
+    );
+    return ProkatFlowScope(
+      palette: palette,
+      enabled: useFlow,
+      child: Theme(
+        data: useFlow ? palette.themeFor(theme) : theme,
+        child: page,
       ),
     );
   }

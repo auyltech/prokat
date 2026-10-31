@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prokat/core/media/media_image_provider.dart';
+import 'package:prokat/core/theme/prokat_flow_scope.dart';
 import 'package:prokat/features/appstartup/app_mode_storage.dart';
 import 'package:prokat/features/chat/models/chat_model.dart';
 import 'package:prokat/features/chat/utils/get_chat_status.dart';
@@ -39,12 +40,14 @@ class ChatTile extends ConsumerWidget {
 
   String _formatTimestamp(DateTime? dateTime) {
     if (dateTime == null) return '';
-    return "${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}";
+    final local = dateTime.toLocal();
+    return "${local.hour.toString().padLeft(2, '0')}:${local.minute.toString().padLeft(2, '0')}";
   }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final flow = ProkatFlowScope.maybeOf(context);
     final l10n = AppLocalizations.of(context)!;
 
     final avatarUrl = chat.displayImageUrl(currentUserId: currentUserId);
@@ -72,18 +75,30 @@ class ChatTile extends ConsumerWidget {
     );
 
     final unreadCount = chat.newMessagesCount ?? 0;
+    final fullInquiryName = chat.inquiryEquipment?.name.trim() ?? '';
+    final inquiryName = fullInquiryName.isNotEmpty
+        ? fullInquiryName
+        : chat.inquiryEquipmentName?.trim() ?? '';
 
     final summary = chat.bookingSummary;
 
     final chatStatus = getChatConfig(chat: chat, l10n: l10n, mode: mode);
     final statusLabel = chatStatus.statusLabel.trim();
     final showStatusBadge =
-        summary != null && summary.status.isNotEmpty && statusLabel.isNotEmpty;
+        statusLabel.isNotEmpty &&
+        ((summary != null && summary.status.isNotEmpty) ||
+            chat.inquiryEquipmentId != null);
 
     return InkWell(
       onTap: onTap,
+      borderRadius: flow == null ? null : BorderRadius.circular(20),
       child: Container(
-        decoration: BoxDecoration(color: theme.cardColor),
+        margin: flow == null ? null : const EdgeInsets.only(bottom: 12),
+        decoration: BoxDecoration(
+          color: flow?.surface ?? theme.cardColor,
+          borderRadius: flow == null ? null : BorderRadius.circular(20),
+          border: flow == null ? null : Border.all(color: flow.border),
+        ),
         child: Column(
           children: [
             Padding(
@@ -93,7 +108,8 @@ class ChatTile extends ConsumerWidget {
                 children: [
                   CircleAvatar(
                     radius: 24,
-                    backgroundColor: theme.colorScheme.primaryContainer,
+                    backgroundColor:
+                        flow?.primarySoft ?? theme.colorScheme.primaryContainer,
                     backgroundImage: (avatarUrl ?? '').isNotEmpty
                         ? mediaImageProvider(ref, avatarUrl)
                         : null,
@@ -104,7 +120,9 @@ class ChatTile extends ConsumerWidget {
                         ? Text(
                             title.isNotEmpty ? title[0].toUpperCase() : 'C',
                             style: theme.textTheme.titleMedium?.copyWith(
-                              color: theme.colorScheme.onPrimaryContainer,
+                              color:
+                                  flow?.primary ??
+                                  theme.colorScheme.onPrimaryContainer,
                               fontWeight: FontWeight.bold,
                             ),
                           )
@@ -131,32 +149,77 @@ class ChatTile extends ConsumerWidget {
                                       ? theme.colorScheme.onSurface.withValues(
                                           alpha: 0.55,
                                         )
-                                      : null,
+                                      : flow?.title,
                                 ),
                               ),
                             ),
-                            if (showStatusBadge) ...[
+                            if (showStatusBadge && flow == null) ...[
                               const SizedBox(width: 8),
                               _StatusBadge(
                                 label: statusLabel,
-                                color: _getStatusColor(summary.status, theme),
+                                color: _getStatusColor(
+                                  summary?.status ?? chat.status.name,
+                                  theme,
+                                ),
                                 theme: theme,
+                              ),
+                            ],
+                            if (flow != null && timestamp.isNotEmpty) ...[
+                              const SizedBox(width: 8),
+                              Text(
+                                timestamp,
+                                style: theme.textTheme.labelSmall?.copyWith(
+                                  color: flow.secondary,
+                                  fontSize: 11,
+                                ),
                               ),
                             ],
                           ],
                         ),
+                        if (inquiryName.isNotEmpty) ...[
+                          const SizedBox(height: 4),
+                          Text(
+                            inquiryName,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              fontWeight: FontWeight.w600,
+                              color: flow?.secondary,
+                            ),
+                          ),
+                        ],
+                        if (flow != null && showStatusBadge) ...[
+                          const SizedBox(height: 8),
+                          Align(
+                            alignment: AlignmentDirectional.centerStart,
+                            child: _StatusBadge(
+                              label: statusLabel,
+                              color:
+                                  summary?.status.toUpperCase() == 'CONFIRMED'
+                                  ? flow.success
+                                  : summary?.status.toUpperCase() ==
+                                            'CANCELLED' ||
+                                        summary?.status.toUpperCase() ==
+                                            'REJECTED'
+                                  ? theme.colorScheme.error
+                                  : flow.secondary,
+                              theme: theme,
+                            ),
+                          ),
+                        ],
                         const SizedBox(height: 6),
                         Row(
                           children: [
                             Expanded(
                               child: Text(
                                 preview,
-                                maxLines: 1,
+                                maxLines: flow == null ? 1 : 2,
                                 overflow: TextOverflow.ellipsis,
                                 style: theme.textTheme.bodyMedium?.copyWith(
                                   color: unreadCount > 0
-                                      ? theme.textTheme.bodyLarge?.color
-                                      : theme.hintColor,
+                                      ? flow?.title ??
+                                            theme.textTheme.bodyLarge?.color
+                                      : flow?.secondary ?? theme.hintColor,
                                   fontWeight: unreadCount > 0
                                       ? FontWeight.w600
                                       : FontWeight.normal,
@@ -171,11 +234,16 @@ class ChatTile extends ConsumerWidget {
                                   vertical: 3,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: theme.colorScheme.primary,
+                                  color:
+                                      flow?.filledPrimary ??
+                                      theme.colorScheme.primary,
                                   borderRadius: BorderRadius.circular(12),
                                 ),
                                 child: Text(
-                                  '$unreadCount',
+                                  flow != null && unreadCount > 99
+                                      ? '99+'
+                                      : '$unreadCount',
+                                  semanticsLabel: '$unreadCount',
                                   style: theme.textTheme.labelSmall?.copyWith(
                                     color: Colors.white,
                                     fontWeight: FontWeight.bold,
@@ -184,7 +252,7 @@ class ChatTile extends ConsumerWidget {
                                 ),
                               ),
                             ],
-                            if (timestamp.isNotEmpty) ...[
+                            if (flow == null && timestamp.isNotEmpty) ...[
                               const SizedBox(width: 8),
                               Text(
                                 timestamp,
@@ -202,13 +270,14 @@ class ChatTile extends ConsumerWidget {
                 ],
               ),
             ),
-            Divider(
-              height: 1,
-              thickness: 0.5,
-              indent: 16,
-              endIndent: 16,
-              color: theme.dividerColor.withValues(alpha: 0.4),
-            ),
+            if (flow == null)
+              Divider(
+                height: 1,
+                thickness: 0.5,
+                indent: 16,
+                endIndent: 16,
+                color: theme.dividerColor.withValues(alpha: 0.4),
+              ),
           ],
         ),
       ),
@@ -229,22 +298,23 @@ class _StatusBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final flow = ProkatFlowScope.maybeOf(context);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(4),
+        borderRadius: BorderRadius.circular(flow == null ? 4 : 10),
         border: Border.all(color: color.withValues(alpha: 0.25), width: 1),
       ),
       child: Text(
         label,
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
+        maxLines: flow == null ? 1 : null,
+        overflow: flow == null ? TextOverflow.ellipsis : TextOverflow.visible,
         style: theme.textTheme.labelSmall?.copyWith(
           color: color,
           fontWeight: FontWeight.bold,
-          letterSpacing: 0.5,
-          fontSize: 10,
+          letterSpacing: flow == null ? 0.5 : 0,
+          fontSize: flow == null ? 10 : 12,
         ),
       ),
     );

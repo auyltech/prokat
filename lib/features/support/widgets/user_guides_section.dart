@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:prokat/core/theme/prokat_flow_scope.dart';
+import 'package:prokat/core/theme/prokat_flow_palette.dart';
 import 'package:prokat/features/support/models/user_guide.dart';
 import 'package:prokat/features/support/screens/user_guide_screen.dart';
 import 'package:prokat/features/support/widgets/user_guide_tile.dart';
@@ -17,6 +19,7 @@ class UserGuidesSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final flow = ProkatFlowScope.maybeOf(context);
     return Column(
       children: guides.where((guide) => guide.isPublished).map((guide) {
         return Padding(
@@ -29,9 +32,16 @@ class UserGuidesSection extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (_) => UserGuideScreen(
-                      guide: guide,
-                      currentLocale: currentLocale,
+                    builder: (routeContext) => InheritedTheme.captureAll(
+                      context,
+                      ProkatFlowScope(
+                        palette: flow ?? ProkatFlowPalette.of(context),
+                        enabled: flow != null,
+                        child: UserGuideScreen(
+                          guide: guide,
+                          currentLocale: currentLocale,
+                        ),
+                      ),
                     ),
                   ),
                 ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
+import 'package:prokat/core/theme/prokat_flow_scope.dart';
 import 'package:prokat/features/support/models/guide_icon.dart';
 import 'package:prokat/features/support/models/user_guide.dart';
 import 'package:prokat/l10n/app_localizations.dart';
@@ -61,6 +62,7 @@ class _GuideHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
+    final flow = ProkatFlowScope.maybeOf(context);
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
@@ -74,13 +76,14 @@ class _GuideHeader extends StatelessWidget {
                 width: 56,
                 height: 56,
                 decoration: BoxDecoration(
-                  color: theme.colorScheme.primaryContainer,
+                  color:
+                      flow?.primarySoft ?? theme.colorScheme.primaryContainer,
                   borderRadius: BorderRadius.circular(14),
                 ),
                 alignment: Alignment.center,
                 child: guideIconWidget(
                   guide.icon,
-                  color: theme.colorScheme.onPrimary,
+                  color: flow?.primary ?? theme.colorScheme.onPrimary,
                 ),
               ),
 
@@ -111,16 +114,24 @@ class _GuideHeader extends StatelessWidget {
             ],
           ),
           if (translation.content.trim().isNotEmpty)
-            Row(
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
               children: [
                 _GuideChip(
                   icon: Icons.schedule_outlined,
                   label: l10n.minutesRead(_readingTime(translation.content)),
                 ),
-                const SizedBox(width: 8),
                 _GuideChip(
                   icon: Icons.menu_book_outlined,
-                  label: guide.category,
+                  label: switch (guide.category) {
+                    'FIND_AND_ORDER' => l10n.navCatalog,
+                    'CREATE_REQUEST' => l10n.createRequest,
+                    'LISTING' => l10n.addEquipment,
+                    'ORDER_CHAT' => l10n.chatSection,
+                    'SAFETY' => l10n.safetyAndRules,
+                    _ => guide.category,
+                  },
                 ),
               ],
             ),
@@ -144,11 +155,12 @@ class _GuideChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final flow = ProkatFlowScope.maybeOf(context);
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceContainerHighest,
+        color: flow?.primarySoft ?? theme.colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(20),
       ),
       child: Row(
@@ -156,7 +168,7 @@ class _GuideChip extends StatelessWidget {
         children: [
           Icon(icon, size: 15, color: theme.colorScheme.onSurfaceVariant),
           const SizedBox(width: 6),
-          Text(label, style: theme.textTheme.labelMedium),
+          Flexible(child: Text(label, style: theme.textTheme.labelMedium)),
         ],
       ),
     );

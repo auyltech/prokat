@@ -54,17 +54,20 @@ class _DeleteEquipmentSectionState
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Icon(
-                Icons.warning_amber_rounded,
+                LucideIcons.triangleAlert,
                 color: danger,
                 size: AppDimens.s32$xxl,
               ),
               const SizedBox(width: AppDimens.s08$sm),
-              Text(
-                l10n.dangerZone,
-                style: AppFonts.label(context).copyWith(
-                  color: danger.withValues(alpha: 0.85),
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: 1.8,
+              Flexible(
+                child: Text(
+                  l10n.dangerZone,
+                  textAlign: TextAlign.center,
+                  style: AppFonts.label(context).copyWith(
+                    color: danger.withValues(alpha: 0.85),
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 1.8,
+                  ),
                 ),
               ),
             ],

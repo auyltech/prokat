@@ -227,6 +227,14 @@ ChatModel mergeChatPreferringNewerWorkflow(
     merged = merged.copyWith(blockState: previous.blockState);
   }
 
+  // Detail and partial payloads can omit the safe list label.
+  if (incoming.inquiryEquipmentName == null &&
+      previous.inquiryEquipmentName != null) {
+    merged = merged.copyWith(
+      inquiryEquipmentName: previous.inquiryEquipmentName,
+    );
+  }
+
   return merged;
 }
 
